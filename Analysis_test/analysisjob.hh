@@ -1,6 +1,5 @@
 #ifndef ANALYSISJOB_H
 #define ANALYSISJOB_H
-
 #include "CAnalysisModule.hh"
 #include "REventWmcHeader.hh"
 #include "REventHeader.hh"
@@ -20,9 +19,9 @@ public:
 	explicit AnalysisJob(const char * name);
 	virtual ~AnalysisJob();
 	virtual void ProcessEvent()override;
-	virtual void Clear(Option_t *option = "")override;
-	virtual void Print(Option_t *option = "")override;
-	virtual void UserCommand(CCommand * command)override;
+	virtual void Clear(Option_t *option = "");
+	virtual void Print(Option_t *option = "");
+	virtual void UserCommand(CCommand * command);
 private:
 
 protected:
