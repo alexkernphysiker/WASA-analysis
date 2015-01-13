@@ -10,6 +10,7 @@ data.sorting.*
 .plotscript.gp
 *.png
 *.autosave
+DictOutput*
 
 # Compiled Object files
 *.slo
