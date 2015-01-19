@@ -6,7 +6,7 @@
 #
 # This is where you have installed the RootSorter 
 
-BASEDIR = $ROOTSORTERSYS/core
+BASEDIR = $(ROOTSORTERSYS)/core
 
 #
 # TARGET is the basename of the file containing main()
@@ -27,7 +27,7 @@ MODULES  =  analysisjob
 # -lWasaRecFD 
 
 CPPFLAGS := `$(BASEDIR)/bin/sorter-config -cpp` -g  
-CXXFLAGS := `$(BASEDIR)/bin/sorter-config -cxx` -fno-strict-aliasing  -g 
+CXXFLAGS := `$(BASEDIR)/bin/sorter-config -cxx` -fno-strict-aliasing  -g -std=c++11
 LDFLAGS  := `$(BASEDIR)/bin/sorter-config -ld -libs-wasa -libs-wasa-ana` -lWasaRecFD -lWasaRecSE -lWasaRecPS -lWasaRecMDC -lWasaRecCD -lWasaParameter -lWasaAnaRaw -lWasaRecFPC -lvt -g 
 
 all: $(TARGET)

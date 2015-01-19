@@ -1,16 +1,7 @@
-*~
-bin
-build-*
-*_app*
-qt_build.pri
-output*.txt
-*.output.txt
-*_output.txt
-data.sorting.*
-.plotscript.gp
-*.png
-*.autosave
-DictOutput*
+# specific files
+
+*Dict*
+main
 
 # Compiled Object files
 *.slo

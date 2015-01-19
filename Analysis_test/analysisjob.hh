@@ -18,7 +18,7 @@ public:
 	AnalysisJob();
 	explicit AnalysisJob(const char * name);
 	virtual ~AnalysisJob();
-	virtual void ProcessEvent()override;
+	virtual void ProcessEvent();
 	virtual void Clear(Option_t *option = "");
 	virtual void Print(Option_t *option = "");
 	virtual void UserCommand(CCommand * command);
