@@ -20,7 +20,7 @@ TARGET   = main
 # The ROOT linkage has to be specified in 'LinkDef.hh'
 #
 
-MODULES  =  examplejob
+MODULES  =  analysisjob
 
 # 
 # Starting from here no changes should be necessary 
@@ -58,6 +58,4 @@ clean:
 	-rm *Dict.*
 	-rm *.so
 	-rm *\~
-
-
 
