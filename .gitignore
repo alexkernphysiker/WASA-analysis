@@ -31,16 +31,6 @@ DictOutput*
 *.dll
 *.exe
 
-#qt creator
-qrc_*.cpp
-moc_*.cpp
-ui_*.h
-Makefile
-Makefile*.*
-*.pro.user
-*.pro.user.*
-object_script*
-
 #tex
 *.dvi
 *.bak
