@@ -33,7 +33,7 @@ AnalysisJob();
 	virtual void Print(Option_t *option = "");
 	virtual void UserCommand(CCommand * command);
 private:
-	REventHeaderi	*fHeader;
+	REventHeader	*fHeader;
 	WTrackBank	*fTrackBankFD;
 	WTrackBank	*fTrackBankCD;
 	FDFTHTracks	*TrackFinderFD;

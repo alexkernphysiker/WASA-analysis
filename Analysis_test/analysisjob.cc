@@ -1,4 +1,5 @@
 #include "analysisjob.hh"
+ClassImp(AnalysisJob);
 AnalysisJob::AnalysisJob(){}
 AnalysisJob::AnalysisJob(const char *name):CAnalysisModule(name){
 	fHeader = dynamic_cast<REventHeader*>(gDataManager->GetDataObject("REventHeader","Header"));
