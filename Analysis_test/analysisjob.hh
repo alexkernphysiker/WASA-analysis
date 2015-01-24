@@ -26,16 +26,17 @@ public:
 	virtual void Print(Option_t *option = "");
 	virtual void UserCommand(CCommand * command);
 private:
-	REventHeaderi     *fHeader;
-	WTrackBank        *fTrackBankFD;
-	WTrackBank        *fTrackBankCD;
-	FDFTHTracks       *TrackFinderFD;
-	FDEdep2Ekin       *fFDEdep2Ekin;
-	WVertexBank       *fVertexBank;
-	WTrackBank        *fMCTrackBank;
-	WVertexBank       *fMCVertexBank;
-	CCardWDET         *fDetectorTable;
-	MCTrackFinder     *fMCTrackFinder;
+	REventHeaderi	*fHeader;
+	WTrackBank	*fTrackBankFD;
+	WTrackBank	*fTrackBankCD;
+	FDFTHTracks	*TrackFinderFD;
+	CDTracksSimple	*TrackFinderCD;
+	FDEdep2Ekin	*fFDEdep2Ekin;
+	WTrackBank	*fMCTrackBank;
+	WVertexBank	*fMCVertexBank;
+	CCardWDET	*fDetectorTable;
+	MCTrackFinder	*fMCTrackFinder;
+	REventWmcHeader	*fEventHeader;
 protected:
 	ClassDef(AnalysisJob,0);
 };
