@@ -1,3 +1,25 @@
+#include "Wasa.hh"
+#include "CDataManager.hh"
+#include "CHistoManager.hh"
+#include "CParameterManager.hh"
+#include "CLog.hh"
+#include "CConst.hh"
+#include "EmsEvent.hh"
+#include "WHitBank.hh"
+#include "WHitScint.hh"
+#include "WVertex.hh"
+#include "WVertexBank.hh"
+#include "WCluster.hh"
+#include "WClusterBank.hh"
+#include "WClusterChamb.hh"
+#include <WClusterFinder.hh>
+#include "WTrack.hh"
+#include "WTrackBank.hh"
+#include "examplejob.hh"
+#include "TString.h"
+#include "TMath.h"
+#include<TVector3.h>
+#include<TLorentzVector.h>
 #include "analysisjob.hh"
 ClassImp(AnalysisJob);
 AnalysisJob::AnalysisJob(){}
@@ -16,10 +38,11 @@ AnalysisJob::~AnalysisJob(){}
 void AnalysisJob::ProcessEvent(){
 	if (fProcessed) return;
 	fProcessed = kTRUE;
+	Double_t weight=1;
 	if (gWasa->IsAnalysisMode(Wasa::kMCRaw)||gWasa->IsAnalysisMode(Wasa::kMCReco)||gWasa->IsAnalysisMode(Wasa::kMC))
-		ww=fEventHeader->GetWeight();
+		weight=fEventHeader->GetWeight();
+	
 }
 void AnalysisJob::Clear(Option_t *option){}
 void AnalysisJob::Print(Option_t *option){}
 void AnalysisJob::UserCommand(CCommand * command){}
-
