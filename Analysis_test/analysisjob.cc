@@ -32,6 +32,7 @@ AnalysisJob::AnalysisJob(const char *name):CAnalysisModule(name){
 	WTrackFinder *MCTrf = dynamic_cast<WTrackFinder*>(gDataManager->GetAnalysisModule("MCTrackFinder","default"));
 	fMCTrackBank  = MCTrf->GetTrackBank();fMCVertexBank = MCTrf->GetVertexBank();
 	fEventHeader = dynamic_cast<REventWmcHeader*>(gDataManager->GetDataObject("REventWmcHeader","EventHeader"));
+	//TODO setup histograms
 }
 AnalysisJob::~AnalysisJob(){}
 void AnalysisJob::ProcessEvent(){
@@ -40,7 +41,7 @@ void AnalysisJob::ProcessEvent(){
 	Double_t weight=1;
 	if (gWasa->IsAnalysisMode(Wasa::kMCRaw)||gWasa->IsAnalysisMode(Wasa::kMCReco)||gWasa->IsAnalysisMode(Wasa::kMC))
 		weight=fEventHeader->GetWeight();
-	
+	//TODO get event parameters and analyse them
 }
 void AnalysisJob::Clear(Option_t *option){}
 void AnalysisJob::Print(Option_t *option){}
