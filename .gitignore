@@ -4,7 +4,8 @@
 *.kdev*
 
 # specific files
-
+smear.txt
+*.root
 *Dict*
 main
 
