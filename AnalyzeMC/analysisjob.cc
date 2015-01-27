@@ -17,8 +17,8 @@
 #include <WTrackBank.hh>
 #include <TString.h>
 #include <TMath.h>
-#include<TVector3.h>
-#include<TLorentzVector.h>
+#include <TVector3.h>
+#include <TLorentzVector.h>
 #include "analysisjob.hh"
 ClassImp(AnalysisJob);
 AnalysisJob::AnalysisJob(){}
@@ -32,16 +32,32 @@ AnalysisJob::AnalysisJob(const char *name):CAnalysisModule(name){
 	WTrackFinder *MCTrf = dynamic_cast<WTrackFinder*>(gDataManager->GetAnalysisModule("MCTrackFinder","default"));
 	fMCTrackBank  = MCTrf->GetTrackBank();fMCVertexBank = MCTrf->GetVertexBank();
 	fEventHeader = dynamic_cast<REventWmcHeader*>(gDataManager->GetDataObject("REventWmcHeader","EventHeader"));
-	//TODO setup histograms
+	
+	He3_Ekin=new TH1F("Kinetic Energy","",1000,-0.3,0.3);
+	gHistoManager->Add(He3_Ekin,"E_test");
+	He3_Theta=new TH1F("Theta","",18,0.0,180.0);
+	gHistoManager->Add(He3_Theta,"Theta_test");
+	He3_Phi=new TH1F("Phi","",36, -180,180);
+	gHistoManager->Add(He3_Phi,"Phi_test");
 }
 AnalysisJob::~AnalysisJob(){}
 void AnalysisJob::ProcessEvent(){
 	if (fProcessed) return;
 	fProcessed = kTRUE;
-	Double_t weight=1;
-	if (gWasa->IsAnalysisMode(Wasa::kMCRaw)||gWasa->IsAnalysisMode(Wasa::kMCReco)||gWasa->IsAnalysisMode(Wasa::kMC))
-		weight=fEventHeader->GetWeight();
-	//TODO get event parameters and analyse them
+	if (gWasa->IsAnalysisMode(Wasa::kMCRaw)||gWasa->IsAnalysisMode(Wasa::kMCReco)||gWasa->IsAnalysisMode(Wasa::kMC)) { 
+		WVertexIter iterator(fMCVertexBank);
+		while(WVertex *vertex=dynamic_cast<WVertex*>(iterator.Next())){
+			for(int particleindex=0; particleindex<vertex->NumberOfParticles(); particleindex++){
+				WParticle particle=vertex->GetParticle(particleindex);
+				ParticleType type=particle.GetType();
+				if(kHe3==type){
+					He3_Ekin->Fill(particle.GetEkin());
+					He3_Theta->Fill(particle.GetTheta());
+					He3_Phi->Fill(particle.GetPhi());
+				}
+			}
+		}
+	}
 }
 void AnalysisJob::Clear(Option_t *option){}
 void AnalysisJob::Print(Option_t *option){}
