@@ -49,8 +49,7 @@ void AnalysisJob::ProcessEvent(){
 		while(WVertex *vertex=dynamic_cast<WVertex*>(iterator.Next())){
 			for(int particleindex=0; particleindex<vertex->NumberOfParticles(); particleindex++){
 				WParticle particle=vertex->GetParticle(particleindex);
-				ParticleType type=particle.GetType();
-				if(kHe3==type){
+				if(kHe3==particle.GetType()){
 					He3_Ekin->Fill(particle.GetEkin());
 					He3_Theta->Fill(particle.GetTheta());
 					He3_Phi->Fill(particle.GetPhi());
