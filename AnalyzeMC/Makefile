@@ -1,30 +1,6 @@
-
-#
-# This can be used as a template Makefile for analysis programs
-# which uses the RootSorter library
-#
-#
-# This is where you have installed the RootSorter 
-
 BASEDIR = $(ROOTSORTERSYS)/core
-
-#
-# TARGET is the basename of the file containing main()
-# This should be a separate file 
-
 TARGET   = main
-
-#
-# MODULES are all .cc/.hh file combinations containing your
-# own classes
-# The ROOT linkage has to be specified in 'LinkDef.hh'
-#
-
 MODULES  =  analysisjob
-
-# 
-# Starting from here no changes should be necessary 
-# -lWasaRecFD 
 
 CPPFLAGS := `$(BASEDIR)/bin/sorter-config -cpp` -g  
 CXXFLAGS := `$(BASEDIR)/bin/sorter-config -cxx` -fno-strict-aliasing  -g -std=c++11
