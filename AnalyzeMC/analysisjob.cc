@@ -28,7 +28,6 @@ AnalysisJob::AnalysisJob(const char *name):CAnalysisModule(name){
 	if(TrackFinderFD) fTrackBankFD = TrackFinderFD->GetTrackBank();
 	TrackFinderCD = dynamic_cast<CDTracksSimple*>(gDataManager->GetAnalysisModule("CDTracksSimple","default"));
 	if (TrackFinderCD) fTrackBankCD = TrackFinderCD->GetTrackBank();
-	fFDEdep2Ekin = dynamic_cast<FDEdep2Ekin*>(gParameterManager->GetParameterObject("FDEdep2Ekin","3He"));
 	WTrackFinder *MCTrf = dynamic_cast<WTrackFinder*>(gDataManager->GetAnalysisModule("MCTrackFinder","default"));
 	fMCTrackBank  = MCTrf->GetTrackBank();fMCVertexBank = MCTrf->GetVertexBank();
 	fEventHeader = dynamic_cast<REventWmcHeader*>(gDataManager->GetDataObject("REventWmcHeader","EventHeader"));
@@ -42,18 +41,24 @@ AnalysisJob::AnalysisJob(const char *name):CAnalysisModule(name){
 }
 AnalysisJob::~AnalysisJob(){}
 void AnalysisJob::ProcessEvent(){
+	printf("marker1");
 	if (fProcessed) return;
 	fProcessed = kTRUE;
 	if (gWasa->IsAnalysisMode(Wasa::kMCRaw)||gWasa->IsAnalysisMode(Wasa::kMCReco)||gWasa->IsAnalysisMode(Wasa::kMC)) { 
+		printf("marker2\n");
 		WVertexIter iterator(fMCVertexBank);
 		while(WVertex *vertex=dynamic_cast<WVertex*>(iterator.Next())){
+			printf("vertex:");
 			for(int particleindex=0; particleindex<vertex->NumberOfParticles(); particleindex++){
 				WParticle *particle=vertex->GetParticle(particleindex);
+				printf("Particle: ");
 				if(kHe3==particle->GetType()){
 					He3_Ekin->Fill(particle->GetEkin());
+					printf("3He: E = %f; Th = %f; Phi = %f",particle->GetEkin(),particle->GetTheta(), particle->GetPhi());
 					He3_Theta->Fill(particle->GetTheta());
 					He3_Phi->Fill(particle->GetPhi());
 				}
+				printf("\n");
 			}
 		}
 	}

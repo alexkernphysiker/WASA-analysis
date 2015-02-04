@@ -3,8 +3,8 @@
 
 int main(int argc, char** argv) {
   gSorterConfig->ReadCmdLine(argc,argv);
-  Wasa::Initialize("examplejob","","RootSorter.log");
-  gWasa->AddAnalysis("examplejob","Raw");
+  Wasa::Initialize("AnalysisJob","","RootSorter.log");
+  gWasa->AddAnalysis("AnalysisJob","Raw");
   gWasa->Run();
   delete gWasa;
 }

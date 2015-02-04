@@ -38,7 +38,6 @@ private:
 	WTrackBank	*fTrackBankCD;
 	FDFTHTracks	*TrackFinderFD;
 	CDTracksSimple	*TrackFinderCD;
-	FDEdep2Ekin	*fFDEdep2Ekin;
 	WTrackBank	*fMCTrackBank;
 	WVertexBank	*fMCVertexBank;
 	CCardWDET	*fDetectorTable;
