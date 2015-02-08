@@ -63,6 +63,8 @@ void AnalysisJob::ProcessEvent(){
 		}
 	}
 }
-void AnalysisJob::Clear(Option_t *option){}
+void AnalysisJob::Clear(Option_t *option){
+	fProcessed=kFALSE;
+}
 void AnalysisJob::Print(Option_t *option){}
 void AnalysisJob::UserCommand(CCommand * command){}
