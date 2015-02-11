@@ -36,7 +36,7 @@ AnalysisJob::AnalysisJob(const char *name):CAnalysisModule(name){
 	gHistoManager->Add(He3_Ekin,"E_test");
 	He3_Theta=new TH1F("Theta","",18,0.0,180.0);
 	gHistoManager->Add(He3_Theta,"Theta_test");
-	He3_Phi=new TH1F("Phi","",36, -180,180);
+	He3_Phi=new TH1F("Phi","",36, 0,360);
 	gHistoManager->Add(He3_Phi,"Phi_test");
 }
 AnalysisJob::~AnalysisJob(){}
@@ -55,8 +55,8 @@ void AnalysisJob::ProcessEvent(){
 				if(kHe3==particle->GetType()){
 					He3_Ekin->Fill(particle->GetEkin());
 					printf("3He: E = %f; Th = %f; Phi = %f",particle->GetEkin(),particle->GetTheta(), particle->GetPhi());
-					He3_Theta->Fill(particle->GetTheta());
-					He3_Phi->Fill(particle->GetPhi());
+					He3_Theta->Fill(particle->GetTheta()*180/3.1415926);
+					He3_Phi->Fill(particle->GetPhi()*180/3.1415926);
 				}
 				printf("\n");
 			}
