@@ -32,9 +32,9 @@ AnalysisJob::AnalysisJob(const char *name):CAnalysisModule(name){
 	fMCTrackBank  = MCTrf->GetTrackBank();fMCVertexBank = MCTrf->GetVertexBank();
 	fEventHeader = dynamic_cast<REventWmcHeader*>(gDataManager->GetDataObject("REventWmcHeader","EventHeader"));
 	
-	He3_Ekin=new TH1F("Kinetic Energy","",1000,-0.3,0.3);
+	He3_Ekin=new TH1F("Kinetic Energy","",1000,0,2);
 	gHistoManager->Add(He3_Ekin,"E_test");
-	He3_Theta=new TH1F("Theta","",18,0.0,180.0);
+	He3_Theta=new TH1F("Theta","",18,0.0,30.0);
 	gHistoManager->Add(He3_Theta,"Theta_test");
 	He3_Phi=new TH1F("Phi","",36, 0,360);
 	gHistoManager->Add(He3_Phi,"Phi_test");
