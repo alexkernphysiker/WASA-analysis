@@ -6,8 +6,8 @@
 class IAnalysis{
 public:
 	virtual ~IAnalysis();
-	virtual Init(CDataManager *dataManager, CHistoManager *histoManager)=0;
-	virtual Processevent(Wasa* wasa)=0;
+	virtual void Init(CDataManager *dataManager, CHistoManager *histoManager)=0;
+	virtual void Processevent(Wasa* wasa)=0;
 };
 IAnalysis* CreateAnalysis();
 #endif // ROUTINES_H
