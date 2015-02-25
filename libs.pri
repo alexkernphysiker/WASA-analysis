@@ -2,9 +2,6 @@ INCLUDEPATH += $$ROOT_DIR/include
 INCLUDEPATH += $$WASA_DIR/core/include
 INCLUDEPATH += $$WASA_DIR/Vt++/include
 INCLUDEPATH += $$WASA_DIR/wasa/include
-ROOT_LIB     = $$ROOT_DIR/lib
-WASA_LIB     = $$WASA_DIR/core/lib
-DEPENDPATH  += $$ROOT_LIB
-DEPENDPATH  += $$WASA_LIB
-LIBS        += $$WASALIBS -lWasaRecFD -lWasaRecSE -lWasaRecPS -lWasaRecMDC -lWasaRecCD -lWasaParameter -lWasaAnaRaw -lWasaRecFPC -lvt
-LIBS        += -L$$ROOT_LIB -lCore -lHist
+LIBS           += $$WASALIBS -lWasaRecFD -lWasaRecSE -lWasaRecPS -lWasaRecMDC -lWasaRecCD -lWasaParameter -lWasaAnaRaw -lWasaRecFPC -lvt
+QMAKE_CXXFLAGS += $$WASACXX -fno-strict-aliasing -std=c++11
+QMAKE_CPPFLAGS += $$WASACPP
