@@ -1,7 +1,7 @@
 include(../settings.pri)
 include(../libs.pri)
 QT             -= gui
-TARGET          = analysisjob
+TARGET          = analysis_routines
 TEMPLATE        = lib
-SOURCES        += main.cpp analysisjob.cpp
-HEADERS        += analysisjob.h
+SOURCES        += routines.cpp
+HEADERS        += routines.h

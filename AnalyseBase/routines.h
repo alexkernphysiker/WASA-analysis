@@ -1,5 +1,5 @@
-#ifndef ANALYSISJOB_H
-#define ANALYSISJOB_H
+#ifndef ROUTINES_H
+#define ROUTINES_H
 #include "CAnalysisModule.hh"
 #include "REventWmcHeader.hh"
 #include "REventHeader.hh"
@@ -22,28 +22,6 @@ const Double_t m_eta=0.547853;//[GeV]
 enum TrackType{kFDN=1,kFDC=2,kCDN=11,kCDC=12};//FD neutral, FD charged, CD neutral, CD charged
 enum ParticleType{kDummy=0,kGamma=1,kElectron=2,kPositron=3,kPi0=7,kPiPlus=8,kPiMinus=9,kNeutron=13,kProton=14,kDeuteron=45,kTriton=46,kHe3=49};
 enum ForwardDetectorPlane{kFWC1=10,kFWC2=11,kFTH1=1,kFTH2=2,kFTH3=3,kFRH1=4,kFRH2=5,kFRH3=6,kFRH4=7,kFRH5=8,kFVH=9};
-class AnalysisJob : public CAnalysisModule{
-public:
-	AnalysisJob();
-	explicit AnalysisJob(const char * name);
-	virtual ~AnalysisJob();
-	virtual void ProcessEvent();
-	virtual void Clear(Option_t *option = "");
-	virtual void Print(Option_t *option = "");
-	virtual void UserCommand(CCommand * command);
-private:
-	REventHeader	*fHeader;
-	WTrackBank	*fTrackBankFD;
-	WTrackBank	*fTrackBankCD;
-	FDFTHTracks	*TrackFinderFD;
-	CDTracksSimple	*TrackFinderCD;
-	WTrackBank	*fMCTrackBank;
-	WVertexBank	*fMCVertexBank;
-	CCardWDET	*fDetectorTable;
-	MCTrackFinder	*fMCTrackFinder;
-	REventWmcHeader	*fEventHeader;
-protected:
-	TH1F *He3_Ekin, *He3_Theta, *He3_Phi;
-	ClassDef(AnalysisJob,0);
-};
-#endif // ANALYSISJOB_H
+void InitAnalysis(CHistoManager *histoManager);
+void ProcessVertexBank(WVertexBank *vertexBank);
+#endif // ROUTINES_H

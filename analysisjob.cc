@@ -19,7 +19,8 @@
 #include <TMath.h>
 #include <TVector3.h>
 #include <TLorentzVector.h>
-#include "analysisjob.h"
+#include "analysisjob.hh"
+#include "AnalyseBase/routines.h"
 ClassImp(AnalysisJob);
 AnalysisJob::AnalysisJob(){}
 AnalysisJob::AnalysisJob(const char *name):CAnalysisModule(name){
@@ -32,29 +33,14 @@ AnalysisJob::AnalysisJob(const char *name):CAnalysisModule(name){
 	fMCTrackBank  = MCTrf->GetTrackBank();fMCVertexBank = MCTrf->GetVertexBank();
 	fEventHeader = dynamic_cast<REventWmcHeader*>(gDataManager->GetDataObject("REventWmcHeader","EventHeader"));
 	
-	He3_Ekin=new TH1F("Kinetic Energy","",1000,0,2);
-	gHistoManager->Add(He3_Ekin,"E_test");
-	He3_Theta=new TH1F("Theta","",18,0.0,30.0);
-	gHistoManager->Add(He3_Theta,"Theta_test");
-	He3_Phi=new TH1F("Phi","",36, 0,360);
-	gHistoManager->Add(He3_Phi,"Phi_test");
+	InitAnalysis(gHistoManager);
 }
 AnalysisJob::~AnalysisJob(){}
 void AnalysisJob::ProcessEvent(){
 	if (fProcessed) return;
 	fProcessed = kTRUE;
-	if (gWasa->IsAnalysisMode(Wasa::kMCRaw)||gWasa->IsAnalysisMode(Wasa::kMCReco)||gWasa->IsAnalysisMode(Wasa::kMC)) { 
-		WVertexIter iterator(fMCVertexBank);
-		while(WVertex *vertex=dynamic_cast<WVertex*>(iterator.Next())){
-			for(int particleindex=0; particleindex<vertex->NumberOfParticles(); particleindex++){
-				WParticle *particle=vertex->GetParticle(particleindex);
-				if(kHe3==particle->GetType()){
-					He3_Ekin->Fill(particle->GetEkin());
-					He3_Theta->Fill(particle->GetTheta()*180/3.1415926);
-					He3_Phi->Fill(particle->GetPhi()*180/3.1415926);
-				}
-			}
-		}
+	if (gWasa->IsAnalysisMode(Wasa::kMCRaw)||gWasa->IsAnalysisMode(Wasa::kMCReco)||gWasa->IsAnalysisMode(Wasa::kMC)) {
+		ProcessVertexBank(fMCVertexBank);
 	}
 }
 void AnalysisJob::Clear(Option_t *option){
