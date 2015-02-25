@@ -6,5 +6,5 @@ ROOT_LIB     = $$ROOT_DIR/lib
 WASA_LIB     = $$WASA_DIR/core/lib
 DEPENDPATH  += $$ROOT_LIB
 DEPENDPATH  += $$WASA_LIB
-LIBS        += -L$$WASA_LIB -lWasaRecFD -lWasaRecSE -lWasaRecPS -lWasaRecMDC -lWasaRecCD -lWasaParameter -lWasaAnaRaw -lWasaRecFPC -lvt
+LIBS        += $$WASALIBS -lWasaRecFD -lWasaRecSE -lWasaRecPS -lWasaRecMDC -lWasaRecCD -lWasaParameter -lWasaAnaRaw -lWasaRecFPC -lvt
 LIBS        += -L$$ROOT_LIB -lCore -lHist
