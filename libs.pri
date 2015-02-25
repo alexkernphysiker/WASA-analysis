@@ -1,6 +1,10 @@
-INCLUDEPATH += $ROOT_DIR/include
-INCLUDEPATH += $WASA_DIR/core/include
-DEPENDPATH  += $ROOT_DIR/lib
-DEPENDPATH  += $WASA_DIR/lib
-LIBS        += -lWasaRecFD -lWasaRecSE -lWasaRecPS -lWasaRecMDC -lWasaRecCD -lWasaParameter -lWasaAnaRaw -lWasaRecFPC -lvt
-
+INCLUDEPATH += $$ROOT_DIR/include
+INCLUDEPATH += $$WASA_DIR/core/include
+INCLUDEPATH += $$WASA_DIR/Vt++/include
+INCLUDEPATH += $$WASA_DIR/wasa/include
+ROOT_LIB     = $$ROOT_DIR/lib
+WASA_LIB     = $$WASA_DIR/core/lib
+DEPENDPATH  += $$ROOT_LIB
+DEPENDPATH  += $$WASA_LIB
+LIBS        += -L$$WASA_LIB -lWasaRecFD -lWasaRecSE -lWasaRecPS -lWasaRecMDC -lWasaRecCD -lWasaParameter -lWasaAnaRaw -lWasaRecFPC -lvt
+LIBS        += -L$$ROOT_LIB -lCore -lHist
