@@ -4,7 +4,7 @@ MODULES  =  analysisjob
 
 CPPFLAGS := `$(BASEDIR)/bin/sorter-config -cpp` -g  
 CXXFLAGS := `$(BASEDIR)/bin/sorter-config -cxx` -fno-strict-aliasing  -g -std=c++11
-LDFLAGS  := `$(BASEDIR)/bin/sorter-config -ld -libs-wasa -libs-wasa-ana` -lWasaRecFD -lWasaRecSE -lWasaRecPS -lWasaRecMDC -lWasaRecCD -lWasaParameter -lWasaAnaRaw -lWasaRecFPC -lvt -LAnalyseBase -lanalysis_routines -g 
+LDFLAGS  := `$(BASEDIR)/bin/sorter-config -ld -libs-wasa -libs-wasa-ana` -lWasaRecFD -lWasaRecSE -lWasaRecPS -lWasaRecMDC -lWasaRecCD -lWasaParameter -lWasaAnaRaw -lWasaRecFPC -lvt -g 
 
 all: $(TARGET)
 
