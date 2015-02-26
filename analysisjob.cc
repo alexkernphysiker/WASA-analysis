@@ -1,24 +1,24 @@
-#include <memory>
 #include "analysisjob.hh"
-#include <TLorentzVector.h>
-#include <CAnalysisModule.hh>
-#include <CDataManager.hh>
-#include <FDEdep2Ekin.hh>
-#include <CCardWDET.hh>
-#include "math_h/sigma.h"
-using namespace std;
-const Double_t m_p=0.938272;//[GeV]
-const Double_t m_n=0.93956;//[GeV]
-const Double_t m_d=1.875613;//[GeV]
-const Double_t m_3He=2.808950;//[GeV]
-const Double_t m_4He=3.7264225;//[GeV]
-const Double_t m_eta=0.547853;//[GeV]
-enum TrackType{kFDN=1,kFDC=2,kCDN=11,kCDC=12};//FD neutral, FD charged, CD neutral, CD charged
-enum ParticleType{kDummy=0,kGamma=1,kElectron=2,kPositron=3,kPi0=7,kPiPlus=8,kPiMinus=9,kNeutron=13,kProton=14,kDeuteron=45,kTriton=46,kHe3=49};
-enum ForwardDetectorPlane{kFWC1=10,kFWC2=11,kFTH1=1,kFTH2=2,kFTH3=3,kFRH1=4,kFRH2=5,kFRH3=6,kFRH4=7,kFRH5=8,kFVH=9};
+#include "analysis.h"
+////// Calculation wraper for WASA
 ClassImp(AnalysisJob);
 AnalysisJob::AnalysisJob(){}
-AnalysisJob::AnalysisJob(const char *name):CAnalysisModule(name){
+AnalysisJob::AnalysisJob(const char *name):CAnalysisModule(name){m_data=(void*)(new Analysis());}
+AnalysisJob::~AnalysisJob(){delete (Analysis*)m_data;}
+void AnalysisJob::ProcessEvent(){
+	if (fProcessed) return;
+	fProcessed = kTRUE;
+	((Analysis*)m_data)->ProcessEvent();
+}
+void AnalysisJob::Clear(Option_t *option){fProcessed=kFALSE;}
+void AnalysisJob::Print(Option_t *option){}
+void AnalysisJob::UserCommand(CCommand * command){}
+IAnalysis::~IAnalysis(){}
+
+
+using namespace std;
+///// Calculation implementation
+Analysis::Analysis(){
 	fHeader = dynamic_cast<REventHeader*>(gDataManager->GetDataObject("REventHeader","Header"));
 	TrackFinderFD = dynamic_cast<FDFTHTracks*>(gDataManager->GetAnalysisModule("FDFTHTracks","default"));
 	if(TrackFinderFD) fTrackBankFD = TrackFinderFD->GetTrackBank();
@@ -33,15 +33,10 @@ AnalysisJob::AnalysisJob(const char *name):CAnalysisModule(name){
 	gHistoManager->Add(He3_Ekin,"E_test");
 	gHistoManager->Add(He3_Theta,"Theta_test");
 	gHistoManager->Add(He3_Phi,"Phi_test");
-
-	auto sig=make_shared<Sigma<double>>();
 }
-AnalysisJob::~AnalysisJob(){
-}
-void AnalysisJob::ProcessEvent(){
-	if (fProcessed) return;
-	fProcessed = kTRUE;
-	/*if (gWasa->IsAnalysisMode(Wasa::kMCRaw)||gWasa->IsAnalysisMode(Wasa::kMCReco)||gWasa->IsAnalysisMode(Wasa::kMC)) {
+Analysis::~Analysis(){}
+void Analysis::ProcessEvent(){
+	if (gWasa->IsAnalysisMode(Wasa::kMCRaw)||gWasa->IsAnalysisMode(Wasa::kMCReco)||gWasa->IsAnalysisMode(Wasa::kMC)) {
 		WVertexIter iterator(fMCVertexBank);
 		while(WVertex *vertex=dynamic_cast<WVertex*>(iterator.Next())){
 			for(int particleindex=0; particleindex<vertex->NumberOfParticles(); particleindex++){
@@ -53,10 +48,5 @@ void AnalysisJob::ProcessEvent(){
 				}
 			}
 		}
-	}*/
+	}
 }
-void AnalysisJob::Clear(Option_t *option){
-	fProcessed=kFALSE;
-}
-void AnalysisJob::Print(Option_t *option){}
-void AnalysisJob::UserCommand(CCommand * command){}

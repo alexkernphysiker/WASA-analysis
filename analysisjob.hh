@@ -1,5 +1,5 @@
-#ifndef ANALYSISJOB_H
-#define ANALYSISJOB_H
+#ifndef ____PRCbZGGy
+#define ____PRCbZGGy
 #include <Wasa.hh>
 #include <CAnalysisModule.hh>
 #include <REventWmcHeader.hh>
@@ -19,18 +19,8 @@ public:
 	virtual void Print(Option_t *option = "");
 	virtual void UserCommand(CCommand * command);
 private:
-	REventHeader	*fHeader;
-	REventWmcHeader	*fEventHeader;
-	WTrackBank	*fTrackBankFD;
-	WTrackBank	*fTrackBankCD;
-	FDFTHTracks	*TrackFinderFD;
-	CDTracksSimple	*TrackFinderCD;
-	WTrackBank	*fMCTrackBank;
-	WVertexBank	*fMCVertexBank;
-	CCardWDET	*fDetectorTable;
-	MCTrackFinder	*fMCTrackFinder;
-	TH1F *He3_Ekin, *He3_Theta, *He3_Phi;
+	void * m_data;
 protected:
 	ClassDef(AnalysisJob,0);
 };
-#endif // ANALYSISJOB_H
+#endif
