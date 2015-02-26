@@ -1,9 +1,12 @@
+#include <memory>
 #include "analysisjob.hh"
 #include <TLorentzVector.h>
 #include <CAnalysisModule.hh>
 #include <CDataManager.hh>
 #include <FDEdep2Ekin.hh>
 #include <CCardWDET.hh>
+#include "math_h/sigma.h"
+using namespace std;
 const Double_t m_p=0.938272;//[GeV]
 const Double_t m_n=0.93956;//[GeV]
 const Double_t m_d=1.875613;//[GeV]
@@ -29,7 +32,10 @@ AnalysisJob::AnalysisJob(const char *name):CAnalysisModule(name){
 	He3_Phi=new TH1F("Phi","",36, 0,360);
 	gHistoManager->Add(He3_Ekin,"E_test");
 	gHistoManager->Add(He3_Theta,"Theta_test");
-	gHistoManager->Add(He3_Phi,"Phi_test");}
+	gHistoManager->Add(He3_Phi,"Phi_test");
+
+	auto sig=make_shared<Sigma<double>>();
+}
 AnalysisJob::~AnalysisJob(){
 }
 void AnalysisJob::ProcessEvent(){
