@@ -21,7 +21,7 @@ public:
 private:
 	WTrackBank	*fMCTrackBank;
 	WVertexBank	*fMCVertexBank;
-	std::shared_ptr<TH1F> He3_Ekin,He3_Theta,He3_Phi;
+	TH1F *He3_Ekin,*He3_Theta,*He3_Phi;
 };
 const Double_t m_p=0.938272;//[GeV]
 const Double_t m_n=0.93956;//[GeV]

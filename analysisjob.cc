@@ -22,12 +22,12 @@ Analysis::Analysis(){
 	WTrackFinder *MCTrf = dynamic_cast<WTrackFinder*>(gDataManager->GetAnalysisModule("MCTrackFinder","default"));
 	fMCTrackBank  = MCTrf->GetTrackBank();
 	fMCVertexBank = MCTrf->GetVertexBank();
-	He3_Ekin=make_shared<TH1F>("Kinetic Energy","",1000,0,2);
-	He3_Theta=make_shared<TH1F>("Theta","",18,0.0,30.0);
-	He3_Phi=make_shared<TH1F>("Phi","",36, 0,360);
-	gHistoManager->Add(He3_Ekin.get(),"E_test");
-	gHistoManager->Add(He3_Theta.get(),"Theta_test");
-	gHistoManager->Add(He3_Phi.get(),"Phi_test");
+	He3_Ekin=new TH1F("Kinetic Energy","",1000,0,2);
+	He3_Theta=new TH1F("Theta","",18,0.0,30.0);
+	He3_Phi=new TH1F("Phi","",36, 0,360);
+	gHistoManager->Add(He3_Ekin,"E_test");
+	gHistoManager->Add(He3_Theta,"Theta_test");
+	gHistoManager->Add(He3_Phi,"Phi_test");
 }
 Analysis::~Analysis(){}
 void Analysis::ProcessEvent(){
