@@ -19,17 +19,9 @@ public:
 	virtual ~Analysis();
 	virtual void ProcessEvent()override;
 private:
-	REventHeader	*fHeader;
-	REventWmcHeader	*fEventHeader;
-	WTrackBank	*fTrackBankFD;
-	WTrackBank	*fTrackBankCD;
-	FDFTHTracks	*TrackFinderFD;
-	CDTracksSimple	*TrackFinderCD;
 	WTrackBank	*fMCTrackBank;
 	WVertexBank	*fMCVertexBank;
-	CCardWDET	*fDetectorTable;
-	MCTrackFinder	*fMCTrackFinder;
-	TH1F *He3_Ekin, *He3_Theta, *He3_Phi;
+	std::shared_ptr<TH1F> He3_Ekin,He3_Theta,He3_Phi;
 };
 const Double_t m_p=0.938272;//[GeV]
 const Double_t m_n=0.93956;//[GeV]
