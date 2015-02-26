@@ -21,9 +21,6 @@ $(TARGET)Dict.cc: $(addsuffix .hh,$(MODULES)) LinkDef.hh
 	rootcint -f $@ -c $(CPPFLAGS) -p $^ 
 endif
 
-%.o: %.cpp
-        $(CXX) $(CPPFLAGS) $(CXXFLAGS) -p -c $< -o $@
-
 %.o: %.cc 
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -p -c $< -o $@
 

@@ -2,7 +2,7 @@
 #define ANALYSISJOB_H
 #include <Wasa.hh>
 #include <CAnalysisModule.hh>
-#include "wrap.h"
+//#include "AnalyseBase/wrap.h"
 class AnalysisJob : public CAnalysisModule{
 public:
 	AnalysisJob();
@@ -13,7 +13,7 @@ public:
 	virtual void Print(Option_t *option = "");
 	virtual void UserCommand(CCommand * command);
 private:
-	IAnalysis *job;
+//	IAnalysis *job;
 protected:
 	ClassDef(AnalysisJob,0);
 };
