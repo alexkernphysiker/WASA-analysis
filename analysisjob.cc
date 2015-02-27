@@ -4,18 +4,16 @@
 ClassImp(AnalysisJob);
 AnalysisJob::AnalysisJob(){}
 AnalysisJob::AnalysisJob(const char *name):CAnalysisModule(name){m_data=(void*)(new Analysis());}
-AnalysisJob::~AnalysisJob(){delete (Analysis*)m_data;}
+AnalysisJob::~AnalysisJob(){delete (IAnalysis*)m_data;}
 void AnalysisJob::ProcessEvent(){
 	if (fProcessed) return;
 	fProcessed = kTRUE;
-	((Analysis*)m_data)->ProcessEvent();
+	((IAnalysis*)m_data)->ProcessEvent();
 }
 void AnalysisJob::Clear(Option_t *option){fProcessed=kFALSE;}
 void AnalysisJob::Print(Option_t *option){}
 void AnalysisJob::UserCommand(CCommand * command){}
 IAnalysis::~IAnalysis(){}
-
-
 using namespace std;
 ///// Calculation implementation
 Analysis::Analysis(){
