@@ -17,9 +17,58 @@ IAnalysis::~IAnalysis(){}
 using namespace std;
 ///// Calculation implementation
 Analysis::Analysis(){
+	auto TrackFinderFD = dynamic_cast<FDFTHTracks*>(gDataManager->GetAnalysisModule("FDFTHTracks","default"));
+	if(TrackFinderFD!=0) fTrackBankFD = TrackFinderFD->GetTrackBank();
+	auto CDTrackFinder = dynamic_cast<CDTracksSimple*>(gDataManager->GetAnalysisModule("CDTracksSimple","default"));
+	if (CDTrackFinder!=0) fTrackBankCD = CDTrackFinder->GetTrackBank();
+	He3DepKin = dynamic_cast<FDEdep2Ekin*>(gParameterManager->GetParameterObject("FDEdep2Ekin","3He"));
+	fDetectorTable = dynamic_cast<CCardWDET*>(gParameterManager->GetParameterObject("CCardWDET","default")); 
+}
+Analysis::~Analysis(){}
+void Analysis::ProcessEvent(){
+	if (ProcessingCondition()){
+		double event_wieght=EventWeight();
+		SpecificProcessing();
+		Int_t NrTracks=fTrackBankFD->GetEntries();
+		for (Int_t trackindex=0; trackindex<NrTracks; trackindex++) {  
+			const int fwd_count=5; 
+			double fwd_thresholds[]={0.004,0.0025,0.0025,0.0035,0.004};
+			ForwardDetectorPlane fwd_planes[]={kFRH1,kFRH2,kFRH3,kFRH4,kFRH5};
+			auto track=fTrackBankFD->GetTrack(trackindex);
+			auto thresholds=[track](){
+				bool res=true;
+				double stop_thresholds[]={0.00018,0.00018,0.0015,0.00032,0.0003};
+				ForwardDetectorPlane thr_planes[]={kFWC1,kFWC2,kFTH1,kFTH2,kFTH3};
+				for(int i=0;i<5;i++)
+					track->Edep(thr_planes[i])>stop_thresholds[i];
+				return res;
+			};
+			auto forward_stop_plane=[track,fwd_planes,fwd_thresholds](unsigned int stopindex){
+				bool res=true;
+				for(int i=0;i<=stopindex;i++)
+					res&=track->Edep(fwd_planes[i])>fwd_thresholds[i];
+				for(int i=stopindex+1;i<fwd_count;i++)
+					res&=track->Edep(fwd_planes[i])<=fwd_thresholds[i];
+				return res;
+			};
+			bool stop_condition=false;
+			for(int i=0;i<fwd_count;i++)
+				stop_condition|=forward_stop_plane(i);
+			if(!(thresholds()&&stop_condition))
+				return;
+			double EdepFRHtot=0;
+			for(int i=0;i<fwd_count;i++)
+				EdepFRHtot+=track->Edep(fwd_planes[i]);
+			//ToDo: preselection condition for Edep
+		}
+	}
+}
+
+MCAnalysis::MCAnalysis():Analysis(){
 	WTrackFinder *MCTrf = dynamic_cast<WTrackFinder*>(gDataManager->GetAnalysisModule("MCTrackFinder","default"));
 	fMCTrackBank  = MCTrf->GetTrackBank();
 	fMCVertexBank = MCTrf->GetVertexBank();
+	fEventHeader = dynamic_cast<REventWmcHeader*>(gDataManager->GetDataObject("REventWmcHeader","EventHeader"));
 	He3_Ekin=new TH1F("Kinetic Energy","",1000,0,2);
 	He3_Theta=new TH1F("Theta","",18,0.0,30.0);
 	He3_Phi=new TH1F("Phi","",36, 0,360);
@@ -27,19 +76,47 @@ Analysis::Analysis(){
 	gHistoManager->Add(He3_Theta,"Theta_test");
 	gHistoManager->Add(He3_Phi,"Phi_test");
 }
-Analysis::~Analysis(){}
-void Analysis::ProcessEvent(){
-	if (gWasa->IsAnalysisMode(Wasa::kMCRaw)||gWasa->IsAnalysisMode(Wasa::kMCReco)||gWasa->IsAnalysisMode(Wasa::kMC)) {
-		WVertexIter iterator(fMCVertexBank);
-		while(WVertex *vertex=dynamic_cast<WVertex*>(iterator.Next())){
-			for(int particleindex=0; particleindex<vertex->NumberOfParticles(); particleindex++){
-				WParticle *particle=vertex->GetParticle(particleindex);
-				if(kHe3==particle->GetType()){
-					He3_Ekin->Fill(particle->GetEkin());
-					He3_Theta->Fill(particle->GetTheta()*180/3.1415926);
-					He3_Phi->Fill(particle->GetPhi()*180/3.1415926);
-				}
+MCAnalysis::~MCAnalysis(){}
+double MCAnalysis::EventWeight(){return fEventHeader->GetWeight();}
+void MCAnalysis::SpecificProcessing(){}
+bool MCAnalysis::ProcessingCondition(){
+	return 
+		gWasa->IsAnalysisMode(Wasa::kMCRaw)||
+		gWasa->IsAnalysisMode(Wasa::kMCReco)||
+		gWasa->IsAnalysisMode(Wasa::kMC);
+}
+double MCAnalysis::PBeam(){
+	TVector3 vec_3He;
+	TVector3 vec_n;
+	TLorentzVector P_3He;
+	TLorentzVector P_n;
+	WVertexIter iterator(fMCVertexBank);
+	int NrVertex=0;
+	while(WVertex *vertex=dynamic_cast<WVertex*>(iterator.Next())){
+		NrVertex++;
+		for(int particleindex=0; particleindex<vertex->NumberOfParticles(); particleindex++){
+			//ToDo: this is the calculation for another reaction
+			//      one needs to implement it for my reaction
+			WParticle *particle=vertex->GetParticle(particleindex);
+			auto ekin=particle->GetEkin();
+			auto theta=particle->GetTheta();
+			auto phi=particle->GetPhi();
+			if(NrVertex==1 && kHe3==particle->GetType()){
+				auto p_3He=TMath::Sqrt(ekin*(ekin+2*m_3He));
+				auto E_3He_MC=TMath::Sqrt(p_3He*p_3He+m_3He*m_3He);
+				vec_3He.SetMagThetaPhi(p_3He,theta,phi);
+				P_3He.SetVectM(vec_3He,m_3He);
+				He3_Ekin->Fill(particle->GetEkin());
+				He3_Theta->Fill(particle->GetTheta()*180/3.1415926);
+				He3_Phi->Fill(particle->GetPhi()*180/3.1415926);
+			}
+			if(NrVertex==1 && kNeutron==particle->GetType()){
+				auto p_n=TMath::Sqrt(ekin*(ekin+2*m_n));
+				auto E_n_MC=TMath::Sqrt(p_n*p_n+m_n*m_n);
+				vec_n.SetMagThetaPhi(p_n,theta,phi);
+				P_n.SetVectM(vec_n,m_n);
 			}
 		}
 	}
+	return (vec_n+vec_3He).Mag();
 }
