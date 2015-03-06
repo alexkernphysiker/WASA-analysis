@@ -28,13 +28,26 @@ Analysis::~Analysis(){}
 void Analysis::ProcessEvent(){
 	if (ProcessingCondition()){
 		double event_wieght=EventWeight();
+		double p_beam=PBeam();
 		SpecificProcessing();
-		Int_t NrTracks=fTrackBankFD->GetEntries();
-		for (Int_t trackindex=0; trackindex<NrTracks; trackindex++) {  
+		int ChargedCountInCentral = fTrackBankCD->GetEntries(kCDC);
+		int NeutralCountInCentral = fTrackBankCD->GetEntries(kCDN);
+		int ChargedCountinForward = fTrackBankFD->GetEntries(kFDC);
+		int NrTracks=fTrackBankFD->GetEntries();
+		for (int trackindex=0; trackindex<NrTracks; trackindex++) { 
+			auto track=fTrackBankFD->GetTrack(trackindex);
+			auto cluster=track->GetFirstCluster();
+			while (cluster) {
+				//ToDo: what for?!
+				if (track->Type()==kFDC && cluster->GetPlaneNumber()==kFRH2 && cluster->Element()==22) 
+					return;
+				if (track->Type()==kFDC && cluster->GetPlaneNumber()==kFRH3 && cluster->Element()==1) 
+					return;
+				cluster=track->GetNextCluster();
+			}
 			const int fwd_count=5; 
 			double fwd_thresholds[]={0.004,0.0025,0.0025,0.0035,0.004};
 			ForwardDetectorPlane fwd_planes[]={kFRH1,kFRH2,kFRH3,kFRH4,kFRH5};
-			auto track=fTrackBankFD->GetTrack(trackindex);
 			auto thresholds=[track](){
 				bool res=true;
 				double stop_thresholds[]={0.00018,0.00018,0.0015,0.00032,0.0003};
@@ -60,6 +73,15 @@ void Analysis::ProcessEvent(){
 			for(int i=0;i<fwd_count;i++)
 				EdepFRHtot+=track->Edep(fwd_planes[i]);
 			//ToDo: preselection condition for Edep
+			TVector3 vec_beam;
+			vec_beam.SetMagThetaPhi(p_beam,0,0);
+			TLorentzVector P_b;
+			P_b.SetVectM(vec_beam,m_p);
+			TVector3 vec_target;
+			vec_target.SetMagThetaPhi(0,0,0);
+			TLorentzVector P_t;
+			P_t.SetVectM(vec_target,m_d);
+			TLorentzVector P_tot=P_b+P_t;
 		}
 	}
 }
@@ -103,7 +125,7 @@ double MCAnalysis::PBeam(){
 			auto phi=particle->GetPhi();
 			if(NrVertex==1 && kHe3==particle->GetType()){
 				auto p_3He=TMath::Sqrt(ekin*(ekin+2*m_3He));
-				auto E_3He_MC=TMath::Sqrt(p_3He*p_3He+m_3He*m_3He);
+				auto E_3He=TMath::Sqrt(p_3He*p_3He+m_3He*m_3He);
 				vec_3He.SetMagThetaPhi(p_3He,theta,phi);
 				P_3He.SetVectM(vec_3He,m_3He);
 				He3_Ekin->Fill(particle->GetEkin());
@@ -112,7 +134,7 @@ double MCAnalysis::PBeam(){
 			}
 			if(NrVertex==1 && kNeutron==particle->GetType()){
 				auto p_n=TMath::Sqrt(ekin*(ekin+2*m_n));
-				auto E_n_MC=TMath::Sqrt(p_n*p_n+m_n*m_n);
+				auto E_n=TMath::Sqrt(p_n*p_n+m_n*m_n);
 				vec_n.SetMagThetaPhi(p_n,theta,phi);
 				P_n.SetVectM(vec_n,m_n);
 			}
