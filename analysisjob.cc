@@ -36,24 +36,15 @@ void Analysis::ProcessEvent(){
 		int NrTracks=fTrackBankFD->GetEntries();
 		for (int trackindex=0; trackindex<NrTracks; trackindex++) { 
 			auto track=fTrackBankFD->GetTrack(trackindex);
-			auto cluster=track->GetFirstCluster();
-			while (cluster) {
-				//ToDo: what for?!
-				if (track->Type()==kFDC && cluster->GetPlaneNumber()==kFRH2 && cluster->Element()==22) 
-					return;
-				if (track->Type()==kFDC && cluster->GetPlaneNumber()==kFRH3 && cluster->Element()==1) 
-					return;
-				cluster=track->GetNextCluster();
-			}
 			const int fwd_count=5; 
 			double fwd_thresholds[]={0.004,0.0025,0.0025,0.0035,0.004};
 			ForwardDetectorPlane fwd_planes[]={kFRH1,kFRH2,kFRH3,kFRH4,kFRH5};
 			auto thresholds=[track](){
 				bool res=true;
-				double stop_thresholds[]={0.00018,0.00018,0.0015,0.00032,0.0003};
+				double thresholds[]={0.00018,0.00018,0.0015,0.00032,0.0003};
 				ForwardDetectorPlane thr_planes[]={kFWC1,kFWC2,kFTH1,kFTH2,kFTH3};
 				for(int i=0;i<5;i++)
-					track->Edep(thr_planes[i])>stop_thresholds[i];
+					track->Edep(thr_planes[i])>thresholds[i];
 				return res;
 			};
 			auto forward_stop_plane=[track,fwd_planes,fwd_thresholds](unsigned int stopindex){
