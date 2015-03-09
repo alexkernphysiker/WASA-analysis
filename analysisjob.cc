@@ -3,7 +3,7 @@
 ////// Calculation wraper for WASA
 ClassImp(AnalysisJob);
 AnalysisJob::AnalysisJob(){}
-AnalysisJob::AnalysisJob(const char *name):CAnalysisModule(name){m_data=(void*)(new Analysis());}
+AnalysisJob::AnalysisJob(const char *name):CAnalysisModule(name){m_data=(void*)(new MCAnalysis());}
 AnalysisJob::~AnalysisJob(){delete (IAnalysis*)m_data;}
 void AnalysisJob::ProcessEvent(){
 	if (fProcessed) return;
