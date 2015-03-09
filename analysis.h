@@ -25,7 +25,7 @@ protected:
 	virtual void SpecificProcessing()=0;
 	virtual double EventWeight()=0;
 	WTrackBank *fTrackBankFD,*fTrackBankCD;
-	FDEdep2Ekin *He3DepKin;
+	//FDEdep2Ekin *He3DepKin;
 	CCardWDET *fDetectorTable;
 };
 class MCAnalysis:public virtual Analysis{

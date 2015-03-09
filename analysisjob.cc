@@ -21,7 +21,7 @@ Analysis::Analysis(){
 	if(TrackFinderFD!=0) fTrackBankFD = TrackFinderFD->GetTrackBank();
 	auto CDTrackFinder = dynamic_cast<CDTracksSimple*>(gDataManager->GetAnalysisModule("CDTracksSimple","default"));
 	if (CDTrackFinder!=0) fTrackBankCD = CDTrackFinder->GetTrackBank();
-	He3DepKin = dynamic_cast<FDEdep2Ekin*>(gParameterManager->GetParameterObject("FDEdep2Ekin","3He"));
+	//He3DepKin = dynamic_cast<FDEdep2Ekin*>(gParameterManager->GetParameterObject("FDEdep2Ekin","3He"));
 	fDetectorTable = dynamic_cast<CCardWDET*>(gParameterManager->GetParameterObject("CCardWDET","default")); 
 }
 Analysis::~Analysis(){}
