@@ -104,6 +104,7 @@ double MCAnalysis::PBeam(){
 	TLorentzVector P_3He;
 	TLorentzVector P_n;
 	WVertexIter iterator(fMCVertexBank);
+	printf("New event\n");
 	int NrVertex=0;
 	while(WVertex *vertex=dynamic_cast<WVertex*>(iterator.Next())){
 		NrVertex++;
@@ -111,10 +112,12 @@ double MCAnalysis::PBeam(){
 			//ToDo: this is the calculation for another reaction
 			//      one needs to implement it for my reaction
 			WParticle *particle=vertex->GetParticle(particleindex);
+			auto ptype=particle->GetType();
+			printf("V=%i;P=%i;T=%i\n",NrVertex,particleindex,ptype);
 			auto ekin=particle->GetEkin();
 			auto theta=particle->GetTheta();
 			auto phi=particle->GetPhi();
-			if(NrVertex==1 && kHe3==particle->GetType()){
+			if(NrVertex==1 && kHe3==ptype){
 				auto p_3He=TMath::Sqrt(ekin*(ekin+2*m_3He));
 				auto E_3He=TMath::Sqrt(p_3He*p_3He+m_3He*m_3He);
 				vec_3He.SetMagThetaPhi(p_3He,theta,phi);
@@ -123,7 +126,7 @@ double MCAnalysis::PBeam(){
 				He3_Theta->Fill(particle->GetTheta()*180/3.1415926);
 				He3_Phi->Fill(particle->GetPhi()*180/3.1415926);
 			}
-			if(NrVertex==1 && kNeutron==particle->GetType()){
+			if(NrVertex==1 && kNeutron==ptype){
 				auto p_n=TMath::Sqrt(ekin*(ekin+2*m_n));
 				auto E_n=TMath::Sqrt(p_n*p_n+m_n*m_n);
 				vec_n.SetMagThetaPhi(p_n,theta,phi);
