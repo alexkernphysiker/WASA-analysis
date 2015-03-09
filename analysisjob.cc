@@ -116,7 +116,7 @@ double MCAnalysis::PBeam(){
 			auto ekin=particle->GetEkin();
 			auto theta=particle->GetTheta();
 			auto phi=particle->GetPhi();
-			if(NrVertex==2 && kHe3==ptype){
+			if((NrVertex==2)&&(kHe3==ptype)){
 				auto p_3He=TMath::Sqrt(ekin*(ekin+2*m_3He));
 				auto E_3He=TMath::Sqrt(p_3He*p_3He+m_3He*m_3He);
 				vec_3He.SetMagThetaPhi(p_3He,theta,phi);
@@ -125,7 +125,7 @@ double MCAnalysis::PBeam(){
 				He3_Theta->Fill(particle->GetTheta()*180/3.1415926);
 				He3_Phi->Fill(particle->GetPhi()*180/3.1415926);
 			}
-			if(NrVertex==2 && kEta==ptype){
+			if((NrVertex==2)&&(kEta==ptype)){
 				auto p_eta=TMath::Sqrt(ekin*(ekin+2*m_n));
 				auto E_eta=TMath::Sqrt(p_eta*p_eta+m_n*m_n);
 				vec_eta.SetMagThetaPhi(p_eta,theta,phi);
