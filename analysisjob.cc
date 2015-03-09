@@ -23,12 +23,15 @@ Analysis::Analysis(){
 	if (CDTrackFinder!=0) fTrackBankCD = CDTrackFinder->GetTrackBank();
 	//He3DepKin = dynamic_cast<FDEdep2Ekin*>(gParameterManager->GetParameterObject("FDEdep2Ekin","3He"));
 	fDetectorTable = dynamic_cast<CCardWDET*>(gParameterManager->GetParameterObject("CCardWDET","default")); 
+	P_Beam=new TH1F("P_beam","",500,1.4,1.9);
+	gHistoManager->Add(P_Beam,"PBeam");
 }
 Analysis::~Analysis(){}
 void Analysis::ProcessEvent(){
 	if (ProcessingCondition()){
 		double event_wieght=EventWeight();
 		double p_beam=PBeam();
+		P_Beam->Fill(p_beam);
 		SpecificProcessing();
 		int ChargedCountInCentral = fTrackBankCD->GetEntries(kCDC);
 		int NeutralCountInCentral = fTrackBankCD->GetEntries(kCDN);
@@ -100,24 +103,20 @@ bool MCAnalysis::ProcessingCondition(){
 }
 double MCAnalysis::PBeam(){
 	TVector3 vec_3He;
-	TVector3 vec_n;
+	TVector3 vec_eta;
 	TLorentzVector P_3He;
-	TLorentzVector P_n;
+	TLorentzVector P_eta;
 	WVertexIter iterator(fMCVertexBank);
-	printf("New event\n");
 	int NrVertex=0;
 	while(WVertex *vertex=dynamic_cast<WVertex*>(iterator.Next())){
 		NrVertex++;
 		for(int particleindex=0; particleindex<vertex->NumberOfParticles(); particleindex++){
-			//ToDo: this is the calculation for another reaction
-			//      one needs to implement it for my reaction
 			WParticle *particle=vertex->GetParticle(particleindex);
 			auto ptype=particle->GetType();
-			printf("V=%i;P=%i;T=%i\n",NrVertex,particleindex,ptype);
 			auto ekin=particle->GetEkin();
 			auto theta=particle->GetTheta();
 			auto phi=particle->GetPhi();
-			if(NrVertex==1 && kHe3==ptype){
+			if(NrVertex==2 && kHe3==ptype){
 				auto p_3He=TMath::Sqrt(ekin*(ekin+2*m_3He));
 				auto E_3He=TMath::Sqrt(p_3He*p_3He+m_3He*m_3He);
 				vec_3He.SetMagThetaPhi(p_3He,theta,phi);
@@ -126,13 +125,13 @@ double MCAnalysis::PBeam(){
 				He3_Theta->Fill(particle->GetTheta()*180/3.1415926);
 				He3_Phi->Fill(particle->GetPhi()*180/3.1415926);
 			}
-			if(NrVertex==1 && kNeutron==ptype){
-				auto p_n=TMath::Sqrt(ekin*(ekin+2*m_n));
-				auto E_n=TMath::Sqrt(p_n*p_n+m_n*m_n);
-				vec_n.SetMagThetaPhi(p_n,theta,phi);
-				P_n.SetVectM(vec_n,m_n);
+			if(NrVertex==2 && kEta==ptype){
+				auto p_eta=TMath::Sqrt(ekin*(ekin+2*m_n));
+				auto E_eta=TMath::Sqrt(p_eta*p_eta+m_n*m_n);
+				vec_eta.SetMagThetaPhi(p_eta,theta,phi);
+				P_eta.SetVectM(vec_eta,m_n);
 			}
 		}
 	}
-	return (vec_n+vec_3He).Mag();
+	return (vec_eta+vec_3He).Mag();
 }

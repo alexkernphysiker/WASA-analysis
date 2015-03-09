@@ -27,6 +27,7 @@ protected:
 	WTrackBank *fTrackBankFD,*fTrackBankCD;
 	//FDEdep2Ekin *He3DepKin;
 	CCardWDET *fDetectorTable;
+	TH1F *P_Beam;
 };
 class MCAnalysis:public virtual Analysis{
 public:
@@ -51,5 +52,8 @@ const double m_eta=0.547853;//[GeV]
 enum TrackType{kFDN=1,kFDC=2,kCDN=11,kCDC=12};
 enum ForwardDetectorPlane{kFWC1=10,kFWC2=11,kFTH1=1,kFTH2=2,kFTH3=3,kFRH1=4,kFRH2=5,kFRH3=6,kFRH4=7,kFRH5=8,kFVH=9};
 
-enum ParticleType{kDummy=0,kGamma=1,kElectron=2,kPositron=3,kPi0=7,kPiPlus=8,kPiMinus=9,kNeutron=13,kProton=14,kDeuteron=45,kTriton=46,kHe3=49};
+enum ParticleType{
+	kDummy=0,kGamma=1,kElectron=2,kPositron=3,kPi0=7,kPiPlus=8,kPiMinus=9,
+	kNeutron=13,kProton=14,kEta=17,kDeuteron=45,kTriton=46,kHe3=49
+};
 #endif
