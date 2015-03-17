@@ -6,7 +6,6 @@
 #include <CDataManager.hh>
 #include <FDEdep2Ekin.hh>
 #include <CCardWDET.hh>
-#include "math_h/sigma.h"
 #include "analysisjob.hh"
 class IAnalysis{
 public:
