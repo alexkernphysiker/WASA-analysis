@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.6)
 project(runMonteCarlo)
+add_definitions(-DUSE_RANDOM_DEVICE)
 include_directories(
+	..
 	$ENV{ROOTSYS}/include
 	$ENV{PLUTOSYS}/src
 	$ENV{PLUTOSYS}/plugins/brems

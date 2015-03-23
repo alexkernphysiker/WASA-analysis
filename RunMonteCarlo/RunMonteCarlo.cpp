@@ -2,6 +2,7 @@
 #include <string>
 #include <PBeamSmearing.h>
 #include <PReaction.h>
+#include <math_h/randomfunc.h>
 const double he3_eta_threshold=1.5727;
 const double beam_low=1.426;
 const double beam_hi=1.635;
@@ -15,6 +16,7 @@ string ReplaceAll(string str, const string& from, const string& to) {
 	return str;
 }
 int main(int, char **){
+	PUtils::SetSeed(RandomUniformly<int>(1,50));
 	PBeamSmearing *smear = new PBeamSmearing("beam_smear", "Beam smearing");
 	smear->SetReaction("p+d");
 	smear->SetMomentumFunction(new TF1("Uniform","1",he3_eta_threshold,beam_hi));
