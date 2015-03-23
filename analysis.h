@@ -40,7 +40,6 @@ protected:
 	WTrackBank *fMCTrackBank;
 	WVertexBank *fMCVertexBank;
 	REventWmcHeader   *fEventHeader;
-	TH1F *He3_Ekin,*He3_Theta,*He3_Phi;
 };
 const double m_p=0.938272;//[GeV]
 const double m_n=0.93956;//[GeV]

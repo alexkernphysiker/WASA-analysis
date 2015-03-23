@@ -85,12 +85,6 @@ MCAnalysis::MCAnalysis():Analysis(){
 	fMCTrackBank  = MCTrf->GetTrackBank();
 	fMCVertexBank = MCTrf->GetVertexBank();
 	fEventHeader = dynamic_cast<REventWmcHeader*>(gDataManager->GetDataObject("REventWmcHeader","EventHeader"));
-	He3_Ekin=new TH1F("Kinetic Energy","",1000,0,2);
-	He3_Theta=new TH1F("Theta","",18,0.0,30.0);
-	He3_Phi=new TH1F("Phi","",36, 0,360);
-	gHistoManager->Add(He3_Ekin,"E_test");
-	gHistoManager->Add(He3_Theta,"Theta_test");
-	gHistoManager->Add(He3_Phi,"Phi_test");
 }
 MCAnalysis::~MCAnalysis(){}
 double MCAnalysis::EventWeight(){return fEventHeader->GetWeight();}
@@ -121,15 +115,12 @@ double MCAnalysis::PBeam(){
 				auto E_3He=TMath::Sqrt(p_3He*p_3He+m_3He*m_3He);
 				vec_3He.SetMagThetaPhi(p_3He,theta,phi);
 				P_3He.SetVectM(vec_3He,m_3He);
-				He3_Ekin->Fill(particle->GetEkin());
-				He3_Theta->Fill(particle->GetTheta()*180/3.1415926);
-				He3_Phi->Fill(particle->GetPhi()*180/3.1415926);
 			}
 			if((NrVertex==2)&&(kEta==ptype)){
-				auto p_eta=TMath::Sqrt(ekin*(ekin+2*m_n));
-				auto E_eta=TMath::Sqrt(p_eta*p_eta+m_n*m_n);
+				auto p_eta=TMath::Sqrt(ekin*(ekin+2*m_eta));
+				auto E_eta=TMath::Sqrt(p_eta*p_eta+m_eta*m_eta);
 				vec_eta.SetMagThetaPhi(p_eta,theta,phi);
-				P_eta.SetVectM(vec_eta,m_n);
+				P_eta.SetVectM(vec_eta,m_eta);
 			}
 		}
 	}
