@@ -42,8 +42,8 @@ void Analysis::ProcessEvent(){
 			int ChargedCountinForward = fTrackBankFD->GetEntries(kFDC);
 			if(TrackCountTrigger(ChargedCountInCentral,NeutralCountInCentral,ChargedCountinForward)){
 				typedef pair<WTrackBank*,function<bool(WTrack*,TVector3&)>> DetectorToProcess;
-				DetectorToProcess CENTRAL=make_pair(fTrackBankCD,[](WTrack* t,TVector3& p){return CentralTrackProcessing(t,p);});
-				DetectorToProcess FORWARD=make_pair(fTrackBankFD,[](WTrack* t,TVector3& p){return ForwardTrackProcessing(t,p);});
+				DetectorToProcess CENTRAL=make_pair(fTrackBankCD,[this](WTrack* t,TVector3& p){return CentralTrackProcessing(t,p);});
+				DetectorToProcess FORWARD=make_pair(fTrackBankFD,[this](WTrack* t,TVector3& p){return ForwardTrackProcessing(t,p);});
 				vector<DetectorToProcess> QUEUE;
 				if(CentralFirst()){
 					QUEUE.push_back(CENTRAL);
