@@ -1,6 +1,7 @@
 BASEDIR = $(ROOTSORTERSYS)/core
 TARGET   = main
-MODULES  =  analysisjob
+MODULES  =  analysisjob analysis he3eta
+DICTMODULES = analysisjob
 
 CPPFLAGS := `$(BASEDIR)/bin/sorter-config -cpp` -g  
 CXXFLAGS := `$(BASEDIR)/bin/sorter-config -cxx` -fno-strict-aliasing  -g -std=c++11
@@ -17,7 +18,7 @@ $(TARGET): $(TARGET).so
 $(TARGET).so: $(addsuffix .o,$(MODULES)) $(TARGET)Dict.o
 	$(CXX) -fPIC -O2 -shared $^ -o $@
 
-$(TARGET)Dict.cc: $(addsuffix .hh,$(MODULES)) LinkDef.hh
+$(TARGET)Dict.cc: $(addsuffix .hh,$(DICTMODULES)) LinkDef.hh
 	rootcint -f $@ -c $(CPPFLAGS) -p $^ 
 endif
 
