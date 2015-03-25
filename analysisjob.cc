@@ -36,7 +36,7 @@ void Analysis::ProcessEvent(){
 		P_Beam->Fill(p_beam);
 		TVector3 vec_beam;
 		vec_beam.SetMagThetaPhi(p_beam,0,0);
-		if(EventPreProcessing()){
+		if(EventPreProcessing(vec_beam)){
 			int ChargedCountInCentral = fTrackBankCD->GetEntries(kCDC);
 			int NeutralCountInCentral = fTrackBankCD->GetEntries(kCDN);
 			int ChargedCountinForward = fTrackBankFD->GetEntries(kFDC);
@@ -56,10 +56,11 @@ void Analysis::ProcessEvent(){
 					int NrTracks=DETECTOR.first->GetEntries();
 					for (int trackindex=0; trackindex<NrTracks; trackindex++) { 
 						auto track=DETECTOR.first->GetTrack(trackindex);
-						if(!DETECTOR.second(track,p_beam))
+						if(!DETECTOR.second(track,vec_beam))
 							return;
 					}
 				}
+				EventPostProcessing(vec_beam);
 			}
 		}
 	}
