@@ -112,7 +112,7 @@ double MonteCarlo::PBeam(){
 }
 He3eta::He3eta():Analysis(){
 	FRH1vsFRH2=new TH2F("FRH1vsFRH2","",256,0,0.5,256,0,0.5);
-	gHistoManager->Add(FRH1vsFRH2);
+	gHistoManager->Add(FRH1vsFRH2,"FRH1vsFRH2");
 }
 He3eta::~He3eta(){}
 bool He3eta::EventPreProcessing(TVector3 &pbeam){
