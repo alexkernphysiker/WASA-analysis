@@ -118,10 +118,10 @@ He3eta::~He3eta(){}
 bool He3eta::EventPreProcessing(TVector3 &pbeam){
 	return true;
 }
-void He3eta::EventPostProcessing(TVector3 &pbeam){}
 bool He3eta::TrackCountTrigger(int CinC,int NinC,int CinF){
 	return true;
 }
+bool He3eta::CentralFirst(){return false;}
 bool He3eta::ForwardTrackProcessing(WTrack* track,TVector3 &pbeam){
 	const int fwd_count=5; 
 	double fwd_thresholds[]={0.004,0.0025,0.0025,0.0035,0.004};
@@ -162,6 +162,5 @@ bool He3eta::ForwardTrackProcessing(WTrack* track,TVector3 &pbeam){
 	
 	return true;
 }
-bool He3eta::CentralTrackProcessing(WTrack* track,TVector3 &pbeam){
-	return true;
-}
+bool He3eta::CentralTrackProcessing(WTrack* track,TVector3 &pbeam){return true;}
+void He3eta::EventPostProcessing(TVector3 &pbeam){}
