@@ -59,7 +59,7 @@ protected:
 template <class datatype,class reaction>
 class CreateAnalysis:public virtual datatype,public virtual reaction{
 public:
-	CreateAnalysis():datatype(),reaction(),Analysis(){}
+	CreateAnalysis():Analysis(),datatype(),reaction(){}
 	virtual ~CreateAnalysis(){}
 protected:
 	virtual bool EventProcessingCondition()override{
