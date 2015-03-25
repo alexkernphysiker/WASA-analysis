@@ -3,18 +3,21 @@
 #include <memory>
 #include <functional>
 #include <utility>
+#include <vector>
+#include <TH1F.h>
 #include <TLorentzVector.h>
 #include <CAnalysisModule.hh>
 #include <CDataManager.hh>
 #include <FDEdep2Ekin.hh>
 #include <CCardWDET.hh>
-#include "analysisjob.hh"
-const double m_p=0.938272;//[GeV]
-const double m_n=0.93956;//[GeV]
-const double m_d=1.875613;//[GeV]
-const double m_3He=2.808950;//[GeV]
-const double m_4He=3.7264225;//[GeV]
-const double m_eta=0.547853;//[GeV]
+#include <Wasa.hh>
+#include <CAnalysisModule.hh>
+#include <REventWmcHeader.hh>
+#include <REventHeader.hh>
+#include <WTrackBank.hh>
+#include <WVertexBank.hh>
+#include <FDFTHTracks.hh>
+#include <CDTracksSimple.hh>
 enum TrackType{kFDN=1,kFDC=2,kCDN=11,kCDC=12};
 enum ForwardDetectorPlane{
 	kFWC1=10,kFWC2=11,kFTH1=1,kFTH2=2,kFTH3=3,
@@ -51,6 +54,7 @@ protected:
 	FDEdep2Ekin *He3DepKin;
 	CCardWDET *fDetectorTable;
 	TH1F *P_Beam;
+	vector<pair<ParticleType,double>> MC_beam_momenta;
 };
 template <class datatype,class reaction>
 class CreateAnalysis:public virtual datatype,public virtual reaction{
@@ -98,20 +102,4 @@ protected:
 	WVertexBank *fMCVertexBank;
 	REventWmcHeader   *fEventHeader;
 };
-class He3eta:public virtual Analysis{
-public:
-    He3eta();
-    virtual ~He3eta();
-protected:
-	virtual bool EventPreProcessing(TVector3 &pbeam)override;
-	virtual void EventPostProcessing(TVector3 &pbeam)override;
-	virtual bool TrackCountTrigger(int CinC,int NinC,int CinF)override;
-	virtual bool CentralFirst()override;
-	virtual bool ForwardTrackProcessing(WTrack* track,TVector3 &pbeam)override;
-	virtual bool CentralTrackProcessing(WTrack* track,TVector3 &pbeam)override;
-private:
-	TH2F* FRH1vsFRH2;
-};
-
-
 #endif
