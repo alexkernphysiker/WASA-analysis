@@ -3,7 +3,9 @@
 ////// Calculation wraper for WASA
 ClassImp(AnalysisJob);
 AnalysisJob::AnalysisJob(){}
-AnalysisJob::AnalysisJob(const char *name):CAnalysisModule(name){m_data=(void*)(new MCAnalysis());}
+AnalysisJob::AnalysisJob(const char *name):CAnalysisModule(name){
+	m_data=(void*)(new CreateAnalysis<MonteCarlo,He3eta>());
+}
 AnalysisJob::~AnalysisJob(){delete (IAnalysis*)m_data;}
 void AnalysisJob::ProcessEvent(){
 	if (fProcessed) return;
@@ -28,74 +30,55 @@ Analysis::Analysis(){
 }
 Analysis::~Analysis(){}
 void Analysis::ProcessEvent(){
-	if (ProcessingCondition()){
+	if (EventProcessingCondition()){
 		double event_wieght=EventWeight();
 		double p_beam=PBeam();
 		P_Beam->Fill(p_beam);
-		SpecificProcessing();
-		int ChargedCountInCentral = fTrackBankCD->GetEntries(kCDC);
-		int NeutralCountInCentral = fTrackBankCD->GetEntries(kCDN);
-		int ChargedCountinForward = fTrackBankFD->GetEntries(kFDC);
-		int NrTracks=fTrackBankFD->GetEntries();
-		for (int trackindex=0; trackindex<NrTracks; trackindex++) { 
-			auto track=fTrackBankFD->GetTrack(trackindex);
-			const int fwd_count=5; 
-			double fwd_thresholds[]={0.004,0.0025,0.0025,0.0035,0.004};
-			ForwardDetectorPlane fwd_planes[]={kFRH1,kFRH2,kFRH3,kFRH4,kFRH5};
-			auto thresholds=[track](){
-				bool res=true;
-				double thresholds[]={0.00018,0.00018,0.0015,0.00032,0.0003};
-				ForwardDetectorPlane thr_planes[]={kFWC1,kFWC2,kFTH1,kFTH2,kFTH3};
-				for(int i=0;i<5;i++)
-					track->Edep(thr_planes[i])>thresholds[i];
-				return res;
-			};
-			auto forward_stop_plane=[track,fwd_planes,fwd_thresholds](unsigned int stopindex){
-				bool res=true;
-				for(int i=0;i<=stopindex;i++)
-					res&=track->Edep(fwd_planes[i])>fwd_thresholds[i];
-				for(int i=stopindex+1;i<fwd_count;i++)
-					res&=track->Edep(fwd_planes[i])<=fwd_thresholds[i];
-				return res;
-			};
-			bool stop_condition=false;
-			for(int i=0;i<fwd_count;i++)
-				stop_condition|=forward_stop_plane(i);
-			if(!(thresholds()&&stop_condition))
-				return;
-			double EdepFRHtot=0;
-			for(int i=0;i<fwd_count;i++)
-				EdepFRHtot+=track->Edep(fwd_planes[i]);
-			//ToDo: preselection condition for Edep
-			TVector3 vec_beam;
-			vec_beam.SetMagThetaPhi(p_beam,0,0);
-			TLorentzVector P_b;
-			P_b.SetVectM(vec_beam,m_p);
-			TVector3 vec_target;
-			vec_target.SetMagThetaPhi(0,0,0);
-			TLorentzVector P_t;
-			P_t.SetVectM(vec_target,m_d);
-			TLorentzVector P_tot=P_b+P_t;
+		TVector3 vec_beam;
+		vec_beam.SetMagThetaPhi(p_beam,0,0);
+		if(EventPreProcessing()){
+			int ChargedCountInCentral = fTrackBankCD->GetEntries(kCDC);
+			int NeutralCountInCentral = fTrackBankCD->GetEntries(kCDN);
+			int ChargedCountinForward = fTrackBankFD->GetEntries(kFDC);
+			if(TrackCountTrigger(ChargedCountInCentral,NeutralCountInCentral,ChargedCountinForward)){
+				typedef pair<WTrackBank*,function<bool(WTrack*,TVector3&)>> DetectorToProcess;
+				DetectorToProcess CENTRAL=make_pair(fTrackBankCD,[](WTrack* t,TVector3& p){return CentralTrackProcessing(t,p);});
+				DetectorToProcess FORWARD=make_pair(fTrackBankFD,[](WTrack* t,TVector3& p){return ForwardTrackProcessing(t,p);});
+				vector<DetectorToProcess> QUEUE;
+				if(CentralFirst()){
+					QUEUE.push_back(CENTRAL);
+					QUEUE.push_back(FORWARD);
+				}else{
+					QUEUE.push_back(FORWARD);
+					QUEUE.push_back(CENTRAL);
+				}
+				for(DetectorToProcess DETECTOR:QUEUE){
+					int NrTracks=DETECTOR.first->GetEntries();
+					for (int trackindex=0; trackindex<NrTracks; trackindex++) { 
+						auto track=DETECTOR.first->GetTrack(trackindex);
+						if(!DETECTOR.second(track,p_beam))
+							return;
+					}
+				}
+			}
 		}
 	}
 }
-
-MCAnalysis::MCAnalysis():Analysis(){
+MonteCarlo::MonteCarlo():Analysis(){
 	WTrackFinder *MCTrf = dynamic_cast<WTrackFinder*>(gDataManager->GetAnalysisModule("MCTrackFinder","default"));
 	fMCTrackBank  = MCTrf->GetTrackBank();
 	fMCVertexBank = MCTrf->GetVertexBank();
 	fEventHeader = dynamic_cast<REventWmcHeader*>(gDataManager->GetDataObject("REventWmcHeader","EventHeader"));
 }
-MCAnalysis::~MCAnalysis(){}
-double MCAnalysis::EventWeight(){return fEventHeader->GetWeight();}
-void MCAnalysis::SpecificProcessing(){}
-bool MCAnalysis::ProcessingCondition(){
+MonteCarlo::~MonteCarlo(){}
+double MonteCarlo::EventWeight(){return fEventHeader->GetWeight();}
+bool MonteCarlo::EventProcessingCondition(){
 	return 
 		gWasa->IsAnalysisMode(Wasa::kMCRaw)||
 		gWasa->IsAnalysisMode(Wasa::kMCReco)||
 		gWasa->IsAnalysisMode(Wasa::kMC);
 }
-double MCAnalysis::PBeam(){
+double MonteCarlo::PBeam(){
 	TVector3 vec_3He;
 	TVector3 vec_eta;
 	TLorentzVector P_3He;
@@ -125,4 +108,59 @@ double MCAnalysis::PBeam(){
 		}
 	}
 	return (vec_eta+vec_3He).Mag();
+}
+He3eta::He3eta():Analysis(){
+	FRH1vsFRH2=new TH2F("FRH1vsFRH2","",256,0,0.5,256,0,0.5);
+	gHistoManager->Add(FRH1vsFRH2);
+}
+He3eta::~He3eta(){}
+bool He3eta::EventPreProcessing(TVector3 &pbeam){
+	return true;
+}
+void He3eta::EventPostProcessing(TVector3 &pbeam){}
+bool He3eta::TrackCountTrigger(int CinC,int NinC,int CinF){
+	return true;
+}
+bool He3eta::ForwardTrackProcessing(WTrack* track,TVector3 &pbeam){
+	const int fwd_count=5; 
+	double fwd_thresholds[]={0.004,0.0025,0.0025,0.0035,0.004};
+	ForwardDetectorPlane fwd_planes[]={kFRH1,kFRH2,kFRH3,kFRH4,kFRH5};
+	auto thresholds=[track](){
+		bool res=true;
+		double thresholds[]={0.00018,0.00018,0.0015,0.00032,0.0003};
+		ForwardDetectorPlane thr_planes[]={kFWC1,kFWC2,kFTH1,kFTH2,kFTH3};
+		for(int i=0;i<5;i++)
+			track->Edep(thr_planes[i])>thresholds[i];
+		return res;
+	};
+	auto forward_stop_plane=[track,fwd_planes,fwd_thresholds](unsigned int stopindex){
+		bool res=true;
+		for(int i=0;i<=stopindex;i++)
+			res&=track->Edep(fwd_planes[i])>fwd_thresholds[i];
+		for(int i=stopindex+1;i<fwd_count;i++)
+			res&=track->Edep(fwd_planes[i])<=fwd_thresholds[i];
+		return res;
+	};
+	bool stop_condition=false;
+	for(int i=0;i<fwd_count;i++)
+		stop_condition|=forward_stop_plane(i);
+	if(thresholds()&&stop_condition){
+		double EdepFRHtot=0;
+		for(int i=0;i<fwd_count;i++)
+			EdepFRHtot+=track->Edep(fwd_planes[i]);
+		//ToDo: preselection condition for Edep
+		
+		TLorentzVector P_b;
+		P_b.SetVectM(pbeam,m_p);
+		TVector3 vec_target;
+		vec_target.SetMagThetaPhi(0,0,0);
+		TLorentzVector P_t;
+		P_t.SetVectM(vec_target,m_d);
+		TLorentzVector P_tot=P_b+P_t;
+	}
+	
+	return true;
+}
+bool He3eta::CentralTrackProcessing(WTrack* track,TVector3 &pbeam){
+	return true;
 }
