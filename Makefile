@@ -1,6 +1,6 @@
 BASEDIR = $(ROOTSORTERSYS)/core
 TARGET   = main
-MODULES  =  analysisjob analysis he3eta
+MODULES  =  analysisjob analysis detectors he3eta
 DICTMODULES = analysisjob
 
 CPPFLAGS := `$(BASEDIR)/bin/sorter-config -cpp` -g  

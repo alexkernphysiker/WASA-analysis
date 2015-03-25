@@ -54,7 +54,8 @@ protected:
 	FDEdep2Ekin *He3DepKin;
 	CCardWDET *fDetectorTable;
 	TH1F *P_Beam;
-	vector<pair<ParticleType,double>> MC_beam_momenta;
+	vector<pair<ParticleType,double>> first_particles;
+	vector<pair<ParticleType,double>> final_particles;
 };
 template <class datatype,class reaction>
 class CreateAnalysis:public virtual datatype,public virtual reaction{

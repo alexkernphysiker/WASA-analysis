@@ -12,6 +12,7 @@ Analysis::Analysis(){
 	gHistoManager->Add(P_Beam,"PBeam");
 }
 Analysis::~Analysis(){}
+typedef pair<WTrackBank*,function<bool(WTrack*,TVector3&)>> DetectorToProcess;
 void Analysis::ProcessEvent(){
 	if (EventProcessingCondition()){
 		double event_wieght=EventWeight();
@@ -24,7 +25,6 @@ void Analysis::ProcessEvent(){
 			int NeutralCountInCentral = fTrackBankCD->GetEntries(kCDN);
 			int ChargedCountinForward = fTrackBankFD->GetEntries(kFDC);
 			if(TrackCountTrigger(ChargedCountInCentral,NeutralCountInCentral,ChargedCountinForward)){
-				typedef pair<WTrackBank*,function<bool(WTrack*,TVector3&)>> DetectorToProcess;
 				DetectorToProcess CENTRAL=make_pair(fTrackBankCD,[this](WTrack* t,TVector3& p){return CentralTrackProcessing(t,p);});
 				DetectorToProcess FORWARD=make_pair(fTrackBankFD,[this](WTrack* t,TVector3& p){return ForwardTrackProcessing(t,p);});
 				vector<DetectorToProcess> QUEUE;
@@ -75,7 +75,7 @@ double MonteCarlo::PBeam(){
 			auto theta=particle->GetTheta();
 			auto phi=particle->GetPhi();
 			if(NrVertex==2)
-				for(auto P:MC_beam_momenta)
+				for(auto P:first_particles)
 					if(ptype==P.first){
 						double m=P.second;
 						auto p=TMath::Sqrt(ekin*(ekin+2*m));
