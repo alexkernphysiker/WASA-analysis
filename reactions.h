@@ -18,6 +18,6 @@ protected:
 	virtual bool ForwardTrackProcessing(WTrack* track,TVector3 &pbeam)override;
 	virtual bool CentralTrackProcessing(WTrack* track,TVector3 &pbeam)override;
 private:
-	TH2F* FRH1vsFRH2;
+	TH2F* FRH1vsFRH2,*FRH2vsFRH3,*FRH3vsFRH4,*FRH4vsFRH5;
 };
 #endif
