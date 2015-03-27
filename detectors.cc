@@ -2,6 +2,8 @@
 #include <utility>
 #include "detectors.h"
 using namespace std;
+ForwardDetectors::plane_data::plane_data(ForwardDetectorPlane p, double t, string n)
+	:plane(p),threshold(t),name(n){}
 ForwardDetectors::ForwardDetectors(){
 	PlaneData.push_back(plane_data(kFWC1,0.0025,"FWC1"));
 	PlaneData.push_back(plane_data(kFWC2,0.0025,"FWC2"));
