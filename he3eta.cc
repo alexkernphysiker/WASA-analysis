@@ -1,7 +1,7 @@
 #include "reactions.h"
 #include "detectors.h"
 using namespace std;
-He3eta_gg::He3eta_gg():ForwardDetectors(),Analysis(){
+He3eta_gg::He3eta_gg():Analysis(),ForwardDetectors(){
 	first_particles.push_back(make_pair(kHe3,m_3He));
 	first_particles.push_back(make_pair(kEta,m_eta));
 	final_particles.push_back(make_pair(kHe3,m_3He));
