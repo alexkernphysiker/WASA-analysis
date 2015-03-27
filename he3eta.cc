@@ -9,9 +9,9 @@ He3eta_gg::He3eta_gg():Analysis(){
 	int n=ForwadrPlaneCount()-1;
 	for(int i=0;i<n;i++){
 		string histname=ForwardPlaneName(i)+"vs"+ForwardPlaneName(i+1);
-		TH2F* hist=new TH2F(histname,"",256,0,0.3,256,0,0.3);
+		TH2F* hist=new TH2F(histname.c_str(),"",256,0,0.3,256,0,0.3);
 		EDepHist.push_back(hist);
-		gHistoManager->Add(hist,histname);
+		gHistoManager->Add(hist,histname.c_str());
 	}
 }
 He3eta_gg::~He3eta_gg(){}
