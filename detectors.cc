@@ -10,12 +10,12 @@ ForwardDetectors::ForwardDetectors(){
 	PlaneData.push_back(plane_data(kFTH1,0.0025,"FTH1"));
 	PlaneData.push_back(plane_data(kFTH2,0.0025,"FTH2"));
 	PlaneData.push_back(plane_data(kFTH3,0.0025,"FTH3"));
-	PlaneData.push_back(plane_data(kFRH1,0.004,"FRH1"));
+	PlaneData.push_back(plane_data(kFRH1,0.004 ,"FRH1"));
 	PlaneData.push_back(plane_data(kFRH2,0.0025,"FRH2"));
 	PlaneData.push_back(plane_data(kFRH3,0.0025,"FRH3"));
 	PlaneData.push_back(plane_data(kFRH4,0.0035,"FRH4"));
-	PlaneData.push_back(plane_data(kFRH5,0.004,"FRH5"));
-	PlaneData.push_back(plane_data(kFVH,0.004,"FVH"));
+	PlaneData.push_back(plane_data(kFRH5,0.004 ,"FRH5"));
+	PlaneData.push_back(plane_data(kFVH ,0.004 ,"FVH"));
 }
 ForwardDetectors::~ForwardDetectors(){}
 int ForwardDetectors::ForwadrPlaneCount(){
