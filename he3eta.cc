@@ -27,7 +27,7 @@ bool He3eta_gg::CentralFirst(){
 bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &pbeam){
 	int n=ForwadrPlaneCount()-1;
 	for(int i=0;i<n;i++){
-		EDepHist[i]->Fill(EDep(track,i),EDep(track,i+1));
+		EDepHist[i]->Fill(EDep(track,i+1),EDep(track,i));
 	}
 	return true;
 }
