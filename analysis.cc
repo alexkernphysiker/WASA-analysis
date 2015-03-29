@@ -16,7 +16,8 @@ typedef pair<WTrackBank*,function<bool(WTrack*,TVector3)>> DetectorToProcess;
 void Analysis::ProcessEvent(){
 	if (EventProcessingCondition()){
 		double event_wieght=EventWeight();
-		TVector3 p_beam=PBeam();
+		TVector3 p_beam;
+		p_beam.SetMagThetaPhi(PBeam(),0,0);
 		P_Beam->Fill(p_beam.Mag());
 		if(EventPreProcessing(p_beam)){
 			int ChargedCountInCentral = fTrackBankCD->GetEntries(kCDC);
@@ -60,7 +61,7 @@ bool MonteCarlo::EventProcessingCondition(){
 	gWasa->IsAnalysisMode(Wasa::kMCReco)||
 	gWasa->IsAnalysisMode(Wasa::kMC);
 }
-TVector3 MonteCarlo::PBeam(){
+double MonteCarlo::PBeam(){
 	TVector3 result;
 	WVertexIter iterator(fMCVertexBank);
 	int NrVertex=0;
@@ -83,5 +84,5 @@ TVector3 MonteCarlo::PBeam(){
 					}
 		}
 	}
-	return result;
+	return result.Mag();
 }
