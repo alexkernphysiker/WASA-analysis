@@ -77,10 +77,9 @@ TVector3 MonteCarlo::PBeam(){
 					if(ptype==P.first){
 						double m=P.second;
 						auto p=TMath::Sqrt(ekin*(ekin+2*m));
-						auto E_3He=TMath::Sqrt(p*p+m*m);
-						TVector3 vec;
-						vec.SetMagThetaPhi(p,theta,phi);
-						result=result+vec;
+						TVector3 P;
+						P.SetMagThetaPhi(p,theta,phi);
+						result=result+P;
 					}
 		}
 	}
