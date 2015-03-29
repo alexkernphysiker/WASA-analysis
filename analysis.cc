@@ -12,21 +12,19 @@ Analysis::Analysis(){
 	gHistoManager->Add(P_Beam,"PBeam");
 }
 Analysis::~Analysis(){}
-typedef pair<WTrackBank*,function<bool(WTrack*,TVector3&)>> DetectorToProcess;
+typedef pair<WTrackBank*,function<bool(WTrack*,TVector3)>> DetectorToProcess;
 void Analysis::ProcessEvent(){
 	if (EventProcessingCondition()){
 		double event_wieght=EventWeight();
-		double p_beam=PBeam();
-		P_Beam->Fill(p_beam);
-		TVector3 vec_beam;
-		vec_beam.SetMagThetaPhi(p_beam,0,0);
-		if(EventPreProcessing(vec_beam)){
+		TVector3 p_beam=PBeam();
+		P_Beam->Fill(p_beam.Mag());
+		if(EventPreProcessing(p_beam)){
 			int ChargedCountInCentral = fTrackBankCD->GetEntries(kCDC);
 			int NeutralCountInCentral = fTrackBankCD->GetEntries(kCDN);
 			int ChargedCountinForward = fTrackBankFD->GetEntries(kFDC);
 			if(TrackCountTrigger(ChargedCountInCentral,NeutralCountInCentral,ChargedCountinForward)){
-				DetectorToProcess CENTRAL=make_pair(fTrackBankCD,[this](WTrack* t,TVector3& p){return CentralTrackProcessing(t,p);});
-				DetectorToProcess FORWARD=make_pair(fTrackBankFD,[this](WTrack* t,TVector3& p){return ForwardTrackProcessing(t,p);});
+				DetectorToProcess CENTRAL=make_pair(fTrackBankCD,[this](WTrack* t,TVector3 p){return CentralTrackProcessing(t,p);});
+				DetectorToProcess FORWARD=make_pair(fTrackBankFD,[this](WTrack* t,TVector3 p){return ForwardTrackProcessing(t,p);});
 				vector<DetectorToProcess> QUEUE;
 				if(CentralFirst()){
 					QUEUE.push_back(CENTRAL);
@@ -39,11 +37,11 @@ void Analysis::ProcessEvent(){
 					int NrTracks=DETECTOR.first->GetEntries();
 					for (int trackindex=0; trackindex<NrTracks; trackindex++) { 
 						auto track=DETECTOR.first->GetTrack(trackindex);
-						if(!DETECTOR.second(track,vec_beam))
+						if(!DETECTOR.second(track,p_beam))
 							return;
 					}
 				}
-				EventPostProcessing(vec_beam);
+				EventPostProcessing(p_beam);
 			}
 		}
 	}
@@ -62,7 +60,7 @@ bool MonteCarlo::EventProcessingCondition(){
 	gWasa->IsAnalysisMode(Wasa::kMCReco)||
 	gWasa->IsAnalysisMode(Wasa::kMC);
 }
-double MonteCarlo::PBeam(){
+TVector3 MonteCarlo::PBeam(){
 	TVector3 result;
 	WVertexIter iterator(fMCVertexBank);
 	int NrVertex=0;
@@ -86,5 +84,5 @@ double MonteCarlo::PBeam(){
 					}
 		}
 	}
-	return result.Mag();
+	return result;
 }

@@ -36,7 +36,7 @@ public:
 	virtual void ProcessEvent()override;
 protected:
 	virtual bool EventProcessingCondition()=0;
-	virtual double PBeam()=0;
+	virtual TVector3 PBeam()=0;
 	virtual double EventWeight()=0;
 
 	virtual bool EventPreProcessing(TVector3 &pbeam)=0;
@@ -62,7 +62,7 @@ protected:
 	virtual bool EventProcessingCondition()override{
 		return datatype::EventProcessingCondition();
 	}
-	virtual double PBeam()override{
+	virtual TVector3 PBeam()override{
 		return datatype::PBeam();
 	}
 	virtual double EventWeight()override{
@@ -93,7 +93,7 @@ public:
 	virtual ~MonteCarlo();
 protected:
 	virtual bool EventProcessingCondition()override;
-	virtual double PBeam()override;
+	virtual TVector3 PBeam()override;
 	virtual double EventWeight()override;
 	WTrackBank *fMCTrackBank;
 	WVertexBank *fMCVertexBank;
