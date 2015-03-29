@@ -13,6 +13,10 @@ He3eta_gg::He3eta_gg():Analysis(),ForwardDetectors(){
 		EDepHist.push_back(hist);
 		gHistoManager->Add(hist,histname.c_str());
 	}
+	stop_plane=new TH1F("Stop plane","",0,ForwadrPlaneCount()-1,ForwadrPlaneCount());
+	gHistoManager->Add(stop_plane,"StopPlane");
+	plane_dep=new TH1F("Deponating plane","",0,ForwadrPlaneCount()-1,ForwadrPlaneCount());
+	gHistoManager->Add(plane_dep,"DepPlane");
 }
 He3eta_gg::~He3eta_gg(){}
 bool He3eta_gg::EventPreProcessing(TVector3 &pbeam){
@@ -28,7 +32,10 @@ bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &pbeam){
 	int n=ForwadrPlaneCount()-1;
 	for(int i=0;i<n;i++){
 		EDepHist[i]->Fill(EDep(track,i+1),EDep(track,i));
+		if(IsForwardPlaneDep(track,i))
+			plane_dep->Fill(i);
 	}
+	stop_plane->Fill(ForwardStopPlaneIndex(track));
 	return true;
 }
 bool He3eta_gg::CentralTrackProcessing(WTrack* track,TVector3 &pbeam){
