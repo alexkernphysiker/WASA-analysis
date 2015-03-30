@@ -13,9 +13,9 @@ He3eta_gg::He3eta_gg():Analysis(),ForwardDetectors(){
 		EDepHist.push_back(hist);
 		gHistoManager->Add(hist,histname.c_str());
 	}
-	stop_plane=new TH1F("Stop plane","",0,ForwadrPlaneCount()-1,ForwadrPlaneCount());
+	stop_plane=new TH1F("Stop plane","",ForwadrPlaneCount(),0,ForwadrPlaneCount()-1);
 	gHistoManager->Add(stop_plane,"StopPlane");
-	plane_dep=new TH1F("Deponating plane","",0,ForwadrPlaneCount()-1,ForwadrPlaneCount());
+	plane_dep=new TH1F("Deponating plane","",ForwadrPlaneCount(),0,ForwadrPlaneCount()-1);
 	gHistoManager->Add(plane_dep,"DepPlane");
 }
 He3eta_gg::~He3eta_gg(){}
