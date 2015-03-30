@@ -19,6 +19,7 @@ protected:
 	virtual bool ForwardTrackProcessing(WTrack* track,TVector3 &pbeam)override;
 	virtual bool CentralTrackProcessing(WTrack* track,TVector3 &pbeam)override;
 private:
+	FDEdep2Ekin *He3DepKin;
 	vector<TH2F*> EDepHist;
 	TH1F *stop_plane,*plane_dep;
 };

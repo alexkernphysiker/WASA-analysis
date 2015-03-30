@@ -47,7 +47,6 @@ protected:
 	virtual bool CentralTrackProcessing(WTrack* track,TVector3 &pbeam)=0;
 
 	WTrackBank *fTrackBankFD,*fTrackBankCD;
-	FDEdep2Ekin *He3DepKin;
 	CCardWDET *fDetectorTable;
 	TH1F *P_Beam;
 	vector<pair<ParticleType,double>> first_particles;

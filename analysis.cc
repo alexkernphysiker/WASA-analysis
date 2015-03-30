@@ -6,7 +6,6 @@ Analysis::Analysis(){
 	if(TrackFinderFD!=0) fTrackBankFD = TrackFinderFD->GetTrackBank();
 	auto CDTrackFinder = dynamic_cast<CDTracksSimple*>(gDataManager->GetAnalysisModule("CDTracksSimple","default"));
 	if (CDTrackFinder!=0) fTrackBankCD = CDTrackFinder->GetTrackBank();
-	He3DepKin = dynamic_cast<FDEdep2Ekin*>(gParameterManager->GetParameterObject("FDEdep2Ekin","3He"));
 	fDetectorTable = dynamic_cast<CCardWDET*>(gParameterManager->GetParameterObject("CCardWDET","default")); 
 	P_Beam=new TH1F("P_beam","",500,1.4,1.9);
 	gHistoManager->Add(P_Beam,"PBeam");
