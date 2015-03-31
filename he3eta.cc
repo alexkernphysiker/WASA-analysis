@@ -55,12 +55,13 @@ bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &pbeam){
 		double E3He=sqrt(p3He*p3He+m_3He*m_3He);
 		double theta=track->Theta();
 		double phi=track->Phi();
+		CheckParticleTrack(kHe3,Ek3He,theta,phi);
 		//phi+=TrackFinder->GetPhiCorrection(p3He, theta, 10, 2);//ToDo: phi correction
-		TVector3 vec_3He;
-		vec_3He.SetMagThetaPhi(p3He,theta,phi);
-		TLorentzVector P_3He;
-		P_3He.SetVectM(vec_3He,m_3He);        
 		//ToDo: missing mass
+		//TVector3 vec_3He;
+		//vec_3He.SetMagThetaPhi(p3He,theta,phi);
+		//TLorentzVector P_3He;
+		//P_3He.SetVectM(vec_3He,m_3He);        
 	}
 	return true;
 }

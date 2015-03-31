@@ -38,6 +38,8 @@ protected:
 	virtual bool EventProcessingCondition()=0;
 	virtual double PBeam()=0;
 	virtual double EventWeight()=0;
+	virtual void PrepareCheck();
+	virtual void CheckParticleTrack(ParticleType type,double Ekin,double theta, double phi);
 
 	virtual bool EventPreProcessing(TVector3 &pbeam)=0;
 	virtual void EventPostProcessing(TVector3 &pbeam)=0;
@@ -51,6 +53,8 @@ protected:
 	TH1F *P_Beam;
 	vector<pair<ParticleType,double>> first_particles;
 	vector<pair<ParticleType,double>> final_particles;
+private:
+	bool checkprepared;
 };
 template <class datatype,class reaction>
 class CreateAnalysis:public virtual datatype,public virtual reaction{
@@ -66,6 +70,12 @@ protected:
 	}
 	virtual double EventWeight()override{
 		return datatype::EventWeight();
+	}
+	virtual void PrepareCheck()override{
+		datatype::PrepareCheck();
+	}
+	virtual void CheckParticleTrack(ParticleType type,double Ekin,double theta, double phi)override{
+		datatype::CheckParticleTrack(type,Ekin,theta,phi);
 	}
 	virtual bool EventPreProcessing(TVector3 &pbeam)override{
 		return reaction::EventPreProcessing(pbeam);
@@ -94,8 +104,19 @@ protected:
 	virtual bool EventProcessingCondition()override;
 	virtual double PBeam()override;
 	virtual double EventWeight()override;
+	virtual void PrepareCheck()override;
+	virtual void CheckParticleTrack(ParticleType type,double Ekin,double theta, double phi)override;
+private:
+	struct CheckHists{
+	public:
+		CheckHists(ParticleType t);
+		ParticleType type;
+		TH1F *Ekin, *Theta, *Phi;
+	};
+	vector<CheckHists> check;
 	WTrackBank *fMCTrackBank;
 	WVertexBank *fMCVertexBank;
 	REventWmcHeader   *fEventHeader;
+	
 };
 #endif
