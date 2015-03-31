@@ -22,7 +22,6 @@ int main(int, char **){
 	smear->SetMomentumFunction(new TF1("Uniform","1",he3_eta_threshold,beam_hi));
 	makeDistributionManager()->Add(smear);
 	list<string> reactlist;
-	reactlist.push_back("He3 eta");
 	reactlist.push_back("He3 eta [g g]");
 	reactlist.push_back("He3 eta [pi0 pi0 pi0]");
 	for(auto react:reactlist){
