@@ -21,6 +21,5 @@ protected:
 private:
 	FDEdep2Ekin *He3DepKin;
 	vector<TH2F*> EDepHist;
-	TH1F *stop_plane,*plane_dep;
 };
 #endif

@@ -13,10 +13,6 @@ He3eta_gg::He3eta_gg():Analysis(),ForwardDetectors(){
 		EDepHist.push_back(hist);
 		gHistoManager->Add(hist,histname.c_str());
 	}
-	stop_plane=new TH1F("Stop plane","",ForwadrPlaneCount(),0,ForwadrPlaneCount()-1);
-	gHistoManager->Add(stop_plane,"StopPlane");
-	plane_dep=new TH1F("Deponating plane","",ForwadrPlaneCount(),0,ForwadrPlaneCount()-1);
-	gHistoManager->Add(plane_dep,"DepPlane");
 	He3DepKin = dynamic_cast<FDEdep2Ekin*>(gParameterManager->GetParameterObject("FDEdep2Ekin","3He"));
 }
 He3eta_gg::~He3eta_gg(){}
@@ -33,35 +29,18 @@ bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &pbeam){
 	int n=ForwadrPlaneCount()-1;
 	for(int i=0;i<n;i++){
 		EDepHist[i]->Fill(EDep(track,i+1),EDep(track,i));
-		if(IsForwardPlaneDep(track,i))
-			plane_dep->Fill(i);
 	}
-	stop_plane->Fill(ForwardStopPlaneIndex(track));
-	if(EDep(track,kFTH3)>0.01){
+	int StopPlane=He3DepKin->GetStoppingPlane(track);
+	if(StopPlane==kFRH1){
 		int Edep2Ekin_table=0;
-		int last_plane=0;
-		int StopPlane=He3DepKin->GetStoppingPlane(track,1);
-		if(StopPlane==9 || StopPlane==8) {
-			Edep2Ekin_table=17;
-			last_plane=7;
-		}else{
-			Edep2Ekin_table=StopPlane;
-			last_plane=StopPlane;
-		}
-		if(Edep2Ekin_table==3) 
-			return true;
-		double Ek3He=He3DepKin->GetEkin(Edep2Ekin_table,14,track->Edep(4,last_plane),track->Theta());
+		double Ek3He=He3DepKin->GetEkin(kFRH1,kProton,EDep(track,kFRH1),track->Theta());
 		double p3He=sqrt(Ek3He*(Ek3He+2*m_3He));
 		double E3He=sqrt(p3He*p3He+m_3He*m_3He);
 		double theta=track->Theta();
 		double phi=track->Phi();
 		CheckParticleTrack(kHe3,Ek3He,theta,phi);
-		//phi+=TrackFinder->GetPhiCorrection(p3He, theta, 10, 2);//ToDo: phi correction
+		//ToDo: phi correction
 		//ToDo: missing mass
-		//TVector3 vec_3He;
-		//vec_3He.SetMagThetaPhi(p3He,theta,phi);
-		//TLorentzVector P_3He;
-		//P_3He.SetVectM(vec_3He,m_3He);        
 	}
 	return true;
 }
