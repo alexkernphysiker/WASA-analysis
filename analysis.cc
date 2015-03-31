@@ -76,7 +76,7 @@ double MonteCarlo::PBeam(){
 		if(NrVertex==2)
 			for(int particleindex=0; particleindex<vertex->NumberOfParticles(); particleindex++){
 				WParticle *particle=vertex->GetParticle(particleindex);
-				ParticleType ptype=particle->GetType();
+				auto ptype=particle->GetType();
 				for(auto P:first_particles)
 					if(ptype==P.first){
 						double ekin=particle->GetEkin();
@@ -119,7 +119,7 @@ void MonteCarlo::CheckParticleTrack(ParticleType type, double Ekin, double theta
 		if(NrVertex==2)
 			for(int particleindex=0; particleindex<vertex->NumberOfParticles(); particleindex++){
 				WParticle *particle=vertex->GetParticle(particleindex);
-				ParticleType ptype=particle->GetType();
+				auto ptype=particle->GetType();
 				for(CheckHists H:check)
 					if(H.type==type){
 						double p_ekin=particle->GetEkin();
