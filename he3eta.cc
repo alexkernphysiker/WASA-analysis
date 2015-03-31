@@ -37,7 +37,7 @@ bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &pbeam){
 			plane_dep->Fill(i);
 	}
 	stop_plane->Fill(ForwardStopPlaneIndex(track));
-	if(EDep(track,kFWC2)>0.01){
+	if(EDep(track,kFTH3)>0.01){
 		int Edep2Ekin_table=0;
 		int last_plane=0;
 		int StopPlane=He3DepKin->GetStoppingPlane(track,1);
