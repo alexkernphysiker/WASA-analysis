@@ -16,7 +16,7 @@ He3eta_gg::He3eta_gg():Analysis(),ForwardDetectorRoutines<kProton,kFRH1>("3He"){
 		EDepFilteredHist.push_back(hist);
 		gHistoManager->Add(hist,histname.c_str());
 	}
-	SetReconstructionGettableFunction([](int& StopPlane,int& Edep2Ekin_table){
+	SetGettableFunction([](int& StopPlane,int& Edep2Ekin_table){
 		int last_plane=StopPlane;
 		if(StopPlane==9 || StopPlane==8) {
 			Edep2Ekin_table=17;

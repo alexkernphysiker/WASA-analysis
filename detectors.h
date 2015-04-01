@@ -34,19 +34,21 @@ private:
 };
 template<ParticleType ptype,ForwardDetectorPlane firstplane>
 class ForwardDetectorRoutines:public virtual ForwardDetectors{
+public:
+	typedef std::function<bool(int&,int&)> delegate;
 private:
 	FDEdep2Ekin *DepKin;
-	std::function<bool(int&,int&)> get_table;
+	delegate get_table;
 	double coeff;
 public:
 	ForwardDetectorRoutines(std::string particlename):ForwardDetectors(){
 		DepKin = dynamic_cast<FDEdep2Ekin*>(gParameterManager->GetParameterObject("FDEdep2Ekin",particlename.c_str()));
-		g=[](int&,int&){return true;};
+		get_table=[](int&,int&){return true;};
 		coeff=1;
 	}
 	virtual ~ForwardDetectorRoutines(){}
 protected:
-	void SetReconstructionGettableFunction(std::function<bool(int,int&,int&)> func){
+	void SetGettableFunction(delegate func){
 		get_table=func;
 	}
 	void SetCorrectionCoefficient(double c){
