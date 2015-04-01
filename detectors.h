@@ -38,8 +38,8 @@ private:
 	std::function<bool(int,int&,int&)> check;
 	double coeff;
 public:
-	ForwardDetectorRoutines(string tablename,string particlename,double corr_coef):ForwardDetectors(){
-		DepKin = dynamic_cast<FDEdep2Ekin*>(gParameterManager->GetParameterObject(tablename.c_str(),particlename.c_str()));
+	ForwardDetectorRoutines(char* particlename,double corr_coef):ForwardDetectors(){
+		DepKin = dynamic_cast<FDEdep2Ekin*>(gParameterManager->GetParameterObject("FDEdep2Ekin",particlename));
 		check=[](int,int&,int&){return true;};
 		coeff=corr_coef;
 	}
