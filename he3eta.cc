@@ -1,3 +1,4 @@
+#include <iostream>
 #include "reactions.h"
 #include "detectors.h"
 using namespace std;
@@ -89,6 +90,7 @@ bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
 			TLorentzVector P_Missing=P_Total-P_He3;
 			double mmass=P_Missing.M();
 			double menergy=P_Missing.E();
+			printf("dupa\n");
 			MissingMass->Fill(mmass);
 			MissingHist->Fill(mmass,menergy);
 		}
