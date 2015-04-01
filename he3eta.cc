@@ -38,7 +38,7 @@ He3eta_gg::He3eta_gg():Analysis(),ForwardDetectorRoutines("3He"){
 	});
 	MissingMass=new TH1F("MissingMass","",500,0.4,0.6);
 	gHistoManager->Add(MissingMass,"MissingMass");
-	MissingHist=new TH2F("MissingMass_vs_Energy","",250,0.4,0.6,250,0.0,0.2);
+	MissingHist=new TH2F("MissingMass_vs_Energy","",250,0.4,0.6,500,0.0,1.0);
 	gHistoManager->Add(MissingHist,"MissingMass_vs_Energy");
 }
 He3eta_gg::~He3eta_gg(){}
@@ -54,9 +54,7 @@ bool He3eta_gg::CentralFirst(){
 bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
 	for(int i=0;i<(ForwadrPlaneCount()-1);i++)
 		EDepHist[i]->Fill(EDep(track,i+1),EDep(track,i));
-	auto stopping_condition=[this,track](ForwardDetectorPlane plane,double thr){
-		if(StoppingPlane(track)!=plane)
-			return false;
+	auto threshold_condition=[this,track](ForwardDetectorPlane plane,double thr){
 		int index=ForwardPlaneIndex(plane);
 		bool res=true;
 		for(int c=0;c<index;c++)
@@ -64,7 +62,7 @@ bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
 		res&=(EDep(track,index)>thr);
 		return res;
 	};
-	if(stopping_condition(kFRH1,0.01)){
+	if((StoppingPlane(track)!=kFRH1)&&threshold_condition(kFTH3,0.01)){
 		for(int i=0;i<(ForwadrPlaneCount()-1);i++)
 			EDepFilteredHist[i]->Fill(EDep(track,i+1),EDep(track,i));
 		double Ek=0;
