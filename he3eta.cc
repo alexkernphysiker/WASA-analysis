@@ -9,7 +9,7 @@ He3eta_gg::He3eta_gg():Analysis(),ForwardDetectorRoutines("3He"){
 	for(int i=0;i<(ForwadrPlaneCount()-1);i++){
 		string histname=ForwardPlaneName(i)+"vs"+ForwardPlaneName(i+1);
 		TH2F* hist;
-		auto makehist=[this,&hist,&histname](vector<TH2F*> &vect){
+		auto makehist=[this,i,&hist,&histname](vector<TH2F*> &vect){
 			hist=new TH2F(histname.c_str(),"",128,0,UpperByIndex(i+1),128,0,UpperByIndex(i));
 			vect.push_back(hist);
 			gHistoManager->Add(hist,histname.c_str());
