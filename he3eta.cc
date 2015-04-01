@@ -49,7 +49,7 @@ bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &pbeam){
 	for(int i=0;i<(ForwadrPlaneCount()-1);i++)
 		EDepHist[i]->Fill(EDep(track,i+1),EDep(track,i));
 	auto StopPlane=StoppingPlane(track);
-	if((StopPlane==kFRH1)&&(EDep(track,kFTH3)>0.01)){
+	if((StopPlane==kFRH1)&&(track->Edep(kFTH3)>0.01)){
 		for(int i=0;i<(ForwadrPlaneCount()-1);i++)
 			EDepFilteredHist[i]->Fill(EDep(track,i+1),EDep(track,i));
 		double Ek3He=0;
