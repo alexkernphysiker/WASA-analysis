@@ -1,7 +1,7 @@
 #include "reactions.h"
 #include "detectors.h"
 using namespace std;
-He3eta_gg::He3eta_gg():Analysis(),ForwardDetectors(){
+He3eta_gg::He3eta_gg():Analysis(),ForwardDetectorRoutines<kHe3>("FDEdep2Ekin","3He",1.003){
 	first_particles.push_back(make_pair(kHe3,m_3He));
 	first_particles.push_back(make_pair(kEta,m_eta));
 	final_particles.push_back(make_pair(kHe3,m_3He));
@@ -16,7 +16,19 @@ He3eta_gg::He3eta_gg():Analysis(),ForwardDetectors(){
 		EDepFilteredHist.push_back(hist);
 		gHistoManager->Add(hist,histname2.c_str());
 	}
-	He3DepKin = dynamic_cast<FDEdep2Ekin*>(gParameterManager->GetParameterObject("FDEdep2Ekin","3He"));
+	SetReconstructionCheckFunction([](int StopPlane,int& last_plane,int Edep2Ekin_table){
+		if(StopPlane==9 || StopPlane==8) {
+			Edep2Ekin_table=17;
+			last_plane=7;
+		}else{
+			Edep2Ekin_table=StopPlane;
+			last_plane=StopPlane;
+		}
+		if(Edep2Ekin_table==3) 
+			return false;
+		else
+			return true;
+	});
 }
 He3eta_gg::~He3eta_gg(){}
 bool He3eta_gg::EventPreProcessing(TVector3 &pbeam){
@@ -31,18 +43,20 @@ bool He3eta_gg::CentralFirst(){
 bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &pbeam){
 	for(int i=0;i<(ForwadrPlaneCount()-1);i++)
 		EDepHist[i]->Fill(EDep(track,i+1),EDep(track,i));
-	int StopPlane=He3DepKin->GetStoppingPlane(track);
+	auto StopPlane=StoppingPlane(track);
 	if((StopPlane==kFRH1)&&(EDep(track,kFTH3)>0.01)){
 		for(int i=0;i<(ForwadrPlaneCount()-1);i++)
 			EDepFilteredHist[i]->Fill(EDep(track,i+1),EDep(track,i));
-		double Ek3He=He3DepKin->GetEkin(kFRH1,kProton,EDep(track,kFRH1),track->Theta());//???? jak to działa?
-		double theta=track->Theta();
-		double phi=track->Phi();
-		CheckParticleTrack(kHe3,Ek3He,theta,phi);
-		//ToDo: phi correction
-		double p3He=sqrt(Ek3He*(Ek3He+2*m_3He));
-		double E3He=sqrt(p3He*p3He+m_3He*m_3He);
-		//ToDo: missing mass
+		double Ek3He=0;
+		if(ReconstructEkin(track,Ek3He)){
+			double theta=track->Theta();
+			double phi=track->Phi();
+			CheckParticleTrack(kHe3,Ek3He,theta,phi);
+			//ToDo: phi correction
+			double p3He=sqrt(Ek3He*(Ek3He+2*m_3He));
+			double E3He=sqrt(p3He*p3He+m_3He*m_3He);
+			//ToDo: missing mass
+		}
 	}
 	return true;
 }
