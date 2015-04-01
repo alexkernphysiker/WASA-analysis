@@ -35,7 +35,7 @@ He3eta_gg::He3eta_gg():Analysis(),ForwardDetectorRoutines("3He"){
 			return true;
 		}
 	});
-	MissingMass=new TH1F("MissingMass","",200,0.4,0.6);
+	MissingMass=new TH1F("MissingMass","",500,0.4,0.6);
 	gHistoManager->Add(MissingMass,"MissingMass");
 }
 He3eta_gg::~He3eta_gg(){}

@@ -94,9 +94,9 @@ double MonteCarlo::PBeam(){
 }
 MonteCarlo::CheckHists::CheckHists(ParticleType t){
 	type=t;
-	Ekin=new TH1F(Form("Check_E_%i",int(t)),"",100,-0.1,0.1);
-	Theta=new TH1F(Form("Check_Theta_%i",int(t)),"",100,-5,5);
-	Phi=new TH1F(Form("Check_Phi_%i",int(t)),"",100,-5,5);
+	Ekin=new TH1F(Form("Check_E_%i",int(t)),"",500,-0.1,0.1);
+	Theta=new TH1F(Form("Check_Theta_%i",int(t)),"",500,-3,3);
+	Phi=new TH1F(Form("Check_Phi_%i",int(t)),"",500,-3,3);
 }
 void MonteCarlo::PrepareCheck(){
     Analysis::PrepareCheck();
