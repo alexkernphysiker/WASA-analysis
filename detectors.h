@@ -48,7 +48,7 @@ protected:
 	void SetReconstructionCheckFunction(std::function<bool(int,int&,int&)> func){
 		check=func;
 	}
-	ForwardDetectorPlane StoppingPlane(WTrack *track){
+	int StoppingPlane(WTrack *track){
 		return DepKin->GetStoppingPlane(track);
 	}
 	bool ReconstructEkin(WTrack *track,double &Ekin){
