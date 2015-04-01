@@ -114,14 +114,14 @@ void MonteCarlo::CheckParticleTrack(ParticleType type, double Ekin, double theta
 	while(phi>=two_pi)phi-=two_pi;
 	WVertexIter iterator(fMCVertexBank);
 	int NrVertex=0;
-	while(WVertex *vertex=dynamic_cast<WVertex*>(iterator.Next())){
-		NrVertex++;
-		if(NrVertex==2)
-			for(int particleindex=0; particleindex<vertex->NumberOfParticles(); particleindex++){
-				WParticle *particle=vertex->GetParticle(particleindex);
-				auto ptype=particle->GetType();
-				for(CheckHists H:check)
-					if(H.type==type){
+	for(CheckHists H:check)
+		if(H.type==type)
+			while(WVertex *vertex=dynamic_cast<WVertex*>(iterator.Next())){
+				NrVertex++;
+				if(NrVertex==2)
+					for(int particleindex=0; particleindex<vertex->NumberOfParticles(); particleindex++){
+						WParticle *particle=vertex->GetParticle(particleindex);
+						auto ptype=particle->GetType();
 						double p_ekin=particle->GetEkin();
 						double p_theta=particle->GetTheta();
 						double p_phi=particle->GetPhi();
@@ -132,5 +132,4 @@ void MonteCarlo::CheckParticleTrack(ParticleType type, double Ekin, double theta
 						H.Phi->Fill(phi-p_phi);
 					}
 			}
-	}
 }
