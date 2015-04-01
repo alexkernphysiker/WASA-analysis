@@ -52,21 +52,25 @@ bool He3eta_gg::CentralFirst(){
 	return false;
 }
 bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
+	printf("Track\n");
 	for(int i=0;i<(ForwadrPlaneCount()-1);i++)
 		EDepHist[i]->Fill(EDep(track,i+1),EDep(track,i));
 	auto StopPlane=StoppingPlane(track);
 	auto threshold_condition=[this,track](ForwardDetectorPlane plane,double thr){
+		return true;
 		int index=ForwardPlaneIndex(plane);
 		bool res=true;
 		for(int c=0;c<index;c++)
 			res&=EDep(track,c)>ThresholdByIndex(c);
-		return res&(EDep(track,index)>thr);
+		return res&&(EDep(track,index)>thr);
 	};
 	if((StopPlane==kFRH1)&&threshold_condition(kFRH1,0.01)){
+		printf("filter\n");
 		for(int i=0;i<(ForwadrPlaneCount()-1);i++)
 			EDepFilteredHist[i]->Fill(EDep(track,i+1),EDep(track,i));
 		double Ek=0;
 		if(ReconstructEkin(track,Ek)){
+			printf("filter2\n");
 			double theta=track->Theta();
 			double phi=track->Phi();
 			//ToDo: phi correction
