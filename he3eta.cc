@@ -17,6 +17,7 @@ He3eta_gg::He3eta_gg():Analysis(),ForwardDetectorRoutines<kProton,kFRH1>("3He"){
 		gHistoManager->Add(hist,histname.c_str());
 	}
 	SetGettableFunction([](int& StopPlane,int& Edep2Ekin_table){
+		//Jakieś dziwne są te warunki
 		int last_plane=StopPlane;
 		if(StopPlane==9 || StopPlane==8) {
 			Edep2Ekin_table=17;
@@ -32,7 +33,7 @@ He3eta_gg::He3eta_gg():Analysis(),ForwardDetectorRoutines<kProton,kFRH1>("3He"){
 			return true;
 		}
 	});
-	SetCorrectionCoefficient(1.003);
+	SetCorrectionCoefficient(1.003);//po co?
 }
 He3eta_gg::~He3eta_gg(){}
 bool He3eta_gg::EventPreProcessing(TVector3 &pbeam){
