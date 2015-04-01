@@ -37,6 +37,8 @@ He3eta_gg::He3eta_gg():Analysis(),ForwardDetectorRoutines("3He"){
 	});
 	MissingMass=new TH1F("MissingMass","",500,0.4,0.6);
 	gHistoManager->Add(MissingMass,"MissingMass");
+	MissingHist=new TH2F("MissingMass_vs_Energy","",250,0.4,0.6,250,0.0,0.2);
+	gHistoManager->Add(MissingHist,"MissingMass_vs_Energy");
 }
 He3eta_gg::~He3eta_gg(){}
 bool He3eta_gg::EventPreProcessing(TVector3 &pbeam){
@@ -48,7 +50,7 @@ bool He3eta_gg::TrackCountTrigger(int CinC,int NinC,int CinF){
 bool He3eta_gg::CentralFirst(){
 	return false;
 }
-bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &pbeam){
+bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
 	for(int i=0;i<(ForwadrPlaneCount()-1);i++)
 		EDepHist[i]->Fill(EDep(track,i+1),EDep(track,i));
 	auto StopPlane=StoppingPlane(track);
@@ -70,18 +72,25 @@ bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &pbeam){
 			CheckParticleTrack(kHe3,Ek,theta,phi);
 			double p3He=sqrt(Ek*(Ek+2*m_3He));
 			double E3He=sqrt(p3He*p3He+m_3He*m_3He);
-			TLorentzVector Beam;
-			Beam.SetVectM(pbeam,m_p);
-			TLorentzVector Target;
-			{TVector3 tempNullVector;
-				Target.SetVectM(tempNullVector,m_d);
+			TVector3 p_He3;
+			p_He3.SetMagThetaPhi(p3He,theta,phi);
+			TLorentzVector P_He3;
+			P_He3.SetVectM(p_He3,m_3He);
+			TLorentzVector P_Total;
+			{
+				TLorentzVector P_Beam;
+				TLorentzVector P_Target;
+				P_Beam.SetVectM(p_beam,m_p);
+				TVector3 ptarget;
+				ptarget.SetMagThetaPhi(0,0,0);
+				P_Target.SetVectM(ptarget,m_d);
+				P_Total=P_Beam+P_Target;
 			}
-			TVector3 pHe3_;
-			pHe3_.SetMagThetaPhi(p3He,theta,phi);
-			TLorentzVector Registered;
-			Registered.SetVectM(pHe3_,m_3He);
-			TLorentzVector Missing=(Beam+Target)-Registered;
-			MissingMass->Fill(Missing.M());
+			TLorentzVector P_Missing=P_Total-P_He3;
+			double mmass=P_Missing.M();
+			double menergy=P_Missing.E();
+			MissingMass->Fill(mmass);
+			MissingHist->Fill(mmass,menergy);
 		}
 	}
 	return true;

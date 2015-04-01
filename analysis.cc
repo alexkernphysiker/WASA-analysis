@@ -69,6 +69,7 @@ bool MonteCarlo::EventProcessingCondition(){
 }
 double MonteCarlo::PBeam(){
 	TVector3 result;
+	result.SetMagThetaPhi(0,0,0);
 	WVertexIter iterator(fMCVertexBank);
 	int NrVertex=0;
 	while(WVertex *vertex=dynamic_cast<WVertex*>(iterator.Next())){

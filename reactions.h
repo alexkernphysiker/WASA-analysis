@@ -24,5 +24,6 @@ private:
 	vector<TH2F*> EDepHist;
 	vector<TH2F*> EDepFilteredHist;
 	TH1F *MissingMass;
+	TH2F *MissingHist;
 };
 #endif
