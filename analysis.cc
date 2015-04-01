@@ -122,14 +122,16 @@ void MonteCarlo::CheckParticleTrack(ParticleType type, double Ekin, double theta
 					for(int particleindex=0; particleindex<vertex->NumberOfParticles(); particleindex++){
 						WParticle *particle=vertex->GetParticle(particleindex);
 						auto ptype=particle->GetType();
-						double p_ekin=particle->GetEkin();
-						double p_theta=particle->GetTheta();
-						double p_phi=particle->GetPhi();
-						while(p_phi<0)p_phi+=two_pi;
-						while(p_phi>=two_pi)p_phi-=two_pi;
-						H.Ekin->Fill(Ekin-p_ekin);
-						H.Theta->Fill(theta-p_theta);
-						H.Phi->Fill(phi-p_phi);
+						if(type==ptype){
+							double p_ekin=particle->GetEkin();
+							double p_theta=particle->GetTheta();
+							double p_phi=particle->GetPhi();
+							while(p_phi<0)p_phi+=two_pi;
+							while(p_phi>=two_pi)p_phi-=two_pi;
+							H.Ekin->Fill(Ekin-p_ekin);
+							H.Theta->Fill(theta-p_theta);
+							H.Phi->Fill(phi-p_phi);
+						}
 					}
 			}
 }
