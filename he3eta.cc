@@ -35,7 +35,6 @@ He3eta_gg::He3eta_gg():Analysis(),ForwardDetectorRoutines("3He"){
 			return true;
 		}
 	});
-	SetCorrectionCoefficient(1.003);//po co?
 }
 He3eta_gg::~He3eta_gg(){}
 bool He3eta_gg::EventPreProcessing(TVector3 &pbeam){
