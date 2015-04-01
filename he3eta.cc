@@ -52,11 +52,9 @@ bool He3eta_gg::CentralFirst(){
 	return false;
 }
 bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
-	printf("%i forward planes",ForwadrPlaneCount());
 	for(int i=0;i<(ForwadrPlaneCount()-1);i++)
 		EDepHist[i]->Fill(EDep(track,i+1),EDep(track,i));
-	auto StopPlane=StoppingPlane(track);
-	auto threshold_condition=[this,track](ForwardDetectorPlane plane,double thr){
+	auto stopping_condition=[this,track](ForwardDetectorPlane plane,double thr){
 		if(StoppingPlane(track)!=plane)
 			return false;
 		int index=ForwardPlaneIndex(plane);
@@ -66,13 +64,11 @@ bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
 		res&=(EDep(track,index)>thr);
 		return res;
 	};
-	if(threshold_condition(kFRH1,0.01)){
-		printf("filter\n");
+	if(stopping_condition(kFRH1,0.01)){
 		for(int i=0;i<(ForwadrPlaneCount()-1);i++)
 			EDepFilteredHist[i]->Fill(EDep(track,i+1),EDep(track,i));
 		double Ek=0;
 		if(ReconstructEkin(track,Ek)){
-			printf("filter2\n");
 			double theta=track->Theta();
 			double phi=track->Phi();
 			//ToDo: phi correction
@@ -96,7 +92,6 @@ bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
 			TLorentzVector P_Missing=P_Total-P_He3;
 			double mmass=P_Missing.M();
 			double menergy=P_Missing.E();
-			printf("dupa\n");
 			MissingMass->Fill(mmass);
 			MissingHist->Fill(mmass,menergy);
 		}
