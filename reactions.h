@@ -21,5 +21,6 @@ protected:
 private:
 	FDEdep2Ekin *He3DepKin;
 	vector<TH2F*> EDepHist;
+	vector<TH2F*> EDepFilteredHist;
 };
 #endif
