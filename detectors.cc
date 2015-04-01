@@ -2,20 +2,20 @@
 #include <utility>
 #include "detectors.h"
 using namespace std;
-ForwardDetectors::plane_data::plane_data(ForwardDetectorPlane p, double u, string n)
-	:plane(p),upper(u),name(n){}
+ForwardDetectors::plane_data::plane_data(ForwardDetectorPlane p, string n, double u,double thr)
+	:plane(p),upper(u),name(n),threshold(thr){}
 ForwardDetectors::ForwardDetectors(){
-	PlaneData.push_back(plane_data(kFWC1,0.03,"FWC1"));
-	PlaneData.push_back(plane_data(kFWC2,0.03,"FWC2"));
-	PlaneData.push_back(plane_data(kFTH1,0.05,"FTH1"));
-	PlaneData.push_back(plane_data(kFTH2,0.05,"FTH2"));
-	PlaneData.push_back(plane_data(kFTH3,0.05,"FTH3"));
-	PlaneData.push_back(plane_data(kFRH1,0.3 ,"FRH1"));
-	PlaneData.push_back(plane_data(kFRH2,0.3 ,"FRH2"));
-	PlaneData.push_back(plane_data(kFRH3,0.3 ,"FRH3"));
-	PlaneData.push_back(plane_data(kFRH4,0.3 ,"FRH4"));
-	PlaneData.push_back(plane_data(kFRH5,0.3 ,"FRH5"));
-	PlaneData.push_back(plane_data(kFVH ,0.05,"FVH" ));
+	PlaneData.push_back(plane_data(kFWC1,"FWC1",0.03,0.0005));
+	PlaneData.push_back(plane_data(kFWC2,"FWC2",0.03,0.0005));
+	PlaneData.push_back(plane_data(kFTH1,"FTH1",0.05,0.0005));
+	PlaneData.push_back(plane_data(kFTH2,"FTH2",0.05,0.0005));
+	PlaneData.push_back(plane_data(kFTH3,"FTH3",0.05,0.0005));
+	PlaneData.push_back(plane_data(kFRH1,"FRH1",0.3 ,0.0005));
+	PlaneData.push_back(plane_data(kFRH2,"FRH2",0.3 ,0.0005));
+	PlaneData.push_back(plane_data(kFRH3,"FRH3",0.3 ,0.0005));
+	PlaneData.push_back(plane_data(kFRH4,"FRH4",0.3 ,0.0005));
+	PlaneData.push_back(plane_data(kFRH5,"FRH5",0.3 ,0.0005));
+	PlaneData.push_back(plane_data(kFVH ,"FVH" ,0.05,0.0005));
 }
 ForwardDetectors::~ForwardDetectors(){}
 int ForwardDetectors::ForwadrPlaneCount(){
@@ -39,9 +39,15 @@ string ForwardDetectors::ForwardPlaneName(ForwardDetectorPlane plane){
 double ForwardDetectors::EDep(WTrack* track, int planeindex){
 	return track->Edep(PlaneData[planeindex].plane);
 }
-double ForwardDetectors::Upper(int planeindex){
+double ForwardDetectors::UpperByIndex(int planeindex){
 	return PlaneData[planeindex].upper;
 }
 double ForwardDetectors::Upper(ForwardDetectorPlane plane){
 	return PlaneData[ForwardPlaneIndex(plane)].upper;
+}
+double ForwardDetectors::ThresholdByIndex(int planeindex){
+	return PlaneData[planeindex].threshold;
+}
+double ForwardDetectors::Threshold(ForwardDetectorPlane plane){
+	return PlaneData[ForwardPlaneIndex(plane)].threshold;
 }

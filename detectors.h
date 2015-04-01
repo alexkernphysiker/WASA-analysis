@@ -20,14 +20,17 @@ protected:
 	std::string ForwardPlaneName(int index);
 	std::string ForwardPlaneName(ForwardDetectorPlane plane);
 	double EDep(WTrack* track,int planeindex);
-	double Upper(int planeindex);
+	double UpperByIndex(int planeindex);
 	double Upper(ForwardDetectorPlane plane);
+	double ThresholdByIndex(int planeindex);
+	double Threshold(ForwardDetectorPlane plane);
 private:
 	struct plane_data{
 	public:
-		plane_data(ForwardDetectorPlane p,double u, std::string n);
+		plane_data(ForwardDetectorPlane p, std::string n,double u,double thr);
 		ForwardDetectorPlane plane;
 		double upper;
+		double threshold;
 		std::string name;
 	};
 	std::vector<plane_data> PlaneData;

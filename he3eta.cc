@@ -8,13 +8,15 @@ He3eta_gg::He3eta_gg():Analysis(),ForwardDetectorRoutines("3He"){
 	final_particles.push_back(make_pair(kGamma,0));
 	for(int i=0;i<(ForwadrPlaneCount()-1);i++){
 		string histname=ForwardPlaneName(i)+"vs"+ForwardPlaneName(i+1);
-		TH2F* hist=new TH2F(histname.c_str(),"",128,0,Upper(i+1),128,0,Upper(i));
-		EDepHist.push_back(hist);
-		gHistoManager->Add(hist,histname.c_str());
+		TH2F* hist;
+		auto makehist=[this,&hist,&histname](vector<TH2F*> &vect){
+			hist=new TH2F(histname.c_str(),"",128,0,UpperByIndex(i+1),128,0,UpperByIndex(i));
+			vect.push_back(hist);
+			gHistoManager->Add(hist,histname.c_str());
+		};
+		makehist(EDepHist);
 		histname=histname+"_filtered";
-		hist=new TH2F(histname.c_str(),"",128,0,Upper(i+1),128,0,Upper(i));
-		EDepFilteredHist.push_back(hist);
-		gHistoManager->Add(hist,histname.c_str());
+		makehist(EDepFilteredHist);
 	}
 	SetGettableFunction([](int& StopPlane,int& Edep2Ekin_table){
 		//Jakieś dziwne są te warunki
@@ -49,16 +51,23 @@ bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &pbeam){
 	for(int i=0;i<(ForwadrPlaneCount()-1);i++)
 		EDepHist[i]->Fill(EDep(track,i+1),EDep(track,i));
 	auto StopPlane=StoppingPlane(track);
-	if((StopPlane==kFRH1)&&(track->Edep(kFTH3)>0.01)){
+	auto threshold_condition=[this,track](ForwardDetectorPlane plane,double thr){
+		int index=ForwardPlaneIndex(plane);
+		bool res=true;
+		for(int i=0;i<index;i++)
+			res&=EDep(track,i)>ThresholdByIndex(i);
+		return res&(EDep(track,index)>thr);
+	};
+	if((StopPlane==kFRH1)&&threshold_condition(kFRH1,0.01)){
 		for(int i=0;i<(ForwadrPlaneCount()-1);i++)
 			EDepFilteredHist[i]->Fill(EDep(track,i+1),EDep(track,i));
-		double Ek3He=0;
-		if(ReconstructEkin(track,Ek3He)){
+		double Ek=0;
+		if(ReconstructEkin(track,Ek)){
 			double theta=track->Theta();
 			double phi=track->Phi();
-			CheckParticleTrack(kHe3,Ek3He,theta,phi);
 			//ToDo: phi correction
-			double p3He=sqrt(Ek3He*(Ek3He+2*m_3He));
+			CheckParticleTrack(kHe3,Ek,theta,phi);
+			double p3He=sqrt(Ek*(Ek+2*m_3He));
 			double E3He=sqrt(p3He*p3He+m_3He*m_3He);
 			//ToDo: missing mass
 		}
