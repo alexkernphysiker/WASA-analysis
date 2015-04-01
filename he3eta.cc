@@ -16,7 +16,8 @@ He3eta_gg::He3eta_gg():Analysis(),ForwardDetectorRoutines<kProton,kFRH1>("3He"){
 		EDepFilteredHist.push_back(hist);
 		gHistoManager->Add(hist,histname.c_str());
 	}
-	SetReconstructionCheckFunction([](int StopPlane,int& last_plane,int Edep2Ekin_table){
+	SetReconstructionGettableFunction([](int& StopPlane,int& Edep2Ekin_table){
+		int last_plane=StopPlane;
 		if(StopPlane==9 || StopPlane==8) {
 			Edep2Ekin_table=17;
 			last_plane=7;
@@ -26,8 +27,10 @@ He3eta_gg::He3eta_gg():Analysis(),ForwardDetectorRoutines<kProton,kFRH1>("3He"){
 		}
 		if(Edep2Ekin_table==3) 
 			return false;
-		else
+		else{
+			StopPlane=last_plane;
 			return true;
+		}
 	});
 	SetCorrectionCoefficient(1.003);
 }
