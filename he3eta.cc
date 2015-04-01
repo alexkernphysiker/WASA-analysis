@@ -52,19 +52,21 @@ bool He3eta_gg::CentralFirst(){
 	return false;
 }
 bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
-	printf("Track\n");
+	printf("%i forward planes",ForwadrPlaneCount());
 	for(int i=0;i<(ForwadrPlaneCount()-1);i++)
 		EDepHist[i]->Fill(EDep(track,i+1),EDep(track,i));
 	auto StopPlane=StoppingPlane(track);
 	auto threshold_condition=[this,track](ForwardDetectorPlane plane,double thr){
-		return true;
+		if(StoppingPlane(track)!=plane)
+			return false;
 		int index=ForwardPlaneIndex(plane);
 		bool res=true;
 		for(int c=0;c<index;c++)
-			res&=EDep(track,c)>ThresholdByIndex(c);
-		return res&&(EDep(track,index)>thr);
+			res&=(EDep(track,c)>ThresholdByIndex(c));
+		res&=(EDep(track,index)>thr);
+		return res;
 	};
-	if((StopPlane==kFRH1)&&threshold_condition(kFRH1,0.01)){
+	if(threshold_condition(kFRH1,0.01)){
 		printf("filter\n");
 		for(int i=0;i<(ForwadrPlaneCount()-1);i++)
 			EDepFilteredHist[i]->Fill(EDep(track,i+1),EDep(track,i));
