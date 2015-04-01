@@ -35,6 +35,8 @@ He3eta_gg::He3eta_gg():Analysis(),ForwardDetectorRoutines("3He"){
 			return true;
 		}
 	});
+	MissingMass=new TH1F("MissingMass","",200,0.4,0.6);
+	gHistoManager->Add(MissingMass,"MissingMass");
 }
 He3eta_gg::~He3eta_gg(){}
 bool He3eta_gg::EventPreProcessing(TVector3 &pbeam){
@@ -68,7 +70,18 @@ bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &pbeam){
 			CheckParticleTrack(kHe3,Ek,theta,phi);
 			double p3He=sqrt(Ek*(Ek+2*m_3He));
 			double E3He=sqrt(p3He*p3He+m_3He*m_3He);
-			//ToDo: missing mass
+			TLorentzVector Beam;
+			Beam.SetVectM(pbeam,m_p);
+			TLorentzVector Target;
+			{TVector3 tempNullVector;
+				Target.SetVectM(tempNullVector,m_d);
+			}
+			TVector3 pHe3_;
+			pHe3_.SetMagThetaPhi(p3He,theta,phi);
+			TLorentzVector Registered;
+			Registered.SetVectM(pHe3_,m_3He);
+			TLorentzVector Missing=(Beam+Target)-Registered;
+			MissingMass->Fill(Missing.M());
 		}
 	}
 	return true;
