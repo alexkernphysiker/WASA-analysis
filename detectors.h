@@ -29,9 +29,9 @@ private:
 	public:
 		plane_data(ForwardDetectorPlane p, std::string n,double u,double thr);
 		ForwardDetectorPlane plane;
+		std::string name;
 		double upper;
 		double threshold;
-		std::string name;
 	};
 	std::vector<plane_data> PlaneData;
 };

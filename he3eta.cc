@@ -54,8 +54,8 @@ bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &pbeam){
 	auto threshold_condition=[this,track](ForwardDetectorPlane plane,double thr){
 		int index=ForwardPlaneIndex(plane);
 		bool res=true;
-		for(int i=0;i<index;i++)
-			res&=EDep(track,i)>ThresholdByIndex(i);
+		for(int c=0;c<index;c++)
+			res&=EDep(track,c)>ThresholdByIndex(c);
 		return res&(EDep(track,index)>thr);
 	};
 	if((StopPlane==kFRH1)&&threshold_condition(kFRH1,0.01)){

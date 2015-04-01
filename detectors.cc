@@ -3,7 +3,7 @@
 #include "detectors.h"
 using namespace std;
 ForwardDetectors::plane_data::plane_data(ForwardDetectorPlane p, string n, double u,double thr)
-	:plane(p),upper(u),name(n),threshold(thr){}
+	:plane(p),name(n),upper(u),threshold(thr){}
 ForwardDetectors::ForwardDetectors(){
 	PlaneData.push_back(plane_data(kFWC1,"FWC1",0.03,0.0005));
 	PlaneData.push_back(plane_data(kFWC2,"FWC2",0.03,0.0005));
@@ -22,7 +22,7 @@ int ForwardDetectors::ForwadrPlaneCount(){
 	return PlaneData.size();
 }
 int ForwardDetectors::ForwardPlaneIndex(ForwardDetectorPlane plane){
-	for(int i=0;i<PlaneData.size();i++)
+	for(size_t i=0;i<PlaneData.size();i++)
 		if(PlaneData[i].plane==plane)
 			return i;
 	throw;//no such detector here
