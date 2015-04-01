@@ -1,5 +1,6 @@
 #ifndef HGDOYENRKILTMEYD
 #define HGDOYENRKILTMEYD
+
 #include <string>
 #include <functional>
 #include "analysis.h"
@@ -31,36 +32,41 @@ private:
 	};
 	std::vector<plane_data> PlaneData;
 };
-template<ParticleType ptype>
+template<ParticleType ptype,ForwardDetectorPlane firstplane>
 class ForwardDetectorRoutines:public virtual ForwardDetectors{
 private:
 	FDEdep2Ekin *DepKin;
 	std::function<bool(int,int&,int&)> check;
 	double coeff;
 public:
-	ForwardDetectorRoutines(char* particlename,double corr_coef):ForwardDetectors(){
-		DepKin = dynamic_cast<FDEdep2Ekin*>(gParameterManager->GetParameterObject("FDEdep2Ekin",particlename));
+	ForwardDetectorRoutines(std::string particlename):ForwardDetectors(){
+		DepKin = dynamic_cast<FDEdep2Ekin*>(gParameterManager->GetParameterObject("FDEdep2Ekin",particlename.c_str()));
 		check=[](int,int&,int&){return true;};
-		coeff=corr_coef;
+		coeff=1;
 	}
 	virtual ~ForwardDetectorRoutines(){}
 protected:
 	void SetReconstructionCheckFunction(std::function<bool(int,int&,int&)> func){
 		check=func;
 	}
+	void SetCorrectionCoefficient(double c){
+		coeff=c;
+	}
 	int StoppingPlane(WTrack *track){
 		return DepKin->GetStoppingPlane(track);
 	}
 	bool ReconstructEkin(WTrack *track,double &Ekin){
-		Int_t Edep2Ekin_table=0;
-		Int_t last_plane=0;
-		Int_t StopPlane=StoppingPlane(track);
+		int Edep2Ekin_table=0;
+		int last_plane=0;
+		int StopPlane=StoppingPlane(track);
 		if(check(StopPlane,last_plane,Edep2Ekin_table)){
-			Ekin=DepKin->GetEkin(Edep2Ekin_table,14,track->Edep(4,last_plane),track->Theta()); //kinetic energy of 3He	        
+			Ekin=DepKin->GetEkin(Edep2Ekin_table,ptype,track->Edep(firstplane,last_plane),track->Theta());        
 			Ekin*=coeff;
 			return true;
-		}else
+		}else{
+			Ekin=0;
 			return false;
+		}
 	}
 };
 #endif

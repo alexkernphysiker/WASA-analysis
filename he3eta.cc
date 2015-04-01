@@ -1,7 +1,7 @@
 #include "reactions.h"
 #include "detectors.h"
 using namespace std;
-He3eta_gg::He3eta_gg():Analysis(),ForwardDetectorRoutines<kHe3>("3He",1.003){
+He3eta_gg::He3eta_gg():Analysis(),ForwardDetectorRoutines<kProton,kFRH1>("3He"){
 	first_particles.push_back(make_pair(kHe3,m_3He));
 	first_particles.push_back(make_pair(kEta,m_eta));
 	final_particles.push_back(make_pair(kHe3,m_3He));
@@ -11,10 +11,10 @@ He3eta_gg::He3eta_gg():Analysis(),ForwardDetectorRoutines<kHe3>("3He",1.003){
 		TH2F* hist=new TH2F(histname.c_str(),"",128,0,Upper(i+1),128,0,Upper(i));
 		EDepHist.push_back(hist);
 		gHistoManager->Add(hist,histname.c_str());
-		string histname2=histname+"_filtered";
-		hist=new TH2F(histname2.c_str(),"",128,0,Upper(i+1),128,0,Upper(i));
+		histname=histname+"_filtered";
+		hist=new TH2F(histname.c_str(),"",128,0,Upper(i+1),128,0,Upper(i));
 		EDepFilteredHist.push_back(hist);
-		gHistoManager->Add(hist,histname2.c_str());
+		gHistoManager->Add(hist,histname.c_str());
 	}
 	SetReconstructionCheckFunction([](int StopPlane,int& last_plane,int Edep2Ekin_table){
 		if(StopPlane==9 || StopPlane==8) {
@@ -29,6 +29,7 @@ He3eta_gg::He3eta_gg():Analysis(),ForwardDetectorRoutines<kHe3>("3He",1.003){
 		else
 			return true;
 	});
+	SetCorrectionCoefficient(1.003);
 }
 He3eta_gg::~He3eta_gg(){}
 bool He3eta_gg::EventPreProcessing(TVector3 &pbeam){
