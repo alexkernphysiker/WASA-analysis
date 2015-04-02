@@ -1,7 +1,7 @@
 BASEDIR = $(ROOTSORTERSYS)/core
 TARGET   = main
-MODULES  =  analysisjob analysis detectors he3eta
-DICTMODULES = analysisjob
+MODULES  =  analysiswrap analysis detectors he3eta
+DICTMODULES = analysiswrap
 
 CPPFLAGS := `$(BASEDIR)/bin/sorter-config -cpp` -g  
 CXXFLAGS := `$(BASEDIR)/bin/sorter-config -cxx` -fno-strict-aliasing  -g -std=c++11
