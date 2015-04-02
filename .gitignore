@@ -19,6 +19,7 @@ Makefile*.*
 object_script*
 
 # specific files
+analysis_task.*
 smear.txt
 *.root
 *Dict*
