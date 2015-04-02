@@ -7,12 +7,13 @@ const double m_n=0.93956;//[GeV]
 const double m_d=1.875613;//[GeV]
 const double m_3He=2.808950;//[GeV]
 const double m_eta=0.547853;//[GeV]
-class He3eta_gg:public virtual Analysis
-	,public ForwardDetectorRoutines<kProton,kFRH1>//Protony bo ta tabelka jest trochę dziwna
+class He3eta:public virtual Analysis
+	//Protony bo ta tabelka jest trochę dziwna
+	,public ForwardDetectorRoutines<kProton,kFRH1>
 {
 public:
-	He3eta_gg();
-	virtual ~He3eta_gg();
+	He3eta();
+	virtual ~He3eta();
 protected:
 	virtual bool EventPreProcessing(TVector3 &pbeam)override;
 	virtual void EventPostProcessing(TVector3 &pbeam)override;

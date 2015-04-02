@@ -2,7 +2,7 @@
 #include "reactions.h"
 #include "detectors.h"
 using namespace std;
-He3eta_gg::He3eta_gg():Analysis(),ForwardDetectorRoutines("3He"){
+He3eta::He3eta():Analysis(),ForwardDetectorRoutines("3He"){
 	first_particles.push_back(make_pair(kHe3,m_3He));
 	first_particles.push_back(make_pair(kEta,m_eta));
 	final_particles.push_back(make_pair(kHe3,m_3He));
@@ -41,17 +41,17 @@ He3eta_gg::He3eta_gg():Analysis(),ForwardDetectorRoutines("3He"){
 	MissingHist=new TH2F("MissingMass_vs_Energy","",250,0.4,0.6,500,0.0,1.0);
 	gHistoManager->Add(MissingHist,"MissingMass_vs_Energy");
 }
-He3eta_gg::~He3eta_gg(){}
-bool He3eta_gg::EventPreProcessing(TVector3 &pbeam){
+He3eta::~He3eta(){}
+bool He3eta::EventPreProcessing(TVector3 &pbeam){
 	return true;
 }
-bool He3eta_gg::TrackCountTrigger(int CinC,int NinC,int CinF){
+bool He3eta::TrackCountTrigger(int CinC,int NinC,int CinF){
 	return true;
 }
-bool He3eta_gg::CentralFirst(){
+bool He3eta::CentralFirst(){
 	return false;
 }
-bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
+bool He3eta::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
 	for(int i=0;i<(ForwadrPlaneCount()-1);i++)
 		EDepHist[i]->Fill(EDep(track,i+1),EDep(track,i));
 	if(
@@ -92,7 +92,7 @@ bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
 	}
 	return true;
 }
-bool He3eta_gg::CentralTrackProcessing(WTrack* track,TVector3 &pbeam){
+bool He3eta::CentralTrackProcessing(WTrack* track,TVector3 &pbeam){
 	return true;
 }
-void He3eta_gg::EventPostProcessing(TVector3 &pbeam){}
+void He3eta::EventPostProcessing(TVector3 &pbeam){}

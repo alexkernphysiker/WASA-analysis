@@ -1,17 +1,17 @@
 #include "analysisjob.hh"
 #include "analysis.h"
 #include "reactions.h"
-ClassImp(AnalysisJob);
-AnalysisJob::AnalysisJob(){}
-AnalysisJob::AnalysisJob(const char *name):CAnalysisModule(name){
-	m_data=(void*)(new CreateAnalysis<MonteCarlo,He3eta_gg>());
+ClassImp(MCHe3Eta);
+MCHe3Eta::MCHe3Eta(){}
+MCHe3Eta::MCHe3Eta(const char *name):CAnalysisModule(name){
+	m_data=(void*)(new CreateAnalysis<MonteCarlo,He3eta>());
 }
-AnalysisJob::~AnalysisJob(){delete (IAnalysis*)m_data;}
-void AnalysisJob::ProcessEvent(){
+MCHe3Eta::~MCHe3Eta(){delete (IAnalysis*)m_data;}
+void MCHe3Eta::ProcessEvent(){
 	if (fProcessed) return;
 	fProcessed = kTRUE;
 	((IAnalysis*)m_data)->ProcessEvent();
 }
-void AnalysisJob::Clear(Option_t *option){fProcessed=kFALSE;}
-void AnalysisJob::Print(Option_t *option){}
-void AnalysisJob::UserCommand(CCommand * command){}
+void MCHe3Eta::Clear(Option_t *option){fProcessed=kFALSE;}
+void MCHe3Eta::Print(Option_t *option){}
+void MCHe3Eta::UserCommand(CCommand * command){}
