@@ -5,17 +5,17 @@ using namespace std;
 ForwardDetectors::plane_data::plane_data(ForwardDetectorPlane p, string n, double u,double thr)
 	:plane(p),name(n),upper(u),threshold(thr){}
 ForwardDetectors::ForwardDetectors(){
-	PlaneData.push_back(plane_data(kFWC1,"FWC1",0.03,0.0005));
-	PlaneData.push_back(plane_data(kFWC2,"FWC2",0.03,0.0005));
-	PlaneData.push_back(plane_data(kFTH1,"FTH1",0.05,0.0005));
-	PlaneData.push_back(plane_data(kFTH2,"FTH2",0.05,0.0005));
-	PlaneData.push_back(plane_data(kFTH3,"FTH3",0.05,0.0005));
-	PlaneData.push_back(plane_data(kFRH1,"FRH1",0.3 ,0.0005));
-	PlaneData.push_back(plane_data(kFRH2,"FRH2",0.3 ,0.0005));
-	PlaneData.push_back(plane_data(kFRH3,"FRH3",0.3 ,0.0005));
-	PlaneData.push_back(plane_data(kFRH4,"FRH4",0.3 ,0.0005));
-	PlaneData.push_back(plane_data(kFRH5,"FRH5",0.3 ,0.0005));
-	PlaneData.push_back(plane_data(kFVH ,"FVH" ,0.05,0.0005));
+	PlaneData.push_back(plane_data(kFWC1,"FWC1",0.03,0.002));
+	PlaneData.push_back(plane_data(kFWC2,"FWC2",0.03,0.002));
+	PlaneData.push_back(plane_data(kFTH1,"FTH1",0.05,0.0015));
+	PlaneData.push_back(plane_data(kFTH2,"FTH2",0.05,0.0015));
+	PlaneData.push_back(plane_data(kFTH3,"FTH3",0.05,0.0015));
+	PlaneData.push_back(plane_data(kFRH1,"FRH1",0.3 ,0.001));
+	PlaneData.push_back(plane_data(kFRH2,"FRH2",0.3 ,0.001));
+	PlaneData.push_back(plane_data(kFRH3,"FRH3",0.3 ,0.001));
+	PlaneData.push_back(plane_data(kFRH4,"FRH4",0.3 ,0.001));
+	PlaneData.push_back(plane_data(kFRH5,"FRH5",0.3 ,0.001));
+	PlaneData.push_back(plane_data(kFVH ,"FVH" ,0.05,0.001));
 }
 ForwardDetectors::~ForwardDetectors(){}
 int ForwardDetectors::ForwadrPlaneCount(){
