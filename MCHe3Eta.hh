@@ -1,5 +1,5 @@
-#ifndef ____PRCbZGGy
-#define ____PRCbZGGy
+#ifndef UWTLYUGSVUAZXUEJ
+#define UWTLYUGSVUAZXUEJ
 #include <Wasa.hh>
 #include <CAnalysisModule.hh>
 class MCHe3Eta : public CAnalysisModule{

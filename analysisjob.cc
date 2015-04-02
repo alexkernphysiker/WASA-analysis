@@ -1,4 +1,4 @@
-#include "analysisjob.hh"
+#include "MCHe3Eta.hh"
 #include "analysis.h"
 #include "reactions.h"
 ClassImp(MCHe3Eta);
