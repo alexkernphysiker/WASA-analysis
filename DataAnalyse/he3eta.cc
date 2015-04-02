@@ -1,5 +1,5 @@
 #include <iostream>
-#include "reactions.h"
+#include "he3eta.h"
 #include "detectors.h"
 using namespace std;
 He3eta::He3eta():Analysis(),ForwardDetectorRoutines("3He"){

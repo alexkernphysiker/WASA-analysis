@@ -1,7 +1,6 @@
 #ifndef QTBEVPHGEADUWGMY
 #define QTBEVPHGEADUWGMY
 #include <memory>
-#include <functional>
 #include <utility>
 #include <vector>
 #include <TH1F.h>
@@ -95,28 +94,5 @@ protected:
 	virtual bool CentralTrackProcessing(WTrack* track,TVector3 &pbeam)override{
 		return reaction::CentralTrackProcessing(track,pbeam);
 	}
-};
-class MonteCarlo:public virtual Analysis{
-public:
-	MonteCarlo();
-	virtual ~MonteCarlo();
-protected:
-	virtual bool EventProcessingCondition()override;
-	virtual double PBeam()override;
-	virtual double EventWeight()override;
-	virtual void PrepareCheck()override;
-	virtual void CheckParticleTrack(ParticleType type,double Ekin,double theta, double phi)override;
-private:
-	struct CheckHists{
-	public:
-		CheckHists(ParticleType t);
-		ParticleType type;
-		TH1F *Ekin, *Theta, *Phi;
-	};
-	vector<CheckHists> check;
-	WTrackBank *fMCTrackBank;
-	WVertexBank *fMCVertexBank;
-	REventWmcHeader   *fEventHeader;
-	
 };
 #endif

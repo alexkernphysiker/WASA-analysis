@@ -1,6 +1,5 @@
 #ifndef HGDOYENRKILTMEYD
 #define HGDOYENRKILTMEYD
-
 #include <string>
 #include <functional>
 #include "analysis.h"

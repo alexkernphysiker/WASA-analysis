@@ -1,6 +1,7 @@
 #include "analysiswrap.hh"
-#include "analysis.h"
-#include "reactions.h"
+#include "montecarlo.h"
+#include "data.h"
+#include "he3eta.h"
 ClassImp(MCHe3Eta);
 MCHe3Eta::MCHe3Eta(){}
 MCHe3Eta::MCHe3Eta(const char *name):CAnalysisModule(name){
