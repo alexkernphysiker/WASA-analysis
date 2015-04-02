@@ -41,9 +41,9 @@ He3eta::He3eta():Analysis(),ForwardDetectorRoutines("3He"){
 			return true;
 		}
 	});
-	MissingMass=new TH1F("MissingMass","",200,0.5,0.6);
+	MissingMass=new TH1F("MissingMass","",200,m_eta-0.1,m_eta+0.1);
 	gHistoManager->Add(MissingMass,"MissingMass");
-	MissingHist=new TH2F("MissingMass_vs_Energy","",200,0.5,0.6,200,0.4,0.8);
+	MissingHist=new TH2F("MissingMass_vs_Energy","",200,m_eta-0.1,m_eta+0.1,200,0.4,0.8);
 	gHistoManager->Add(MissingHist,"MissingMass_vs_Energy");
 }
 He3eta::~He3eta(){}
