@@ -84,10 +84,8 @@ bool He3eta::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
 				P_Total=P_Beam+P_Target;
 			}
 			TLorentzVector P_Missing=P_Total-P_He3;
-			double mmass=P_Missing.M();
-			double menergy=P_Missing.E();
-			MissingMass->Fill(mmass);
-			MissingHist->Fill(mmass,menergy);
+			MissingMass->Fill(P_Missing.M());
+			MissingHist->Fill(P_Missing.M(),P_Missing.E());
 		}
 	}
 	return true;
