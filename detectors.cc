@@ -54,7 +54,7 @@ double ForwardDetectors::Threshold(ForwardDetectorPlane plane){
 bool ForwardDetectors::ThresholdCondition(WTrack* track,ForwardDetectorPlane plane){
 	int index=ForwardPlaneIndex(plane);
 	bool res=true;
-	for(int c=0;c<index;c++)
+	for(int c=0;c<=index;c++)
 		res&=(EDep(track,c)>ThresholdByIndex(c));
 	return res;
 }
