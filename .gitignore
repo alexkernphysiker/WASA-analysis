@@ -19,7 +19,9 @@ Makefile*.*
 object_script*
 
 # specific files
-analysis_task.*
+WMC.*
+ANALYSE_WMC.*
+ANALYSE_DATA.*
 smear.txt
 *.root
 *Dict*
