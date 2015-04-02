@@ -51,7 +51,7 @@ double ForwardDetectors::ThresholdByIndex(int planeindex){
 double ForwardDetectors::Threshold(ForwardDetectorPlane plane){
 	return PlaneData[ForwardPlaneIndex(plane)].threshold;
 }
-bool ForwardDetectors::ThresholdCondition(WTrack* track,ForwardDetectorPlane plane){
+bool ForwardDetectors::UpperThresholdUpTo(WTrack* track,ForwardDetectorPlane plane){
 	int index=ForwardPlaneIndex(plane);
 	bool res=true;
 	for(int c=0;c<=index;c++)

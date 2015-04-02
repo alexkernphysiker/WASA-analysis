@@ -54,7 +54,11 @@ bool He3eta_gg::CentralFirst(){
 bool He3eta_gg::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
 	for(int i=0;i<(ForwadrPlaneCount()-1);i++)
 		EDepHist[i]->Fill(EDep(track,i+1),EDep(track,i));
-	if((StoppingPlane(track)!=kFRH1)&&ThresholdCondition(track,kFRH1)&&(track->Edep(kFTH3)>0.01)){
+	if(
+		(StoppingPlane(track)==kFRH1)
+		&&UpperThresholdUpTo(track,kFRH1)
+		&&(track->Edep(kFTH3)>0.01)
+	){
 		for(int i=0;i<(ForwadrPlaneCount()-1);i++)
 			EDepFilteredHist[i]->Fill(EDep(track,i+1),EDep(track,i));
 		double Ek=0;
