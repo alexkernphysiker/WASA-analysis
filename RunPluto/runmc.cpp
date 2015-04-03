@@ -24,7 +24,6 @@ int main(int, char **){
 	list<string> reactlist;
 	reactlist.push_back("He3 eta");
 	reactlist.push_back("He3 eta [g g]");
-	reactlist.push_back("He3 eta [pi0]");
 	reactlist.push_back("He3 eta [pi0 pi0 pi0]");
 	reactlist.push_back("p p p pi-");
 	reactlist.push_back("d p pi0");
