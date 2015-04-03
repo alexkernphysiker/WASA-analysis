@@ -1,11 +1,7 @@
 #include <iostream>
 #include "he3eta.h"
 #include "detectors.h"
-const double m_p=0.938272;//[GeV]
-const double m_n=0.93956;//[GeV]
-const double m_d=1.875613;//[GeV]
-const double m_3He=2.808950;//[GeV]
-const double m_eta=0.547853;//[GeV]
+#include "../General/phys_constants.h"
 using namespace std;
 He3eta::He3eta():Analysis(),ForwardDetectorRoutines("3He"){
 	first_particles.push_back(make_pair(kHe3,m_3He));
