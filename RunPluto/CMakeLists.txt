@@ -19,5 +19,5 @@ include_directories(
 )
 link_directories($ENV{PLUTOSYS} $ENV{ROOTSYS}/lib)
 set(CMAKE_CXX_FLAGS "-std=gnu++11")
-add_executable(runhe3eta he3eta.cpp)
-target_link_libraries(runhe3eta Pluto Core Gui GQt Gpad Hist RIO Proof TreePlayer EG m dl Physics)
+add_executable(runmc runmc.cpp)
+target_link_libraries(runmc Pluto Core Gui GQt Gpad Hist RIO Proof TreePlayer EG m dl Physics)
