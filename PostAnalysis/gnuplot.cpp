@@ -7,11 +7,11 @@
 #include <unistd.h>
 #include "gnuplot.h"
 using namespace std;
-Plot::Plot(std::string out){
+Plot::Plot(string out){
 	outpath=out;
 }
 Plot::~Plot(){}
-Plot& Plot::Points(std::string file, std::shared_ptr< Fit::FitPointsAbstract > points){
+Plot& Plot::Points(string file, shared_ptr< Fit::FitPointsAbstract > points){
 	ofstream data;
 	data.open((outpath+"/"+file+".txt").c_str());
 	if(data.is_open()){
@@ -25,7 +25,7 @@ Plot& Plot::Points(std::string file, std::shared_ptr< Fit::FitPointsAbstract > p
 	}
 }
 
-Plot& Plot::Hist(std::string file, hist& points){
+Plot& Plot::Points(string file, hist& points){
 	ofstream data;
 	data.open((outpath+"/"+file+".txt").c_str());
 	if(data.is_open()){
@@ -35,7 +35,27 @@ Plot& Plot::Hist(std::string file, hist& points){
 		lines.push_back("\""+file+".txt\" using 1:2:($1-$3):($1+$3):($2-$4):($2+$4) with xyerrorbars title \""+file+"\"");
 	}
 }
-Plot& Plot::Function(std::string file,std::function<double(double)> func,double from,double to,double step){
+Plot& Plot::Points(string file, LinearInterpolation<double>& points){
+	ofstream data;
+	data.open((outpath+"/"+file+".txt").c_str());
+	if(data.is_open()){
+		for(auto p:points)
+			data<<p.first<<" "<<p.second<<"\n";
+		data.close();
+		lines.push_back("\""+file+".txt\" using 1:2 title \""+file+"\"");
+	}
+}
+Plot& Plot::Points(string file, LinearInterpolation<double>& points,function<double(double)> error){
+	ofstream data;
+	data.open((outpath+"/"+file+".txt").c_str());
+	if(data.is_open()){
+		for(auto p:points)
+			data<<p.first<<" "<<p.second<<" "<<error(p.first)<<"\n";
+		data.close();
+		lines.push_back("\""+file+".txt\" using 1:2:($2-$3):($2+$3) with yerrorbars title \""+file+"\"");
+	}
+}
+Plot& Plot::Function(string file,function<double(double)> func,double from,double to,double step){
 	ofstream out;
 	out.open((outpath+"/"+file+".txt").c_str());
 	if(out.is_open()){
@@ -44,6 +64,17 @@ Plot& Plot::Function(std::string file,std::function<double(double)> func,double 
 		}
 		out.close();
 		lines.push_back("\""+file+".txt\" w l title \""+file+"\"");
+	}
+}
+Plot& Plot::Function(string file, function< double(double) > func, function< double(double) > error, double from, double to, double step){
+	ofstream out;
+	out.open((outpath+"/"+file+".txt").c_str());
+	if(out.is_open()){
+		for(double x=from;x<=to;x+=step){
+			out<<x<<" "<<func(x)<<" "<<error(x)<<"\n";
+		}
+		out.close();
+		lines.push_back("\""+file+".txt\" using 1:2:($2-$3):($2+$3) with yerrorbars title \""+file+"\"");
 	}
 }
 void Plot::Out(string scriptname,bool show){
