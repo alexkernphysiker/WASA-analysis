@@ -49,6 +49,7 @@ int main(int arg_cnt,char**arg) {
 					TH1F* histogram=dynamic_cast<TH1F*>(dir2->Get("MissingMass"));
 					if(histogram){
 						double norm=histogram->GetEntries();
+						norm/=histogram->GetBinWidth(1);
 						printf("Hist: %f entries\n",norm);
 						for(int i=1,N=histogram->GetNbinsX();i<=N;i++){
 							double y=histogram->GetBinContent(i);
