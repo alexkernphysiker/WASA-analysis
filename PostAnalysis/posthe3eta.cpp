@@ -49,8 +49,8 @@ int main(int arg_cnt,char**arg) {
 					TH1F* histogram=dynamic_cast<TH1F*>(dir2->Get("MissingMass"));
 					if(histogram){
 						double norm=histogram->GetEntries();
-						norm/=histogram->GetBinWidth(1);
 						printf("Hist: %f entries\n",norm);
+						norm*=histogram->GetBinWidth(1);
 						for(int i=1,N=histogram->GetNbinsX();i<=N;i++){
 							double y=histogram->GetBinContent(i);
 							double dy=sqrt(y);
@@ -81,7 +81,7 @@ int main(int arg_cnt,char**arg) {
 		<<(make_shared<Below>()<<0.56)
 	);
 	fit_mc.Init(60,make_shared<GenerateByGauss>()
-		<<make_pair(m_eta,0.05)<<make_pair(0.05,0.05)<<make_pair(1,1)
+		<<make_pair(m_eta,0.01)<<make_pair(0.05,0.05)<<make_pair(1,1)
 	);
 	while(!fit_mc.ConcentratedInOnePoint()){
 		fit_mc.Iterate();

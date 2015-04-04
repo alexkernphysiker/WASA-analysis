@@ -9,7 +9,7 @@ Analysis::Analysis(){
 	auto CDTrackFinder = dynamic_cast<CDTracksSimple*>(gDataManager->GetAnalysisModule("CDTracksSimple","default"));
 	if (CDTrackFinder!=0) fTrackBankCD = CDTrackFinder->GetTrackBank();
 	fDetectorTable = dynamic_cast<CCardWDET*>(gParameterManager->GetParameterObject("CCardWDET","default")); 
-	P_Beam=new TH1F("P_beam","",40,1.4,1.8);
+	P_Beam=new TH1F("P_beam","",150,1.4,1.65);
 	gHistoManager->Add(P_Beam,"Reconstruction");
 }
 Analysis::~Analysis(){}

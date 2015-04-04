@@ -41,8 +41,8 @@ He3eta::He3eta():Analysis(),ForwardDetectorRoutines("3He"){
 	gHistoManager->Add(MissingMass,"Kinematics");
 	MissingHist=new TH2F("MissingMass_vs_Energy","",200,m_eta-0.1,m_eta+0.1,200,0.4,0.8);
 	gHistoManager->Add(MissingHist,"Kinematics");
-	DependenceOnPBeam=new TH1F("DependenceOnBeam","",40,1.4,1.8);
-	gHistoManager->Add(DependenceOnPBeam,"Kinematics");
+	DependenceOnPBeam=new TH1F("DependenceOnBeam","",150,1.4,1.65);
+	gHistoManager->Add(DependenceOnPBeam,"OutputEventsCount");
 }
 He3eta::~He3eta(){}
 bool He3eta::EventPreProcessing(TVector3 &pbeam){
@@ -76,8 +76,7 @@ bool He3eta::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
 			p_He3.SetMagThetaPhi(p3He,theta,phi);
 			TLorentzVector P_He3;
 			P_He3.SetVectM(p_He3,m_3He);
-			TLorentzVector P_Total;
-			{
+			TLorentzVector P_Total;{
 				TLorentzVector P_Beam;
 				TLorentzVector P_Target;
 				P_Beam.SetVectM(p_beam,m_p);
