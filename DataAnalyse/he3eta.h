@@ -19,7 +19,7 @@ protected:
 private:
 	vector<TH2F*> EDepHist;
 	vector<TH2F*> EDepFilteredHist;
+	vector<TH1F*> MissingMassDetailed;
 	TH1F *MissingMass,*DependenceOnPBeam;
-	TH2F *MissingHist;
 };
 #endif

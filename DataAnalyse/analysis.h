@@ -17,6 +17,7 @@
 #include <WVertexBank.hh>
 #include <FDFTHTracks.hh>
 #include <CDTracksSimple.hh>
+#define P_hist_param 25,1.4,1.65
 enum TrackType{kFDN=1,kFDC=2,kCDN=11,kCDC=12};
 enum ParticleType{
 	kDummy=0,kGamma=1,kElectron=2,kPositron=3,kPi0=7,kPiPlus=8,kPiMinus=9,

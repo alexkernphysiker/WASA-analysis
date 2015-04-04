@@ -37,12 +37,25 @@ He3eta::He3eta():Analysis(),ForwardDetectorRoutines("3He"){
 			return true;
 		}
 	});
-	MissingMass=new TH1F("MissingMass","",200,m_eta-0.1,m_eta+0.1);
-	gHistoManager->Add(MissingMass,"Kinematics");
-	MissingHist=new TH2F("MissingMass_vs_Energy","",200,m_eta-0.1,m_eta+0.1,200,0.4,0.8);
-	gHistoManager->Add(MissingHist,"Kinematics");
-	DependenceOnPBeam=new TH1F("DependenceOnBeam","",150,1.4,1.65);
+	DependenceOnPBeam=new TH1F("DependenceOnBeam","",P_hist_param);
 	gHistoManager->Add(DependenceOnPBeam,"OutputEventsCount");
+#define missingmassparam 600,0,0.6
+	MissingMass=new TH1F("MissingMass_all","",missingmassparam);
+	gHistoManager->Add(MissingMass,"Kinematics");
+	{
+		TH1F* hist=new TH1F("MissingMass_out_of_border","",missingmassparam);
+		MissingMassDetailed.push_back(hist);
+		gHistoManager->Add(hist,"Kinematics");
+	}
+	for(int i=1,N=P_Beam->GetNbinsX();i<=N;i++){
+		int index=int(P_Beam->GetBinCenter(i)*1000);
+		string name="MissingMass";
+		name+=to_string(index);
+		TH1F* hist=new TH1F(name,"",missingmassparam);
+		MissingMassDetailed.push_back(hist);
+		gHistoManager->Add(hist,"Kinematics");
+	}
+#undef missingmassparam
 }
 He3eta::~He3eta(){}
 bool He3eta::EventPreProcessing(TVector3 &pbeam){
@@ -88,9 +101,14 @@ bool He3eta::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
 			TLorentzVector P_Missing=P_Total-P_He3;
 			double missingmass=P_Missing.M();
 			MissingMass->Fill(missingmass);
-			MissingHist->Fill(missingmass,P_Missing.E());
-			if((missingmass>0.540)&&(missingmass<0.555)){
-				DependenceOnPBeam->Fill(p_beam.Mag());
+			DependenceOnPBeam->Fill(p_beam.Mag());
+			{int index=0;
+				for(int i=1,N=P_Beam->GetNbinsX();(i<=N)&&(index==0);i++){
+					double min=P_Beam->GetBinLowEdge(i);
+					if((p_beam.Mag()>=min)&&(p_beam.Mag()<(min+P_Beam->GetBinWidth(i))))
+						index=i;
+				}
+				MissingMassDetailed[index]->Fill(missingmass);
 			}
 		}
 	}
