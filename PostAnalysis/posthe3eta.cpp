@@ -44,7 +44,7 @@ int main(int arg_cnt,char**arg) {
 		if(file){
 			TDirectoryFile* dir1=dynamic_cast<TDirectoryFile*>(file->Get("Histograms"));
 			if(dir1){
-				TDirectoryFile* dir2=dynamic_cast<TDirectoryFile*>(dir1->Get("MissingMass"));
+				TDirectoryFile* dir2=dynamic_cast<TDirectoryFile*>(dir1->Get("Kinematics"));
 				if(dir2){
 					TH1F* histogram=dynamic_cast<TH1F*>(dir2->Get("MissingMass"));
 					if(histogram){

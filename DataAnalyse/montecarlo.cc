@@ -50,9 +50,9 @@ void MonteCarlo::PrepareCheck(){
 	for(auto P:first_particles){
 		CheckHists h(P.first);
 		check.push_back(h);
-		gHistoManager->Add(h.Ekin,h.Ekin->GetTitle());
-		gHistoManager->Add(h.Theta,h.Theta->GetTitle());
-		gHistoManager->Add(h.Phi,h.Phi->GetTitle());
+		gHistoManager->Add(h.Ekin,"Reconstruction");
+		gHistoManager->Add(h.Theta,"Reconstruction");
+		gHistoManager->Add(h.Phi,"Reconstruction");
 	}
 }
 void MonteCarlo::CheckParticleTrack(ParticleType type, double Ekin, double theta, double phi){

@@ -8,13 +8,13 @@ He3eta::He3eta():Analysis(),ForwardDetectorRoutines("3He"){
 	first_particles.push_back(make_pair(kEta,m_eta));
 	final_particles.push_back(make_pair(kHe3,m_3He));
 	final_particles.push_back(make_pair(kGamma,0));
-	for(int i=0;i<(ForwadrPlaneCount()-1);i++){
-		string histname=ForwardPlaneName(i)+"vs"+ForwardPlaneName(i+1);
+	for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++){
+		string histname=ForwardPlaneName(i)+"_vs_"+ForwardPlaneName(i+1);
 		TH2F* hist;
 		auto makehist=[this,i,&hist,&histname](vector<TH2F*> &vect){
 			hist=new TH2F(histname.c_str(),"",128,0,UpperByIndex(i+1),128,0,UpperByIndex(i));
 			vect.push_back(hist);
-			gHistoManager->Add(hist,histname.c_str());
+			gHistoManager->Add(hist,"E_dep");
 		};
 		makehist(EDepHist);
 		histname=histname+"_filtered";
@@ -38,11 +38,11 @@ He3eta::He3eta():Analysis(),ForwardDetectorRoutines("3He"){
 		}
 	});
 	MissingMass=new TH1F("MissingMass","",200,m_eta-0.1,m_eta+0.1);
-	gHistoManager->Add(MissingMass,"MissingMass");
+	gHistoManager->Add(MissingMass,"Kinematics");
 	MissingHist=new TH2F("MissingMass_vs_Energy","",200,m_eta-0.1,m_eta+0.1,200,0.4,0.8);
-	gHistoManager->Add(MissingHist,"MissingMass_vs_Energy");
-	DependenceOnPBeam=new TH1F("Dependence","",40,1.4,1.8);
-	gHistoManager->Add(DependenceOnPBeam,"DependenceOnPBeam");
+	gHistoManager->Add(MissingHist,"Kinematics");
+	DependenceOnPBeam=new TH1F("DependenceOnBeam","",40,1.4,1.8);
+	gHistoManager->Add(DependenceOnPBeam,"Kinematics");
 }
 He3eta::~He3eta(){}
 bool He3eta::EventPreProcessing(TVector3 &pbeam){
@@ -55,17 +55,17 @@ bool He3eta::CentralFirst(){
 	return false;
 }
 bool He3eta::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
-	for(int i=0;i<(ForwadrPlaneCount()-1);i++)
+	for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
 		EDepHist[i]->Fill(EDep(track,i+1),EDep(track,i));
 	if(
 		(StoppingPlane(track)==kFRH1)
 		&&UpperThresholdUpTo(track,kFRH1)
 		&&(track->Edep(kFTH3)>0.01)
 	){
-		for(int i=0;i<(ForwadrPlaneCount()-1);i++)
-			EDepFilteredHist[i]->Fill(EDep(track,i+1),EDep(track,i));
 		double Ek=0;
 		if(ReconstructEkin(track,Ek)){
+			for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
+				EDepFilteredHist[i]->Fill(EDep(track,i+1),EDep(track,i));
 			double theta=track->Theta();
 			double phi=track->Phi();
 			//ToDo: phi correction
