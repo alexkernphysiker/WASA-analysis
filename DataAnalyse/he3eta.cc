@@ -51,7 +51,7 @@ He3eta::He3eta():Analysis(),ForwardDetectorRoutines("3He"){
 		int index=int(P_Beam->GetBinCenter(i)*1000);
 		string name="MissingMass";
 		name+=to_string(index);
-		TH1F* hist=new TH1F(name,"",missingmassparam);
+		TH1F* hist=new TH1F(name.c_str(),"",missingmassparam);
 		MissingMassDetailed.push_back(hist);
 		gHistoManager->Add(hist,"Kinematics");
 	}
