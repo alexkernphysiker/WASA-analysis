@@ -39,7 +39,7 @@ He3eta::He3eta():Analysis(),ForwardDetectorRoutines("3He"){
 	});
 	DependenceOnPBeam=new TH1F("DependenceOnBeam","",P_hist_param);
 	gHistoManager->Add(DependenceOnPBeam,"OutputEventsCount");
-#define missingmassparam 600,0,0.6
+#define missingmassparam 600,0.3,0.6
 	MissingMass=new TH1F("MissingMass_all","",missingmassparam);
 	gHistoManager->Add(MissingMass,"Kinematics");
 	{
