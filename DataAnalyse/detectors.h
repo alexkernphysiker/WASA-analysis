@@ -60,6 +60,9 @@ protected:
 	int StoppingPlane(WTrack *track){
 		return DepKin->GetStoppingPlane(track);
 	}
+	int StoppingPlaneIndex(WTrack *track){
+		return ForwardPlaneIndex(DepKin->GetStoppingPlane(track));
+	}
 	bool ReconstructEkin(WTrack *track,double &Ekin){
 		int Edep2Ekin_table=0;
 		int stop_plane=StoppingPlane(track);

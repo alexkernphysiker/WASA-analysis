@@ -70,10 +70,11 @@ bool He3eta::CentralFirst(){
 bool He3eta::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
 	for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
 		EDepHist[i]->Fill(EDep(track,i+1),EDep(track,i));
+	int stop_index=StoppingPlaneIndex(track);
 	if(
-		(StoppingPlane(track)==kFRH1)
-		&&UpperThresholdUpTo(track,kFRH1)
-		&&(track->Edep(kFTH3)>0.01)
+		(stop_index<=ForwardPlaneIndex(kFRH1))
+		&&UpperThresholdUpTo(track,ForwadrPlane(stop_index))
+		&&(EDep(track,stop_index)>0.01)
 	){
 		double Ek=0;
 		if(ReconstructEkin(track,Ek)){
