@@ -41,10 +41,8 @@ int main(int,char**) {
 			if(norm(p.x)>0){
 				acceptance<<make_pair(p.x,p.y/norm(p.x));
 				dacceptance<<make_pair(p.x,(dnorm(p.x)*p.y/pow(norm(p.x),2))+(p.dy/norm(p.x)));
-				printf("%f\n",p.x);
 			}
 	}
-	printf("plotting\n");
 	fig1.Points("Acceptance",acceptance,[&dacceptance](double x){return dacceptance(x);});
 	fig1.Out("figure1",true);
 }
