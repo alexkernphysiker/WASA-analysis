@@ -72,7 +72,10 @@ bool He3eta::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
 		EDepHist[i]->Fill(EDep(track,i+1),EDep(track,i));
 	int stop_index=StoppingPlaneIndex(track);
 	if(
-		(stop_index<=ForwardPlaneIndex(kFRH1))
+		(
+			(stop_index==ForwardPlaneIndex(kFTH3))||
+			(stop_index==ForwardPlaneIndex(kFRH1))
+		)
 		&&UpperThresholdUpTo(track,ForwadrPlane(stop_index))
 		&&(EDep(track,stop_index)>0.01)
 	){
