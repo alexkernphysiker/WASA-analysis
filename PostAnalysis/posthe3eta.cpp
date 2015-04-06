@@ -37,7 +37,7 @@ int main(int,char**){
 			mc_dnorm<<make_pair(p.x,p.dy);
 		}
 	}
-	vector<pair<double,shared_ptr<FitPointsAbstract>>> missingmass;{
+	vector<pair<double,shared_ptr<FitPoints>>> missingmass;{
 		LinearInterpolation<double> acceptance,dacceptance;{
 			hist registered(MCFile,EventsCount,"DependenceOnBeam");
 			for(point p:registered){
@@ -46,10 +46,16 @@ int main(int,char**){
 				if(mc_norm(p.x)>50000){
 					string histname=string("MissingMass")+to_string(int(p.x*1000));
 					hist currenthist(MCFile,Kinematics,histname);
-					auto points=make_shared<ChiSquareWithXError>();
+					auto points=make_shared<FitPoints>();
 					for(point pp:currenthist)
-						if((pp.x>=0.53)&&(pp.x<=0.56))
-							points->Add(ParamSet(pp.x),ParamSet(pp.dx),pp.y/pp.dx,((pp.dy>1.0)?pp.dy:1.0)/pp.dx);
+						if((pp.x>=0.53)&&(pp.x<=0.56)){
+							FitPoints::DataPoint point;
+							point.X<<pp.x;
+							point.WX<<pp.dx;
+							point.y=pp.y/pp.dx;
+							point.wy=((pp.dy>1.0)?pp.dy:1.0)/pp.dx;
+							points<<point;
+						}
 					missingmass.push_back(make_pair(p.x,points));
 					acceptance<<make_pair(p.x,p.y/norm);
 					dacceptance<<make_pair(p.x,(dnorm*p.y/pow(norm,2))+(p.dy/norm));
@@ -71,7 +77,7 @@ int main(int,char**){
 		string ind=to_string(int(pbeam*1000));
 		fit_image.Points(ind+"points",hist.second);
 		printf("Fitting missing mass histogram for p=%f GeV/c...\n",hist.first);
-		DifferentialRandomMutations<> fit(make_shared<Foreground>(),hist.second,THREADS_COUNT);
+		DifferentialRandomMutations<> fit(make_shared<Foreground>(),ChiSquareWithXError(hist.second),THREADS_COUNT);
 		fit.SetFilter(make_shared<And>()
 		<<(make_shared<Above>()<<0<<0.5<<0)
 		<<(make_shared<Below>()<<INFINITY<<0.6<<0.2)

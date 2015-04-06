@@ -11,15 +11,12 @@ Plot::Plot(string out){
 	outpath=out;
 }
 Plot::~Plot(){}
-Plot& Plot::Points(string file, shared_ptr< Fit::FitPointsAbstract > points){
+Plot& Plot::Points(string file, shared_ptr< Fit::FitPoints> points){
 	ofstream data;
 	data.open((outpath+"/"+file+".txt").c_str());
 	if(data.is_open()){
-		for(int i=0;i<points->Count();i++)
-			data<<points->X(i)[0]<<" "
-			<<points->Y(i)<<" "
-			<<points->X_w(i)[0]<<" "
-			<<points->W(i)<<"\n";
+		for(auto p:*points)
+			data<<p.X[0]<<" "<<p.y<<" "<<p.WX[0]<<" "<<p.wy<<"\n";
 		data.close();
 		lines.push_back("\""+file+".txt\" using 1:2:($1-$3):($1+$3):($2-$4):($2+$4) with xyerrorbars title \""+file+"\"");
 	}

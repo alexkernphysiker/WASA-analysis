@@ -10,7 +10,7 @@ class Plot{
 public:
 	Plot(std::string out);
 	virtual ~Plot();
-	Plot &Points(std::string file,std::shared_ptr<Fit::FitPointsAbstract> points);
+	Plot &Points(std::string file,std::shared_ptr<Fit::FitPoints> points);
 	Plot &Points(std::string file,hist &points);
 	Plot &Points(std::string file,LinearInterpolation<double> &points);
 	Plot &Points(std::string file,LinearInterpolation<double> &points,std::function<double(double)> error);
