@@ -73,8 +73,6 @@ bool He3eta::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
 	int stop_index=StoppingPlaneIndex(track);
 	if(
 		(
-			(stop_index==ForwardPlaneIndex(kFTH1))||
-			(stop_index==ForwardPlaneIndex(kFTH2))||
 			(stop_index==ForwardPlaneIndex(kFTH3))||
 			(stop_index==ForwardPlaneIndex(kFRH1))
 		)
