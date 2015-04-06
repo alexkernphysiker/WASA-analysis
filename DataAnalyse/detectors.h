@@ -23,7 +23,7 @@ protected:
 	double Upper(ForwardDetectorPlane plane);
 	double ThresholdByIndex(int planeindex);
 	double Threshold(ForwardDetectorPlane plane);
-	bool UpperThresholdUpTo(WTrack* track,ForwardDetectorPlane plane);
+	bool UpperThresholdUpTo(WTrack* track,int planeindex);
 private:
 	struct plane_data{
 	public:

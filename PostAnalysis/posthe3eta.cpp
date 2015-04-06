@@ -82,7 +82,7 @@ int main(int,char**){
 		printf("norm=%f\n",norm);
 		fit.Init(50,make_shared<GenerateByGauss>()<<make_pair(2.0*norm/3.0,norm/2.0)<<make_pair(m_eta,0.01)<<make_pair(0.05,0.05));
 		printf("Inited...\n");
-		while(!fit.AbsoluteOptimalityExitCondition(0.0000001)){
+		while(!fit.AbsoluteOptimalityExitCondition(0.000001)){
 			fit.Iterate();
 			printf("%i iterations; %f<=chi^2<=%f         \r",fit.iteration_count(),fit.Optimality(),fit.Optimality(fit.PopulationSize()-1));
 		}
@@ -94,7 +94,7 @@ int main(int,char**){
 		mc_acc<<make_pair(pbeam,fit[0]/norm);
 		mc_dacc<<make_pair(pbeam,(dnorm*fit[0]/pow(norm,2))+(err[0]/norm));
 		printf("\n >>>>> %f+/-%f\n",mc_acc(pbeam),mc_dacc(pbeam));
-		fit_image.Function(ind+"fit",[&fit](double x){return fit(ParamSet(x));},0.5,0.6,0.001);
+		fit_image.Function(ind+"fit",[&fit](double x){return fit(ParamSet(x));},0.5,0.6,0.0001);
 		fit_image.Out(ind+"plot");
 	}
 	Plot fig_acc(outpath);
