@@ -79,7 +79,7 @@ Plot& Plot::Function(string file, function< double(double) > func, function< dou
 }
 void Plot::Out(string scriptname,bool show){
 	ofstream script;
-	script.open((outpath+"/"+scriptname).c_str());
+	script.open((outpath+"/"+scriptname+".gnuplot").c_str());
 	if(script.is_open()){
 		script << "plot ";
 		for(int i=0,n=lines.size();i<n;i++){
@@ -94,7 +94,7 @@ void Plot::Out(string scriptname,bool show){
 	if(show){
 		char* olddir=getcwd(NULL,0);
 		chdir(outpath.c_str());
-		system((string("gnuplot ")+scriptname).c_str());
+		system((string("gnuplot ")+scriptname+".gnuplot").c_str());
 		chdir(olddir);
 	}
 }
