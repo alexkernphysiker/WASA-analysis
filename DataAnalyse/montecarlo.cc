@@ -47,7 +47,7 @@ MonteCarlo::CheckHists::CheckHists(ParticleType t){
 }
 void MonteCarlo::PrepareCheck(){
 	Analysis::PrepareCheck();
-	for(auto P:first_particles){
+	for(auto P:final_particles){
 		CheckHists h(P.first);
 		check.push_back(h);
 		gHistoManager->Add(h.Ekin,"Reconstruction");

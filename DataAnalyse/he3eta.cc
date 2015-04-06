@@ -7,7 +7,6 @@ He3eta::He3eta():Analysis(),ForwardDetectorRoutines("3He"){
 	first_particles.push_back(make_pair(kHe3,m_3He));
 	first_particles.push_back(make_pair(kEta,m_eta));
 	final_particles.push_back(make_pair(kHe3,m_3He));
-	final_particles.push_back(make_pair(kGamma,0));
 	for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++){
 		string histname=ForwardPlaneName(i)+"_vs_"+ForwardPlaneName(i+1);
 		TH2F* hist;
