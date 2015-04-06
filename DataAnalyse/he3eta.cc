@@ -86,6 +86,7 @@ bool He3eta::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
 			double theta=track->Theta();
 			double phi=track->Phi();
 			double magnetic_field=10;//kG
+			//ToDo: obtain magnetic field
 			phi+= TrackFinderFD->GetPhiCorrection(p,theta,magnetic_field,c_He);
 			CheckParticleTrack(kHe3,Ek,theta,phi);
 			TVector3 p_He3;
