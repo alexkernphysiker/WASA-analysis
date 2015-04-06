@@ -39,31 +39,27 @@ int main(int,char**){
 	vector<pair<double,shared_ptr<FitPoints>>> missingmass;{
 		LinearInterpolation<double> acceptance,dacceptance;{
 			hist registered(MCFile,EventsCount,"DependenceOnBeam");
-			for(point p:registered){
-				double norm=mc_norm(p.x);
-				double dnorm=mc_dnorm(p.x);
-				if(mc_norm(p.x)>50000){
-					string histname=string("MissingMass")+to_string(int(p.x*1000));
-					hist currenthist(MCFile,Kinematics,histname);
+			for(point histpoint:registered){
+				double norm=mc_norm(histpoint.x);
+				double dnorm=mc_dnorm(histpoint.x);
+				if(mc_norm(histpoint.x)>50000){
+					string subhistname=string("MissingMass")+to_string(int(histpoint.x*1000));
+					hist subhist(MCFile,Kinematics,subhistname);
 					auto points=make_shared<FitPoints>();
-					for(point pp:currenthist)
-						if((pp.x>=0.53)&&(pp.x<=0.56)){
+					for(point subhistpoint:subhist)
+						if((subhistpoint.x>=0.53)&&(subhistpoint.x<=0.56)){
 							FitPoints::DataPoint point;
-							point.X<<pp.x;
-							point.WX<<pp.dx;
-							point.y=pp.y/pp.dx;
-							point.wy=((pp.dy>1.0)?pp.dy:1.0)/pp.dx;
+							point.X<<subhistpoint.x;
+							point.WX<<subhistpoint.dx;
+							point.y=subhistpoint.y/subhistpoint.dx;
+							point.wy=((subhistpoint.dy>1.0)?subhistpoint.dy:1.0)/subhistpoint.dx;
 							points<<point;
 						}
-					missingmass.push_back(make_pair(p.x,points));
-					acceptance<<make_pair(p.x,p.y/norm);
-					dacceptance<<make_pair(p.x,(dnorm*p.y/pow(norm,2))+(p.dy/norm));
+					missingmass.push_back(make_pair(histpoint.x,points));
+					acceptance<<make_pair(histpoint.x,histpoint.y/norm);
+					dacceptance<<make_pair(histpoint.x,(dnorm*histpoint.y/pow(norm,2))+(histpoint.dy/norm));
 				}
 			}
-			Plot hists(outpath);
-			hists.Points("Norm",mc_norm,[&mc_dnorm](double x){return mc_dnorm(x);});
-			hists.Points("Registered",registered);
-			hists.Out("RegisteredEvents");
 		}
 		Plot fig1(outpath);
 		fig1.Points("Estimated_Acceptance",acceptance,[&dacceptance](double x){return dacceptance(x);});
@@ -85,8 +81,8 @@ int main(int,char**){
 		double norm=mc_norm(hist.first);
 		double dnorm=mc_dnorm(hist.first);
 		printf("norm=%f\n",norm);
-		fit.Init(50,make_shared<GenerateByGauss>()
-			<<make_pair(2.0*norm/3.0,norm/2.0)
+		fit.Init(30,make_shared<GenerateByGauss>()
+			<<make_pair(2.0*norm/3.0,norm/3.0)
 			<<make_pair(m_eta,0.01)
 			<<make_pair(0.05,0.05)
 		);
@@ -114,5 +110,5 @@ int main(int,char**){
 	}
 	Plot fig_acc(outpath);
 	fig_acc.Points("Acceptance",mc_acc,[&mc_dacc](double x){return mc_dacc(x);});
-	fig_acc.Out("Acceptance",true);
+	fig_acc.Out("Acceptance");
 }
