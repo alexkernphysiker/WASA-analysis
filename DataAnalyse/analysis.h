@@ -48,6 +48,8 @@ protected:
 	virtual bool ForwardTrackProcessing(WTrack* track,TVector3 &pbeam)=0;
 	virtual bool CentralTrackProcessing(WTrack* track,TVector3 &pbeam)=0;
 
+	FDFTHTracks* TrackFinderFD;
+	CDTracksSimple* CDTrackFinder;
 	WTrackBank *fTrackBankFD,*fTrackBankCD;
 	CCardWDET *fDetectorTable;
 	TH1F *P_Beam;

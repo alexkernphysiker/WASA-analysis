@@ -4,9 +4,9 @@ using namespace std;
 IAnalysis::~IAnalysis(){}
 Analysis::Analysis(){
 	checkprepared=false;
-	auto TrackFinderFD = dynamic_cast<FDFTHTracks*>(gDataManager->GetAnalysisModule("FDFTHTracks","default"));
+	TrackFinderFD = dynamic_cast<FDFTHTracks*>(gDataManager->GetAnalysisModule("FDFTHTracks","default"));
 	if(TrackFinderFD!=0) fTrackBankFD = TrackFinderFD->GetTrackBank();
-	auto CDTrackFinder = dynamic_cast<CDTracksSimple*>(gDataManager->GetAnalysisModule("CDTracksSimple","default"));
+	CDTrackFinder = dynamic_cast<CDTracksSimple*>(gDataManager->GetAnalysisModule("CDTracksSimple","default"));
 	if (CDTrackFinder!=0) fTrackBankCD = CDTrackFinder->GetTrackBank();
 	fDetectorTable = dynamic_cast<CCardWDET*>(gParameterManager->GetParameterObject("CCardWDET","default")); 
 	P_Beam=new TH1F("P_beam","",P_hist_param);

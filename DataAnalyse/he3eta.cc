@@ -83,13 +83,14 @@ bool He3eta::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
 		if(ReconstructEkin(track,Ek)){
 			for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
 				EDepFilteredHist[i]->Fill(EDep(track,i+1),EDep(track,i));
+			double p=sqrt(Ek*(Ek+2*m_3He));
 			double theta=track->Theta();
 			double phi=track->Phi();
-			//ToDo: phi correction
+			double magnetic_field=10;//kG
+			phi+= TrackFinderFD->GetPhiCorrection(p,theta,magnetic_field,c_He);
 			CheckParticleTrack(kHe3,Ek,theta,phi);
-			double p3He=sqrt(Ek*(Ek+2*m_3He));
 			TVector3 p_He3;
-			p_He3.SetMagThetaPhi(p3He,theta,phi);
+			p_He3.SetMagThetaPhi(p,theta,phi);
 			TLorentzVector P_He3;
 			P_He3.SetVectM(p_He3,m_3He);
 			TLorentzVector P_Total;{
