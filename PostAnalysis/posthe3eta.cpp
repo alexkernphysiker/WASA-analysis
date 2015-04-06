@@ -29,7 +29,6 @@ int main(int,char**){
 	vector<string> EventsCount;
 	EventsCount.push_back("Histograms");
 	EventsCount.push_back("OutputEventsCount");
-	
 	LinearInterpolation<double> mc_norm,mc_dnorm;{
 		hist normhist(MCFile,Reconstruction,"P_beam");
 		for(point p:normhist){
