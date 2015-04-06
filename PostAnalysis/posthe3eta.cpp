@@ -79,27 +79,37 @@ int main(int,char**){
 		printf("Fitting missing mass histogram for p=%f GeV/c...\n",hist.first);
 		DifferentialRandomMutations<> fit(make_shared<Foreground>(),ChiSquareWithXError(hist.second),THREADS_COUNT);
 		fit.SetFilter(make_shared<And>()
-		<<(make_shared<Above>()<<0<<0.5<<0)
-		<<(make_shared<Below>()<<INFINITY<<0.6<<0.2)
-		<<make_shared<Filter<>>([](ParamSet &P){return pow(P[1]-m_eta,2)<0.5;})
+			<<(make_shared<Above>()<<0<<0.5<<0)
+			<<(make_shared<Below>()<<INFINITY<<0.6<<0.2)
+			<<make_shared<Filter<>>([](ParamSet &P){return pow(P[1]-m_eta,2)<0.5;})
 		);
 		double norm=mc_norm(hist.first);
 		double dnorm=mc_dnorm(hist.first);
 		printf("norm=%f\n",norm);
-		fit.Init(50,make_shared<GenerateByGauss>()<<make_pair(2.0*norm/3.0,norm/2.0)<<make_pair(m_eta,0.01)<<make_pair(0.05,0.05));
+		fit.Init(50,make_shared<GenerateByGauss>()
+			<<make_pair(2.0*norm/3.0,norm/2.0)
+			<<make_pair(m_eta,0.01)
+			<<make_pair(0.05,0.05)
+		);
 		printf("Inited...\n");
 		while(!fit.AbsoluteOptimalityExitCondition(0.000001)){
 			fit.Iterate();
-			printf("%i iterations; %f<=chi^2<=%f         \r",fit.iteration_count(),fit.Optimality(),fit.Optimality(fit.PopulationSize()-1));
+			printf("%i iterations; %f<=chi^2<=%f         \r",
+				fit.iteration_count(),
+				fit.Optimality(),
+				fit.Optimality(fit.PopulationSize()-1)
+			);
 		}
 		printf("\nParameters:");
-		for(double p:fit) printf("\t%f;",p);
+		for(double p:fit)
+			printf("\t%f;",p);
 		printf("\nErrors:");
 		ParamSet err=fit.GetParamParabolicError(ParamSet(1,0.001,0.001));
-		for(double p:err) printf("\t%f;",p);
+		for(double p:err)
+			printf("\t%f;",p);
 		mc_acc<<make_pair(pbeam,fit[0]/norm);
 		mc_dacc<<make_pair(pbeam,(dnorm*fit[0]/pow(norm,2))+(err[0]/norm));
-		printf("\n >>>>> %f+/-%f\n",mc_acc(pbeam),mc_dacc(pbeam));
+		printf("\n>>>>> %f+/-%f\n",mc_acc(pbeam),mc_dacc(pbeam));
 		fit_image.Function(ind+"fit",[&fit](double x){return fit(ParamSet(x));},0.5,0.6,0.0001);
 		fit_image.Out(ind+"plot");
 	}
