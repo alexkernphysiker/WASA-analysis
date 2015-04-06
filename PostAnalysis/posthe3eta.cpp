@@ -82,7 +82,7 @@ int main(int,char**){
 		double dnorm=mc_dnorm(hist.first);
 		printf("norm=%f\n",norm);
 		fit.Init(30,make_shared<GenerateByGauss>()
-			<<make_pair(2.0*norm/3.0,norm/3.0)
+			<<make_pair(2.0*norm/3.0,norm/2.0)
 			<<make_pair(m_eta,0.01)
 			<<make_pair(0.05,0.05)
 		);
@@ -95,10 +95,10 @@ int main(int,char**){
 				fit.Optimality(fit.PopulationSize()-1)
 			);
 		}
-		printf("\nParameters:");
+		printf("\nParameters:\n");
 		for(double p:fit)
 			printf("\t%f;",p);
-		printf("\nErrors:");
+		printf("\nErrors:\n");
 		ParamSet err=fit.GetParamParabolicError(ParamSet(1,0.001,0.001));
 		for(double p:err)
 			printf("\t%f;",p);
