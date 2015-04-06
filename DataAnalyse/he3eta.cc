@@ -90,7 +90,6 @@ bool He3eta::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
 			//ToDo: phi correction
 			CheckParticleTrack(kHe3,Ek,theta,phi);
 			double p3He=sqrt(Ek*(Ek+2*m_3He));
-			double E3He=sqrt(p3He*p3He+m_3He*m_3He);
 			TVector3 p_He3;
 			p_He3.SetMagThetaPhi(p3He,theta,phi);
 			TLorentzVector P_He3;
