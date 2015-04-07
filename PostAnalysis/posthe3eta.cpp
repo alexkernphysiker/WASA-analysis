@@ -61,15 +61,14 @@ int main(int,char**){
 				}
 			}
 		}
-		Plot fig1(outpath);
+		Plot fig1(outpath,"Estimated_Acceptance");
 		fig1.Points("Estimated_Acceptance",acceptance,[&dacceptance](double x){return dacceptance(x);});
-		fig1.Out("Estimated_Acceptance");
 	}
 	LinearInterpolation<double> mc_acc,mc_dacc;
 	for(auto hist:missingmass){
-		Plot fit_image(outpath);
 		double pbeam=hist.first;
 		string ind=to_string(int(pbeam*1000));
+		Plot fit_image(outpath,ind+"plot");
 		fit_image.Points(ind+"points",hist.second);
 		printf("Fitting missing mass histogram for p=%f GeV/c...\n",hist.first);
 		DifferentialRandomMutations<> fit(make_shared<Foreground>(),ChiSquareWithXError(hist.second),THREADS_COUNT);
@@ -106,9 +105,7 @@ int main(int,char**){
 		mc_dacc<<make_pair(pbeam,(dnorm*fit[0]/pow(norm,2))+(err[0]/norm));
 		printf("\n>>>>> %f+/-%f\n",mc_acc(pbeam),mc_dacc(pbeam));
 		fit_image.Function(ind+"fit",[&fit](double x){return fit(ParamSet(x));},0.5,0.6,0.0001);
-		fit_image.Out(ind+"plot");
 	}
-	Plot fig_acc(outpath);
+	Plot fig_acc(outpath,"Acceptance");
 	fig_acc.Points("Acceptance",mc_acc,[&mc_dacc](double x){return mc_dacc(x);});
-	fig_acc.Out("Acceptance");
 }

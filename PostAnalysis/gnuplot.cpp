@@ -7,10 +7,25 @@
 #include <unistd.h>
 #include "gnuplot.h"
 using namespace std;
-Plot::Plot(string out){
+Plot::Plot(string out,string script){
 	outpath=out;
+	scriptname=script;
 }
-Plot::~Plot(){}
+Plot::~Plot(){
+	ofstream script;
+	script.open((outpath+"/"+scriptname+".gnuplot").c_str());
+	if(script.is_open()){
+		script << "plot ";
+		for(int i=0,n=lines.size();i<n;i++){
+			script<<lines[i];
+			if(i<(n-1))
+				script<<",\\";
+			script<<"\n";
+		}
+		script << "\npause -1";
+		script.close();
+	}
+}
 Plot& Plot::Points(string file, shared_ptr< Fit::FitPoints> points){
 	ofstream data;
 	data.open((outpath+"/"+file+".txt").c_str());
@@ -74,28 +89,3 @@ Plot& Plot::Function(string file, function< double(double) > func, function< dou
 		lines.push_back("\""+file+".txt\" using 1:2:($2-$3):($2+$3) with yerrorbars title \""+file+"\"");
 	}
 }
-void Plot::Out(string scriptname,bool show){
-	ofstream script;
-	script.open((outpath+"/"+scriptname+".gnuplot").c_str());
-	if(script.is_open()){
-		script << "plot ";
-		for(int i=0,n=lines.size();i<n;i++){
-			script<<lines[i];
-			if(i<(n-1))
-				script<<",\\";
-			script<<"\n";
-		}
-		script << "\npause -1";
-		script.close();
-	}
-	if(show){
-		char* olddir=getcwd(NULL,0);
-		chdir(outpath.c_str());
-		system((string("gnuplot ")+scriptname+".gnuplot").c_str());
-		chdir(olddir);
-	}
-}
-
-
-
-

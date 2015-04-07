@@ -8,7 +8,7 @@
 #include "gethist.h"
 class Plot{
 public:
-	Plot(std::string out);
+	Plot(std::string out,std::string script);
 	virtual ~Plot();
 	Plot &Points(std::string file,std::shared_ptr<Fit::FitPoints> points);
 	Plot &Points(std::string file,hist &points);
@@ -16,9 +16,9 @@ public:
 	Plot &Points(std::string file,LinearInterpolation<double> &points,std::function<double(double)> error);
 	Plot &Function(std::string file,std::function<double(double)> func,double from,double to,double step);
 	Plot &Function(std::string file,std::function<double(double)> func,std::function<double(double)> error,double from,double to,double step);
-	void Out(std::string scriptname,bool show=false);
 private:
 	std::string outpath;
+	std::string scriptname;
 	std::vector<std::string> lines;
 };
 #endif
