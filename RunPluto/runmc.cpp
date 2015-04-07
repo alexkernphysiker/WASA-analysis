@@ -16,7 +16,7 @@ string ReplaceAll(string str, const string& from, const string& to) {
 	return str;
 }
 int main(int, char **){
-	PUtils::SetSeed(RandomUniformly<int>(1,50));
+	PUtils::SetSeed(RandomUniformlyI(1,50));
 	PBeamSmearing *smear = new PBeamSmearing("beam_smear", "Beam smearing");
 	smear->SetReaction("p+d");
 	smear->SetMomentumFunction(new TF1("Uniform","1",he3_eta_threshold,beam_hi));
