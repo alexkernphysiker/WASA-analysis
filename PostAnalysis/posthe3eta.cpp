@@ -48,7 +48,7 @@ int main(int,char**){
 					auto points=make_shared<FitPoints>();
 					for(point subhistpoint:subhist)
 						if((subhistpoint.x>=0.53)&&(subhistpoint.x<=0.56)){
-							FitPoints::DataPoint point;
+							FitPoints::Point point;
 							point.X<<subhistpoint.x;
 							point.WX<<subhistpoint.dx;
 							point.y=subhistpoint.y/subhistpoint.dx;
