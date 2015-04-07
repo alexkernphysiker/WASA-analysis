@@ -2,11 +2,11 @@
 #define DAIHADDG
 #include <string>
 #include <vector>
-struct point{
-	double x,y,dx,dy;
-};
 class hist{
 public:
+	struct point{
+		double x,y,dx,dy;
+	};
 	hist(std::string filename,std::vector<std::string> &path,std::string histname);
 	virtual ~hist();
 	double Entries();

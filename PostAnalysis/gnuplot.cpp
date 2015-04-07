@@ -26,7 +26,7 @@ Plot& Plot::Points(string file, hist& points){
 	ofstream data;
 	data.open((outpath+"/"+file+".txt").c_str());
 	if(data.is_open()){
-		for(point p:points)
+		for(hist::point p:points)
 			data<<p.x<<" "<<p.y<<" "<<p.dx<<" "<<p.dy<<"\n";
 		data.close();
 		lines.push_back("\""+file+".txt\" using 1:2:($1-$3):($1+$3):($2-$4):($2+$4) with xyerrorbars title \""+file+"\"");

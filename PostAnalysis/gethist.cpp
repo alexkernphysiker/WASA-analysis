@@ -7,7 +7,7 @@
 #include <TDirectoryFile.h>
 #include "gethist.h"
 using namespace std;
-hist::hist(std::string filename,std::vector<std::string> &path,std::string histname){
+hist::hist(string filename,vector<string> &path,string histname){
 	TFile* file=TFile::Open(filename.c_str());
 	if(file){
 		TDirectoryFile* dir1=file;
@@ -45,7 +45,7 @@ int hist::count(){
 double hist::Entries(){
 	return norm;
 }
-point& hist::operator[](int i){
+hist::point& hist::operator[](int i){
 	return data[i];
 }
 hist::iterator hist::begin(){

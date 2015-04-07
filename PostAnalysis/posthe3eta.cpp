@@ -31,7 +31,7 @@ int main(int,char**){
 	EventsCount.push_back("OutputEventsCount");
 	LinearInterpolation<double> mc_norm,mc_dnorm;{
 		hist normhist(MCFile,Reconstruction,"P_beam");
-		for(point p:normhist){
+		for(hist::point p:normhist){
 			mc_norm<<make_pair(p.x,p.y);
 			mc_dnorm<<make_pair(p.x,p.dy);
 		}
@@ -39,14 +39,14 @@ int main(int,char**){
 	vector<pair<double,shared_ptr<FitPoints>>> missingmass;{
 		LinearInterpolation<double> acceptance,dacceptance;{
 			hist registered(MCFile,EventsCount,"DependenceOnBeam");
-			for(point histpoint:registered){
+			for(hist::point histpoint:registered){
 				double norm=mc_norm(histpoint.x);
 				double dnorm=mc_dnorm(histpoint.x);
 				if(mc_norm(histpoint.x)>50000){
 					string subhistname=string("MissingMass")+to_string(int(histpoint.x*1000));
 					hist subhist(MCFile,Kinematics,subhistname);
 					auto points=make_shared<FitPoints>();
-					for(point subhistpoint:subhist)
+					for(hist::point subhistpoint:subhist)
 						if((subhistpoint.x>=0.53)&&(subhistpoint.x<=0.56)){
 							FitPoints::Point point;
 							point.X<<subhistpoint.x;
@@ -87,7 +87,7 @@ int main(int,char**){
 			<<make_pair(0.05,0.05)
 		);
 		printf("Inited...\n");
-		while(!fit.AbsoluteOptimalityExitCondition(0.000001)){
+		while(!fit.AbsoluteOptimalityExitCondition(0.0000001)){
 			fit.Iterate();
 			printf("%i iterations; %f<=chi^2<=%f         \r",
 				fit.iteration_count(),
