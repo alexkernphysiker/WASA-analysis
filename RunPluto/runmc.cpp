@@ -6,15 +6,8 @@
 const double he3_eta_threshold=1.5727;
 const double beam_low=1.426;
 const double beam_hi=1.635;
+#include "../General/replace.cc"
 using namespace std;
-string ReplaceAll(string str, const string& from, const string& to) {
-	size_t start_pos = 0;
-	while((start_pos = str.find(from, start_pos)) != std::string::npos) {
-		str.replace(start_pos, from.length(), to);
-		start_pos += to.length();
-	}
-	return str;
-}
 int main(int, char **){
 	PUtils::SetSeed(RandomUniformlyI(1,50));
 	PBeamSmearing *smear = new PBeamSmearing("beam_smear", "Beam smearing");

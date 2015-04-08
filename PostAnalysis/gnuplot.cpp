@@ -6,86 +6,132 @@
 #include <memory>
 #include <unistd.h>
 #include "gnuplot.h"
+#include "../General/replace.cc"
 using namespace std;
-Plot::Plot(string out,string script){
-	outpath=out;
-	scriptname=script;
+class Plotter{
+	vector<string> lines;
+	unsigned int counter;
+	string outpath;
+public:
+	Plotter(){
+		counter=0;
+		outpath="*";
+	}
+	~Plotter(){
+		ofstream script;
+		string name="script.gnuplot";
+		script.open((outpath+"/"+name).c_str());
+		if(script.is_open()){
+			for(string line:lines)
+				script<<line<<"\n";
+			script << "\npause -1";
+			script.close();
+			name=string("gnuplot ")+name;
+			string old=getcwd(NULL,0);
+			chdir(outpath.c_str());
+			system(name.c_str());
+			chdir(old.c_str());
+		}
+		
+	}
+	static Plotter &Instance(){
+		static Plotter m_instance;
+		return m_instance;
+	}
+	void SetOutput(string out){
+		if(outpath!="*")
+			throw;
+		outpath=out;
+	}
+	string OutPath(){
+		if(outpath=="*")
+			throw;
+		return outpath;
+	}
+	string GetTerminal(){
+		counter++;
+		return string("set terminal qt ")+to_string(counter);
+	}
+	Plotter &operator<<(string line){
+		lines.push_back(line);
+		return *this;
+	}
+};
+void SetPlotOutput(string outpath){
+	Plotter::Instance().SetOutput(outpath);
+}
+Plot::Plot(){
+	operator<<(Plotter::Instance().GetTerminal());
+}
+Plot& Plot::operator<<(string line){
+	lines.push_back(line);
 }
 Plot::~Plot(){
-	ofstream script;
-	script.open((outpath+"/"+scriptname+".gnuplot").c_str());
-	if(script.is_open()){
-		script << "plot ";
-		for(int i=0,n=lines.size();i<n;i++){
-			script<<lines[i];
-			if(i<(n-1))
-				script<<",\\";
-			script<<"\n";
-		}
-		script << "\npause -1";
-		script.close();
+	for(string line:lines)
+		Plotter::Instance()<<line;
+	for(int i=0,n=plots.size();i<n;i++){
+		string line=plots[i];
+		if(i==0)
+			line="plot "+line;
+		if(i<(n-1))
+			line+=",\\";
+		Plotter::Instance()<<line;
 	}
 }
-Plot& Plot::Points(string file, shared_ptr< Fit::FitPoints> points){
+Plot& Plot::Points(string name, shared_ptr<Fit::FitPoints> points){
 	ofstream data;
-	data.open((outpath+"/"+file+".txt").c_str());
+	string filename=ReplaceAll(name," ","_")+".txt";
+	data.open((Plotter::Instance().OutPath()+"/"+filename).c_str());
 	if(data.is_open()){
 		for(auto p:*points)
 			data<<p.X[0]<<" "<<p.y<<" "<<p.WX[0]<<" "<<p.wy<<"\n";
 		data.close();
-		lines.push_back("\""+file+".txt\" using 1:2:($1-$3):($1+$3):($2-$4):($2+$4) with xyerrorbars title \""+file+"\"");
+		plots.push_back("\""+filename+"\" using 1:2:($1-$3):($1+$3):($2-$4):($2+$4) with xyerrorbars title \""+name+"\"");
 	}
 }
-
-Plot& Plot::Points(string file, hist& points){
+Plot& Plot::Points(string name, LinearInterpolation<double>& points){
 	ofstream data;
-	data.open((outpath+"/"+file+".txt").c_str());
-	if(data.is_open()){
-		for(hist::point p:points)
-			data<<p.x<<" "<<p.y<<" "<<p.dx<<" "<<p.dy<<"\n";
-		data.close();
-		lines.push_back("\""+file+".txt\" using 1:2:($1-$3):($1+$3):($2-$4):($2+$4) with xyerrorbars title \""+file+"\"");
-	}
-}
-Plot& Plot::Points(string file, LinearInterpolation<double>& points){
-	ofstream data;
-	data.open((outpath+"/"+file+".txt").c_str());
+	string filename=ReplaceAll(name," ","_")+".txt";
+	data.open((Plotter::Instance().OutPath()+"/"+filename).c_str());
 	if(data.is_open()){
 		for(auto p:points)
 			data<<p.first<<" "<<p.second<<"\n";
 		data.close();
-		lines.push_back("\""+file+".txt\" using 1:2 title \""+file+"\"");
+		plots.push_back("\""+filename+"\" using 1:2 title \""+name+"\"");
 	}
 }
-Plot& Plot::Points(string file, LinearInterpolation<double>& points,function<double(double)> error){
+Plot& Plot::Points(string name, LinearInterpolation<double>& points,function<double(double)> error){
 	ofstream data;
-	data.open((outpath+"/"+file+".txt").c_str());
+	string filename=ReplaceAll(name," ","_")+".txt";
+	data.open((Plotter::Instance().OutPath()+"/"+filename).c_str());
 	if(data.is_open()){
 		for(auto p:points)
 			data<<p.first<<" "<<p.second<<" "<<error(p.first)<<"\n";
 		data.close();
-		lines.push_back("\""+file+".txt\" using 1:2:($2-$3):($2+$3) with yerrorbars title \""+file+"\"");
+		plots.push_back("\""+filename+"\" using 1:2:($2-$3):($2+$3) with yerrorbars title \""+name+"\"");
 	}
 }
-Plot& Plot::Function(string file,function<double(double)> func,double from,double to,double step){
+Plot& Plot::Function(string name,function<double(double)> func,double from,double to,double step){
 	ofstream out;
-	out.open((outpath+"/"+file+".txt").c_str());
+	string filename=ReplaceAll(name," ","_")+".txt";
+	out.open((Plotter::Instance().OutPath()+"/"+filename).c_str());
 	if(out.is_open()){
 		for(double x=from;x<=to;x+=step){
 			out<<x<<" "<<func(x)<<"\n";
 		}
 		out.close();
-		lines.push_back("\""+file+".txt\" w l title \""+file+"\"");
+		plots.push_back("\""+filename+"\" w l title \""+name+"\"");
 	}
 }
-Plot& Plot::Function(string file, function< double(double) > func, function< double(double) > error, double from, double to, double step){
+Plot& Plot::Function(string name, function< double(double) > func, function< double(double) > error, double from, double to, double step){
 	ofstream out;
-	out.open((outpath+"/"+file+".txt").c_str());
+	string filename=ReplaceAll(name," ","_")+".txt";
+	out.open((Plotter::Instance().OutPath()+"/"+filename).c_str());
 	if(out.is_open()){
 		for(double x=from;x<=to;x+=step){
 			out<<x<<" "<<func(x)<<" "<<error(x)<<"\n";
 		}
 		out.close();
-		lines.push_back("\""+file+".txt\" using 1:2:($2-$3):($2+$3) with yerrorbars title \""+file+"\"");
+		plots.push_back("\""+filename+"\" using 1:2:($2-$3):($2+$3) with yerrorbars title \""+name+"\"");
 	}
 }
