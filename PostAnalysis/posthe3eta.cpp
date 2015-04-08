@@ -71,7 +71,7 @@ int main(int,char**){
 		Plot fit_image(outpath,ind+"plot");
 		fit_image.Points(ind+"points",hist.second);
 		printf("Fitting missing mass histogram for p=%f GeV/c...\n",hist.first);
-		DifferentialRandomMutations<> fit(make_shared<Foreground>(),ChiSquareWithXError(hist.second),THREADS_COUNT);
+		DifferentialRandomMutations<> fit(make_shared<Foreground>(),ChiSquareWithXError(hist.second));
 		fit.SetFilter(make_shared<And>()
 			<<(make_shared<Above>()<<0<<0.5<<0)
 			<<(make_shared<Below>()<<INFINITY<<0.6<<0.2)

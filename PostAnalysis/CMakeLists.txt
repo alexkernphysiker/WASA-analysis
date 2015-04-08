@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 project(runfit)
 add_definitions(-DUSE_RANDOM_DEVICE)
-add_definitions(-DTHREADS_COUNT=2)
 set(libs FitGen Core Hist RIO Tree)
 add_subdirectory(FitGen)
 include_directories(FitGen $ENV{ROOTSYS}/include ../General)
