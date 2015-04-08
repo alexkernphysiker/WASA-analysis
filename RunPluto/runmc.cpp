@@ -6,7 +6,7 @@
 const double he3_eta_threshold=1.5727;
 const double beam_low=1.426;
 const double beam_hi=1.635;
-#include "../General/replace.cc"
+#include <replace.cc>
 using namespace std;
 int main(int, char **){
 	PUtils::SetSeed(RandomUniformlyI(1,50));

@@ -5,8 +5,8 @@
 #include <sstream>
 #include <memory>
 #include <unistd.h>
+#include <replace.cc>
 #include "gnuplot.h"
-#include "../General/replace.cc"
 using namespace std;
 class Plotter{
 	vector<string> lines;
@@ -78,9 +78,10 @@ Plot::~Plot(){
 		Plotter::Instance()<<line;
 	}
 }
+#define FILENAME(name) ReplaceAll(ReplaceAll(name," ","_"),"=","_")+".txt"
 Plot& Plot::Points(string name, shared_ptr<Fit::FitPoints> points){
 	ofstream data;
-	string filename=ReplaceAll(name," ","_")+".txt";
+	string filename=FILENAME(name);
 	data.open((Plotter::Instance().OutPath()+"/"+filename).c_str());
 	if(data.is_open()){
 		for(auto p:*points)
@@ -91,7 +92,7 @@ Plot& Plot::Points(string name, shared_ptr<Fit::FitPoints> points){
 }
 Plot& Plot::Points(string name, LinearInterpolation<double>& points){
 	ofstream data;
-	string filename=ReplaceAll(name," ","_")+".txt";
+	string filename=FILENAME(name);
 	data.open((Plotter::Instance().OutPath()+"/"+filename).c_str());
 	if(data.is_open()){
 		for(auto p:points)
@@ -102,7 +103,7 @@ Plot& Plot::Points(string name, LinearInterpolation<double>& points){
 }
 Plot& Plot::Points(string name, LinearInterpolation<double>& points,function<double(double)> error){
 	ofstream data;
-	string filename=ReplaceAll(name," ","_")+".txt";
+	string filename=FILENAME(name);
 	data.open((Plotter::Instance().OutPath()+"/"+filename).c_str());
 	if(data.is_open()){
 		for(auto p:points)
@@ -113,7 +114,7 @@ Plot& Plot::Points(string name, LinearInterpolation<double>& points,function<dou
 }
 Plot& Plot::Function(string name,function<double(double)> func,double from,double to,double step){
 	ofstream out;
-	string filename=ReplaceAll(name," ","_")+".txt";
+	string filename=FILENAME(name);
 	out.open((Plotter::Instance().OutPath()+"/"+filename).c_str());
 	if(out.is_open()){
 		for(double x=from;x<=to;x+=step){
@@ -125,7 +126,7 @@ Plot& Plot::Function(string name,function<double(double)> func,double from,doubl
 }
 Plot& Plot::Function(string name, function< double(double) > func, function< double(double) > error, double from, double to, double step){
 	ofstream out;
-	string filename=ReplaceAll(name," ","_")+".txt";
+	string filename=FILENAME(name);
 	out.open((Plotter::Instance().OutPath()+"/"+filename).c_str());
 	if(out.is_open()){
 		for(double x=from;x<=to;x+=step){

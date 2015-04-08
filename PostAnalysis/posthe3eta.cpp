@@ -18,9 +18,8 @@ using namespace Fit;
 typedef Mul<Par<0>,Func3<Gaussian,Arg<0>,Par<1>,Par<2>>> Foreground;
 int main(int,char**){
 #include "env.cc"
+	SetPlotOutput(outpath+"/He3Eta");
 	string MCFile=inputpath+"/MCHe3Eta.root";
-	outpath+="/He3Eta";
-	SetPlotOutput(outpath);
 	vector<string> Kinematics;
 	Kinematics.push_back("Histograms");
 	Kinematics.push_back("Kinematics");
@@ -68,9 +67,8 @@ int main(int,char**){
 	LinearInterpolation<double> mc_acc,mc_dacc;
 	for(auto hist:missingmass){
 		double pbeam=hist.first;
-		string ind=to_string(int(pbeam*1000));
 		Plot fit_image;
-		fit_image.Points(ind+"points",hist.second);
+		fit_image.Points("Missing mass spectrum for P="+to_string(pbeam),hist.second);
 		printf("Fitting missing mass histogram for p=%f GeV/c...\n",hist.first);
 		DifferentialRandomMutations<> fit(make_shared<Foreground>(),ChiSquareWithXError(hist.second));
 		fit.SetFilter(make_shared<And>()
@@ -105,7 +103,7 @@ int main(int,char**){
 		mc_acc<<make_pair(pbeam,fit[0]/norm);
 		mc_dacc<<make_pair(pbeam,(dnorm*fit[0]/pow(norm,2))+(err[0]/norm));
 		printf("\n>>>>> %f+/-%f\n",mc_acc(pbeam),mc_dacc(pbeam));
-		fit_image.Function(ind+"fit",[&fit](double x){return fit(ParamSet(x));},0.5,0.6,0.0001);
+		fit_image.Function("fit for bin P="+to_string(pbeam),[&fit](double x){return fit(ParamSet(x));},0.5,0.6,0.0001);
 	}
 	Plot fig_acc;
 	fig_acc.Points("Acceptance",mc_acc,[&mc_dacc](double x){return mc_dacc(x);});
