@@ -70,11 +70,10 @@ int main(int,char**){
 		Plot fit_image;
 		fit_image.Points("Missing mass spectrum for P="+to_string(pbeam),hist.second);
 		printf("Fitting missing mass histogram for p=%f GeV/c...\n",hist.first);
-		DifferentialRandomMutations<> fit(make_shared<Foreground>(),ChiSquareWithXError(hist.second));
+		DifferentialMutations<> fit(make_shared<Foreground>(),ChiSquareWithXError(hist.second));
 		fit.SetFilter(make_shared<And>()
 			<<(make_shared<Above>()<<0<<0.5<<0)
 			<<(make_shared<Below>()<<INFINITY<<0.6<<0.2)
-			<<make_shared<Filter<>>([](ParamSet &P){return pow(P[1]-m_eta,2)<0.5;})
 		);
 		double norm=mc_norm(hist.first);
 		double dnorm=mc_dnorm(hist.first);
