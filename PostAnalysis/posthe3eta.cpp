@@ -91,7 +91,7 @@ int main(int,char**){
 			);
 		}
 		mc_acc<<make_pair(pbeam,fit[0]/norm);
-		mc_dacc<<make_pair(pbeam,(dnorm*fit[0]/pow(norm,2))+(fit.GetParamParabolicError(ParamSet(1,0.001,0.001))[0]/norm));
+		mc_dacc<<make_pair(pbeam,(dnorm*fit[0]/pow(norm,2))+(fit.GetParamParabolicError(0.1,0)/norm));
 		fit_image.Function("fit for bin P="+to_string(pbeam),[&fit](double x){return fit(ParamSet(x));},0.5,0.6,0.0001);
 		printf("\n");
 	}
