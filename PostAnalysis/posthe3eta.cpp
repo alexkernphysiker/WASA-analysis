@@ -77,32 +77,23 @@ int main(int,char**){
 		);
 		double norm=mc_norm(hist.first);
 		double dnorm=mc_dnorm(hist.first);
-		printf("norm=%f\n",norm);
 		fit.Init(30,make_shared<GenerateByGauss>()
 			<<make_pair(2.0*norm/3.0,norm/2.0)
 			<<make_pair(m_eta,0.01)
 			<<make_pair(0.05,0.05)
 		);
-		printf("Inited...\n");
 		while(!fit.AbsoluteOptimalityExitCondition(0.0000001)){
 			fit.Iterate();
-			printf("%i iterations; %f<=chi^2<=%f         \r",
+			printf("%i iterations; %f<=chi^2<=%f      \r",
 				fit.iteration_count(),
 				fit.Optimality(),
 				fit.Optimality(fit.PopulationSize()-1)
 			);
 		}
-		printf("\nParameters:\n");
-		for(double p:fit)
-			printf("\t%f;",p);
-		printf("\nErrors:\n");
-		ParamSet err=fit.GetParamParabolicError(ParamSet(1,0.001,0.001));
-		for(double p:err)
-			printf("\t%f;",p);
 		mc_acc<<make_pair(pbeam,fit[0]/norm);
-		mc_dacc<<make_pair(pbeam,(dnorm*fit[0]/pow(norm,2))+(err[0]/norm));
-		printf("\n>>>>> %f+/-%f\n",mc_acc(pbeam),mc_dacc(pbeam));
+		mc_dacc<<make_pair(pbeam,(dnorm*fit[0]/pow(norm,2))+(fit.GetParamParabolicError(ParamSet(1,0.001,0.001))[0]/norm));
 		fit_image.Function("fit for bin P="+to_string(pbeam),[&fit](double x){return fit(ParamSet(x));},0.5,0.6,0.0001);
+		printf("\n");
 	}
 	Plot fig_acc;
 	fig_acc.Points("Acceptance",mc_acc,[&mc_dacc](double x){return mc_dacc(x);});
