@@ -2,6 +2,7 @@
 #include "montecarlo.h"
 #include "data.h"
 #include "he3eta.h"
+AnalysisWrap::AnalysisWrap(){}
 AnalysisWrap::AnalysisWrap(const char* name): CAnalysisModule(name){}
 AnalysisWrap::~AnalysisWrap(){
 	if(m_data)

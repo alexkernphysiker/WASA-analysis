@@ -4,6 +4,7 @@
 #include <CAnalysisModule.hh>
 class AnalysisWrap:public CAnalysisModule{
 protected:
+    AnalysisWrap();
     explicit AnalysisWrap(const char* name);
 public:
 	virtual ~AnalysisWrap();
