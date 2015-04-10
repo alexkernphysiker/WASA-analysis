@@ -2,5 +2,5 @@
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
-#pragma link C++ class MCHe3Eta;
+#pragma link C++ class AnalysisWrap;
 #endif
