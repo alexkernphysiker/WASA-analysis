@@ -30,6 +30,6 @@ public:
 	explicit DataHe3Eta(const char * name);
 	virtual ~DataHe3Eta();
 protected:
-	ClassDef(DataHe3Eta,0);
+	ClassDef(DataHe3Eta,1);
 };
 #endif

@@ -23,6 +23,7 @@ MCHe3Eta::MCHe3Eta(const char *name):AnalysisWrap(name){
 	m_data=(void*)(new CreateAnalysis<MonteCarlo,He3eta>());
 }
 MCHe3Eta::~MCHe3Eta(){}
+
 ClassImp(DataHe3Eta);
 DataHe3Eta::DataHe3Eta(){}
 DataHe3Eta::DataHe3Eta(const char *name):AnalysisWrap(name){
