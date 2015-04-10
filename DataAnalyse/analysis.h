@@ -57,10 +57,10 @@ private:
 	bool checkprepared;
 };
 template <class datatype,class reaction>
-class CreateAnalysis:public virtual datatype,public virtual reaction{
+class CustomAnalysis:public virtual datatype,public virtual reaction{
 public:
-	CreateAnalysis():Analysis(),datatype(),reaction(){}
-	virtual ~CreateAnalysis(){}
+	CustomAnalysis():Analysis(),datatype(),reaction(){}
+	virtual ~CustomAnalysis(){}
 protected:
 	virtual bool EventProcessingCondition()override{
 		return datatype::EventProcessingCondition();
