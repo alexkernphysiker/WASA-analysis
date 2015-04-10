@@ -1,13 +1,14 @@
 #include <string>
 #include <iostream>
+#include "config.h"
 #include "analysiswrap.hh"
 #include "montecarlo.h"
 #include "data.h"
 #include "he3eta.h"
 using namespace std;
 string type="";
-void SetAnalysisType(char* t){
-	type=string(t);
+void SetAnalysisType(string t){
+	type=t;
 }
 ClassImp(AnalysisWrap);
 AnalysisWrap::AnalysisWrap(){}

@@ -2,7 +2,6 @@
 #define UWTLYUGSVUAZXUEJ
 #include <Wasa.hh>
 #include <CAnalysisModule.hh>
-void SetAnalysisType(char *type);
 class AnalysisWrap:public CAnalysisModule{
 public:
 	AnalysisWrap();
