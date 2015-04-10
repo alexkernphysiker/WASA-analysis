@@ -49,7 +49,7 @@ int main(int,char**){
 				if(dy<1)dy=1;
 				error<<make_pair(subhistpoint.x,(dnorm*subhistpoint.y/pow(norm,2))+(dy/norm));
 			}
-			missingmass_spectra_plot.Points(to_string(histpoint.x),func,[&error](double x){return error(x);});
+			missingmass_spectra_plot.Points("MC missing mass P="+to_string(histpoint.x),func,[&error](double x){return error(x);});
 			missingmass_mc_normed.push_back(make_pair(histpoint.x,make_pair(func,error)));
 			acceptance<<make_pair(histpoint.x,histpoint.y/norm);
 			dacceptance<<make_pair(histpoint.x,(dnorm*histpoint.y/pow(norm,2))+(histpoint.dy/norm));
