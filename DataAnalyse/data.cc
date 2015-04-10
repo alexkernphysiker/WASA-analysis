@@ -10,7 +10,7 @@ RealData::RealData(){
 		while(!file.eof()){
 			double time,p;
 			file>>time>>p;
-			p_beam<<make_pair(time,p);
+			p_beam<<make_pair(time/1000.0,p);
 		}
 		file.close();
 	}else
@@ -24,7 +24,7 @@ double RealData::EventWeight(){
 	return 1;
 }
 double RealData::PBeam(){
-	return p_beam(fHeader->GetTimeInCycle()*1000.0);
+	return p_beam(fHeader->GetTimeInCycle());
 }
 void RealData::PrepareCheck(){}
 void RealData::CheckParticleTrack(ParticleType type, double Ekin, double theta, double phi){}
