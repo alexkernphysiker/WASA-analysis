@@ -5,8 +5,7 @@ int main(int argc, char** argv) {
 	int new_c=argc-1;
 	char *args[new_c+1];
 	args[0]=argv[0];
-	string type=args[1];
-	SetAnalysisType(type);
+	SetAnalysisType(argv[1]);
 	for(int i=1;i<=new_c;i++)
 		args[i]=argv[i+1];
 	gSorterConfig->ReadCmdLine(new_c,args);
