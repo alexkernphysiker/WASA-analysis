@@ -13,44 +13,48 @@
 #include "gnuplot.h"
 using namespace std;
 using namespace Fit;
+typedef LinearInterpolation<double> FuncTbl;
 typedef Mul<Par<0>,Func3<Gaussian,Arg<0>,Par<1>,Par<2>>> Foreground;
 int main(int,char**){
 #include "env.cc"
 	SetPlotOutput(outpath+"/He3Eta");
 	string MCFile=inputpath+"/MCHe3Eta.root";
+	string DataFile=inputpath+"/DataHe3Eta.root";
 	vector<string> Kinematics;
 	Kinematics.push_back("Histograms");
 	Kinematics.push_back("Kinematics");
 	vector<string> EventsCount;
 	EventsCount.push_back("Histograms");
 	EventsCount.push_back("EventsCount");
-	LinearInterpolation<double> acceptance,dacceptance;
-	vector<pair<double,LinearInterpolation<double>>> missingmass_mc_normed;
+	FuncTbl acceptance,dacceptance;
+	vector<pair<double,pair<FuncTbl,FuncTbl>>> missingmass_mc_normed;
 	{
-		LinearInterpolation<double> mc_norm,mc_dnorm;
-		{
+		pair<FuncTbl,FuncTbl> TotalEvents;{
 			hist normhist(MCFile,EventsCount,"AllEventsOnPBeam");
 			for(hist::point p:normhist){
-				mc_norm<<make_pair(p.x,p.y);
-				mc_dnorm<<make_pair(p.x,p.dy);
+				TotalEvents.first<<make_pair(p.x,p.y);
+				TotalEvents.second<<make_pair(p.x,p.dy);
 			}
 		}
 		hist registered(MCFile,EventsCount,"FilteredEventsOnPBeam");
+		Plot missingmass_spectra_plot;
 		for(hist::point histpoint:registered){
-			double norm=mc_norm(histpoint.x);
-			double dnorm=mc_dnorm(histpoint.x);
-			if(mc_norm(histpoint.x)>50000){
-				string subhistname=string("MissingMass")+to_string(int(histpoint.x*1000));
-				hist subhist(MCFile,Kinematics,subhistname);
-				LinearInterpolation<double> points;
-				for(hist::point subhistpoint:subhist)
-					points<<make_pair(subhistpoint.x,subhistpoint.y/norm);
-				missingmass_mc_normed.push_back(make_pair(histpoint.x,points));
-				acceptance<<make_pair(histpoint.x,histpoint.y/norm);
-				dacceptance<<make_pair(histpoint.x,(dnorm*histpoint.y/pow(norm,2))+(histpoint.dy/norm));
+			double norm=TotalEvents.first(histpoint.x);
+			double dnorm=TotalEvents.second(histpoint.x);
+			hist subhist(MCFile,Kinematics,string("MissingMass")+to_string(int(histpoint.x*1000)));
+			FuncTbl func,error;
+			for(hist::point subhistpoint:subhist){
+				func<<make_pair(subhistpoint.x,subhistpoint.y/norm);
+				double dy=subhistpoint.dy;
+				if(dy<1)dy=1;
+				error<<make_pair(subhistpoint.x,(dnorm*subhistpoint.y/pow(norm,2))+(dy/norm));
 			}
+			missingmass_spectra_plot.Points(to_string(histpoint.x),func,[&error](double x){return error(x);});
+			missingmass_mc_normed.push_back(make_pair(histpoint.x,make_pair(func,error)));
+			acceptance<<make_pair(histpoint.x,histpoint.y/norm);
+			dacceptance<<make_pair(histpoint.x,(dnorm*histpoint.y/pow(norm,2))+(histpoint.dy/norm));
 		}
-		Plot fig1;
-		fig1.Points("Acceptance",acceptance,[&dacceptance](double x){return dacceptance(x);});
+		Plot acceptance_plot;
+		acceptance_plot.Points("Acceptance",acceptance,[&dacceptance](double x){return dacceptance(x);});
 	}
 }
