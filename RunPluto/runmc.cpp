@@ -2,17 +2,15 @@
 #include <string>
 #include <PBeamSmearing.h>
 #include <PReaction.h>
+#include <phys_constants.h>
 #include "math_h/randomfunc.h"
-const double he3_eta_threshold=1.5727;
-const double beam_low=1.426;
-const double beam_hi=1.635;
 #include <replace.cc>
 using namespace std;
 int main(int, char **){
 	PUtils::SetSeed(RandomUniformlyI(1,50));
 	PBeamSmearing *smear = new PBeamSmearing("beam_smear", "Beam smearing");
 	smear->SetReaction("p+d");
-	smear->SetMomentumFunction(new TF1("Uniform","1",he3_eta_threshold,beam_hi));
+	smear->SetMomentumFunction(new TF1("Uniform","1",p_he3_eta_threshold,p_beam_hi));
 	makeDistributionManager()->Add(smear);
 	list<string> reactlist;
 	reactlist.push_back("He3 eta");
@@ -22,7 +20,7 @@ int main(int, char **){
 	reactlist.push_back("d p pi0");
 	reactlist.push_back("p p n pi0");
 	for(auto react:reactlist){
-		PReaction my_reaction(beam_hi,"p","d",
+		PReaction my_reaction(p_beam_hi,"p","d",
 			const_cast<char*>(react.c_str()),
 			const_cast<char*>(ReplaceAll(ReplaceAll(ReplaceAll(react," ",""),"[","_"),"]","_").c_str())
 		,1,0,0,0);

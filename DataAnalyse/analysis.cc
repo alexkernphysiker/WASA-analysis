@@ -9,8 +9,6 @@ Analysis::Analysis(){
 	CDTrackFinder = dynamic_cast<CDTracksSimple*>(gDataManager->GetAnalysisModule("CDTracksSimple","default"));
 	if (CDTrackFinder!=0) fTrackBankCD = CDTrackFinder->GetTrackBank();
 	fDetectorTable = dynamic_cast<CCardWDET*>(gParameterManager->GetParameterObject("CCardWDET","default")); 
-	P_Beam=new TH1F("P_beam","",P_hist_param);
-	gHistoManager->Add(P_Beam,"Reconstruction");
 }
 Analysis::~Analysis(){}
 void Analysis::PrepareCheck(){}
@@ -25,7 +23,6 @@ void Analysis::ProcessEvent(){
 		double event_wieght=EventWeight();
 		TVector3 p_beam;
 		p_beam.SetMagThetaPhi(PBeam(),0,0);
-		P_Beam->Fill(p_beam.Mag());
 		if(EventPreProcessing(p_beam)){
 			int ChargedCountInCentral = fTrackBankCD->GetEntries(kCDC);
 			int NeutralCountInCentral = fTrackBankCD->GetEntries(kCDN);

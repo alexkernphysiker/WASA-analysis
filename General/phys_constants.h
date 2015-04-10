@@ -8,4 +8,8 @@ const double m_eta=0.547853;//[GeV]
 const int c_n=0;
 const int c_H=1;
 const int c_He=2;
+
+const double p_he3_eta_threshold=1.5727;
+const double p_beam_low=1.426;
+const double p_beam_hi=1.635;
 #endif

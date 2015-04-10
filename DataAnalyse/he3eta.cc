@@ -36,9 +36,11 @@ He3eta::He3eta():Analysis(),ForwardDetectorRoutines("3He"){
 			return true;
 		}
 	});
-	DependenceOnPBeam=new TH1F("DependenceOnBeam","",P_hist_param);
-	gHistoManager->Add(DependenceOnPBeam,"OutputEventsCount");
-#define missingmassparam 600,0.3,0.6
+	P_Beam=new TH1F("AllEventsOnPBeam","",20,p_he3_eta_threshold,p_beam_hi);
+	gHistoManager->Add(P_Beam,"EventsCount");
+	DependenceOnPBeam=new TH1F("FilteredEventsOnPBeam","",20,p_he3_eta_threshold,p_beam_hi);
+	gHistoManager->Add(DependenceOnPBeam,"EventsCount");
+#define missingmassparam 400,0.4,0.6
 	MissingMass=new TH1F("MissingMass_all","",missingmassparam);
 	gHistoManager->Add(MissingMass,"Kinematics");
 	{
@@ -58,6 +60,7 @@ He3eta::He3eta():Analysis(),ForwardDetectorRoutines("3He"){
 }
 He3eta::~He3eta(){}
 bool He3eta::EventPreProcessing(TVector3 &pbeam){
+	P_Beam->Fill(pbeam.Mag());
 	return true;
 }
 bool He3eta::TrackCountTrigger(int CinC,int NinC,int CinF){

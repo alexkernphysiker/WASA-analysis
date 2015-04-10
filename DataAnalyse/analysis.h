@@ -17,7 +17,6 @@
 #include <WVertexBank.hh>
 #include <FDFTHTracks.hh>
 #include <CDTracksSimple.hh>
-#define P_hist_param 50,1.4,1.65
 enum TrackType{kFDN=1,kFDC=2,kCDN=11,kCDC=12};
 enum ParticleType{
 	kDummy=0,kGamma=1,kElectron=2,kPositron=3,kPi0=7,kPiPlus=8,kPiMinus=9,
@@ -52,7 +51,6 @@ protected:
 	CDTracksSimple* CDTrackFinder;
 	WTrackBank *fTrackBankFD,*fTrackBankCD;
 	CCardWDET *fDetectorTable;
-	TH1F *P_Beam;
 	vector<pair<ParticleType,double>> first_particles;
 	vector<pair<ParticleType,double>> final_particles;
 private:
