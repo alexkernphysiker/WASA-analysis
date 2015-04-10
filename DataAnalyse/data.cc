@@ -1,9 +1,9 @@
 #include <fstream>
+#include <iostream>
 #include "data.h"
 using namespace std;
 RealData::RealData(){
-	fHeader = dynamic_cast<REventHeader*>
-	(gDataManager->GetDataObject("REventHeader","Header"));
+	fHeader = dynamic_cast<REventHeader*>(gDataManager->GetDataObject("REventHeader","Header"));
 	ifstream file;
 	file.open("TIME_IN_CYCLE_MAY2014.dat");
 	if(file.is_open()){
@@ -13,8 +13,10 @@ RealData::RealData(){
 			p_beam<<make_pair(time/1000.0,p);
 		}
 		file.close();
-	}else
+	}else{
+		printf(">>>>>>>No beam momenta table file\n");
 		throw;
+	}
 }
 RealData::~RealData(){}
 bool RealData::EventProcessingCondition(){

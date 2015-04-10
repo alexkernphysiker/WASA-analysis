@@ -14,15 +14,17 @@ ClassImp(AnalysisWrap);
 AnalysisWrap::AnalysisWrap(){}
 AnalysisWrap::AnalysisWrap(const char* name): CAnalysisModule(name){
 	IAnalysis *alg=nullptr;
-	printf(">>>>>>>>>>>>>>>>> %s\n",type.c_str());
+	printf(">>>>>>>>>>>>>>>>>Analysis type is '%s'\n",type.c_str());
 	if(type=="MCHe3Eta")
 		alg=new CustomAnalysis<MonteCarlo,He3eta>();
 	if(type=="DataHe3Eta")
 		alg=new CustomAnalysis<RealData,He3eta>();
 	if(alg)
 		m_data=(void*)alg;
-	else
+	else{
+		printf(">>>>>>>>>>Unknown analysis type\n");
 		throw;
+	}
 }
 AnalysisWrap::~AnalysisWrap(){
 	if(m_data)
