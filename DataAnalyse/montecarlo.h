@@ -21,7 +21,6 @@ private:
 	vector<CheckHists> check;
 	WTrackBank *fMCTrackBank;
 	WVertexBank *fMCVertexBank;
-	REventWmcHeader   *fEventHeader;
-	
+	REventWmcHeader *fEventHeader;
 };
 #endif

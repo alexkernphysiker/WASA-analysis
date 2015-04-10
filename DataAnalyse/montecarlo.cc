@@ -6,7 +6,9 @@ MonteCarlo::MonteCarlo():Analysis(){
 	fEventHeader = dynamic_cast<REventWmcHeader*>(gDataManager->GetDataObject("REventWmcHeader","EventHeader"));
 }
 MonteCarlo::~MonteCarlo(){}
-double MonteCarlo::EventWeight(){return fEventHeader->GetWeight();}
+double MonteCarlo::EventWeight(){
+	return fEventHeader->GetWeight();
+}
 bool MonteCarlo::EventProcessingCondition(){
 	return 
 	gWasa->IsAnalysisMode(Wasa::kMCRaw)||
@@ -46,7 +48,6 @@ MonteCarlo::CheckHists::CheckHists(ParticleType t){
 	Phi=new TH1F(Form("Check_Phi_%i",int(t)),"",500,-1,1);
 }
 void MonteCarlo::PrepareCheck(){
-	Analysis::PrepareCheck();
 	for(auto P:final_particles){
 		CheckHists h(P.first);
 		check.push_back(h);

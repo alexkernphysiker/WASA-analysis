@@ -11,8 +11,6 @@ Analysis::Analysis(){
 	fDetectorTable = dynamic_cast<CCardWDET*>(gParameterManager->GetParameterObject("CCardWDET","default")); 
 }
 Analysis::~Analysis(){}
-void Analysis::PrepareCheck(){}
-void Analysis::CheckParticleTrack(ParticleType type, double Ekin, double theta, double phi){}
 typedef pair<WTrackBank*,function<bool(WTrack*,TVector3)>> DetectorToProcess;
 void Analysis::ProcessEvent(){
 	if(!checkprepared){

@@ -37,8 +37,8 @@ protected:
 	virtual bool EventProcessingCondition()=0;
 	virtual double PBeam()=0;
 	virtual double EventWeight()=0;
-	virtual void PrepareCheck();
-	virtual void CheckParticleTrack(ParticleType type,double Ekin,double theta, double phi);
+	virtual void PrepareCheck()=0;
+	virtual void CheckParticleTrack(ParticleType type,double Ekin,double theta, double phi)=0;
 
 	virtual bool EventPreProcessing(TVector3 &pbeam)=0;
 	virtual void EventPostProcessing(TVector3 &pbeam)=0;
