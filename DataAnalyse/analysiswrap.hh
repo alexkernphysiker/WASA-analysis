@@ -3,6 +3,8 @@
 #include <Wasa.hh>
 #include <CAnalysisModule.hh>
 class AnalysisWrap:public CAnalysisModule{
+protected:
+    explicit AnalysisWrap(const char* name);
 public:
 	virtual ~AnalysisWrap();
 	virtual void ProcessEvent();
