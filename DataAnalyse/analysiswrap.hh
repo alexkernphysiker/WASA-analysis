@@ -3,9 +3,6 @@
 #include <Wasa.hh>
 #include <CAnalysisModule.hh>
 class AnalysisWrap:public CAnalysisModule{
-protected:
-	AnalysisWrap();
-	explicit AnalysisWrap(const char * name);
 public:
 	virtual ~AnalysisWrap();
 	virtual void ProcessEvent();
@@ -14,9 +11,8 @@ public:
 	virtual void UserCommand(CCommand * command);
 protected:
 	void * m_data;
-	ClassDef(AnalysisWrap,0);
 };
-
+//particular types of analysis 
 class MCHe3Eta : public AnalysisWrap{
 public:
 	MCHe3Eta();
