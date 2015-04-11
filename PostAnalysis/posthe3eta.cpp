@@ -26,7 +26,7 @@ int main(int,char**){
 	vector<string> EventsCount;
 	EventsCount.push_back("Histograms");
 	EventsCount.push_back("EventsCount");
-	FuncTbl acceptance,dacceptance;
+	pair<FuncTbl,FuncTbl> acceptance;
 	vector<pair<double,pair<FuncTbl,FuncTbl>>> missingmass_mc_normed;
 	{
 		pair<FuncTbl,FuncTbl> TotalEvents;{
@@ -53,10 +53,10 @@ int main(int,char**){
 				"MC missing mass P="+to_string(histpoint.x),
 				spectrum.first,[&spectrum](double x){return spectrum.second(x);});
 			missingmass_mc_normed.push_back(make_pair(histpoint.x,spectrum));
-			acceptance<<make_pair(histpoint.x,histpoint.y/norm);
-			dacceptance<<make_pair(histpoint.x,(dnorm*histpoint.y/pow(norm,2))+(histpoint.dy/norm));
+			acceptance.first<<make_pair(histpoint.x,histpoint.y/norm);
+			acceptance.second<<make_pair(histpoint.x,(dnorm*histpoint.y/pow(norm,2))+(histpoint.dy/norm));
 		}
 		Plot acceptance_plot;
-		acceptance_plot.Points("Acceptance",acceptance,[&dacceptance](double x){return dacceptance(x);});
+		acceptance_plot.Points("Acceptance",acceptance.first,[&acceptance](double x){return acceptance.second(x);});
 	}
 }
