@@ -8,6 +8,8 @@ bin
 build-*
 *_app*
 run_*.sh
+run_*.log
+*.sh.*
 
 #qt creator
 qrc_*.cpp
@@ -21,8 +23,6 @@ object_script*
 
 # specific files
 WMC.*
-ANALYSE_WMC.*
-ANALYSE_DATA.*
 smear.txt
 *.root
 *Dict*
