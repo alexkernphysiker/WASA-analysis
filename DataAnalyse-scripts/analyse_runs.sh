@@ -4,7 +4,7 @@ for X in ${RUNS_SEQ}
      scriptname="run_${X}.sh"
      echo "#!/bin/bash" >>${scriptname}
      echo >>${scriptname}
-     echo "cd $PWD" >>${scriptname}
+     echo "cd $PWD/../DataAnalyse" >>${scriptname}
      echo " ./main $1 -fin cluster:${indir}/run_${X} -r ${X} -n $1_run_${X} -lf run_${X}.log -abort " >> ${scriptname}
      echo >>${scriptname}
      echo "rm -f ${scriptname}" >> ${scriptname}
