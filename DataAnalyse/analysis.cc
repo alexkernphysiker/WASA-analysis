@@ -18,33 +18,36 @@ void Analysis::ProcessEvent(){
 		checkprepared=true;
 	}
 	if (EventProcessingCondition()){
-		double event_wieght=EventWeight();
-		TVector3 p_beam;
-		p_beam.SetMagThetaPhi(PBeam(),0,0);
-		if(EventPreProcessing(p_beam)){
-			int ChargedCountInCentral = fTrackBankCD->GetEntries(kCDC);
-			int NeutralCountInCentral = fTrackBankCD->GetEntries(kCDN);
-			int ChargedCountinForward = fTrackBankFD->GetEntries(kFDC);
-			if(TrackCountTrigger(ChargedCountInCentral,NeutralCountInCentral,ChargedCountinForward)){
-				DetectorToProcess CENTRAL=make_pair(fTrackBankCD,[this](WTrack* t,TVector3 p){return CentralTrackProcessing(t,p);});
-				DetectorToProcess FORWARD=make_pair(fTrackBankFD,[this](WTrack* t,TVector3 p){return ForwardTrackProcessing(t,p);});
-				vector<DetectorToProcess> QUEUE;
-				if(CentralFirst()){
-					QUEUE.push_back(CENTRAL);
-					QUEUE.push_back(FORWARD);
-				}else{
-					QUEUE.push_back(FORWARD);
-					QUEUE.push_back(CENTRAL);
-				}
-				for(DetectorToProcess DETECTOR:QUEUE){
-					int NrTracks=DETECTOR.first->GetEntries();
-					for (int trackindex=0; trackindex<NrTracks; trackindex++) { 
-						auto track=DETECTOR.first->GetTrack(trackindex);
-						if(!DETECTOR.second(track,p_beam))
-							return;
+		//double event_wieght=EventWeight();
+		double beam_momenta=PBeam();
+		if(beam_momenta>0){
+			TVector3 p_beam;
+			p_beam.SetMagThetaPhi(beam_momenta,0,0);
+			if(EventPreProcessing(p_beam)){
+				int ChargedCountInCentral = fTrackBankCD->GetEntries(kCDC);
+				int NeutralCountInCentral = fTrackBankCD->GetEntries(kCDN);
+				int ChargedCountinForward = fTrackBankFD->GetEntries(kFDC);
+				if(TrackCountTrigger(ChargedCountInCentral,NeutralCountInCentral,ChargedCountinForward)){
+					DetectorToProcess CENTRAL=make_pair(fTrackBankCD,[this](WTrack* t,TVector3 p){return CentralTrackProcessing(t,p);});
+					DetectorToProcess FORWARD=make_pair(fTrackBankFD,[this](WTrack* t,TVector3 p){return ForwardTrackProcessing(t,p);});
+					vector<DetectorToProcess> QUEUE;
+					if(CentralFirst()){
+						QUEUE.push_back(CENTRAL);
+						QUEUE.push_back(FORWARD);
+					}else{
+						QUEUE.push_back(FORWARD);
+						QUEUE.push_back(CENTRAL);
 					}
+					for(DetectorToProcess DETECTOR:QUEUE){
+						int NrTracks=DETECTOR.first->GetEntries();
+						for (int trackindex=0; trackindex<NrTracks; trackindex++) { 
+							auto track=DETECTOR.first->GetTrack(trackindex);
+							if(!DETECTOR.second(track,p_beam))
+								return;
+						}
+					}
+					EventPostProcessing(p_beam);
 				}
-				EventPostProcessing(p_beam);
 			}
 		}
 	}

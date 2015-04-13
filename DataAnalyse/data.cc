@@ -26,7 +26,11 @@ double RealData::EventWeight(){
 	return 1;
 }
 double RealData::PBeam(){
-	return p_beam(fHeader->GetTimeInCycle());
+	double time=fHeader->GetTimeInCycle();
+	if((time>=p_beam.min())&&(time<=p_beam.max()))
+		return p_beam(time);
+	else
+		return 0;
 }
 void RealData::PrepareCheck(){}
 void RealData::CheckParticleTrack(ParticleType type, double Ekin, double theta, double phi){}
