@@ -32,7 +32,7 @@ protected:
 	Analysis();
 public:
 	virtual ~Analysis();
-	virtual void ProcessEvent()override;
+	virtual void ProcessEvent()final;
 protected:
 	virtual bool EventProcessingCondition()=0;
 	virtual double PBeam()=0;
