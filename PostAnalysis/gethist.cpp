@@ -33,6 +33,16 @@ hist::hist(string filename,vector<string> &path,string histname){
 		}
 	}
 }
+hist::hist(const hist& source){
+	data.clear();
+	for(point p: source.data)
+		data.push_back(p);
+}
+hist& hist::operator=(const hist& source){
+	data.clear();
+	for(point p: source.data)
+		data.push_back(p);
+}
 hist::~hist(){}
 int hist::count(){
 	return data.size();

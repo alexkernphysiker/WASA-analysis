@@ -8,6 +8,8 @@ public:
 		double x,y,dx,dy;
 	};
 	hist(std::string filename,std::vector<std::string> &path,std::string histname);
+	hist(const hist& source);
+	hist &operator=(const hist& source);
 	virtual ~hist();
 	double Entries();
 	hist &operator+=(hist& second);

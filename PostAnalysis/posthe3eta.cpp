@@ -28,19 +28,19 @@ int main(int,char**){
 		string MCFile=inputpath+"/MCHe3Eta.root";
 		pair<FuncTbl,FuncTbl> TotalEvents;{
 			hist normhist(MCFile,EventsCount,"AllEventsOnPBeam");
-			for(hist::point p:normhist){
+			for(auto &p:normhist){
 				TotalEvents.first<<make_pair(p.x,p.y);
 				TotalEvents.second<<make_pair(p.x,p.dy);
 			}
 		}
 		hist registered(MCFile,EventsCount,"FilteredEventsOnPBeam");
 		Plot missingmass_spectra_plot;
-		for(hist::point histpoint:registered){
+		for(auto &histpoint:registered){
 			double norm=TotalEvents.first(histpoint.x);
 			double dnorm=TotalEvents.second(histpoint.x);
 			hist subhist(MCFile,Kinematics,string("MissingMass")+to_string(int(histpoint.x*1000)));
 			pair<FuncTbl,FuncTbl> spectrum;
-			for(hist::point subhistpoint:subhist){
+			for(auto &subhistpoint:subhist){
 				spectrum.first<<make_pair(subhistpoint.x,subhistpoint.y/norm);
 				spectrum.second<<make_pair(subhistpoint.x,(dnorm*subhistpoint.y/pow(norm,2))+(subhistpoint.dy/norm));
 			}
@@ -61,13 +61,13 @@ int main(int,char**){
 			hist alleventshist(rootfile,EventsCount,"AllEventsOnPBeam");
 			if(alleventshist.count()>0){
 				printf("File %s found...\n",rootfile.c_str());
-				for(auto histparam:missingmass_mc_normed){
+				for(auto &histparam:missingmass_mc_normed){
 					double p_beam=histparam.first;
 					hist subhist(rootfile,Kinematics,string("MissingMass")+to_string(int(p_beam*1000)));
 					if(0==inited)
 						missing_mass_spectra.push_back(make_pair(p_beam,subhist));
 					else{
-						for(auto P:missing_mass_spectra)
+						for(pair<double,hist>&P:missing_mass_spectra)
 							if(P.first==p_beam)
 								P.second+=subhist;
 					}
@@ -75,7 +75,7 @@ int main(int,char**){
 				inited=1;
 			}
 		}
-		for(auto P:missing_mass_spectra){
+		for(auto &P:missing_mass_spectra){
 			double p_beam=P.first;
 			auto points=make_shared<FitPoints>();
 			for(hist::point p: P.second){
@@ -89,26 +89,35 @@ int main(int,char**){
 			missing_mass_data.push_back(make_pair(p_beam,points));
 		}
 	}
-	for(auto spectrum: missing_mass_data){
+	for(auto &spectrum: missing_mass_data){
 		double p_beam=spectrum.first;
 		shared_ptr<FitPoints> points=spectrum.second;
-		Plot fitplot;
-		string suffix=to_string(int(p_beam*1000));
-		fitplot.Points("Missing mass DATA "+suffix,points);
-		PolynomFunc<0,1,6> BackGround;
-		pair<FuncTbl,FuncTbl> *ForeGround=nullptr;
-		for(auto norm_hist:missingmass_mc_normed)
+		string suffix="P="+to_string(p_beam);
+		printf("Missing mass spectrum %s...\n",suffix.c_str());
+		PolynomFunc<0,1,4> BackGround;
+		pair<FuncTbl,FuncTbl> ForeGround;
+		for(auto &norm_hist:missingmass_mc_normed)
 			if(norm_hist.first==p_beam)
-				ForeGround=&norm_hist.second;
-		FitFunctionWithError<DifferentialMutations<>,ChiSquareWithXError> fit(
-			points,
-			[ForeGround,&BackGround](ParamSet&X,ParamSet&P){
-				return (P[0]*ForeGround->first(X[0]))+BackGround(X,P);
+				ForeGround=norm_hist.second;
+		printf("norm. cnt= %i and %i \n",ForeGround.first.size(),ForeGround.second.size());
+		Plot fitplot;
+		fitplot.Points("Missing mass DATA "+suffix,points);
+		printf("Preparing fit...points count = %i \n",points->count());
+		FitFunctionWithError<Crossing<DifferentialMutations<>>,ChiSquareWithXError> fit(
+			SelectFitPoints(points,make_shared<Filter>([](ParamSet&X){return abs((m_eta-X[0])*1000)<50;})),
+			[&ForeGround,&BackGround](ParamSet&X,ParamSet&P){
+				return (P[0]*ForeGround.first(X[0]))+BackGround(X,P);
 			},
-			[ForeGround](ParamSet&X,ParamSet&P){
-				return P[0]*ForeGround->second(X[0]);
+			[&ForeGround](ParamSet&X,ParamSet&P){
+				return P[0]*ForeGround.second(X[0]);
 			}
 		);
 		fit.SetFilter([](ParamSet&P){return P[0]>0;});
+		fit.SetCrossingProbability(0.01);
+		auto init=make_shared<GenerateByGauss>()<<make_pair(1000,1000)<<make_pair(0,5000)<<make_pair(0,1000);
+		while(init->Count()<BackGround.ParamCount)
+			init<<make_pair(0,0.01);
+		fit.Init(BackGround.ParamCount*15,init);
+		printf("Fitting...\n");
 	}
 }
