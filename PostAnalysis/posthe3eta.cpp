@@ -100,7 +100,7 @@ int main(int,char**){
 		for(auto norm_hist:missingmass_mc_normed)
 			if(norm_hist.first==p_beam)
 				ForeGround=&norm_hist.second;
-		Fit2<DifferentialMutations<>,ChiSquareWithXError> fit(
+		FitFunctionWithError<DifferentialMutations<>,ChiSquareWithXError> fit(
 			points,
 			[ForeGround,&BackGround](ParamSet&X,ParamSet&P){
 				return (P[0]*ForeGround->first(X[0]))+BackGround(X,P);
