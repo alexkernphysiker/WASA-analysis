@@ -95,7 +95,7 @@ int main(int,char**){
 		Plot fitplot;
 		string suffix=to_string(int(p_beam*1000));
 		fitplot.Points("Missing mass DATA "+suffix,points);
-		PolynomFunc<0,3,6> BackGround;
+		PolynomFunc<0,1,6> BackGround;
 		pair<FuncTbl,FuncTbl> *ForeGround=nullptr;
 		for(auto norm_hist:missingmass_mc_normed)
 			if(norm_hist.first==p_beam)
@@ -105,11 +105,12 @@ int main(int,char**){
 		Fit2<DifferentialMutations<>,ChiSquareWithXError> fit(
 			points,
 			[ForeGround,&BackGround](ParamSet&X,ParamSet&P){
-				return (P[0]*ForeGround->first(P[1]*X[0]+P[2]))+BackGround(X,P);
+				return (P[0]*ForeGround->first(X[0]))+BackGround(X,P);
 			},
 			[ForeGround](ParamSet&X,ParamSet&P){
-				return P[0]*ForeGround->second(P[1]*X[0]+P[2]);
+				return P[0]*ForeGround->second(X[0]);
 			}
 		);
+		fit.SetFilter([](ParamSet&P){return P[0]>0;});
 	}
 }
