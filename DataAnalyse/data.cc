@@ -10,7 +10,7 @@ RealData::RealData(){
 		while(!file.eof()){
 			double time,p;
 			file>>time>>p;
-			p_beam<<make_pair(time/1000.0,p);
+			p_beam<<make_pair(time/1000.0,p/1000);
 		}
 		file.close();
 	}else{
