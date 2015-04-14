@@ -10,6 +10,7 @@ public:
 	hist(std::string filename,std::vector<std::string> &path,std::string histname);
 	virtual ~hist();
 	double Entries();
+	hist &operator+=(hist& second);
 	point &operator[](int i);
 	int count();
 	typedef std::vector<point>::iterator iterator;

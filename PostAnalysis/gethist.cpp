@@ -15,8 +15,6 @@ hist::hist(string filename,vector<string> &path,string histname){
 			TDirectoryFile* dir2=dynamic_cast<TDirectoryFile*>(dir1->Get(name.c_str()));
 			if(dir2)
 				dir1=dir2;
-			else
-				throw;
 		}
 		TH1F* histogram=dynamic_cast<TH1F*>(dir1->Get(histname.c_str()));
 		if(histogram){
@@ -32,11 +30,8 @@ hist::hist(string filename,vector<string> &path,string histname){
 				p.x=x;p.y=y;p.dx=dx;p.dy=dy;
 				data.push_back(p);
 			}
-		}else
-			throw;
-		
-	}else
-		throw;
+		}
+	}
 }
 hist::~hist(){}
 int hist::count(){
@@ -44,6 +39,18 @@ int hist::count(){
 }
 double hist::Entries(){
 	return norm;
+}
+hist& hist::operator+=(hist& second){
+	for(int i=0,n=count();i<n;i++){
+		point p1=data[i];
+		point p2=second.data[i];
+		if(p1.x==p2.x){
+			p1.y+=p2.y;
+			p1.dy+=p2.dy;
+		}else
+			throw;
+	}
+	return *this;
 }
 hist::point& hist::operator[](int i){
 	return data[i];
