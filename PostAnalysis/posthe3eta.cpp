@@ -3,23 +3,20 @@
 #include <sstream>
 #include <memory>
 #include <unistd.h>
+#include <fit.h>
 #include <paramfunc.h>
-#include <fitpoints.h>
 #include <filter.h>
 #include <initialconditions.h>
-#include <genetic.h>
 #include <phys_constants.h>
+#include "tblparamfunc.h"
 #include "gethist.h"
 #include "gnuplot.h"
 using namespace std;
-using namespace Fit;
-typedef LinearInterpolation<double> FuncTbl;
-typedef Mul<Par<0>,Func3<Gaussian,Arg<0>,Par<1>,Par<2>>> Foreground;
+using namespace Genetic;
+typedef PolynomFunc<0,3,6> BackGround;
 int main(int,char**){
 #include "env.cc"
 	SetPlotOutput(outpath+"/He3Eta");
-	string MCFile=inputpath+"/MCHe3Eta.root";
-	string DataFile=inputpath+"/DataHe3Eta.root";
 	vector<string> Kinematics;
 	Kinematics.push_back("Histograms");
 	Kinematics.push_back("Kinematics");
@@ -29,6 +26,7 @@ int main(int,char**){
 	pair<FuncTbl,FuncTbl> acceptance;
 	vector<pair<double,pair<FuncTbl,FuncTbl>>> missingmass_mc_normed;
 	{
+		string MCFile=inputpath+"/MCHe3Eta.root";
 		pair<FuncTbl,FuncTbl> TotalEvents;{
 			hist normhist(MCFile,EventsCount,"AllEventsOnPBeam");
 			for(hist::point p:normhist){

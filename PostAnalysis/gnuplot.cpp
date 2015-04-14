@@ -79,7 +79,7 @@ Plot::~Plot(){
 	}
 }
 #define FILENAME(name) ReplaceAll(ReplaceAll(name," ","_"),"=","_")+".txt"
-Plot& Plot::Points(string name, shared_ptr<Fit::FitPoints> points){
+Plot& Plot::Points(string name, shared_ptr<Genetic::FitPoints> points){
 	ofstream data;
 	string filename=FILENAME(name);
 	data.open((Plotter::Instance().OutPath()+"/"+filename).c_str());
