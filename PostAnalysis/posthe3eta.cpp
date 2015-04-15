@@ -46,7 +46,8 @@ int main(int,char**){
 			}
 			missingmass_spectra_plot.Points(
 				"MC missing mass P="+to_string(histpoint.x),
-				spectrum.first,[&spectrum](double x){return spectrum.second(x);});
+				spectrum.first,[&spectrum](double x){return spectrum.second(x);}
+			);
 			missingmass_mc_normed.push_back(make_pair(histpoint.x,spectrum));
 			acceptance.first<<make_pair(histpoint.x,histpoint.y/norm);
 			acceptance.second<<make_pair(histpoint.x,(dnorm*histpoint.y/pow(norm,2))+(histpoint.dy/norm));
