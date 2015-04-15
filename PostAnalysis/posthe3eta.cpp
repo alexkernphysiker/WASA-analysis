@@ -90,6 +90,7 @@ int main(int,char**){
 			missing_mass_data.push_back(make_pair(p_beam,points));
 		}
 	}
+	pair<FuncTbl,FuncTbl> Events_Count;
 	for(auto &spectrum: missing_mass_data){
 		double p_beam=spectrum.first;
 		shared_ptr<FitPoints> points=spectrum.second;
@@ -130,8 +131,8 @@ int main(int,char**){
 			printf("%i iterations. %f<=chi^2<=%f   \r",fit.iteration_count(),fit.Optimality(),fit.Optimality(fit.PopulationSize()-1));
 		}
 		printf("\n");
-		
-		printf("P[0]=%f=/-%f\n",fit[0],fit.GetParamParabolicError(0.01,0));
+		Events_Count.first<<make_pair(p_beam,fit[0]);
+		Events_Count.second<<make_pair(p_beam,fit.GetParamParabolicError(0.01,0));
 		fitplot.Function("fit "+suffix,
 			[&fit](double x){return fit(ParamSet(x));},
 			pointstofit->operator[](0).X[0],pointstofit->operator[](pointstofit->count()-1).X[0],0.01
@@ -145,4 +146,6 @@ int main(int,char**){
 			pointstofit->operator[](0).X[0],pointstofit->operator[](pointstofit->count()-1).X[0],0.01
 		);
 	}
+	Plot eventsplot;
+	eventsplot.Points("Events count",Events_Count.first,[&Events_Count](double x){return Events_Count.second(x);});
 }
