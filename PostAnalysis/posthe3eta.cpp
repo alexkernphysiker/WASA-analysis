@@ -106,9 +106,10 @@ int main(int,char**){
 		Plot fitplot;
 		fitplot.Points("Missing mass DATA "+suffix,points);
 		
-		printf("Preparing fit...points count = %i \n",points->count());
+		auto pointstofit=SelectFitPoints(points,make_shared<Filter>([](ParamSet&X){return abs((m_eta-X[0])*1000)<50;}));
+		printf("Preparing fit...points count = %i of %i \n",pointstofit->count(),points->count());
 		FitFunctionWithError<Crossing<DifferentialMutations<>>,ChiSquareWithXError> fit(
-			SelectFitPoints(points,make_shared<Filter>([](ParamSet&X){return abs((m_eta-X[0])*1000)<50;})),
+			pointstofit,
 			[&ForeGround,&BackGround](ParamSet&X,ParamSet&P){
 				return (P[0]*ForeGround.first(X[0]))+BackGround(X,P);
 			},
@@ -124,5 +125,24 @@ int main(int,char**){
 		fit.Init(BackGround.ParamCount*15,init);
 		
 		printf("Fitting...\n");
+		while(!fit.AbsoluteOptimalityExitCondition(0.000001)){
+			fit.Iterate();
+			printf("%i iterations. %f<=chi^2<=%f   \r",fit.iteration_count(),fit.Optimality(),fit.Optimality(fit.PopulationSize()-1));
+		}
+		printf("\n");
+		
+		printf("P[0]=%f=/-%f\n",fit[0],fit.GetParamParabolicError(0.01,0));
+		fitplot.Function("fit "+suffix,
+			[&fit](double x){return fit(ParamSet(x));},
+			pointstofit->operator[](0).X[0],pointstofit->operator[](pointstofit->count()-1).X[0],0.01
+		);
+		fitplot.Function("Background "+suffix,
+			[&fit,&BackGround](double x){ParamSet X;return BackGround(X<<x,fit.Parameters());},
+			pointstofit->operator[](0).X[0],pointstofit->operator[](pointstofit->count()-1).X[0],0.01
+		);
+		fitplot.Function("Foreground "+suffix,
+			[&fit,&ForeGround](double x){return fit[0]*ForeGround.first(x);},
+			pointstofit->operator[](0).X[0],pointstofit->operator[](pointstofit->count()-1).X[0],0.01
+		);
 	}
 }
