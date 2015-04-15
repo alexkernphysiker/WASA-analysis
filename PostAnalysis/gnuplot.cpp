@@ -28,9 +28,9 @@ public:
 			script.close();
 			name=string("gnuplot ")+name;
 			string old=getcwd(NULL,0);
-			chdir(outpath.c_str());
-			system(name.c_str());
-			chdir(old.c_str());
+			//chdir(outpath.c_str());
+			//system(name.c_str());
+			//chdir(old.c_str());
 		}
 		
 	}

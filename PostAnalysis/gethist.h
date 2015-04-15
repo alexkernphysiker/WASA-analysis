@@ -7,6 +7,7 @@ public:
 	struct point{
 		double x,y,dx,dy;
 	};
+	hist();
 	hist(std::string filename,std::vector<std::string> &path,std::string histname);
 	hist(const hist& source);
 	hist &operator=(const hist& source);

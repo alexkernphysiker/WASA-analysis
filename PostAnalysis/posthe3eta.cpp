@@ -93,6 +93,7 @@ int main(int,char**){
 		double p_beam=spectrum.first;
 		shared_ptr<FitPoints> points=spectrum.second;
 		string suffix="P="+to_string(p_beam);
+		
 		printf("Missing mass spectrum %s...\n",suffix.c_str());
 		PolynomFunc<0,1,4> BackGround;
 		pair<FuncTbl,FuncTbl> ForeGround;
@@ -100,8 +101,10 @@ int main(int,char**){
 			if(norm_hist.first==p_beam)
 				ForeGround=norm_hist.second;
 		printf("norm. cnt= %i and %i \n",ForeGround.first.size(),ForeGround.second.size());
+		
 		Plot fitplot;
 		fitplot.Points("Missing mass DATA "+suffix,points);
+		
 		printf("Preparing fit...points count = %i \n",points->count());
 		FitFunctionWithError<Crossing<DifferentialMutations<>>,ChiSquareWithXError> fit(
 			SelectFitPoints(points,make_shared<Filter>([](ParamSet&X){return abs((m_eta-X[0])*1000)<50;})),
@@ -118,6 +121,7 @@ int main(int,char**){
 		while(init->Count()<BackGround.ParamCount)
 			init<<make_pair(0,0.01);
 		fit.Init(BackGround.ParamCount*15,init);
+		
 		printf("Fitting...\n");
 	}
 }

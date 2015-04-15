@@ -7,6 +7,7 @@
 #include <TDirectoryFile.h>
 #include "gethist.h"
 using namespace std;
+hist::hist(){}
 hist::hist(string filename,vector<string> &path,string histname){
 	TFile* file=TFile::Open(filename.c_str());
 	if(file){
