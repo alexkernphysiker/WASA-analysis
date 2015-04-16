@@ -55,6 +55,7 @@ int main(int,char**){
 		Plot acceptance_plot;
 		acceptance_plot.Points("Acceptance",acceptance.first,[&acceptance](double x){return acceptance.second(x);});
 	}
+	return 0;
 	vector<pair<double,shared_ptr<FitPoints>>> missing_mass_data;{
 		vector<pair<double,hist>> missing_mass_spectra;
 		for(int run_no=46200,inited=0;run_no<=46250;run_no++){
