@@ -1,1 +1,1 @@
-./analyse_runs.sh DataHe3Eta
+./analyse_runs.sh He3Eta
