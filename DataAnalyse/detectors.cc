@@ -12,10 +12,7 @@ ForwardDetectors::ForwardDetectors(){
 	PlaneData.push_back(plane_data(kFTH3,"FTH3",0.05,0.0015));
 	PlaneData.push_back(plane_data(kFRH1,"FRH1",0.3 ,0.001));
 	PlaneData.push_back(plane_data(kFRH2,"FRH2",0.3 ,0.001));
-	PlaneData.push_back(plane_data(kFRH3,"FRH3",0.3 ,0.001));
-	PlaneData.push_back(plane_data(kFRH4,"FRH4",0.3 ,0.001));
-	PlaneData.push_back(plane_data(kFRH5,"FRH5",0.3 ,0.001));
-	PlaneData.push_back(plane_data(kFVH ,"FVH" ,0.05,0.001));
+	//PlaneData.push_back(plane_data(kFRH3,"FRH3",0.3 ,0.001));
 }
 ForwardDetectors::~ForwardDetectors(){}
 int ForwardDetectors::ForwadrPlaneCount(){

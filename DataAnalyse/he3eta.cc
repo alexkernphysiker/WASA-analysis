@@ -20,15 +20,15 @@ He3eta::He3eta():Analysis(),ForwardDetectorRoutines("3He"){
 		makehist(EDepFilteredHist);
 	}
 	SetGettableFunction([](int& StopPlane,int& Edep2Ekin_table){
-		//Jakieś dziwne są te warunki
 		int last_plane=StopPlane;
-		if(StopPlane==9 || StopPlane==8) {
-			Edep2Ekin_table=17;
-			last_plane=7;
+		// exclude not mounted and not calibrated detector layers
+		if(StopPlane==kFVH || StopPlane==kFRH5 || StopPlane==kFRH4 || StopPlane==kFRH3) {
+			return false;
 		}else{
 			Edep2Ekin_table=StopPlane;
 			last_plane=StopPlane;
 		}
+		//exclude table that's not given
 		if(Edep2Ekin_table==3) 
 			return false;
 		else{
@@ -75,7 +75,6 @@ bool He3eta::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
 	int stop_index=StoppingPlaneIndex(track);
 	if(
 		(
-			(stop_index==ForwardPlaneIndex(kFTH3))||
 			(stop_index==ForwardPlaneIndex(kFRH1))
 		)
 		&&UpperThresholdUpTo(track,stop_index)
