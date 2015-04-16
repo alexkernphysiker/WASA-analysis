@@ -18,7 +18,6 @@ void Analysis::ProcessEvent(){
 		checkprepared=true;
 	}
 	if (EventProcessingCondition()){
-		//double event_wieght=EventWeight();
 		double beam_momenta=PBeam();
 		if(beam_momenta>0){
 			TVector3 p_beam;

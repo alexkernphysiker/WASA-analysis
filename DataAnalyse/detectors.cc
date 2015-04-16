@@ -22,7 +22,7 @@ int ForwardDetectors::ForwardPlaneIndex(ForwardDetectorPlane plane){
 	for(size_t i=0;i<PlaneData.size();i++)
 		if(PlaneData[i].plane==plane)
 			return i;
-	throw;//no such detector here
+	return -1;
 }
 ForwardDetectorPlane ForwardDetectors::ForwadrPlane(int index){
 	return PlaneData[index].plane;
