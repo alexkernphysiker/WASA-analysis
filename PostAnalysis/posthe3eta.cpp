@@ -38,24 +38,25 @@ int main(int,char**){
 		for(auto &histpoint:registered){
 			double norm=TotalEvents.first(histpoint.x);
 			double dnorm=TotalEvents.second(histpoint.x);
-			hist subhist(MCFile,Kinematics,string("MissingMass")+to_string(int(histpoint.x*1000)));
-			pair<FuncTbl,FuncTbl> spectrum;
-			for(auto &subhistpoint:subhist){
-				spectrum.first<<make_pair(subhistpoint.x,subhistpoint.y/norm);
-				spectrum.second<<make_pair(subhistpoint.x,(dnorm*subhistpoint.y/pow(norm,2))+(subhistpoint.dy/norm));
+			if(norm>48000){
+				hist subhist(MCFile,Kinematics,string("MissingMass")+to_string(int(histpoint.x*1000)));
+				pair<FuncTbl,FuncTbl> spectrum;
+				for(auto &subhistpoint:subhist){
+					spectrum.first<<make_pair(subhistpoint.x,subhistpoint.y/norm);
+					spectrum.second<<make_pair(subhistpoint.x,(dnorm*subhistpoint.y/pow(norm,2))+(subhistpoint.dy/norm));
+				}
+				missingmass_spectra_plot.Points(
+					"MC missing mass P="+to_string(histpoint.x),
+												spectrum.first,[&spectrum](double x){return spectrum.second(x);}
+				);
+				missingmass_mc_normed.push_back(make_pair(histpoint.x,spectrum));
+				acceptance.first<<make_pair(histpoint.x,histpoint.y/norm);
+				acceptance.second<<make_pair(histpoint.x,(dnorm*histpoint.y/pow(norm,2))+(histpoint.dy/norm));
 			}
-			missingmass_spectra_plot.Points(
-				"MC missing mass P="+to_string(histpoint.x),
-				spectrum.first,[&spectrum](double x){return spectrum.second(x);}
-			);
-			missingmass_mc_normed.push_back(make_pair(histpoint.x,spectrum));
-			acceptance.first<<make_pair(histpoint.x,histpoint.y/norm);
-			acceptance.second<<make_pair(histpoint.x,(dnorm*histpoint.y/pow(norm,2))+(histpoint.dy/norm));
 		}
 		Plot acceptance_plot;
 		acceptance_plot.Points("Acceptance",acceptance.first,[&acceptance](double x){return acceptance.second(x);});
 	}
-	return 0;
 	vector<pair<double,shared_ptr<FitPoints>>> missing_mass_data;{
 		vector<pair<double,hist>> missing_mass_spectra;
 		for(int run_no=46200,inited=0;run_no<=46250;run_no++){
