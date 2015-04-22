@@ -1,5 +1,6 @@
 #include <list>
 #include <string>
+#include <sstream>
 #include <PBeamSmearing.h>
 #include <PReaction.h>
 #include <phys_constants.h>
@@ -7,6 +8,15 @@
 #include <replace.cc>
 using namespace std;
 int main(int, char **){
+	string outpath;{
+		stringbuf buffer;
+		ostream os (&buffer); 
+		os<<getenv("PLUTO_OUTPUT");
+		outpath=buffer.str();
+		printf("output path: %s\n",outpath.c_str());
+	}
+	string old=getcwd(NULL,0);
+	chdir(outpath.c_str());
 	PUtils::SetSeed(RandomUniformlyI(1,50));
 	PBeamSmearing *smear = new PBeamSmearing("beam_smear", "Beam smearing");
 	smear->SetReaction("p+d");
@@ -26,5 +36,6 @@ int main(int, char **){
 		,1,0,0,0);
 		my_reaction.Loop(1000000);
 	}
+	chdir(old.c_str());
 	return 0;
 }

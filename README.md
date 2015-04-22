@@ -29,6 +29,8 @@ WASA_ROOT - path where WMC is installed
 
 ROOTSORTERSYS - path where RootSorter is installed
 
+PLUTO_OUTPUT - path where pluto files are stored
+
 RUNS_DATA - path where data from experiment are located
 
 WMC_DATA - path where data from WMC are located. These data are analysed further by preselection algorithm.
