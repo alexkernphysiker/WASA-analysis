@@ -36,6 +36,7 @@ setenv UNAME $SYSTEM
  echo "Setup links for Monte-Carlo program"
  rm -f fort.* >& /dev/null
  rm -f epio41 epio42 pluto.root >& /dev/null
+ rm -f etap.ems >& /dev/null
 #INPUT AND OUTPUT
  ln -s  $1 pluto.root
  ln -s  $2 etap.ems
