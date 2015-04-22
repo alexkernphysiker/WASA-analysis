@@ -48,7 +48,7 @@ $WASA_ROOT/alig/links.sh
 ln -s $WASA_ROOT/alig/al4cosy0_mc_009.dat042 fort.13
 # USER CARDS 
  m4 -I$WASA_ROOT/alig/m4 -P wmc.dat.m4 > wmc.dat
- ln -s wmc.dat                           fort.4 # input cards (ffread)
+ ln -s wmc.dat fort.4 
 
  echo "Running Main Program WMC"
 $NICE $TIME $WASA_ROOT/wlib/examples/wmc3/src/wmc.exe
@@ -57,9 +57,6 @@ $NICE $TIME $WASA_ROOT/wlib/examples/wmc3/src/wmc.exe
  if ( -z test.epo ) then
     rm -f test.epo >& /dev/null
  endif
-
  echo ""
  date
  exit 0
-
-# end shell script
