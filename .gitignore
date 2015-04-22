@@ -16,6 +16,7 @@ run_*.log
 etap.*
 epio*
 fort.*
+test.*
 wmc.dat
 
 #qt creator
