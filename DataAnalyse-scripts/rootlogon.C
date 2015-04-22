@@ -1,0 +1,14 @@
+{
+ gSystem->Load("libHist.so");
+ gSystem->Load("libGui.so");
+ gSystem->Load("libThread.so");
+ gSystem->Load("libNet.so");
+ gSystem->Load("~/software/RootSorter/core/lib/libRSCore.so");
+ gSystem->Load("~/software/RootSorter/core/lib/libRSClient.so");
+ gSystem->Load("libXMLParser.so");
+ gSystem->Load("~/software/RootSorter/core/lib/libRSXml.so");
+ gSystem->Load("~/software/RootSorter/core/lib/libRSGClient.so");
+ gSClient->GetSorterList(); 
+ gStyle->SetPalette(1,0);
+ gStyle->SetOptDate();
+}
