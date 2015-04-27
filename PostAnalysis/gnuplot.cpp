@@ -50,7 +50,7 @@ public:
 	}
 	string GetTerminal(){
 		counter++;
-		return string("set terminal pngcairo size 800,600 enhanced monochrome font 'Verdana,18'\nset output '")+to_string(counter)+"'";
+		return string("set terminal pngcairo size 800,600 enhanced monochrome font 'Verdana,18'\nset output '")+to_string(counter)+".png'";
 	}
 	Plotter &operator<<(string line){
 		lines.push_back(line);
