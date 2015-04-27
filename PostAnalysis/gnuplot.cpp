@@ -28,9 +28,9 @@ public:
 			script.close();
 			name=string("gnuplot ")+name;
 			string old=getcwd(NULL,0);
-			//chdir(outpath.c_str());
-			//system(name.c_str());
-			//chdir(old.c_str());
+			chdir(outpath.c_str());
+			system(name.c_str());
+			chdir(old.c_str());
 		}
 		
 	}
@@ -50,7 +50,7 @@ public:
 	}
 	string GetTerminal(){
 		counter++;
-		return string("set terminal qt ")+to_string(counter);
+		return string("set terminal pngcairo size 800,600 enhanced monochrome font 'Verdana,18'\nset output '")+to_string(counter)+"'";
 	}
 	Plotter &operator<<(string line){
 		lines.push_back(line);
