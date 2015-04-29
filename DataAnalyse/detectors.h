@@ -18,11 +18,14 @@ protected:
 	ForwardDetectorPlane ForwadrPlane(int index);
 	std::string ForwardPlaneName(int index);
 	std::string ForwardPlaneName(ForwardDetectorPlane plane);
+	double EDep(WTrack* track,ForwardDetectorPlane plane);
 	double EDep(WTrack* track,int planeindex);
 	double UpperByIndex(int planeindex);
 	double Upper(ForwardDetectorPlane plane);
 	double ThresholdByIndex(int planeindex);
 	double Threshold(ForwardDetectorPlane plane);
+	int StopPlaneIndex(WTrack* track);
+	ForwardDetectorPlane StopPlane(WTrack* track);
 	bool UpperThresholdUpTo(WTrack* track,int planeindex);
 private:
 	struct plane_data{
@@ -38,7 +41,7 @@ private:
 template<ParticleType ptype,ForwardDetectorPlane firstplane>
 class ForwardDetectorRoutines:public virtual ForwardDetectors{
 public:
-	typedef std::function<bool(int&,int&)> delegate;
+	typedef std::function<bool(ForwardDetectorPlane,int&)> delegate;
 private:
 	FDEdep2Ekin *DepKin;
 	delegate get_table;
@@ -46,7 +49,7 @@ private:
 public:
 	ForwardDetectorRoutines(std::string particlename):ForwardDetectors(){
 		DepKin = dynamic_cast<FDEdep2Ekin*>(gParameterManager->GetParameterObject("FDEdep2Ekin",particlename.c_str()));
-		get_table=[](int&,int&){return true;};
+		get_table=[](ForwardDetectorPlane,int&){return true;};
 		coeff=1;
 	}
 	virtual ~ForwardDetectorRoutines(){}
@@ -57,15 +60,9 @@ protected:
 	void SetCorrectionCoefficient(double c){
 		coeff=c;
 	}
-	int StoppingPlane(WTrack *track){
-		return DepKin->GetStoppingPlane(track);
-	}
-	int StoppingPlaneIndex(WTrack *track){
-		return ForwardPlaneIndex(ForwardDetectorPlane(DepKin->GetStoppingPlane(track)));
-	}
 	bool ReconstructEkin(WTrack *track,double &Ekin){
 		int Edep2Ekin_table=0;
-		int stop_plane=StoppingPlane(track);
+		ForwardDetectorPlane stop_plane=StopPlane(track);
 		if(get_table(stop_plane,Edep2Ekin_table)){
 			Ekin=DepKin->GetEkin(Edep2Ekin_table,ptype,track->Edep(firstplane,stop_plane),track->Theta());        
 			Ekin*=coeff;

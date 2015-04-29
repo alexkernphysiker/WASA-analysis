@@ -19,22 +19,11 @@ He3eta::He3eta():Analysis(),ForwardDetectorRoutines("3He"){
 		histname=histname+"_filtered";
 		makehist(EDepFilteredHist);
 	}
-	SetGettableFunction([](int& StopPlane,int& Edep2Ekin_table){
-		int last_plane=StopPlane;
-		// exclude not mounted and not calibrated detector layers
-		if(StopPlane==kFVH || StopPlane==kFRH5 || StopPlane==kFRH4 || StopPlane==kFRH3) {
+	SetGettableFunction([](ForwardDetectorPlane StopPlane,int& Edep2Ekin_table){
+		if(StopPlane==kFVH || StopPlane==kFTH3 || StopPlane==kFRH3)
 			return false;
-		}else{
-			Edep2Ekin_table=StopPlane;
-			last_plane=StopPlane;
-		}
-		//exclude table that's not given
-		if(Edep2Ekin_table==3) 
-			return false;
-		else{
-			StopPlane=last_plane;
-			return true;
-		}
+		Edep2Ekin_table=int(StopPlane);
+		return true;
 	});
 	P_Beam=new TH1F("AllEventsOnPBeam","",20,p_he3_eta_threshold,p_beam_hi);
 	gHistoManager->Add(P_Beam,"EventsCount");
@@ -72,13 +61,9 @@ bool He3eta::CentralFirst(){
 bool He3eta::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
 	for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
 		EDepHist[i]->Fill(EDep(track,i+1),EDep(track,i));
-	int stop_index=StoppingPlaneIndex(track);
 	if(
-		(
-			(stop_index==ForwardPlaneIndex(kFRH1))
-		)
-		&&UpperThresholdUpTo(track,stop_index)
-		&&(EDep(track,stop_index)>0.01)
+		(StopPlane(track)==kFRH1)
+		&&(EDep(track,kFTH1)>0.01)
 	){
 		double Ek=0;
 		if(ReconstructEkin(track,Ek)){

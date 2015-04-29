@@ -8,11 +8,8 @@ ForwardDetectors::ForwardDetectors(){
 	PlaneData.push_back(plane_data(kFWC1,"FWC1",0.03,0.002));
 	PlaneData.push_back(plane_data(kFWC2,"FWC2",0.03,0.002));
 	PlaneData.push_back(plane_data(kFTH1,"FTH1",0.05,0.0015));
-	PlaneData.push_back(plane_data(kFTH2,"FTH2",0.05,0.0015));
-	PlaneData.push_back(plane_data(kFTH3,"FTH3",0.05,0.0015));
 	PlaneData.push_back(plane_data(kFRH1,"FRH1",0.3 ,0.001));
 	PlaneData.push_back(plane_data(kFRH2,"FRH2",0.3 ,0.001));
-	//PlaneData.push_back(plane_data(kFRH3,"FRH3",0.3 ,0.001));
 }
 ForwardDetectors::~ForwardDetectors(){}
 int ForwardDetectors::ForwadrPlaneCount(){
@@ -25,16 +22,26 @@ int ForwardDetectors::ForwardPlaneIndex(ForwardDetectorPlane plane){
 	return -1;
 }
 ForwardDetectorPlane ForwardDetectors::ForwadrPlane(int index){
-	return PlaneData[index].plane;
+	if((index>=0)&&(index<PlaneData.size()))
+		return PlaneData[index].plane;
+	else
+		return kForwardError;
 }
 string ForwardDetectors::ForwardPlaneName(int index){
-	return PlaneData[index].name;
+	if((index>=0)&&(index<PlaneData.size()))
+		return PlaneData[index].name;
+	else
+		return "<NoPlane>";
 }
 string ForwardDetectors::ForwardPlaneName(ForwardDetectorPlane plane){
-	return PlaneData[ForwardPlaneIndex(plane)].name;
+	return ForwardPlaneName(ForwardPlaneIndex(plane));
 }
+double ForwardDetectors::EDep(WTrack* track, ForwardDetectorPlane plane){
+	return track->Edep(plane);
+}
+
 double ForwardDetectors::EDep(WTrack* track, int planeindex){
-	return track->Edep(PlaneData[planeindex].plane);
+	return EDep(track,ForwadrPlane(planeindex));
 }
 double ForwardDetectors::UpperByIndex(int planeindex){
 	return PlaneData[planeindex].upper;
@@ -54,4 +61,16 @@ bool ForwardDetectors::UpperThresholdUpTo(WTrack* track,int planeindex){
 		res&=(EDep(track,c)>ThresholdByIndex(c));
 	return res;
 }
+int ForwardDetectors::StopPlaneIndex(WTrack* track){
+	int res=-1;
+	for(size_t i=0;i<PlaneData.size();i++)
+		if(EDep(track,i)>PlaneData[i].threshold)
+			if(res==(i-1))res++;
+			else res=-1;
+	return -1;
+}
+ForwardDetectorPlane ForwardDetectors::StopPlane(WTrack* track){
+	return ForwadrPlane(StopPlaneIndex(track));
+}
+
 
