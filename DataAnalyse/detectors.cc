@@ -22,13 +22,13 @@ int ForwardDetectors::ForwardPlaneIndex(ForwardDetectorPlane plane){
 	return -1;
 }
 ForwardDetectorPlane ForwardDetectors::ForwadrPlane(int index){
-	if((index>=0)&&(index<PlaneData.size()))
+	if((index>=0)&&(unsigned int(index)<PlaneData.size()))
 		return PlaneData[index].plane;
 	else
 		return kForwardError;
 }
 string ForwardDetectors::ForwardPlaneName(int index){
-	if((index>=0)&&(index<PlaneData.size()))
+	if((index>=0)&&(unsigned int(index)<PlaneData.size()))
 		return PlaneData[index].name;
 	else
 		return "<NoPlane>";
@@ -64,9 +64,10 @@ bool ForwardDetectors::UpperThresholdUpTo(WTrack* track,int planeindex){
 int ForwardDetectors::StopPlaneIndex(WTrack* track){
 	int res=-1;
 	for(size_t i=0;i<PlaneData.size();i++)
-		if(EDep(track,i)>PlaneData[i].threshold)
-			if(res==(i-1))res++;
+		if(EDep(track,i)>PlaneData[i].threshold){
+			if(res==(int(i)-1))res++;
 			else res=-1;
+		}
 	return -1;
 }
 ForwardDetectorPlane ForwardDetectors::StopPlane(WTrack* track){
