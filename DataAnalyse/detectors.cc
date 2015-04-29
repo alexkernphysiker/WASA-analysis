@@ -22,13 +22,13 @@ int ForwardDetectors::ForwardPlaneIndex(ForwardDetectorPlane plane){
 	return -1;
 }
 ForwardDetectorPlane ForwardDetectors::ForwadrPlane(int index){
-	if((index>=0)&&(unsigned int(index)<PlaneData.size()))
+	if((index>=0)&&(index<int(PlaneData.size())))
 		return PlaneData[index].plane;
 	else
 		return kForwardError;
 }
 string ForwardDetectors::ForwardPlaneName(int index){
-	if((index>=0)&&(unsigned int(index)<PlaneData.size()))
+	if((index>=0)&&(index<int(PlaneData.size())))
 		return PlaneData[index].name;
 	else
 		return "<NoPlane>";
