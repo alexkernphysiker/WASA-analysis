@@ -41,7 +41,7 @@ setenv UNAME $SYSTEM
  ln -s  $1 pluto.root
  ln -s  $2 etap.ems
 # kinematic event input  text file
- ln -s  $WASA_ROOT/wlib/examples/evg/etap.out       fort.31 
+ ln -s  $WASA_ROOT/examples/evg/etap.out       fort.31 
  ln -s  etap.epo           epio41 
  ln -s  etap.ems           epio42
 # ALIGMENT FILES
@@ -52,7 +52,7 @@ ln -s $WASA_ROOT/alig/al4cosy0_mc_009.dat042 fort.13
  ln -s wmc.dat fort.4 
 
  echo "Running Main Program WMC"
-$NICE $TIME $WASA_ROOT/wlib/examples/wmc3/src/wmc.exe
+$NICE $TIME $WASA_ROOT/examples/wmc3/src/wmc.exe
  rm -f fort.* >& /dev/null 
  rm -f epio41 epio42 pluto.root >& /dev/null
  if ( -z test.epo ) then
