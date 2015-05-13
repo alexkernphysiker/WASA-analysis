@@ -11,7 +11,7 @@ C         and no of FPC layers 16->8
 
 ALH1 'A005                                                         V042$$$'
 C JA91  03
-NOLIST
+C NOLIST
 m4_include(B000/H5FEDEUT)m4_dnl
 m4_include(B000/P5FEDEUT)m4_dnl
 m4_include(B000/H5FE)m4_dnl
