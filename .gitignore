@@ -11,6 +11,8 @@ ANALYSE_*
 run_*.sh
 run_*.log
 *.sh.*
+run*
+postanal*
 
 #WMC
 etap.*
@@ -19,15 +21,11 @@ fort.*
 test.*
 wmc.dat
 
-#qt creator
-qrc_*.cpp
-moc_*.cpp
-ui_*.h
+#cmake
 Makefile
 Makefile*.*
-*.pro.user
-*.pro.user.*
-object_script*
+CMake*
+*cmake
 
 # specific files
 WMC.*
