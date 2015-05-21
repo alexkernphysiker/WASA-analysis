@@ -40,7 +40,7 @@ void Logger::LogMessage(LogLevel level, string msg){
 	WriteToLog(level,pref+" -> "+msg);
 }
 Logger::SubLog Logger::getSubLog(string s){
-	return Logger::getSubLog(this,s);
+	return Logger::SubLog(this,s);
 }
 Logger::SubLog::SubLog(Logger* master, string s){
 	m_master=master;
