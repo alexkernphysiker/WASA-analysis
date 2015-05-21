@@ -6,16 +6,20 @@
 #include "config.h"
 using namespace std;
 LogLevel CurrentLogLevel=NoLog;
+string logfilename;
 mutex logmutex;
 string submsg[]={"","=== ERROR!!! ===","Warning!!!","Debug message"};
 void SetLogLevel(LogLevel level){
 	CurrentLogLevel=level;
 }
+void SetLogFileName(string name){
+	logfilename=name;
+}
 void WriteToLog(LogLevel level,string msg){
 	if(level<=CurrentLogLevel){
 		lock_guard<mutex> Lock(logmutex);
 		ofstream file;
-		file.open("alexkernphysiker.log",fstream::out|fstream::app);
+		file.open(logfilename.c_str(),fstream::out|fstream::app);
 		if(file.is_open()){
 			time_t now=time(0);
 			tm  tstruct;
@@ -28,14 +32,14 @@ void WriteToLog(LogLevel level,string msg){
 	}
 }
 Logger::Logger(){
-	pref="";
+	pref="|";
 }
 Logger::~Logger(){}
 void Logger::AddSubprefix(string s){
-	pref=pref+"=>"+s;
+	pref=pref+s+"|";
 }
 void Logger::LogMessage(LogLevel level, string msg){
-	WriteToLog(level,pref+" -> "+msg);
+	WriteToLog(level,pref+"->"+msg);
 }
 Logger::SubLog Logger::getSubLog(string s){
 	return Logger::SubLog(this,s);
@@ -44,10 +48,10 @@ Logger::SubLog::SubLog(Logger* master, string s){
 	m_master=master;
 	sub_prefix=s;
 	lvl=LogDebug;
-	m_master->LogMessage(LogDebug,"->"+sub_prefix+" START");
+	m_master->LogMessage(LogDebug,sub_prefix+" START");
 }
 Logger::SubLog::~SubLog(){
-	m_master->LogMessage(LogDebug,"->"+sub_prefix+" END");
+	m_master->LogMessage(LogDebug,sub_prefix+" END");
 }
 Logger::SubLog& Logger::SubLog::Message(LogLevel level, string msg){
 	m_master->LogMessage(level,"->"+sub_prefix+" : "+msg);
