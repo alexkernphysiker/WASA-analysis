@@ -15,7 +15,7 @@ Logger LOG;
 ClassImp(AnalysisWrap);
 AnalysisWrap::AnalysisWrap(){
 	Logger::SubLog log=LOG.getSubLog("AnalysisWrap empty constructor");
-	log.Message(LogWarning,"Should not appear but appears")
+	log.Message(LogWarning,"Should not appear but appears");
 }
 AnalysisWrap::AnalysisWrap(const char* name): CAnalysisModule(name){
 	Logger::SubLog log=LOG.getSubLog("AnalysisWrap normal constructor");
