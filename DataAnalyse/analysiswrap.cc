@@ -1,6 +1,7 @@
 #include <string>
-#include <iostream>
+#include <exception>
 #include "config.h"
+#include "log.h"
 #include "analysiswrap.hh"
 #include "montecarlo.h"
 #include "data.h"
@@ -10,11 +11,17 @@ string type="";
 void SetAnalysisType(string t){
 	type=t;
 }
+Logger LOG;
 ClassImp(AnalysisWrap);
-AnalysisWrap::AnalysisWrap(){}
+AnalysisWrap::AnalysisWrap(){
+	Logger::SubLog log=LOG.getSubLog("AnalysisWrap empty constructor");
+	log.Message(LogWarning,"Should not appear but appears")
+}
 AnalysisWrap::AnalysisWrap(const char* name): CAnalysisModule(name){
+	Logger::SubLog log=LOG.getSubLog("AnalysisWrap normal constructor");
 	IAnalysis *alg=nullptr;
-	printf(">>>>>>>>>>>>>>>>>Analysis type is '%s'\n",type.c_str());
+	log.Message(NoLog,"Analysis type:");
+	log.Message(NoLog,type);
 	if(type=="MCHe3Eta")
 		alg=new CustomAnalysis<MonteCarlo,He3eta>();
 	if(type=="DataHe3Eta")
@@ -22,11 +29,12 @@ AnalysisWrap::AnalysisWrap(const char* name): CAnalysisModule(name){
 	if(alg)
 		m_data=(void*)alg;
 	else{
-		printf(">>>>>>>>>>Unknown analysis type\n");
-		throw;
+		log.Message(LogError,"Unknown type");
+		throw exception();
 	}
 }
 AnalysisWrap::~AnalysisWrap(){
+	Logger::SubLog log=LOG.getSubLog("AnalysisWrap destructor");
 	if(m_data)
 		delete (IAnalysis*)m_data;
 }

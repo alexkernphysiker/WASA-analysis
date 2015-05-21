@@ -1,4 +1,3 @@
-#include <iostream>
 #include "he3eta.h"
 #include "detectors.h"
 #include "../General/phys_constants.h"

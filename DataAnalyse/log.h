@@ -16,7 +16,7 @@ public:
 		Logger *m_master;
 	};
 	friend class SubLog;
-	Logger(std::string prefix);
+	Logger();
 	virtual ~Logger();
 	void AddSubprefix(std::string s);
 	SubLog getSubLog(std::string s);

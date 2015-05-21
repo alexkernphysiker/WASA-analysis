@@ -8,7 +8,7 @@ enum ForwardDetectorPlane{
 	kFWC1=10,kFWC2=11,kFTH1=1,kFTH2=2,kFTH3=3,
 	kFRH1=4,kFRH2=5,kFRH3=6,kFRH4=7,kFRH5=8,kFVH=9
 };
-class ForwardDetectors{
+class ForwardDetectors:public virtual Logger{
 public:
 	ForwardDetectors();
 	virtual ~ForwardDetectors();

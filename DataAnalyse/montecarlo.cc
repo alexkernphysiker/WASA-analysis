@@ -54,7 +54,9 @@ MonteCarlo::CheckHists::CheckHists(ParticleType t){
 	Phi=new TH1F(Form("Check_Phi_%i",int(t)),"",500,-1,1);
 }
 void MonteCarlo::PrepareCheck(){
+	SubLog log=getSubLog("PrepareCheck");
 	for(auto P:final_particles){
+		log<<"Adding histogram";
 		CheckHists h(P.first);
 		check.push_back(h);
 		gHistoManager->Add(h.Ekin,"Reconstruction");
@@ -63,6 +65,7 @@ void MonteCarlo::PrepareCheck(){
 	}
 }
 void MonteCarlo::CheckParticleTrack(ParticleType type, double Ekin, double theta, double phi){
+	SubLog log=getSubLog("CheckParticleTrack");
 	const double two_pi=2*3.1415926;
 	while(phi<0)phi+=two_pi;
 	while(phi>=two_pi)phi-=two_pi;
@@ -77,6 +80,7 @@ void MonteCarlo::CheckParticleTrack(ParticleType type, double Ekin, double theta
 						WParticle *particle=vertex->GetParticle(particleindex);
 						auto ptype=particle->GetType();
 						if(type==ptype){
+							log<<"Particle found";
 							double p_ekin=particle->GetEkin();
 							double p_theta=particle->GetTheta();
 							double p_phi=particle->GetPhi();

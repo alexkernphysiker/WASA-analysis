@@ -2,7 +2,8 @@
 #include "analysis.h"
 using namespace std;
 IAnalysis::~IAnalysis(){}
-Analysis::Analysis():Logger("Analysis"){
+Analysis::Analysis(){
+	AddSubprefix("Analysis");
 	SubLog log=getSubLog("Constructor");
 	checkprepared=false;
 	TrackFinderFD = dynamic_cast<FDFTHTracks*>(gDataManager->GetAnalysisModule("FDFTHTracks","default"));

@@ -28,7 +28,7 @@ public:
 	virtual ~IAnalysis();
 	virtual void ProcessEvent()=0;
 };
-class Analysis:public virtual IAnalysis,public Logger{
+class Analysis:public virtual IAnalysis,public virtual Logger{
 protected:
 	Analysis();
 public:

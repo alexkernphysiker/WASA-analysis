@@ -1,8 +1,10 @@
 #include <fstream>
-#include <iostream>
+#include <exception>
 #include "data.h"
 using namespace std;
 RealData::RealData(){
+	Logger::AddSubprefix("RealData");
+	SubLog log=getSubLog("Constructor");
 	fHeader = dynamic_cast<REventHeader*>(gDataManager->GetDataObject("REventHeader","Header"));
 	ifstream file;
 	file.open("TIME_IN_CYCLE_MAY2014.dat");
@@ -14,11 +16,13 @@ RealData::RealData(){
 		}
 		file.close();
 	}else{
-		printf(">>>>>>>No beam momenta table file\n");
-		throw;
+		log.Message(LogError,"No momentum table found");
+		throw exception();
 	}
 }
-RealData::~RealData(){}
+RealData::~RealData(){
+	SubLog log=getSubLog("Destructor");
+}
 bool RealData::EventProcessingCondition(){
 	return true;
 }
@@ -26,11 +30,14 @@ double RealData::EventWeight(){
 	return 1;
 }
 double RealData::PBeam(){
+	SubLog log=getSubLog("PBeam");
 	double time=fHeader->GetTimeInCycle();
 	if((time>=p_beam.min())&&(time<=p_beam.max()))
 		return p_beam(time);
-	else
+	else{
+		log.Message(LogWarning,"Out of range");
 		return 0;
+	}
 }
 void RealData::PrepareCheck(){}
 void RealData::CheckParticleTrack(ParticleType type, double Ekin, double theta, double phi){}
