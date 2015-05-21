@@ -2,6 +2,7 @@
 #include <SorterConfig.hh>
 #include "config.h"
 int main(int argc, char** argv) {
+	SetLogLevel(LogDebug);
 	int new_c=argc-1;
 	char *args[new_c+1];
 	args[0]=argv[0];

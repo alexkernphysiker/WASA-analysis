@@ -17,6 +17,7 @@
 #include <WVertexBank.hh>
 #include <FDFTHTracks.hh>
 #include <CDTracksSimple.hh>
+#include "log.h"
 enum TrackType{kFDN=1,kFDC=2,kCDN=11,kCDC=12};
 enum ParticleType{
 	kDummy=0,kGamma=1,kElectron=2,kPositron=3,kPi0=7,kPiPlus=8,kPiMinus=9,
@@ -27,7 +28,7 @@ public:
 	virtual ~IAnalysis();
 	virtual void ProcessEvent()=0;
 };
-class Analysis:public virtual IAnalysis{
+class Analysis:public virtual IAnalysis,Logger{
 protected:
 	Analysis();
 public:

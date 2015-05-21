@@ -1,21 +1,27 @@
 #include "montecarlo.h"
-MonteCarlo::MonteCarlo():Analysis(){
+MonteCarlo::MonteCarlo():Analysis(),Logger("Monte Carlo"){
+	LogMessage(LogDebug,"Constructor called");
 	WTrackFinder *MCTrf = dynamic_cast<WTrackFinder*>(gDataManager->GetAnalysisModule("MCTrackFinder","default"));
 	fMCTrackBank  = MCTrf->GetTrackBank();
 	fMCVertexBank = MCTrf->GetVertexBank();
 	fEventHeader = dynamic_cast<REventWmcHeader*>(gDataManager->GetDataObject("REventWmcHeader","EventHeader"));
 }
-MonteCarlo::~MonteCarlo(){}
+MonteCarlo::~MonteCarlo(){
+	LogMessage(LogDebug,"Destructor called");
+}
 double MonteCarlo::EventWeight(){
+	LogMessage(LogDebug,"getting event weight");
 	return fEventHeader->GetWeight();
 }
 bool MonteCarlo::EventProcessingCondition(){
+	LogMessage(LogDebug,"Processing condition");
 	return 
 	gWasa->IsAnalysisMode(Wasa::kMCRaw)||
 	gWasa->IsAnalysisMode(Wasa::kMCReco)||
 	gWasa->IsAnalysisMode(Wasa::kMC);
 }
 double MonteCarlo::PBeam(){
+	LogMessage(LogDebug,"Getting P_beam");
 	TVector3 result;
 	result.SetMagThetaPhi(0,0,0);
 	WVertexIter iterator(fMCVertexBank);
