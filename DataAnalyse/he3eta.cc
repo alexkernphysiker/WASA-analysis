@@ -16,8 +16,10 @@ He3eta::He3eta():Analysis(),ForwardDetectorRoutines("3He"){
 			vect.push_back(hist);
 			gHistoManager->Add(hist,"E_dep");
 		};
+		log<<"Adding histogram for Edep";
 		makehist(EDepHist);
 		histname=histname+"_filtered";
+		log<<"Adding histogram for Edep (filtered)";
 		makehist(EDepFilteredHist);
 	}
 	SetGettableFunction([](ForwardDetectorPlane StopPlane,int& Edep2Ekin_table){
@@ -44,6 +46,7 @@ He3eta::He3eta():Analysis(),ForwardDetectorRoutines("3He"){
 		name+=to_string(index);
 		TH1F* hist=new TH1F(name.c_str(),"",missingmassparam);
 		MissingMassDetailed.push_back(hist);
+		log<<"Add missing mass histogram";
 		gHistoManager->Add(hist,"Kinematics");
 	}
 #undef missingmassparam
@@ -70,7 +73,9 @@ bool He3eta::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
 		&&(EDep(track,kFTH1)>0.01)
 	){
 		double Ek=0;
+		log<<"stopping plane index condition passed";
 		if(ReconstructEkin(track,Ek)){
+			log<<"reconstruction successful";
 			for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
 				EDepFilteredHist[i]->Fill(EDep(track,i+1),EDep(track,i));
 			double p=sqrt(Ek*(Ek+2*m_3He));
@@ -105,7 +110,7 @@ bool He3eta::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
 				}
 				MissingMassDetailed[index]->Fill(missingmass);
 			}
-		}
+		}log.Message(LogWarning,"Could not reconstruct energy");
 	}
 	return true;
 }
