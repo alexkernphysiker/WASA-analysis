@@ -9,11 +9,15 @@ LogLevel CurrentLogLevel=NoLog;
 string logfilename;
 mutex logmutex;
 string submsg[]={"","=== ERROR!!! ===","Warning!!!","Debug message"};
-void SetLogLevel(LogLevel level){
+void InitLog(LogLevel level,char* type){
 	CurrentLogLevel=level;
-}
-void SetLogFileName(string name){
-	logfilename=name;
+	logfilename=string(type)+"_";
+	time_t now=time(0);
+	tm  tstruct;
+	char buf[80];
+	tstruct = *localtime(&now);
+	strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+	logfilename+=string(buf)+".log";
 }
 void WriteToLog(LogLevel level,string msg){
 	if(level<=CurrentLogLevel){

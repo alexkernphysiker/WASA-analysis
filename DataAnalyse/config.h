@@ -3,6 +3,5 @@
 #include <string>
 #include "log.h"
 void SetAnalysisType(std::string t);
-void SetLogLevel(LogLevel level);
-void SetLogFileName(std::string name);
+void InitLog(LogLevel level,char* type);
 #endif
