@@ -13,6 +13,7 @@
 using namespace std;
 using namespace Genetic;
 typedef LinearInterpolation<double> FuncTbl;
+#define ParR(x) static_cast<ParamSet&&>(x)
 int main(int,char**){
 #include "env.cc"
 	SetPlotOutput(outpath+"/He3Eta");
@@ -112,18 +113,18 @@ int main(int,char**){
 		Plot fitplot;
 		fitplot.Points("Missing mass DATA "+suffix,points);
 		
-		auto pointstofit=SelectFitPoints(points,make_shared<Filter>([](ParamSet&X){return abs((m_eta-X[0])*1000)<50;}));
+		auto pointstofit=SelectFitPoints(points,make_shared<Filter>([](ParamSet&&X){return abs((m_eta-X[0])*1000)<50;}));
 		printf("Preparing fit...points count = %i of %i \n",pointstofit->count(),points->count());
 		FitFunctionWithError<Crossing<DifferentialMutations<>>,ChiSquareWithXError> fit(
 			pointstofit,
-			[&ForeGround,&BackGround](ParamSet&X,ParamSet&P){
-				return (P[0]*ForeGround.first(X[0]))+BackGround(X,P);
+			[&ForeGround,&BackGround](ParamSet&&X,ParamSet&&P){
+				return (P[0]*ForeGround.first(X[0]))+BackGround(ParR(X),ParR(P));
 			},
-			[&ForeGround](ParamSet&X,ParamSet&P){
+			[&ForeGround](ParamSet&&X,ParamSet&&P){
 				return P[0]*ForeGround.second(X[0]);
 			}
 		);
-		fit.SetFilter([](ParamSet&P){return P[0]>0;});
+		fit.SetFilter([](ParamSet&&P){return P[0]>0;});
 		fit.SetCrossingProbability(0.01);
 		auto init=make_shared<GenerateByGauss>()<<make_pair(1000,1000)<<make_pair(0,5000)<<make_pair(0,1000);
 		while(init->Count()<BackGround.ParamCount)
@@ -143,7 +144,7 @@ int main(int,char**){
 			pointstofit->operator[](0).X[0],pointstofit->operator[](pointstofit->count()-1).X[0],0.01
 		);
 		fitplot.Function("Background "+suffix,
-			[&fit,&BackGround](double x){ParamSet X;return BackGround(X<<x,fit.Parameters());},
+			[&fit,&BackGround](double x){return BackGround(ParamSet(x),fit.Parameters());},
 			pointstofit->operator[](0).X[0],pointstofit->operator[](pointstofit->count()-1).X[0],0.01
 		);
 		fitplot.Function("Foreground "+suffix,
