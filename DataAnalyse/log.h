@@ -1,3 +1,5 @@
+#ifndef YGCXMVEIRHRTKMLS
+#define YGCXMVEIRHRTKMLS
 #include <string>
 enum LogLevel{NoLog=0,LogError=1,LogWarning=2,LogDebug=3};
 class Logger{
@@ -22,3 +24,4 @@ protected:
 private:
 	std::string pref;
 };
+#endif
