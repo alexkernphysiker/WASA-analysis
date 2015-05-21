@@ -1,10 +1,10 @@
 #include <list>
 #include <string>
 #include <sstream>
+#include <random>
 #include <PBeamSmearing.h>
 #include <PReaction.h>
 #include <phys_constants.h>
-#include "math_h/randomfunc.h"
 #include <replace.cc>
 using namespace std;
 int main(int, char **){
@@ -17,7 +17,9 @@ int main(int, char **){
 	}
 	string old=getcwd(NULL,0);
 	chdir(outpath.c_str());
-	PUtils::SetSeed(RandomUniformlyI(1,50));
+	std::default_random_engine gen;
+	std::uniform_int_distribution<int> d(1,254);
+	PUtils::SetSeed(d(gen));
 	PBeamSmearing *smear = new PBeamSmearing("beam_smear", "Beam smearing");
 	smear->SetReaction("p+d");
 	smear->SetMomentumFunction(new TF1("Uniform","1",p_he3_eta_threshold,p_beam_hi));
