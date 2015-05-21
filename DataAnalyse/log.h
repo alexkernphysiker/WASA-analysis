@@ -5,6 +5,7 @@ enum LogLevel{NoLog=0,LogError=1,LogWarning=2,LogDebug=3};
 class Logger{
 public:
 	class SubLog{
+	public:
 		SubLog(Logger*master,std::string s);
 		virtual ~SubLog();
 		SubLog&operator<<(std::string msg);
