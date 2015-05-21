@@ -3,6 +3,8 @@
 #include "../General/phys_constants.h"
 using namespace std;
 He3eta::He3eta():Analysis(),ForwardDetectorRoutines("3He"){
+	AddSubprefix("He3eta");
+	SubLog log=getSubLog("Constructor");
 	first_particles.push_back(make_pair(kHe3,m_3He));
 	first_particles.push_back(make_pair(kEta,m_eta));
 	final_particles.push_back(make_pair(kHe3,m_3He));
@@ -46,7 +48,9 @@ He3eta::He3eta():Analysis(),ForwardDetectorRoutines("3He"){
 	}
 #undef missingmassparam
 }
-He3eta::~He3eta(){}
+He3eta::~He3eta(){
+	SubLog log=getSubLog("Destructor");
+}
 bool He3eta::EventPreProcessing(TVector3 &pbeam){
 	P_Beam->Fill(pbeam.Mag());
 	return true;
@@ -58,6 +62,7 @@ bool He3eta::CentralFirst(){
 	return false;
 }
 bool He3eta::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
+	SubLog log=getSubLog("ForwardTrackProcessing");
 	for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
 		EDepHist[i]->Fill(EDep(track,i+1),EDep(track,i));
 	if(
