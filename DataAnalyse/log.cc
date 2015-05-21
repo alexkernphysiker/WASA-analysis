@@ -33,6 +33,6 @@ Logger::Logger(string prefix){
 	pref=prefix;
 }
 Logger::~Logger(){}
-Logger::LogMessage(LogLevel level, string msg){
+void Logger::LogMessage(LogLevel level, string msg){
 	WriteToLog(level,pref+" -> "+msg);
 }
