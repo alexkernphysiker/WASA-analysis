@@ -1,7 +1,7 @@
 #ifndef WAFXQSAKXMIIWRNB
 #define WAFXQSAKXMIIWRNB
 #include "analysis.h"
-class MonteCarlo:public virtual Analysis,Logger{
+class MonteCarlo:public virtual Analysis{
 public:
 	MonteCarlo();
 	virtual ~MonteCarlo();

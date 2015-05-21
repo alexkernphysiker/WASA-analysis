@@ -33,6 +33,29 @@ Logger::Logger(string prefix){
 	pref=prefix;
 }
 Logger::~Logger(){}
+void Logger::AddSubprefix(string s){
+	pref=pref+"=>"+s;
+}
 void Logger::LogMessage(LogLevel level, string msg){
 	WriteToLog(level,pref+" -> "+msg);
+}
+Logger::SubLog Logger::getSubLog(string s){
+	return Logger::getSubLog(this,s);
+}
+Logger::SubLog::SubLog(Logger* master, string s){
+	m_master=master;
+	sub_prefix=s;
+	lvl=LogDebug;
+	m_master->LogMessage(LogDebug,"->"+sub_prefix+" START");
+}
+Logger::SubLog::~SubLog(){
+	m_master->LogMessage(LogDebug,"->"+sub_prefix+" END");
+}
+Logger::SubLog& Logger::SubLog::Message(LogLevel level, string msg){
+	m_master->LogMessage(level,"->"+sub_prefix+" : "+msg);
+	return *this;
+}
+
+Logger::SubLog& Logger::SubLog::operator<<(string msg){
+	return Message(LogDebug,msg);
 }

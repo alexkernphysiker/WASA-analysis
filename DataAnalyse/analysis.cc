@@ -3,7 +3,7 @@
 using namespace std;
 IAnalysis::~IAnalysis(){}
 Analysis::Analysis():Logger("Analysis"){
-	Analysis::LogMessage(LogDebug,"Constructor called");
+	SubLog log=getSubLog("Constructor");
 	checkprepared=false;
 	TrackFinderFD = dynamic_cast<FDFTHTracks*>(gDataManager->GetAnalysisModule("FDFTHTracks","default"));
 	if(TrackFinderFD!=0) fTrackBankFD = TrackFinderFD->GetTrackBank();
@@ -12,11 +12,11 @@ Analysis::Analysis():Logger("Analysis"){
 	fDetectorTable = dynamic_cast<CCardWDET*>(gParameterManager->GetParameterObject("CCardWDET","default")); 
 }
 Analysis::~Analysis(){
-	Analysis::LogMessage(LogDebug,"Destructor called");
+	SubLog log=getSubLog("Destructor");
 }
 typedef pair<WTrackBank*,function<bool(WTrack*,TVector3)>> DetectorToProcess;
 void Analysis::ProcessEvent(){
-	Analysis::LogMessage(LogDebug,"==== begin processing event ====");
+	SubLog log=getSubLog("ProcessEvent");
 	if(!checkprepared){
 		PrepareCheck();
 		checkprepared=true;
@@ -25,22 +25,22 @@ void Analysis::ProcessEvent(){
 		Analysis::LogMessage(LogDebug,"event passed the condition");
 		double beam_momenta=PBeam();
 		if(beam_momenta>0){
-			Analysis::LogMessage(LogDebug,"p_beam>0");
+			log<< "p_beam>0";
 			TVector3 p_beam;
 			p_beam.SetMagThetaPhi(beam_momenta,0,0);
 			if(EventPreProcessing(p_beam)){
-				Analysis::LogMessage(LogDebug,"preprocessing returned true. go further");
+				log<<"preprocessing returned true. go further";
 				int ChargedCountInCentral = fTrackBankCD->GetEntries(kCDC);
 				int NeutralCountInCentral = fTrackBankCD->GetEntries(kCDN);
 				int ChargedCountinForward = fTrackBankFD->GetEntries(kFDC);
 				if(TrackCountTrigger(ChargedCountInCentral,NeutralCountInCentral,ChargedCountinForward)){
-					Analysis::LogMessage(LogDebug,"Track count conditions passed");
-					DetectorToProcess CENTRAL=make_pair(fTrackBankCD,[this](WTrack* t,TVector3 p){
-						Analysis::LogMessage(LogDebug,"CENTRAL tracks processing");
+					log<<"Track count conditions passed";
+					DetectorToProcess CENTRAL=make_pair(fTrackBankCD,[this,&log](WTrack* t,TVector3 p){
+						log<<"CENTRAL tracks processing";
 						return CentralTrackProcessing(t,p);
 					});
-					DetectorToProcess FORWARD=make_pair(fTrackBankFD,[this](WTrack* t,TVector3 p){
-						Analysis::LogMessage(LogDebug,"FORWARD tracks processing");
+					DetectorToProcess FORWARD=make_pair(fTrackBankFD,[this,&log](WTrack* t,TVector3 p){
+						log<<"FORWARD tracks processing";
 						return ForwardTrackProcessing(t,p);
 					});
 					vector<DetectorToProcess> QUEUE;
@@ -59,11 +59,10 @@ void Analysis::ProcessEvent(){
 								return;
 						}
 					}
-					Analysis::LogMessage("Event postprocessing");
+					log<<"Event postprocessing";
 					EventPostProcessing(p_beam);
-				}Analysis::LogMessage(LogDebug,"Track count conditions NOT passed");
-			}Analysis::LogMessage(LogDebug,"preprocessing returned false.");
-		}Analysis::LogMessage(LogWarning,"p_beam <= 0");
-	}else Analysis::LogMessage(LogDebug,"event did not pass the condition");
-	Analysis::LogMessage(LogDebug,"==== end processing event ====");
+				}log<<"Track count conditions NOT passed";
+			}log<<"preprocessing returned false.";
+		}log.Message(LogWarning,"p_beam <= 0");
+	}else log<<"event did not pass the condition";
 }
