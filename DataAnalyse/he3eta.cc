@@ -11,15 +11,15 @@ He3eta::He3eta():Analysis(),ForwardDetectorRoutines("3He"){
 	for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++){
 		string histname=ForwardPlaneName(i)+"_vs_"+ForwardPlaneName(i+1);
 		TH2F* hist;
-		auto makehist=[this,i,&hist,&histname](vector<TH2F*> &vect){
+		auto makehist=[this,i,&hist,&histname,&log](vector<TH2F*> &vect){
 			hist=new TH2F(histname.c_str(),"",128,0,UpperByIndex(i+1),128,0,UpperByIndex(i));
 			vect.push_back(hist);
+			log<<"Adding Edep 2D-histogram";
+			log<<histname;
 			gHistoManager->Add(hist,"E_dep");
 		};
-		log<<"Adding histogram for Edep";
 		makehist(EDepHist);
 		histname=histname+"_filtered";
-		log<<"Adding histogram for Edep (filtered)";
 		makehist(EDepFilteredHist);
 	}
 	SetGettableFunction([](ForwardDetectorPlane StopPlane,int& Edep2Ekin_table){
