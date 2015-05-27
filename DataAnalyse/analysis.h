@@ -41,12 +41,12 @@ protected:
 	virtual void PrepareCheck()=0;
 	virtual void CheckParticleTrack(ParticleType type,double Ekin,double theta, double phi)=0;
 
-	virtual bool EventPreProcessing(TVector3 &pbeam)=0;
-	virtual void EventPostProcessing(TVector3 &pbeam)=0;
+	virtual bool EventPreProcessing(TVector3 &&pbeam)=0;
+	virtual void EventPostProcessing(TVector3 &&pbeam)=0;
 	virtual bool TrackCountTrigger(int CinC,int NinC,int CinF)=0;
 	virtual bool CentralFirst()=0;
-	virtual bool ForwardTrackProcessing(WTrack* track,TVector3 &pbeam)=0;
-	virtual bool CentralTrackProcessing(WTrack* track,TVector3 &pbeam)=0;
+	virtual bool ForwardTrackProcessing(WTrack &&track,TVector3 &&pbeam)=0;
+	virtual bool CentralTrackProcessing(WTrack &&track,TVector3 &&pbeam)=0;
 
 	FDFTHTracks* TrackFinderFD;
 	CDTracksSimple* CDTrackFinder;
@@ -78,11 +78,11 @@ protected:
 	virtual void CheckParticleTrack(ParticleType type,double Ekin,double theta, double phi)override{
 		datatype::CheckParticleTrack(type,Ekin,theta,phi);
 	}
-	virtual bool EventPreProcessing(TVector3 &pbeam)override{
-		return reaction::EventPreProcessing(pbeam);
+	virtual bool EventPreProcessing(TVector3 &&pbeam)override{
+		return reaction::EventPreProcessing(static_cast<TVector3&&>(pbeam));
 	}
-	virtual void EventPostProcessing(TVector3 &pbeam)override{
-		reaction::EventPostProcessing(pbeam);
+	virtual void EventPostProcessing(TVector3 &&pbeam)override{
+		reaction::EventPostProcessing(static_cast<TVector3&&>(pbeam));
 	}
 	virtual bool TrackCountTrigger(int CinC,int NinC,int CinF)override{
 		return reaction::TrackCountTrigger(CinC,NinC,CinF);
@@ -90,11 +90,11 @@ protected:
 	virtual bool CentralFirst()override{
 		return reaction::CentralFirst();
 	}
-	virtual bool ForwardTrackProcessing(WTrack* track,TVector3 &pbeam)override{
-		return reaction::ForwardTrackProcessing(track,pbeam);
+	virtual bool ForwardTrackProcessing(WTrack &&track,TVector3 &&pbeam)override{
+		return reaction::ForwardTrackProcessing(static_cast<WTrack&&>(track),static_cast<TVector3&&>(pbeam));
 	}
-	virtual bool CentralTrackProcessing(WTrack* track,TVector3 &pbeam)override{
-		return reaction::CentralTrackProcessing(track,pbeam);
+	virtual bool CentralTrackProcessing(WTrack &&track,TVector3 &&pbeam)override{
+		return reaction::CentralTrackProcessing(static_cast<WTrack&&>(track),static_cast<TVector3&&>(pbeam));
 	}
 };
 #endif

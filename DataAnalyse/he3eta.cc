@@ -54,7 +54,7 @@ He3eta::He3eta():Analysis(),ForwardDetectorRoutines("3He"){
 He3eta::~He3eta(){
 	SubLog log=getSubLog("Destructor");
 }
-bool He3eta::EventPreProcessing(TVector3 &pbeam){
+bool He3eta::EventPreProcessing(TVector3 &&pbeam){
 	P_Beam->Fill(pbeam.Mag());
 	return true;
 }
@@ -64,23 +64,23 @@ bool He3eta::TrackCountTrigger(int CinC,int NinC,int CinF){
 bool He3eta::CentralFirst(){
 	return false;
 }
-bool He3eta::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
+bool He3eta::ForwardTrackProcessing(WTrack&& track,TVector3 &&p_beam){
 	SubLog log=getSubLog("ForwardTrackProcessing");
 	for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
-		EDepHist[i]->Fill(EDep(track,i+1),EDep(track,i));
+		EDepHist[i]->Fill(EDep(static_cast<WTrack&&>(track),i+1),EDep(static_cast<WTrack&&>(track),i));
 	if(
-		(StopPlane(track)==kFRH1)
-		&&(EDep(track,kFTH1)>0.01)
+		(StopPlane(static_cast<WTrack&&>(track))==kFRH1)
+		&&(EDep(static_cast<WTrack&&>(track),kFTH1)>0.01)
 	){
 		double Ek=0;
 		log<<"stopping plane index condition passed";
-		if(ReconstructEkin(track,Ek)){
+		if(ReconstructEkin(static_cast<WTrack&&>(track),Ek)){
 			log<<"reconstruction successful";
 			for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
-				EDepFilteredHist[i]->Fill(EDep(track,i+1),EDep(track,i));
+				EDepFilteredHist[i]->Fill(EDep(static_cast<WTrack&&>(track),i+1),EDep(static_cast<WTrack&&>(track),i));
 			double p=sqrt(Ek*(Ek+2*m_3He));
-			double theta=track->Theta();
-			double phi=track->Phi();
+			double theta=track.Theta();
+			double phi=track.Phi();
 			double magnetic_field=10;//kG
 			//ToDo: obtain magnetic field
 			phi+= TrackFinderFD->GetPhiCorrection(p,theta,magnetic_field,c_He);
@@ -114,7 +114,7 @@ bool He3eta::ForwardTrackProcessing(WTrack* track,TVector3 &p_beam){
 	}
 	return true;
 }
-bool He3eta::CentralTrackProcessing(WTrack* track,TVector3 &pbeam){
+bool He3eta::CentralTrackProcessing(WTrack&& track,TVector3 &&pbeam){
 	return true;
 }
-void He3eta::EventPostProcessing(TVector3 &pbeam){}
+void He3eta::EventPostProcessing(TVector3 &&pbeam){}

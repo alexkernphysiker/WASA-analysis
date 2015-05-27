@@ -15,7 +15,7 @@ Analysis::Analysis(){
 Analysis::~Analysis(){
 	SubLog log=getSubLog("Destructor");
 }
-typedef pair<WTrackBank*,function<bool(WTrack*,TVector3)>> DetectorToProcess;
+typedef pair<WTrackBank*,function<bool(WTrack&&,TVector3)>> DetectorToProcess;
 void Analysis::ProcessEvent(){
 	SubLog log=getSubLog("ProcessEvent");
 	if(!checkprepared){
@@ -29,20 +29,20 @@ void Analysis::ProcessEvent(){
 			log<< "p_beam>0";
 			TVector3 p_beam;
 			p_beam.SetMagThetaPhi(beam_momenta,0,0);
-			if(EventPreProcessing(p_beam)){
+			if(EventPreProcessing(static_cast<TVector3&&>(p_beam))){
 				log<<"preprocessing returned true. go further";
 				int ChargedCountInCentral = fTrackBankCD->GetEntries(kCDC);
 				int NeutralCountInCentral = fTrackBankCD->GetEntries(kCDN);
 				int ChargedCountinForward = fTrackBankFD->GetEntries(kFDC);
 				if(TrackCountTrigger(ChargedCountInCentral,NeutralCountInCentral,ChargedCountinForward)){
 					log<<"Track count conditions passed";
-					DetectorToProcess CENTRAL=make_pair(fTrackBankCD,[this,&log](WTrack* t,TVector3 p){
+					DetectorToProcess CENTRAL=make_pair(fTrackBankCD,[this,&log](WTrack&& t,TVector3&& p){
 						log<<"CENTRAL tracks processing";
-						return CentralTrackProcessing(t,p);
+						return CentralTrackProcessing(static_cast<WTrack&&>(t),static_cast<TVector3&&>(p));
 					});
-					DetectorToProcess FORWARD=make_pair(fTrackBankFD,[this,&log](WTrack* t,TVector3 p){
+					DetectorToProcess FORWARD=make_pair(fTrackBankFD,[this,&log](WTrack&& t,TVector3&& p){
 						log<<"FORWARD tracks processing";
-						return ForwardTrackProcessing(t,p);
+						return ForwardTrackProcessing(static_cast<WTrack&&>(t),static_cast<TVector3&&>(p));
 					});
 					vector<DetectorToProcess> QUEUE;
 					if(CentralFirst()){
@@ -54,14 +54,14 @@ void Analysis::ProcessEvent(){
 					}
 					for(DetectorToProcess DETECTOR:QUEUE){
 						int NrTracks=DETECTOR.first->GetEntries();
-						for (int trackindex=0; trackindex<NrTracks; trackindex++) { 
-							auto track=DETECTOR.first->GetTrack(trackindex);
-							if(!DETECTOR.second(track,p_beam))
+						for (int trackindex=0; trackindex<NrTracks; trackindex++)
+							if(!DETECTOR.second(static_cast<WTrack&&>(*DETECTOR.first->GetTrack(trackindex)),static_cast<TVector3&&>(p_beam))){
+								log<<"proceccing returned FALSE. Exiting event processing.";
 								return;
-						}
+							}
 					}
 					log<<"Event postprocessing";
-					EventPostProcessing(p_beam);
+					EventPostProcessing(static_cast<TVector3&&>(p_beam));
 				}log<<"Track count conditions NOT passed";
 			}log<<"preprocessing returned false.";
 		}log.Message(LogWarning,"p_beam <= 0");
