@@ -9,3 +9,4 @@ m4 -P al4cosy0_mc_006.dat042.m4 > ../al4cosy0_mc_006.dat042
 m4 -P al4cosy0_mc_007.dat042.m4 > ../al4cosy0_mc_007.dat042
 m4 -P al4cosy0_mc_008.dat042.m4 > ../al4cosy0_mc_008.dat042
 m4 -P al4cosy0_mc_009.dat042.m4 > ../al4cosy0_mc_009.dat042
+m4 -P al4cosy0_mc_010.dat042.m4 > ../al4cosy0_mc_010.dat042

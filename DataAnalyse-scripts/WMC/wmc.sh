@@ -46,7 +46,7 @@ setenv UNAME $SYSTEM
  ln -s  etap.ems           epio42
 # ALIGMENT FILES
 $WASA_ROOT/alig/links.sh
-ln -s $WASA_ROOT/alig/al4cosy0_mc_009.dat042 fort.13
+ln -s $WASA_ROOT/alig/al4cosy0_mc_010.dat042 fort.13
 # USER CARDS 
  m4 -I$WASA_ROOT/alig/m4 -P wmc.dat.m4 > wmc.dat
  ln -s wmc.dat fort.4 
