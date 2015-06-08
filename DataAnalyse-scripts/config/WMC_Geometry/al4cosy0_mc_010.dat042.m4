@@ -80,13 +80,13 @@ C New cards in B004:
 C #m4_include(B004/FHD1)m4_dnl
 m4_include(B004/WDET)m4_dnl
 C Replaced cards in B006:
-m4_include(B006/FRH1)m4_dnl
-m4_include(B006/FRA1)m4_dnl
-m4_include(B006/FHD1)m4_dnl
-m4_include(B006/FRI1)m4_dnl
-m4_include(B006/FVH1)m4_dnl
-m4_include(B007/FPC2)m4_dnl
-m4_include(B006/wmc.m4)m4_dnl
+m4_include(B009/FRH1)m4_dnl
+m4_include(B009/FRA1)m4_dnl
+m4_include(B009/FHD1)m4_dnl
+m4_include(B009/FRI1)m4_dnl
+m4_include(B009/FVH1)m4_dnl
+m4_include(B009/FPC2)m4_dnl
+m4_include(B00999999999/wmc.m4)m4_dnl
 m4_include(B010/MDX2)m4_dnl
 m4_include(B010/VCF1)m4_dnl
 
