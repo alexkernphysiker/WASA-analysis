@@ -85,8 +85,8 @@ m4_include(B009/FRA1)m4_dnl
 m4_include(B009/FHD1)m4_dnl
 m4_include(B009/FRI1)m4_dnl
 m4_include(B009/FVH1)m4_dnl
-m4_include(B009/FPC2)m4_dnl
-m4_include(B00999999999/wmc.m4)m4_dnl
+m4_include(B006/FPC2)m4_dnl
+m4_include(B009/wmc.m4)m4_dnl
 m4_include(B010/MDX2)m4_dnl
 m4_include(B010/VCF1)m4_dnl
 
