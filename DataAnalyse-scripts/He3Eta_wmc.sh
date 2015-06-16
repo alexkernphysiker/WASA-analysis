@@ -1,4 +1,4 @@
-
+#!/bin/bash
 #PBS -q mc
 #PBS -N WMC
 #PBS -l walltime=2:00:00:00
