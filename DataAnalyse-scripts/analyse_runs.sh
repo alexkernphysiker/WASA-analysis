@@ -34,7 +34,7 @@ echo "#PBS -N MC_$1" >> ${scriptname2}
 echo "#PBS -l walltime=48:00:00" >> ${scriptname2}
 echo >> ${scriptname2} 
 echo "FILE = $WMC_DATA/$1.wmc.data" >> ${scriptname2}
-echo "if [-f FILE];" >> ${scriptname2}
+echo "if [-f $FILE];" >> ${scriptname2}
 echo "then" >> ${scriptname2}
 echo "./$scriptname" >> ${scriptname2}
 echo "else" >> ${scriptname2}
