@@ -27,6 +27,7 @@ echo "./main MC$1 -mode mc -fin file:$WMC_DATA/$1.wmc.data -n MC$1 -abort" >> ${
 echo >> ${scriptname}
 echo "rm -f ${scriptname}" >> ${scriptname}
 chmod u+x ${scriptname}
+echo "${scriptname} generated"
 scriptname2="run_mc_prelude.sh"
 rm -f ${scriptname2}
 echo "#!/bin/bash" >> ${scriptname2}
@@ -34,7 +35,7 @@ echo "#PBS -N MC_$1" >> ${scriptname2}
 echo "#PBS -l walltime=48:00:00" >> ${scriptname2}
 echo >> ${scriptname2} 
 echo "FILE = $WMC_DATA/$1.wmc.data" >> ${scriptname2}
-echo "if [-f $FILE];" >> ${scriptname2}
+echo "if [-f "$'$'"FILE];" >> ${scriptname2}
 echo "then" >> ${scriptname2}
 echo "./$scriptname" >> ${scriptname2}
 echo "else" >> ${scriptname2}
@@ -46,4 +47,4 @@ echo >> ${scriptname2}
 echo "rm -f ${scriptname2}" >> ${scriptname2}
 chmod u+x ${scriptname2}
 qsub ${scriptname2}
-echo "${scriptname} generated and executed"
+echo "${scriptname2} generated and executed"
