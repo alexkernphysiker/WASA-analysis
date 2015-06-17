@@ -2,13 +2,13 @@
 #define EVHZDETEOYGNMFFP
 #include "analysis.h"
 #include "detectors.h"
-class He3eta:public virtual Analysis
+class He3eta_gg_:public virtual Analysis
 	//Protony bo ta tabelka jest trochę dziwna
 	,public ForwardDetectorRoutines<kProton,kFRH1>
 {
 public:
-	He3eta();
-	virtual ~He3eta();
+	He3eta_gg_();
+	virtual ~He3eta_gg_();
 protected:
 	virtual bool EventPreProcessing(TVector3 &&pbeam)override;
 	virtual void EventPostProcessing(TVector3 &&pbeam)override;

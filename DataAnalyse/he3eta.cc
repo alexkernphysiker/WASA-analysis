@@ -2,7 +2,7 @@
 #include "detectors.h"
 #include "../General/phys_constants.h"
 using namespace std;
-He3eta::He3eta():Analysis(),ForwardDetectorRoutines("3He"){
+He3eta_gg_::He3eta_gg_():Analysis(),ForwardDetectorRoutines("3He"){
 	AddSubprefix("He3eta");
 	SubLog log=getSubLog("Constructor");
 	first_particles.push_back(make_pair(kHe3,m_3He));
@@ -51,20 +51,20 @@ He3eta::He3eta():Analysis(),ForwardDetectorRoutines("3He"){
 	}
 #undef missingmassparam
 }
-He3eta::~He3eta(){
+He3eta_gg_::~He3eta_gg_(){
 	SubLog log=getSubLog("Destructor");
 }
-bool He3eta::EventPreProcessing(TVector3 &&pbeam){
+bool He3eta_gg_::EventPreProcessing(TVector3 &&pbeam){
 	P_Beam->Fill(pbeam.Mag());
 	return true;
 }
-bool He3eta::TrackCountTrigger(int CinC,int NinC,int CinF){
+bool He3eta_gg_::TrackCountTrigger(int CinC,int NinC,int CinF){
 	return true;
 }
-bool He3eta::CentralFirst(){
+bool He3eta_gg_::CentralFirst(){
 	return false;
 }
-bool He3eta::ForwardTrackProcessing(WTrack&& track,TVector3 &&p_beam){
+bool He3eta_gg_::ForwardTrackProcessing(WTrack&& track,TVector3 &&p_beam){
 	SubLog log=getSubLog("ForwardTrackProcessing");
 	for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
 		EDepHist[i]->Fill(EDep(static_cast<WTrack&&>(track),i+1),EDep(static_cast<WTrack&&>(track),i));
@@ -114,7 +114,7 @@ bool He3eta::ForwardTrackProcessing(WTrack&& track,TVector3 &&p_beam){
 	}
 	return true;
 }
-bool He3eta::CentralTrackProcessing(WTrack&& track,TVector3 &&pbeam){
+bool He3eta_gg_::CentralTrackProcessing(WTrack&& track,TVector3 &&pbeam){
 	return true;
 }
-void He3eta::EventPostProcessing(TVector3 &&pbeam){}
+void He3eta_gg_::EventPostProcessing(TVector3 &&pbeam){}
