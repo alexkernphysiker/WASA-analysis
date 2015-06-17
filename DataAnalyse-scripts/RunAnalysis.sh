@@ -22,12 +22,6 @@ echo "#!/bin/bash" >> ${scriptname}
 echo "#PBS -N MC_$1" >> ${scriptname}
 echo "#PBS -l walltime=48:00:00" >> ${scriptname}
 echo >> ${scriptname}
-echo "if [ ! -f $WMC_DATA/$1.wmc.data ];" >> ${scriptname}
-echo "then" >> ${scriptname}
-echo "cd $PWD/WMC" >> ${scriptname}
-echo "./wmc.sh $PLUTO_OUTPUT/$1.root $WMC_DATA/$1.wmc.data" >> ${scriptname}
-echo "fi" >> ${scriptname}
-echo >> ${scriptname}
 echo "cd $PWD/../DataAnalyse" >> ${scriptname}
 echo "./main MC_$1 -mode mc -fin file:$WMC_DATA/$1.wmc.data -n MC$1 -abort" >> ${scriptname}
 echo >> ${scriptname}
