@@ -7,7 +7,7 @@ echo >> ${scriptname}
 echo "cd $PWD/WMC" >> ${scriptname}
 echo "./wmc.sh $PLUTO_OUTPUT/$1.root $WMC_DATA/$1.wmc.data" >> ${scriptname}
 echo >> ${scriptname}
-echo "rm -f ${scriptname}" >> ${scriptname}
+echo "rm -f $PWD/${scriptname}" >> ${scriptname}
 chmod u+x ${scriptname}
 qsub ${scriptname}
 echo "${scriptname} generated and executed"
