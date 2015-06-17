@@ -22,9 +22,9 @@ AnalysisWrap::AnalysisWrap(const char* name): CAnalysisModule(name){
 	IAnalysis *alg=nullptr;
 	log.Message(NoLog,"Analysis type:");
 	log.Message(NoLog,type);
-	if(type=="MCHe3Eta_gg_")
+	if(type=="MC_He3eta_gg_")
 		alg=new CustomAnalysis<MonteCarlo,He3eta_gg_>();
-	if(type=="DataHe3Eta_gg_")
+	if(type=="Data_He3eta_gg_")
 		alg=new CustomAnalysis<RealData,He3eta_gg_>();
 	if(alg)
 		m_data=(void*)alg;

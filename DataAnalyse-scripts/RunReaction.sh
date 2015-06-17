@@ -8,7 +8,7 @@ for X in ${RUNS_SEQ}
 
      echo >> ${scriptname}
      echo "cd $PWD/../DataAnalyse" >> ${scriptname}
-     echo "./main Data$1 -fin cluster:${RUNS_DATA}/run_${X} -r ${X} -n Data$1_run_${X} -lf run_${X}.log -abort " >> ${scriptname}
+     echo "./main Data_$1 -fin cluster:${RUNS_DATA}/run_${X} -r ${X} -n Data$1_run_${X} -lf run_${X}.log -abort " >> ${scriptname}
      echo >> ${scriptname}
      echo "rm -f ${scriptname}" >> ${scriptname}
      chmod u+x ${scriptname}
@@ -29,7 +29,7 @@ echo "./wmc.sh $PLUTO_OUTPUT/$1.root $WMC_DATA/$1.wmc.data" >> ${scriptname}
 echo "fi" >> ${scriptname}
 echo >> ${scriptname}
 echo "cd $PWD/../DataAnalyse" >> ${scriptname}
-echo "./main MC$1 -mode mc -fin file:$WMC_DATA/$1.wmc.data -n MC$1 -abort" >> ${scriptname}
+echo "./main MC_$1 -mode mc -fin file:$WMC_DATA/$1.wmc.data -n MC$1 -abort" >> ${scriptname}
 echo >> ${scriptname}
 echo "rm -f ${scriptname}" >> ${scriptname}
 chmod u+x ${scriptname}
