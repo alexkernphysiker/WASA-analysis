@@ -59,7 +59,7 @@ C KINE 10 TRACK GENERATION MODE $$$
 C 1.   3.    0.   0.   0.   0.   0.  0.   1.  1.
 
 C For KINE 50 RE1*1000 gives the event number to start with
-KINE 10 TRACK GENERATION MODE $$$
+KINE 50 TRACK GENERATION MODE $$$
   0.   3.    0.   0.   0.   0.   0.  0.   1.  1.
 
 C For KINE 1 option line has the following meaning
