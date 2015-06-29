@@ -35,7 +35,7 @@ double RealData::PBeam(){
 	if((time>=p_beam.min())&&(time<=p_beam.max()))
 		return p_beam(time);
 	else{
-		log.Message(LogWarning,"Out of range");
+		log.Message(LogError,"Time in cycle is out of range where beam energy is defined.");
 		return 0;
 	}
 }
