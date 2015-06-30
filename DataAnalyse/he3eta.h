@@ -3,7 +3,9 @@
 #include "analysis.h"
 #include "detectors.h"
 class He3eta_gg_:public virtual Analysis
-	//Protony bo ta tabelka jest trochę dziwna
+	// Though the table used here contains data about He3 it has
+	// the descriptor number like for protons. 
+	// It's a mistake made in the table, not in my program
 	,public ForwardDetectorRoutines<kProton,kFRH1>
 {
 public:
