@@ -1,3 +1,5 @@
+// this file is distributed under 
+// GPL v 3.0 license
 #include "he3eta.h"
 #include "detectors.h"
 #include "../General/phys_constants.h"

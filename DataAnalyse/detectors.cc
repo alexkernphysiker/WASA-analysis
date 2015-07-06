@@ -1,3 +1,5 @@
+// this file is distributed under 
+// GPL v 3.0 license
 #include <vector>
 #include <utility>
 #include "detectors.h"
@@ -9,6 +11,7 @@ ForwardDetectors::ForwardDetectors(){
 	SubLog log=getSubLog("Constructor");
 	PlaneData.push_back(plane_data(kFWC1,"FWC1",0.03,0.002));
 	PlaneData.push_back(plane_data(kFWC2,"FWC2",0.03,0.002));
+	PlaneData.push_back(plane_data(kFPC,"FPC",0.03,0.002));
 	PlaneData.push_back(plane_data(kFTH1,"FTH1",0.05,0.0015));
 	PlaneData.push_back(plane_data(kFRH1,"FRH1",0.3 ,0.001));
 	PlaneData.push_back(plane_data(kFRH2,"FRH2",0.3 ,0.001));

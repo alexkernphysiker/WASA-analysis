@@ -1,3 +1,5 @@
+// this file is distributed under 
+// GPL v 3.0 license
 #include <Wasa.hh>
 #include <SorterConfig.hh>
 #include "config.h"
