@@ -11,24 +11,20 @@
 #include <initialconditions.h>
 #include <phys_constants.h>
 #include "gethist.h"
-#include "gnuplot.h"
 using namespace std;
 using namespace Genetic;
 typedef LinearInterpolation<double> FuncTbl;
+typedef PlotPoints<double,FuncTbl> PlotTbl;
 #define ParR(x) static_cast<ParamSet&&>(x)
 int main(int,char**){
 #include "env.cc"
-	SetPlotOutput(outpath+"/He3Eta");
-	vector<string> Kinematics;
-	Kinematics.push_back("Histograms");
-	Kinematics.push_back("Kinematics");
-	vector<string> EventsCount;
-	EventsCount.push_back("Histograms");
-	EventsCount.push_back("EventsCount");
+	Plotter::Instance().SetOutput(outpath+"/He3Eta");
+	vector<string> Kinematics={"Histograms","Kinematics"};
+	vector<string> EventsCount={"Histograms","EventsCount"};
 	pair<FuncTbl,FuncTbl> acceptance;
 	vector<pair<double,pair<FuncTbl,FuncTbl>>> missingmass_mc_normed;
 	{
-		string MCFile=inputpath+"/MCHe3Eta.root";
+		string MCFile=inputpath+"/MCHe3eta_gg_.root";
 		pair<FuncTbl,FuncTbl> TotalEvents;{
 			hist normhist(MCFile,EventsCount,"AllEventsOnPBeam");
 			for(auto &p:normhist){
@@ -37,7 +33,7 @@ int main(int,char**){
 			}
 		}
 		hist registered(MCFile,EventsCount,"FilteredEventsOnPBeam");
-		Plot missingmass_spectra_plot;
+		PlotTbl missingmass_spectra_plot;
 		for(auto &histpoint:registered){
 			double norm=TotalEvents.first(histpoint.x);
 			double dnorm=TotalEvents.second(histpoint.x);
@@ -48,9 +44,9 @@ int main(int,char**){
 					spectrum.first<<make_pair(subhistpoint.x,subhistpoint.y/norm);
 					spectrum.second<<make_pair(subhistpoint.x,(dnorm*subhistpoint.y/pow(norm,2))+(subhistpoint.dy/norm));
 				}
-				missingmass_spectra_plot.Points(
-					"MC missing mass P="+to_string(histpoint.x),
-					spectrum.first,[&spectrum](double x){return spectrum.second(x);}
+				missingmass_spectra_plot.WithErrorOnX(
+					"MC missing mass P="+to_string(histpoint.x),static_cast<FuncTbl&&>(spectrum.first),
+					[&spectrum](double x){return spectrum.second(x);}
 				);
 				double acc=histpoint.y/norm;
 				if(acc>0.1){
@@ -60,13 +56,15 @@ int main(int,char**){
 				}
 			}
 		}
-		Plot acceptance_plot;
-		acceptance_plot.Points("Acceptance",acceptance.first,[&acceptance](double x){return acceptance.second(x);});
+		PlotTbl().WithErrorOnX(
+			"Acceptance",static_cast<FuncTbl&&>(acceptance.first),
+			[&acceptance](double x){return acceptance.second(x);}
+		);
 	}
 	vector<pair<double,shared_ptr<FitPoints>>> missing_mass_data;{
 		vector<pair<double,hist>> missing_mass_spectra;
 		for(int run_no=46200,inited=0;run_no<=46250;run_no++){
-			string rootfile=inputpath+"/DataHe3Eta_run_"+to_string(run_no)+".root";
+			string rootfile=inputpath+"/DataHe3eta_gg__run_"+to_string(run_no)+".root";
 			hist alleventshist(rootfile,EventsCount,"AllEventsOnPBeam");
 			if(alleventshist.count()>0){
 				printf("File %s found...\n",rootfile.c_str());
@@ -107,24 +105,25 @@ int main(int,char**){
 		printf("Missing mass spectrum %s...\n",suffix.c_str());
 		PolynomFunc<0,1,4> BackGround;
 		pair<FuncTbl,FuncTbl> ForeGround;
-		for(auto &norm_hist:missingmass_mc_normed)
-			if(norm_hist.first==p_beam)
-				ForeGround=norm_hist.second;
-		printf("norm. cnt= %i and %i \n",ForeGround.first.size(),ForeGround.second.size());
-		
-		Plot fitplot;
-		fitplot.Points("Missing mass DATA "+suffix,points);
-		
-		auto pointstofit=SelectFitPoints(points,make_shared<Filter>([](ParamSet&&X){return abs((m_eta-X[0])*1000)<50;}));
-		printf("Preparing fit...points count = %i of %i \n",pointstofit->count(),points->count());
-		FitFunctionWithError<Crossing<DifferentialMutations<>>,ChiSquareWithXError> fit(
-			pointstofit,
+		pair<paramFunc,paramFunc> fitfuncs=make_pair(
 			[&ForeGround,&BackGround](ParamSet&&X,ParamSet&&P){
 				return (P[0]*ForeGround.first(X[0]))+BackGround(ParR(X),ParR(P));
 			},
 			[&ForeGround](ParamSet&&X,ParamSet&&P){
 				return P[0]*ForeGround.second(X[0]);
 			}
+		);
+		for(auto &norm_hist:missingmass_mc_normed)
+			if(norm_hist.first==p_beam)
+				ForeGround=norm_hist.second;
+		printf("norm. cnt= %i and %i \n",ForeGround.first.size(),ForeGround.second.size());
+		
+		PlotPoints1D().Points("Missing mass DATA "+suffix,points);
+		
+		auto pointstofit=SelectFitPoints(points,make_shared<Filter>([](ParamSet&&X){return abs((m_eta-X[0])*1000)<50;}));
+		printf("Preparing fit...points count = %i of %i \n",pointstofit->count(),points->count());
+		FitFunctionWithError<Crossing<DifferentialMutations<>>,ChiSquareWithXError> fit(
+			pointstofit,fitfuncs.first,fitfuncs.second
 		);
 		fit.SetFilter([](ParamSet&&P){return P[0]>0;});
 		fit.SetCrossingProbability(0.01);
@@ -141,19 +140,9 @@ int main(int,char**){
 		printf("\n");
 		Events_Count.first<<make_pair(p_beam,fit[0]);
 		Events_Count.second<<make_pair(p_beam,fit.GetParamParabolicError(0.01,0));
-		fitplot.Function("fit "+suffix,
-			[&fit](double x){return fit(ParamSet(x));},
-			pointstofit->operator[](0).X[0],pointstofit->operator[](pointstofit->count()-1).X[0],0.01
-		);
-		fitplot.Function("Background "+suffix,
-			[&fit,&BackGround](double x){return BackGround(ParamSet(x),fit.Parameters());},
-			pointstofit->operator[](0).X[0],pointstofit->operator[](pointstofit->count()-1).X[0],0.01
-		);
-		fitplot.Function("Foreground "+suffix,
-			[&fit,&ForeGround](double x){return fit[0]*ForeGround.first(x);},
-			pointstofit->operator[](0).X[0],pointstofit->operator[](pointstofit->count()-1).X[0],0.01
-		);
+		PlotFit1D<decltype(fit)>().Points("Data",pointstofit).Fit("Fit",fit,0.01)
+			.ParamFunc("BG",static_cast<IParamFunc&&>(BackGround),fit,0.01)
+			.ParamFunc("FG",[&ForeGround](ParamSet&&X,ParamSet&&P){return P[0]*ForeGround.first(X[0]);},fit,0.01);
 	}
-	Plot eventsplot;
-	eventsplot.Points("Events count",Events_Count.first,[&Events_Count](double x){return Events_Count.second(x);});
+	PlotTbl().WithErrorOnX("Events count",static_cast<FuncTbl&&>(Events_Count.first),[&Events_Count](double x){return Events_Count.second(x);});
 }
