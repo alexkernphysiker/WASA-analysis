@@ -19,26 +19,24 @@ typedef PlotPoints<double,FuncTbl> PlotTbl;
 int main(int,char**){
 #include "env.cc"
 	Plotter::Instance().SetOutput(outpath+"/He3Eta");
-	vector<string> Kinematics={"Histograms","Kinematics"};
-	vector<string> EventsCount={"Histograms","EventsCount"};
 	pair<FuncTbl,FuncTbl> acceptance;
 	vector<pair<double,pair<FuncTbl,FuncTbl>>> missingmass_mc_normed;
 	{
 		string MCFile=inputpath+"/MCHe3eta_gg_.root";
 		pair<FuncTbl,FuncTbl> TotalEvents;{
-			hist normhist(MCFile,EventsCount,"AllEventsOnPBeam");
+			hist normhist(MCFile,{"Histograms","EventsCount"},"AllEventsOnPBeam");
 			for(auto &p:normhist){
 				TotalEvents.first<<make_pair(p.x,p.y);
 				TotalEvents.second<<make_pair(p.x,p.dy);
 			}
 		}
-		hist registered(MCFile,EventsCount,"FilteredEventsOnPBeam");
+		hist registered(MCFile,{"Histograms","EventsCount"},"FilteredEventsOnPBeam");
 		PlotTbl missingmass_spectra_plot;
 		for(auto &histpoint:registered){
 			double norm=TotalEvents.first(histpoint.x);
 			double dnorm=TotalEvents.second(histpoint.x);
 			if(norm>48000){
-				hist subhist(MCFile,Kinematics,string("MissingMass")+to_string(int(histpoint.x*1000)));
+				hist subhist(MCFile,{"Histograms","Kinematics"},string("MissingMass")+to_string(int(histpoint.x*1000)));
 				pair<FuncTbl,FuncTbl> spectrum;
 				for(auto &subhistpoint:subhist){
 					spectrum.first<<make_pair(subhistpoint.x,subhistpoint.y/norm);
@@ -65,12 +63,12 @@ int main(int,char**){
 		vector<pair<double,hist>> missing_mass_spectra;
 		for(int run_no=46200,inited=0;run_no<=46250;run_no++){
 			string rootfile=inputpath+"/DataHe3eta_gg__run_"+to_string(run_no)+".root";
-			hist alleventshist(rootfile,EventsCount,"AllEventsOnPBeam");
+			hist alleventshist(rootfile,{"Histograms","EventsCount"},"AllEventsOnPBeam");
 			if(alleventshist.count()>0){
 				printf("File %s found...\n",rootfile.c_str());
 				for(auto &histparam:missingmass_mc_normed){
 					double p_beam=histparam.first;
-					hist subhist(rootfile,Kinematics,string("MissingMass")+to_string(int(p_beam*1000)));
+					hist subhist(rootfile,{"Histograms","Kinematics"},string("MissingMass")+to_string(int(p_beam*1000)));
 					if(0==inited)
 						missing_mass_spectra.push_back(make_pair(p_beam,subhist));
 					else{
