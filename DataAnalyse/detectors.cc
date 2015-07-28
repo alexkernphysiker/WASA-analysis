@@ -52,7 +52,7 @@ double ForwardDetectors::EDep(WTrack&& track, ForwardDetectorPlane plane){
 }
 
 double ForwardDetectors::EDep(WTrack&& track, int planeindex){
-	return EDep(static_cast<WTrack&&>(track),ForwadrPlane(planeindex));
+	return EDep(static_right(track),ForwadrPlane(planeindex));
 }
 double ForwardDetectors::UpperByIndex(int planeindex){
 	return PlaneData[planeindex].upper;
@@ -70,7 +70,7 @@ bool ForwardDetectors::UpperThresholdUpTo(WTrack&& track,int planeindex){
 	SubLog log=getSubLog("UpperThresholdUpTo");
 	bool res=true;
 	for(int c=0;c<=planeindex;c++)
-		res&=(EDep(static_cast<WTrack&&>(track),c)>ThresholdByIndex(c));
+		res&=(EDep(static_right(track),c)>ThresholdByIndex(c));
 	if(res)log<<"YES";else log<<"NO";
 	return res;
 }
@@ -78,14 +78,14 @@ int ForwardDetectors::StopPlaneIndex(WTrack&& track){
 	SubLog log=getSubLog("StopPlaneIndex");
 	int res=-1;
 	for(size_t i=0;i<PlaneData.size();i++)
-		if(EDep(static_cast<WTrack&&>(track),i)>PlaneData[i].threshold){
+		if(EDep(static_right(track),i)>PlaneData[i].threshold){
 			if(res==(int(i)-1))res++;
 			else res=-1;
 		}
 	return res;
 }
 ForwardDetectorPlane ForwardDetectors::StopPlane(WTrack&& track){
-	return ForwadrPlane(StopPlaneIndex(static_cast<WTrack&&>(track)));
+	return ForwadrPlane(StopPlaneIndex(static_right(track)));
 }
 
 

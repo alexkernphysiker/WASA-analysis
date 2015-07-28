@@ -5,7 +5,7 @@
 #include "../General/phys_constants.h"
 using namespace std;
 He3eta_gg_::He3eta_gg_():Analysis(),ForwardDetectorRoutines("3He"){
-	AddSubprefix("He3eta");
+	AddSubprefix("He3eta_gg_");
 	SubLog log=getSubLog("Constructor");
 	first_particles.push_back(make_pair(kHe3,m_3He));
 	first_particles.push_back(make_pair(kEta,m_eta));
@@ -69,17 +69,17 @@ bool He3eta_gg_::CentralFirst(){
 bool He3eta_gg_::ForwardTrackProcessing(WTrack&& track,TVector3 &&p_beam){
 	SubLog log=getSubLog("ForwardTrackProcessing");
 	for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
-		EDepHist[i]->Fill(EDep(static_cast<WTrack&&>(track),i+1),EDep(static_cast<WTrack&&>(track),i));
+		EDepHist[i]->Fill(EDep(static_right(track),i+1),EDep(static_right(track),i));
 	if(
-		(StopPlane(static_cast<WTrack&&>(track))==kFRH1)
-		&&(EDep(static_cast<WTrack&&>(track),kFTH1)>0.01)
+		(StopPlane(static_right(track))==kFRH1)
+		&&(EDep(static_right(track),kFTH1)>0.01)
 	){
 		double Ek=0;
 		log<<"stopping plane index condition passed";
-		if(ReconstructEkin(static_cast<WTrack&&>(track),Ek)){
+		if(ReconstructEkin(static_right(track),Ek)){
 			log<<"reconstruction successful";
 			for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
-				EDepFilteredHist[i]->Fill(EDep(static_cast<WTrack&&>(track),i+1),EDep(static_cast<WTrack&&>(track),i));
+				EDepFilteredHist[i]->Fill(EDep(static_right(track),i+1),EDep(static_right(track),i));
 			double p=sqrt(Ek*(Ek+2*m_3He));
 			double theta=track.Theta();
 			double phi=track.Phi();

@@ -5,6 +5,7 @@
 #include <string>
 #include <functional>
 #include "analysis.h"
+#define static_right(A) (static_cast<decltype(A)&&>(A))
 enum ForwardDetectorPlane{
 	kForwardError=0,
 	kFWC1 = 10, kFWC2 = 11, kFTH1 = 1, kFTH2 =2, kFTH3 = 3, 

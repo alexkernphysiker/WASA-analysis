@@ -2,6 +2,7 @@
 // GPL v 3.0 license
 #include <functional>
 #include "analysis.h"
+#define static_right(A) (static_cast<decltype(A)&&>(A))
 using namespace std;
 IAnalysis::~IAnalysis(){}
 Analysis::Analysis(){
@@ -31,7 +32,7 @@ void Analysis::ProcessEvent(){
 			log<< "p_beam>0";
 			TVector3 p_beam;
 			p_beam.SetMagThetaPhi(beam_momenta,0,0);
-			if(EventPreProcessing(static_cast<TVector3&&>(p_beam))){
+			if(EventPreProcessing(static_right(p_beam))){
 				log<<"preprocessing returned true. go further";
 				int ChargedCountInCentral = fTrackBankCD->GetEntries(kCDC);
 				int NeutralCountInCentral = fTrackBankCD->GetEntries(kCDN);
@@ -40,11 +41,11 @@ void Analysis::ProcessEvent(){
 					log<<"Track count conditions passed";
 					DetectorToProcess CENTRAL=make_pair(fTrackBankCD,[this,&log](WTrack&& t,TVector3&& p){
 						log<<"CENTRAL tracks processing";
-						return CentralTrackProcessing(static_cast<WTrack&&>(t),static_cast<TVector3&&>(p));
+						return CentralTrackProcessing(static_right(t),static_right(p));
 					});
 					DetectorToProcess FORWARD=make_pair(fTrackBankFD,[this,&log](WTrack&& t,TVector3&& p){
 						log<<"FORWARD tracks processing";
-						return ForwardTrackProcessing(static_cast<WTrack&&>(t),static_cast<TVector3&&>(p));
+						return ForwardTrackProcessing(static_right(t),static_right(p));
 					});
 					vector<DetectorToProcess> QUEUE;
 					if(CentralFirst()){
@@ -57,13 +58,13 @@ void Analysis::ProcessEvent(){
 					for(DetectorToProcess DETECTOR:QUEUE){
 						int NrTracks=DETECTOR.first->GetEntries();
 						for (int trackindex=0; trackindex<NrTracks; trackindex++)
-							if(!DETECTOR.second(static_cast<WTrack&&>(*DETECTOR.first->GetTrack(trackindex)),static_cast<TVector3&&>(p_beam))){
+							if(!DETECTOR.second(static_cast<WTrack&&>(*DETECTOR.first->GetTrack(trackindex)),static_right(p_beam))){
 								log<<"proceccing returned FALSE. Exiting event processing.";
 								return;
 							}
 					}
 					log<<"Event postprocessing";
-					EventPostProcessing(static_cast<TVector3&&>(p_beam));
+					EventPostProcessing(static_right(p_beam));
 				}log<<"Track count conditions NOT passed";
 			}log<<"preprocessing returned false.";
 		}log.Message(LogWarning,"p_beam <= 0");
