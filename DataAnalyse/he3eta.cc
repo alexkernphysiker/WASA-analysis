@@ -73,6 +73,9 @@ bool He3eta_gg_::ForwardTrackProcessing(WTrack&& track,TVector3 &&p_beam){
 	if(
 		(StopPlane(static_right(track))==kFRH1)
 		&&(EDep(static_right(track),kFTH1)>0.01)
+		&&(EDep(static_right(track),kFTH1)<0.02)
+		&&(EDep(static_right(track),kFRH1)>0.08)
+		&&(EDep(static_right(track),kFRH1)<0.23)
 	){
 		double Ek=0;
 		log<<"stopping plane index condition passed";
