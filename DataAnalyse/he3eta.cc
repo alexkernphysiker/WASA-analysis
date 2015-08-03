@@ -5,8 +5,8 @@
 #include "../General/phys_constants.h"
 using namespace std;
 He3eta_gg_::He3eta_gg_():Analysis(),ForwardDetectorRoutines("3He"){
-	AddSubprefix("He3eta_gg_");
-	SubLog log=getSubLog("Constructor");
+	AddLogSubprefix("He3eta_gg_");
+	SubLog log=Log(LogDebug);
 	first_particles.push_back(make_pair(kHe3,m_3He));
 	first_particles.push_back(make_pair(kEta,m_eta));
 	final_particles.push_back(make_pair(kHe3,m_3He));
@@ -53,9 +53,7 @@ He3eta_gg_::He3eta_gg_():Analysis(),ForwardDetectorRoutines("3He"){
 	}
 #undef missingmassparam
 }
-He3eta_gg_::~He3eta_gg_(){
-	SubLog log=getSubLog("Destructor");
-}
+He3eta_gg_::~He3eta_gg_(){}
 bool He3eta_gg_::EventPreProcessing(TVector3 &&pbeam){
 	P_Beam->Fill(pbeam.Mag());
 	return true;
@@ -67,7 +65,7 @@ bool He3eta_gg_::CentralFirst(){
 	return false;
 }
 bool He3eta_gg_::ForwardTrackProcessing(WTrack&& track,TVector3 &&p_beam){
-	SubLog log=getSubLog("ForwardTrackProcessing");
+	SubLog log=Log(LogDebug);
 	for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
 		EDepHist[i]->Fill(EDep(static_right(track),i+1),EDep(static_right(track),i));
 	if(
@@ -115,7 +113,7 @@ bool He3eta_gg_::ForwardTrackProcessing(WTrack&& track,TVector3 &&p_beam){
 				}
 				MissingMassDetailed[index]->Fill(missingmass);
 			}
-		}log.Message(LogWarning,"Could not reconstruct energy");
+		}Log(LogWarning)<<"Could not reconstruct energy";
 	}
 	return true;
 }

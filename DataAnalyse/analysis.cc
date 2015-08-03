@@ -6,8 +6,7 @@
 using namespace std;
 IAnalysis::~IAnalysis(){}
 Analysis::Analysis(){
-	AddSubprefix("Analysis");
-	SubLog log=getSubLog("Constructor");
+	AddLogSubprefix("Analysis");
 	checkprepared=false;
 	TrackFinderFD = dynamic_cast<FDFTHTracks*>(gDataManager->GetAnalysisModule("FDFTHTracks","default"));
 	if(TrackFinderFD!=0) fTrackBankFD = TrackFinderFD->GetTrackBank();
@@ -15,21 +14,19 @@ Analysis::Analysis(){
 	if (CDTrackFinder!=0) fTrackBankCD = CDTrackFinder->GetTrackBank();
 	fDetectorTable = dynamic_cast<CCardWDET*>(gParameterManager->GetParameterObject("CCardWDET","default")); 
 }
-Analysis::~Analysis(){
-	SubLog log=getSubLog("Destructor");
-}
+Analysis::~Analysis(){}
 typedef pair<WTrackBank*,function<bool(WTrack&&,TVector3)>> DetectorToProcess;
 void Analysis::ProcessEvent(){
-	SubLog log=getSubLog("ProcessEvent");
+	SubLog log=Log(LogDebug);
 	if(!checkprepared){
 		PrepareCheck();
 		checkprepared=true;
 	}
 	if (EventProcessingCondition()){
-		Analysis::LogMessage(LogDebug,"event passed the condition");
+		log<<"event passed the condition";
 		double beam_momenta=PBeam();
 		if(beam_momenta>0){
-			log<< "p_beam>0";
+			log<<"p_beam>0";
 			TVector3 p_beam;
 			p_beam.SetMagThetaPhi(beam_momenta,0,0);
 			if(EventPreProcessing(static_right(p_beam))){
@@ -67,6 +64,6 @@ void Analysis::ProcessEvent(){
 					EventPostProcessing(static_right(p_beam));
 				}log<<"Track count conditions NOT passed";
 			}log<<"preprocessing returned false.";
-		}log.Message(LogWarning,"p_beam <= 0");
+		}else Log(LogError)<<"p_beam <= 0";
 	}else log<<"event did not pass the condition";
 }

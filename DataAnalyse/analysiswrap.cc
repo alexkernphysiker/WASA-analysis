@@ -16,14 +16,13 @@ void SetAnalysisType(string t){
 Logger LOG;
 ClassImp(AnalysisWrap);
 AnalysisWrap::AnalysisWrap(){
-	Logger::SubLog log=LOG.getSubLog("AnalysisWrap empty constructor");
-	log.Message(LogWarning,"Should not appear but appears");
+	LOG.AddLogSubprefix("ANALYSIS APPLICATION");
+	LOG.Log(LogError)<<"AnalysisWrap empty constructor. Should not be called but it is";
 }
 AnalysisWrap::AnalysisWrap(const char* name): CAnalysisModule(name){
-	Logger::SubLog log=LOG.getSubLog("AnalysisWrap normal constructor");
+	Logger::SubLog log=LOG.Log(NoLog);
 	IAnalysis *alg=nullptr;
-	log.Message(NoLog,"Analysis type:");
-	log.Message(NoLog,type);
+	log<<"Analysis type:"<<type;
 	if(type=="MC_He3eta_gg_")
 		alg=new CustomAnalysis<MonteCarlo,He3eta_gg_>();
 	if(type=="Data_He3eta_gg_")
@@ -31,12 +30,11 @@ AnalysisWrap::AnalysisWrap(const char* name): CAnalysisModule(name){
 	if(alg)
 		m_data=(void*)alg;
 	else{
-		log.Message(LogError,"Unknown type");
+		LOG.Log(LogError)<<"Unknown analysis type";
 		throw exception();
 	}
 }
 AnalysisWrap::~AnalysisWrap(){
-	Logger::SubLog log=LOG.getSubLog("AnalysisWrap destructor");
 	if(m_data)
 		delete (IAnalysis*)m_data;
 }

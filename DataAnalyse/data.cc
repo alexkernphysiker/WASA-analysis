@@ -5,8 +5,7 @@
 #include "data.h"
 using namespace std;
 RealData::RealData(){
-	Logger::AddSubprefix("RealData");
-	SubLog log=getSubLog("Constructor");
+	AddLogSubprefix("Real data analysis");
 	fHeader = dynamic_cast<REventHeader*>(gDataManager->GetDataObject("REventHeader","Header"));
 	ifstream file;
 	file.open("TIME_IN_CYCLE_MAY2014.dat");
@@ -18,13 +17,11 @@ RealData::RealData(){
 		}
 		file.close();
 	}else{
-		log.Message(LogError,"No momentum table found");
+		Log(LogError)<<"No file with momentum table";
 		throw exception();
 	}
 }
-RealData::~RealData(){
-	SubLog log=getSubLog("Destructor");
-}
+RealData::~RealData(){}
 bool RealData::EventProcessingCondition(){
 	return true;
 }
@@ -32,12 +29,11 @@ double RealData::EventWeight(){
 	return 1;
 }
 double RealData::PBeam(){
-	SubLog log=getSubLog("PBeam");
 	double time=fHeader->GetTimeInCycle();
 	if((time>=p_beam.min())&&(time<=p_beam.max()))
 		return p_beam(time);
 	else{
-		log.Message(LogError,"Time in cycle is out of range where beam energy is defined.");
+		Log()<<"Time in cycle is out of range where beam energy is defined.";
 		return 0;
 	}
 }

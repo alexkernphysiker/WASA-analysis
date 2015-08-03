@@ -10,7 +10,6 @@ using namespace std;
 LogLevel CurrentLogLevel=NoLog;
 string logfilename;
 mutex logmutex;
-string submsg[]={"","=== ERROR!!! ===","Warning!!!","Debug message"};
 void InitLog(LogLevel level,char* type){
 	CurrentLogLevel=level;
 	logfilename=string(type)+"_";
@@ -32,7 +31,7 @@ void WriteToLog(LogLevel level,string msg){
 			char buf[80];
 			tstruct = *localtime(&now);
 			strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
-			file<<buf<<" "<<submsg[level]<<"> "<<msg<<"\n";
+			file<<buf<<"> "<<msg<<"\n";
 			file.close();
 		}
 	}
@@ -41,29 +40,21 @@ Logger::Logger(){
 	pref="|";
 }
 Logger::~Logger(){}
-void Logger::AddSubprefix(string s){
-	pref=pref+s+"|";
+void Logger::AddLogSubprefix(string s){
+	pref=pref+s+">";
 }
 void Logger::LogMessage(LogLevel level, string msg){
-	WriteToLog(level,pref+"->"+msg);
+	WriteToLog(level,pref+" "+msg);
 }
-Logger::SubLog Logger::getSubLog(string s){
-	return Logger::SubLog(this,s);
+Logger::SubLog Logger::Log(LogLevel l){
+	return Logger::SubLog(this,l);
 }
-Logger::SubLog::SubLog(Logger* master, string s){
+Logger::SubLog::SubLog(Logger* master,LogLevel l){
 	m_master=master;
-	sub_prefix=s;
-	lvl=LogDebug;
-	m_master->LogMessage(LogDebug,sub_prefix+" START");
+	lvl=l;
 }
-Logger::SubLog::~SubLog(){
-	m_master->LogMessage(LogDebug,sub_prefix+" END");
-}
-Logger::SubLog& Logger::SubLog::Message(LogLevel level, string msg){
-	m_master->LogMessage(level,"->"+sub_prefix+" : "+msg);
-	return *this;
-}
-
+Logger::SubLog::~SubLog(){}
 Logger::SubLog& Logger::SubLog::operator<<(string msg){
-	return Message(LogDebug,msg);
+	m_master->LogMessage(lvl,msg);
+	return *this;
 }

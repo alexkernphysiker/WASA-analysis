@@ -8,20 +8,18 @@ class Logger{
 public:
 	class SubLog{
 	public:
-		SubLog(Logger*master,std::string s);
+		SubLog(Logger*master,LogLevel l);
 		virtual ~SubLog();
 		SubLog&operator<<(std::string msg);
-		SubLog&Message(LogLevel level,std::string msg);
 	private:
 		LogLevel lvl;
-		std::string sub_prefix;
 		Logger *m_master;
 	};
 	friend class SubLog;
 	Logger();
 	virtual ~Logger();
-	void AddSubprefix(std::string s);
-	SubLog getSubLog(std::string s);
+	void AddLogSubprefix(std::string s);
+	SubLog Log(LogLevel l=LogWarning);
 protected:
 	void LogMessage(LogLevel level,std::string msg);
 private:

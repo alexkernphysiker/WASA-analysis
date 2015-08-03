@@ -2,28 +2,23 @@
 // GPL v 3.0 license
 #include "montecarlo.h"
 MonteCarlo::MonteCarlo():Analysis(){
-	Logger::AddSubprefix("MonteCarlo");
-	SubLog log=getSubLog("Constructor");
+	AddLogSubprefix("MonteCarlo");
 	WTrackFinder *MCTrf = dynamic_cast<WTrackFinder*>(gDataManager->GetAnalysisModule("MCTrackFinder","default"));
 	fMCTrackBank  = MCTrf->GetTrackBank();
 	fMCVertexBank = MCTrf->GetVertexBank();
 	fEventHeader = dynamic_cast<REventWmcHeader*>(gDataManager->GetDataObject("REventWmcHeader","EventHeader"));
 }
-MonteCarlo::~MonteCarlo(){
-	SubLog log=getSubLog("Destructor");
-}
+MonteCarlo::~MonteCarlo(){}
 double MonteCarlo::EventWeight(){
 	return fEventHeader->GetWeight();
 }
 bool MonteCarlo::EventProcessingCondition(){
-	SubLog log=getSubLog("Processing condition");
 	return 
 	gWasa->IsAnalysisMode(Wasa::kMCRaw)||
 	gWasa->IsAnalysisMode(Wasa::kMCReco)||
 	gWasa->IsAnalysisMode(Wasa::kMC);
 }
 double MonteCarlo::PBeam(){
-	SubLog log=getSubLog("PBeam");
 	TVector3 result;
 	result.SetMagThetaPhi(0,0,0);
 	WVertexIter iterator(fMCVertexBank);
@@ -47,7 +42,9 @@ double MonteCarlo::PBeam(){
 					}
 			}
 	}
-	return result.Mag();
+	double res=result.Mag();
+	if(res<=0)Log()<<"B_beam<=0";
+	return res;
 }
 MonteCarlo::CheckHists::CheckHists(ParticleType t){
 	type=t;
@@ -56,9 +53,8 @@ MonteCarlo::CheckHists::CheckHists(ParticleType t){
 	Phi=new TH1F(Form("Check_Phi_%i",int(t)),"",500,-1,1);
 }
 void MonteCarlo::PrepareCheck(){
-	SubLog log=getSubLog("PrepareCheck");
 	for(auto P:final_particles){
-		log<<"Adding histogram";
+		Log(LogDebug)<<"Adding histogram";
 		CheckHists h(P.first);
 		check.push_back(h);
 		gHistoManager->Add(h.Ekin,"Reconstruction");
@@ -67,7 +63,6 @@ void MonteCarlo::PrepareCheck(){
 	}
 }
 void MonteCarlo::CheckParticleTrack(ParticleType type, double Ekin, double theta, double phi){
-	SubLog log=getSubLog("CheckParticleTrack");
 	const double two_pi=2*3.1415926;
 	while(phi<0)phi+=two_pi;
 	while(phi>=two_pi)phi-=two_pi;
@@ -82,7 +77,6 @@ void MonteCarlo::CheckParticleTrack(ParticleType type, double Ekin, double theta
 						WParticle *particle=vertex->GetParticle(particleindex);
 						auto ptype=particle->GetType();
 						if(type==ptype){
-							log<<"Particle found";
 							double p_ekin=particle->GetEkin();
 							double p_theta=particle->GetTheta();
 							double p_phi=particle->GetPhi();
