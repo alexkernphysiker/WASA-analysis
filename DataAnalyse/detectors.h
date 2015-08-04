@@ -41,39 +41,4 @@ private:
 	};
 	std::vector<plane_data> PlaneData;
 };
-template<ParticleType ptype,ForwardDetectorPlane firstplane>
-class ForwardDetectorRoutines:public virtual ForwardDetectors{
-public:
-	typedef std::function<bool(ForwardDetectorPlane,int&)> delegate;
-private:
-	FDEdep2Ekin *DepKin;
-	delegate get_table;
-	double coeff;
-public:
-	ForwardDetectorRoutines(std::string particlename):ForwardDetectors(){
-		DepKin = dynamic_cast<FDEdep2Ekin*>(gParameterManager->GetParameterObject("FDEdep2Ekin",particlename.c_str()));
-		get_table=[](ForwardDetectorPlane,int&){return true;};
-		coeff=1;
-	}
-	virtual ~ForwardDetectorRoutines(){}
-protected:
-	void SetGettableFunction(delegate func){
-		get_table=func;
-	}
-	void SetCorrectionCoefficient(double c){
-		coeff=c;
-	}
-	bool ReconstructEkin(WTrack &&track,double &Ekin){
-		int Edep2Ekin_table=0;
-		ForwardDetectorPlane stop_plane=StopPlane(static_cast<WTrack&&>(track));
-		if(get_table(stop_plane,Edep2Ekin_table)){
-			Ekin=DepKin->GetEkin(Edep2Ekin_table,ptype,track.Edep(firstplane,stop_plane),track.Theta());        
-			Ekin*=coeff;
-			return true;
-		}else{
-			Ekin=0;
-			return false;
-		}
-	}
-};
 #endif

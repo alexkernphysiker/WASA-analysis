@@ -37,5 +37,6 @@ double RealData::PBeam(){
 		return 0;
 	}
 }
-void RealData::PrepareCheck(){}
-void RealData::CheckParticleTrack(ParticleType type, double Ekin, double theta, double phi){}
+bool RealData::GetTrueParameters(ParticleType type, double& Ekin, double& theta, double& phi){
+	return false;
+}

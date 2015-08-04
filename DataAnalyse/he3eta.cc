@@ -4,7 +4,31 @@
 #include "detectors.h"
 #include "../General/phys_constants.h"
 using namespace std;
-He3eta_gg_::He3eta_gg_():Analysis(),ForwardDetectorRoutines("3He"){
+He3eta_gg_::He3eta_gg_():Analysis(),
+He3_Ekin("He3.E",[this](WTrack&&track){
+	return EDep(static_right(track),kFRH1);
+},[this](WTrack&&track){
+	double e,t,p;
+	if(GetTrueParameters(kHe3,e,t,p)){
+		return e;
+	}else{Log(LogError)<<"No reconstruction data.";throw;}
+}),
+He3_theta("He3.th",[this](WTrack&&track){
+	return track.Theta();
+},[this](WTrack&&track){
+	double e,t,p;
+	if(GetTrueParameters(kHe3,e,t,p)){
+		return t;
+	}else{Log(LogError)<<"No reconstruction data.";throw;}
+}),
+He3_phi("He3.phi",[this](WTrack&&track){
+	return NormPhi(track.Phi());
+},[this](WTrack&&track){
+	double e,t,p;
+	if(GetTrueParameters(kHe3,e,t,p)){
+		return p;
+	}else{Log(LogError)<<"No reconstruction data.";throw;}
+}){
 	AddLogSubprefix("He3eta_gg_");
 	SubLog log=Log(LogDebug);
 	first_particles.push_back(make_pair(kHe3,m_3He));
@@ -24,12 +48,6 @@ He3eta_gg_::He3eta_gg_():Analysis(),ForwardDetectorRoutines("3He"){
 		histname=histname+"_filtered";
 		makehist(EDepFilteredHist);
 	}
-	SetGettableFunction([](ForwardDetectorPlane StopPlane,int& Edep2Ekin_table){
-		if(StopPlane==kFVH || StopPlane==kFTH3 || StopPlane==kFRH3)
-			return false;
-		Edep2Ekin_table=int(StopPlane);
-		return true;
-	});
 	P_Beam=new TH1F("AllEventsOnPBeam","",20,p_he3_eta_threshold,p_beam_hi);
 	gHistoManager->Add(P_Beam,"EventsCount");
 	DependenceOnPBeam=new TH1F("FilteredEventsOnPBeam","",20,p_he3_eta_threshold,p_beam_hi);
@@ -75,21 +93,19 @@ bool He3eta_gg_::ForwardTrackProcessing(WTrack&& track,TVector3 &&p_beam){
 		&&(EDep(static_right(track),kFRH1)>0.08)
 		&&(EDep(static_right(track),kFRH1)<0.23)
 	){
-		double Ek=0;
 		log<<"stopping plane index condition passed";
-		if(ReconstructEkin(static_right(track),Ek)){
+		for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
+			EDepFilteredHist[i]->Fill(EDep(static_right(track),i+1),EDep(static_right(track),i));
+		double Ek,th,phi;
+		if(
+			He3_Ekin.Reconstruct(Ek,static_right(track))&&
+			He3_theta.Reconstruct(th,static_right(track))&&
+			He3_phi.Reconstruct(phi,static_right(track))
+		){
 			log<<"reconstruction successful";
-			for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
-				EDepFilteredHist[i]->Fill(EDep(static_right(track),i+1),EDep(static_right(track),i));
 			double p=sqrt(Ek*(Ek+2*m_3He));
-			double theta=track.Theta();
-			double phi=track.Phi();
-			double magnetic_field=10;//kG
-			//ToDo: obtain magnetic field
-			phi+= TrackFinderFD->GetPhiCorrection(p,theta,magnetic_field,c_He);
-			CheckParticleTrack(kHe3,Ek,theta,phi);
 			TVector3 p_He3;
-			p_He3.SetMagThetaPhi(p,theta,phi);
+			p_He3.SetMagThetaPhi(p,th,phi);
 			TLorentzVector P_He3;
 			P_He3.SetVectM(p_He3,m_3He);
 			TLorentzVector P_Total;{
@@ -113,7 +129,7 @@ bool He3eta_gg_::ForwardTrackProcessing(WTrack&& track,TVector3 &&p_beam){
 				}
 				MissingMassDetailed[index]->Fill(missingmass);
 			}
-		}Log(LogWarning)<<"Could not reconstruct energy";
+		}
 	}
 	return true;
 }

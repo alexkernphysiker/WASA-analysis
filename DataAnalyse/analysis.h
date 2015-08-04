@@ -40,8 +40,7 @@ protected:
 	virtual bool EventProcessingCondition()=0;
 	virtual double PBeam()=0;
 	virtual double EventWeight()=0;
-	virtual void PrepareCheck()=0;
-	virtual void CheckParticleTrack(ParticleType type,double Ekin,double theta, double phi)=0;
+	virtual bool GetTrueParameters(ParticleType type,double&Ekin,double&theta,double&phi)=0;
 
 	virtual bool EventPreProcessing(TVector3 &&pbeam)=0;
 	virtual void EventPostProcessing(TVector3 &&pbeam)=0;
@@ -56,8 +55,6 @@ protected:
 	CCardWDET *fDetectorTable;
 	vector<pair<ParticleType,double>> first_particles;
 	vector<pair<ParticleType,double>> final_particles;
-private:
-	bool checkprepared;
 };
 template <class datatype,class reaction>
 class CustomAnalysis:public virtual datatype,public virtual reaction{
@@ -74,11 +71,8 @@ protected:
 	virtual double EventWeight()override{
 		return datatype::EventWeight();
 	}
-	virtual void PrepareCheck()override{
-		datatype::PrepareCheck();
-	}
-	virtual void CheckParticleTrack(ParticleType type,double Ekin,double theta, double phi)override{
-		datatype::CheckParticleTrack(type,Ekin,theta,phi);
+	virtual bool GetTrueParameters(ParticleType type,double&Ekin,double&theta,double&phi){
+		return GetTrueParameters(type,Ekin,theta,phi);
 	}
 	virtual bool EventPreProcessing(TVector3 &&pbeam)override{
 		return reaction::EventPreProcessing(static_cast<TVector3&&>(pbeam));

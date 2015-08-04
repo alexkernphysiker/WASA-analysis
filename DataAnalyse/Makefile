@@ -1,6 +1,6 @@
 BASEDIR = $(ROOTSORTERSYS)/core
 TARGET   = main
-MODULES  =  analysiswrap log analysis montecarlo data detectors he3eta
+MODULES  =  analysiswrap log analysis reconstruction montecarlo data detectors he3eta
 DICTMODULES = analysiswrap
 
 CPPFLAGS := `$(BASEDIR)/bin/sorter-config -cpp` -g  

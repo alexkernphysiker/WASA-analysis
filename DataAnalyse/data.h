@@ -12,8 +12,7 @@ protected:
 	virtual bool EventProcessingCondition()override;
 	virtual double PBeam()override;
 	virtual double EventWeight()override;
-	virtual void PrepareCheck()override;
-	virtual void CheckParticleTrack(ParticleType type,double Ekin,double theta, double phi)override;
+	virtual bool GetTrueParameters(ParticleType type,double&Ekin,double&theta,double&phi)override;
 private:
 	REventHeader *fHeader;
 	LinearInterpolation<double> p_beam;

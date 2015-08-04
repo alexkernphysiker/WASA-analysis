@@ -1,6 +1,7 @@
 // this file is distributed under 
 // GPL v 3.0 license
 #include "montecarlo.h"
+#include "../General/phys_constants.h"
 MonteCarlo::MonteCarlo():Analysis(){
 	AddLogSubprefix("MonteCarlo");
 	WTrackFinder *MCTrf = dynamic_cast<WTrackFinder*>(gDataManager->GetAnalysisModule("MCTrackFinder","default"));
@@ -46,46 +47,21 @@ double MonteCarlo::PBeam(){
 	if(res<=0)Log()<<"B_beam<=0";
 	return res;
 }
-MonteCarlo::CheckHists::CheckHists(ParticleType t){
-	type=t;
-	Ekin=new TH1F(Form("Check_E_%i",int(t)),"",500,-0.1,0.1);
-	Theta=new TH1F(Form("Check_Theta_%i",int(t)),"",500,-1,1);
-	Phi=new TH1F(Form("Check_Phi_%i",int(t)),"",500,-1,1);
-}
-void MonteCarlo::PrepareCheck(){
-	for(auto P:final_particles){
-		Log(LogDebug)<<"Adding histogram";
-		CheckHists h(P.first);
-		check.push_back(h);
-		gHistoManager->Add(h.Ekin,"Reconstruction");
-		gHistoManager->Add(h.Theta,"Reconstruction");
-		gHistoManager->Add(h.Phi,"Reconstruction");
-	}
-}
-void MonteCarlo::CheckParticleTrack(ParticleType type, double Ekin, double theta, double phi){
+bool MonteCarlo::GetTrueParameters(ParticleType type,double&Ekin,double&theta,double&phi){
 	const double two_pi=2*3.1415926;
-	while(phi<0)phi+=two_pi;
-	while(phi>=two_pi)phi-=two_pi;
 	WVertexIter iterator(fMCVertexBank);
 	int NrVertex=0;
-	for(CheckHists H:check)
-		if(H.type==type)
-			while(WVertex *vertex=dynamic_cast<WVertex*>(iterator.Next())){
-				NrVertex++;
-				if(NrVertex==2)
-					for(int particleindex=0; particleindex<vertex->NumberOfParticles(); particleindex++){
-						WParticle *particle=vertex->GetParticle(particleindex);
-						auto ptype=particle->GetType();
-						if(type==ptype){
-							double p_ekin=particle->GetEkin();
-							double p_theta=particle->GetTheta();
-							double p_phi=particle->GetPhi();
-							while(p_phi<0)p_phi+=two_pi;
-							while(p_phi>=two_pi)p_phi-=two_pi;
-							H.Ekin->Fill(Ekin-p_ekin);
-							H.Theta->Fill(theta-p_theta);
-							H.Phi->Fill(phi-p_phi);
-						}
-					}
+	while(WVertex *vertex=dynamic_cast<WVertex*>(iterator.Next())){
+		NrVertex++;
+		if(NrVertex==2)
+			for(int particleindex=0; particleindex<vertex->NumberOfParticles(); particleindex++){
+				WParticle *particle=vertex->GetParticle(particleindex);
+				auto ptype=particle->GetType();
+				if(type==ptype){
+					Ekin=particle->GetEkin();
+					theta=particle->GetTheta();
+					phi=NormPhi(particle->GetPhi());
+				}
 			}
+	}
 }

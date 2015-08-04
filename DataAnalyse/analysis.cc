@@ -7,7 +7,6 @@ using namespace std;
 IAnalysis::~IAnalysis(){}
 Analysis::Analysis(){
 	AddLogSubprefix("Analysis");
-	checkprepared=false;
 	TrackFinderFD = dynamic_cast<FDFTHTracks*>(gDataManager->GetAnalysisModule("FDFTHTracks","default"));
 	if(TrackFinderFD!=0) fTrackBankFD = TrackFinderFD->GetTrackBank();
 	CDTrackFinder = dynamic_cast<CDTracksSimple*>(gDataManager->GetAnalysisModule("CDTracksSimple","default"));
@@ -18,10 +17,6 @@ Analysis::~Analysis(){}
 typedef pair<WTrackBank*,function<bool(WTrack&&,TVector3)>> DetectorToProcess;
 void Analysis::ProcessEvent(){
 	SubLog log=Log(LogDebug);
-	if(!checkprepared){
-		PrepareCheck();
-		checkprepared=true;
-	}
 	if (EventProcessingCondition()){
 		log<<"event passed the condition";
 		double beam_momenta=PBeam();
