@@ -33,6 +33,7 @@ smear.txt
 *.root
 *Dict*
 main
+*.simulation.txt
 
 # Compiled Object files
 *.slo
