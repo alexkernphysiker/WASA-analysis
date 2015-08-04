@@ -7,7 +7,7 @@ const string nameprefix="../Reconstruction";
 InterpolationBasedReconstruction::InterpolationBasedReconstruction(string name,delegate measured,delegate theory){
 	AddLogSubprefix("InterpolationBasedReconstruction");
 	m_name=name;
-	AddLogSubprefix("name");
+	AddLogSubprefix(m_name);
 	Experiment=measured;
 	Theory=theory;
 	ifstream file;
@@ -24,11 +24,12 @@ InterpolationBasedReconstruction::InterpolationBasedReconstruction(string name,d
 	}else{
 		data_present=false;
 	}
-	if(!data_present)Log(LogDebug)<<"no input data. Simulation mode";
+	if(!data_present)Log(NoLog)<<"no input data. Running in simulation mode";
+	else Log(NoLog)<<"Input data foung. Running in reconstruction mode";
 }
 InterpolationBasedReconstruction::~InterpolationBasedReconstruction(){
 	if(!data_present){
-		Log(LogDebug)<<"saving simulation data";
+		Log(NoLog)<<"Saving simulation data";
 		ofstream file;
 		file.open((nameprefix+m_name+".simulation.txt").c_str());
 		if(file.is_open()){
@@ -46,7 +47,7 @@ bool InterpolationBasedReconstruction::Reconstruct(double& calculated,WTrack&&tr
 			calculated=data(Experiment(static_cast<WTrack&&>(track)));
 			return true;
 		}catch(exception){
-			Log(LogWarning)<<"error during reconstruction. Possibly the measured value is out of range.";
+			Log(LogWarning)<<"Possibly the measured value is out of range.";
 			return false;
 		}
 	}else{

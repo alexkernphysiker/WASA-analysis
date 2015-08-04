@@ -29,13 +29,11 @@ int ForwardDetectors::ForwardPlaneIndex(ForwardDetectorPlane plane){
 ForwardDetectorPlane ForwardDetectors::ForwadrPlane(int index){
 	if((index>=0)&&(index<int(PlaneData.size())))
 		return PlaneData[index].plane;
-	Log()<<"forward plane by index not found";
 	return kForwardError;
 }
 string ForwardDetectors::ForwardPlaneName(int index){
 	if((index>=0)&&(index<int(PlaneData.size())))
 		return PlaneData[index].name;
-	Log()<<"forward plane by index not found";
 	return "<NoPlane>";
 }
 string ForwardDetectors::ForwardPlaneName(ForwardDetectorPlane plane){

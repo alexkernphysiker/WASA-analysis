@@ -5,30 +5,16 @@
 #include "../General/phys_constants.h"
 using namespace std;
 He3eta_gg_::He3eta_gg_():Analysis(),
-He3_Ekin("He3.E",[this](WTrack&&track){
-	return EDep(static_right(track),kFRH1);
-},[this](WTrack&&track){
-	double e,t,p;
-	if(GetTrueParameters(kHe3,e,t,p)){
-		return e;
-	}else{Log(LogError)<<"No reconstruction data.";throw;}
-}),
-He3_theta("He3.th",[this](WTrack&&track){
-	return track.Theta();
-},[this](WTrack&&track){
-	double e,t,p;
-	if(GetTrueParameters(kHe3,e,t,p)){
-		return t;
-	}else{Log(LogError)<<"No reconstruction data.";throw;}
-}),
-He3_phi("He3.phi",[this](WTrack&&track){
-	return NormPhi(track.Phi());
-},[this](WTrack&&track){
-	double e,t,p;
-	if(GetTrueParameters(kHe3,e,t,p)){
-		return p;
-	}else{Log(LogError)<<"No reconstruction data.";throw;}
-}){
+He3_Ekin("He3.E",
+		 [this](WTrack&&track){return EDep(static_right(track),kFRH1);},
+		 [this](WTrack&&track){double e,t,p;GetTrueParameters(kHe3,e,t,p);return e;}),
+He3_theta("He3.th",
+		  [this](WTrack&&track){return track.Theta();},
+		  [this](WTrack&&track){double e,t,p;GetTrueParameters(kHe3,e,t,p);return t;}),
+He3_phi("He3.phi",
+		[this](WTrack&&track){return NormPhi(track.Phi());},
+		[this](WTrack&&track){double e,t,p;GetTrueParameters(kHe3,e,t,p);return p;})
+{
 	AddLogSubprefix("He3eta_gg_");
 	SubLog log=Log(LogDebug);
 	first_particles.push_back(make_pair(kHe3,m_3He));
