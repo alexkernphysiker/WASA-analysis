@@ -6,6 +6,7 @@
 using namespace std;
 IAnalysis::~IAnalysis(){}
 Analysis::Analysis(){
+	m_count=0;
 	AddLogSubprefix("Analysis");
 	TrackFinderFD = dynamic_cast<FDFTHTracks*>(gDataManager->GetAnalysisModule("FDFTHTracks","default"));
 	if(TrackFinderFD!=0) fTrackBankFD = TrackFinderFD->GetTrackBank();
@@ -16,6 +17,9 @@ Analysis::Analysis(){
 Analysis::~Analysis(){}
 typedef pair<WTrackBank*,function<bool(WTrack&&,TVector3)>> DetectorToProcess;
 void Analysis::ProcessEvent(){
+	m_count++;
+	if(m_count%10000==0)
+		Log(NoLog)<<to_string(m_count)+" events";
 	SubLog log=Log(LogDebug);
 	if (EventProcessingCondition()){
 		log<<"event passed the condition";

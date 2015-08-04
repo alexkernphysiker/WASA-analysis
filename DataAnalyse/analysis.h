@@ -55,6 +55,8 @@ protected:
 	CCardWDET *fDetectorTable;
 	vector<pair<ParticleType,double>> first_particles;
 	vector<pair<ParticleType,double>> final_particles;
+private:
+	unsigned long m_count;
 };
 template <class datatype,class reaction>
 class CustomAnalysis:public virtual datatype,public virtual reaction{
