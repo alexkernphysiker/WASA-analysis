@@ -48,7 +48,6 @@ double MonteCarlo::PBeam(){
 	return res;
 }
 bool MonteCarlo::GetTrueParameters(ParticleType type,double&Ekin,double&theta,double&phi){
-	const double two_pi=2*3.1415926;
 	WVertexIter iterator(fMCVertexBank);
 	int NrVertex=0;
 	while(WVertex *vertex=dynamic_cast<WVertex*>(iterator.Next())){
