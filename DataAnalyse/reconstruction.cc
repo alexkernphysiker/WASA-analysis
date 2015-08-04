@@ -25,7 +25,7 @@ InterpolationBasedReconstruction::InterpolationBasedReconstruction(string name,d
 		data_present=false;
 	}
 	if(!data_present)Log(NoLog)<<"no input data. Running in simulation mode";
-	else Log(NoLog)<<"Input data foung. Running in reconstruction mode";
+	else Log(NoLog)<<"Input data found. Running in reconstruction mode";
 }
 InterpolationBasedReconstruction::~InterpolationBasedReconstruction(){
 	if(!data_present){
