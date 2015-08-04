@@ -61,7 +61,9 @@ bool MonteCarlo::GetTrueParameters(ParticleType type,double&Ekin,double&theta,do
 					Ekin=particle->GetEkin();
 					theta=particle->GetTheta();
 					phi=NormPhi(particle->GetPhi());
+					return true;
 				}
 			}
 	}
+	return false;
 }

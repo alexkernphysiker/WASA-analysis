@@ -3,7 +3,7 @@
 #include <fstream>
 #include "reconstruction.h"
 using namespace std;
-const string nameprefix="../Reconstruction";
+const string nameprefix="../Reconstruction/";
 InterpolationBasedReconstruction::InterpolationBasedReconstruction(string name,delegate measured,delegate theory){
 	AddLogSubprefix("InterpolationBasedReconstruction");
 	m_name=name;
