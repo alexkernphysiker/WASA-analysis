@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
 project(runfit)
-add_definitions(-DUSE_RANDOM_DEVICE)
 set(libs FitGen Core Hist RIO Tree Physics)
 set(common gethist.cpp)
 add_subdirectory(FitGen)
