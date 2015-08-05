@@ -49,12 +49,10 @@ double MonteCarlo::PBeam(){
 }
 bool MonteCarlo::GetTrueParameters(ParticleType type,double&Ekin,double&theta,double&phi){
 	WVertexIter iterator(fMCVertexBank);
-	int NrVertex=0;
-	while(WVertex *vertex=dynamic_cast<WVertex*>(iterator.Next())){
-		NrVertex++;
-		if(NrVertex==2)
-			for(int particleindex=0,N=vertex->NumberOfParticles();particleindex<N;particleindex++){
-				WParticle *particle=vertex->GetParticle(particleindex);
+	if(WVertex *vertex1=dynamic_cast<WVertex*>(iterator.Next()))
+		if(WVertex *vertex2=dynamic_cast<WVertex*>(iterator.Next()))
+			for(int particleindex=0,N=vertex1->NumberOfParticles();particleindex<N;particleindex++){
+				WParticle *particle=vertex1->GetParticle(particleindex);
 				auto ptype=particle->GetType();
 				if(type==ptype){
 					Ekin=particle->GetEkin();
@@ -63,7 +61,6 @@ bool MonteCarlo::GetTrueParameters(ParticleType type,double&Ekin,double&theta,do
 					return true;
 				}
 			}
-	}
 	Log(LogError)<<"cannot obtain true particle parameters";
 	return false;
 }
