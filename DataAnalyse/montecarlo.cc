@@ -53,16 +53,17 @@ bool MonteCarlo::GetTrueParameters(ParticleType type,double&Ekin,double&theta,do
 	while(WVertex *vertex=dynamic_cast<WVertex*>(iterator.Next())){
 		NrVertex++;
 		if(NrVertex==2)
-			for(int particleindex=0; particleindex<vertex->NumberOfParticles(); particleindex++){
+			for(int particleindex=0,N=vertex->NumberOfParticles();particleindex<N;particleindex++){
 				WParticle *particle=vertex->GetParticle(particleindex);
-				auto ptype=particle->GetType();
+				ParticleType ptype=particle->GetType();
 				if(type==ptype){
 					Ekin=particle->GetEkin();
 					theta=particle->GetTheta();
-					phi=NormPhi(particle->GetPhi());
+					phi=particle->GetPhi();
 					return true;
 				}
 			}
 	}
+	Log(LogError)<<"cannot obtain true particle parameters";
 	return false;
 }
