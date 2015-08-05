@@ -22,7 +22,7 @@ private:
 	std::string m_name;
 	bool data_present;
 	LinearInterpolation<double> data;
-	TH2F* output;
+	std::vector<std::pair<double,double>> out;
 	delegate Experiment,Theory;
 };
 #endif 

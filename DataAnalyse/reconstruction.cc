@@ -26,13 +26,21 @@ InterpolationBasedReconstruction::InterpolationBasedReconstruction(
 	}else{
 		data_present=false;
 	}
-	if(!data_present){
-		Log(NoLog)<<"no input data. Running in simulation mode";
-		output=new TH2F(name.c_str(),"",bins,from,to,bins,from,to);
-		gHistoManager->Add(output,"Reconstruction");
-	}else Log(NoLog)<<"Input data found. Running in reconstruction mode";
+	if(!data_present)Log(NoLog)<<"no input data. Running in simulation mode";
+	else Log(NoLog)<<"Input data found. Running in reconstruction mode";
 }
-InterpolationBasedReconstruction::~InterpolationBasedReconstruction(){}
+InterpolationBasedReconstruction::~InterpolationBasedReconstruction(){
+	if(!data_present){
+		Log(NoLog)<<"saving simulation data";
+		ofstream file;
+		file.open((rec_name_prefix+m_name+".simulation.txt").c_str());
+		if(file.is_open()){
+			for(auto&p:out)
+				file<<p.first<<" "<<p.second<<"\n";
+			file.close();
+		}
+	}
+}
 bool InterpolationBasedReconstruction::Reconstruct(double& calculated,WTrack&&track){
 	if(data_present){
 		try{
@@ -43,7 +51,7 @@ bool InterpolationBasedReconstruction::Reconstruct(double& calculated,WTrack&&tr
 			return false;
 		}
 	}else{
-		output->Fill(Experiment(static_cast<WTrack&&>(track)),Theory(static_cast<WTrack&&>(track)));
+		out.push_back(make_pair(Experiment(static_cast<WTrack&&>(track)),Theory(static_cast<WTrack&&>(track)));
 		return false;
 	}
 }
