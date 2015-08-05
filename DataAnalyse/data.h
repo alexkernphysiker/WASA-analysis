@@ -9,10 +9,8 @@ public:
 	RealData();
 	virtual ~RealData();
 protected:
+    virtual void PrepairForEventAnalysis()override;
 	virtual bool EventProcessingCondition()override;
-	virtual double PBeam()override;
-	virtual double EventWeight()override;
-	virtual bool GetTrueParameters(ParticleType type,double&Ekin,double&theta,double&phi)override;
 private:
 	REventHeader *fHeader;
 	LinearInterpolation<double> p_beam;

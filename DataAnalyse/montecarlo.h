@@ -8,10 +8,8 @@ public:
 	MonteCarlo();
 	virtual ~MonteCarlo();
 protected:
+	virtual void PrepairForEventAnalysis()override;
 	virtual bool EventProcessingCondition()override;
-	virtual double PBeam()override;
-	virtual double EventWeight()override;
-	virtual bool GetTrueParameters(ParticleType type,double&Ekin,double&theta,double&phi)override;
 private:
 	WTrackBank *fMCTrackBank;
 	WVertexBank *fMCVertexBank;

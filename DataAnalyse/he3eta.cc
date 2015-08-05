@@ -6,23 +6,22 @@
 using namespace std;
 He3eta_gg_::He3eta_gg_():Analysis(),
 He3_Ekin("He3.E",
-		 [this](WTrack&&track){return EDep(static_right(track),kFRH1);},
-		 [this](WTrack&&track){return cache_theoretical_e;}
+		[this](WTrack&&track){return EDep(static_right(track),kFRH1);},
+		[this](WTrack&&track){return FromFirstVertex(kHe3).E;}
 	),
 He3_theta("He3.th",
-		  [this](WTrack&&track){return track.Theta();},
-		  [this](WTrack&&track){return cache_theoretical_th;}
+		[this](WTrack&&track){return track.Theta();},
+		[this](WTrack&&track){return FromFirstVertex(kHe3).Th;}
 	),
 He3_phi("He3.phi",
 		[this](WTrack&&track){return NormPhi(track.Phi());},
-		[this](WTrack&&track){return cache_theoretical_phi;}
+		[this](WTrack&&track){return FromFirstVertex(kHe3).Phi;}
 	)
 {
 	AddLogSubprefix("He3eta_gg_");
 	SubLog log=Log(LogDebug);
-	first_particles.push_back(make_pair(kHe3,m_3He));
-	first_particles.push_back(make_pair(kEta,m_eta));
-	final_particles.push_back(make_pair(kHe3,m_3He));
+	AddParticleToFirstVertex(kHe3,m_3He);
+	AddParticleToFirstVertex(kEta,m_eta);
 	for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++){
 		string histname=ForwardPlaneName(i)+"_vs_"+ForwardPlaneName(i+1);
 		TH2F* hist;
@@ -61,8 +60,8 @@ He3_phi("He3.phi",
 #undef missingmassparam
 }
 He3eta_gg_::~He3eta_gg_(){}
-bool He3eta_gg_::EventPreProcessing(TVector3 &&pbeam){
-	P_Beam->Fill(pbeam.Mag());
+bool He3eta_gg_::EventPreProcessing(){
+	P_Beam->Fill(PBeam());
 	return true;
 }
 bool He3eta_gg_::TrackCountTrigger(int CinC,int NinC,int CinF){
@@ -71,7 +70,7 @@ bool He3eta_gg_::TrackCountTrigger(int CinC,int NinC,int CinF){
 bool He3eta_gg_::CentralFirst(){
 	return false;
 }
-bool He3eta_gg_::ForwardTrackProcessing(WTrack&& track,TVector3 &&p_beam){
+bool He3eta_gg_::ForwardTrackProcessing(WTrack&& track){
 	SubLog log=Log(LogDebug);
 	for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
 		EDepHist[i]->Fill(EDep(static_right(track),i+1),EDep(static_right(track),i));
@@ -86,7 +85,6 @@ bool He3eta_gg_::ForwardTrackProcessing(WTrack&& track,TVector3 &&p_beam){
 		for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
 			EDepFilteredHist[i]->Fill(EDep(static_right(track),i+1),EDep(static_right(track),i));
 		double Ek,th,phi;
-		GetTrueParameters(kHe3,cache_theoretical_e,cache_theoretical_th,cache_theoretical_phi);
 		bool c1=He3_Ekin.Reconstruct(Ek,static_right(track)),
 			c2=He3_theta.Reconstruct(th,static_right(track)),
 			c3=He3_phi.Reconstruct(phi,static_right(track));
@@ -98,6 +96,8 @@ bool He3eta_gg_::ForwardTrackProcessing(WTrack&& track,TVector3 &&p_beam){
 			TLorentzVector P_He3;
 			P_He3.SetVectM(p_He3,m_3He);
 			TLorentzVector P_Total;{
+				TVector3 p_beam;
+				p_beam.SetMagThetaPhi(PBeam(),0,0);
 				TLorentzVector P_Beam;
 				TLorentzVector P_Target;
 				P_Beam.SetVectM(p_beam,m_p);
@@ -109,11 +109,11 @@ bool He3eta_gg_::ForwardTrackProcessing(WTrack&& track,TVector3 &&p_beam){
 			TLorentzVector P_Missing=P_Total-P_He3;
 			double missingmass=P_Missing.M();
 			MissingMass->Fill(missingmass);
-			DependenceOnPBeam->Fill(p_beam.Mag());
+			DependenceOnPBeam->Fill(PBeam());
 			{int index=0;
 				for(int i=1,N=P_Beam->GetNbinsX();(i<=N)&&(index==0);i++){
 					double min=P_Beam->GetBinLowEdge(i);
-					if((p_beam.Mag()>=min)&&(p_beam.Mag()<(min+P_Beam->GetBinWidth(i))))
+					if((PBeam()>=min)&&(PBeam()<(min+P_Beam->GetBinWidth(i))))
 						index=i;
 				}
 				MissingMassDetailed[index]->Fill(missingmass);
@@ -122,7 +122,7 @@ bool He3eta_gg_::ForwardTrackProcessing(WTrack&& track,TVector3 &&p_beam){
 	}
 	return true;
 }
-bool He3eta_gg_::CentralTrackProcessing(WTrack&& track,TVector3 &&pbeam){
+bool He3eta_gg_::CentralTrackProcessing(WTrack&& track){
 	return true;
 }
-void He3eta_gg_::EventPostProcessing(TVector3 &&pbeam){}
+void He3eta_gg_::EventPostProcessing(){}

@@ -10,18 +10,17 @@ public:
 	He3eta_gg_();
 	virtual ~He3eta_gg_();
 protected:
-	virtual bool EventPreProcessing(TVector3 &&pbeam)override;
-	virtual void EventPostProcessing(TVector3 &&pbeam)override;
+	virtual bool EventPreProcessing()override;
+	virtual void EventPostProcessing()override;
 	virtual bool TrackCountTrigger(int CinC,int NinC,int CinF)override;
 	virtual bool CentralFirst()override;
-	virtual bool ForwardTrackProcessing(WTrack&&track,TVector3&&pbeam)override;
-	virtual bool CentralTrackProcessing(WTrack&&track,TVector3&&pbeam)override;
+	virtual bool ForwardTrackProcessing(WTrack&&track)override;
+	virtual bool CentralTrackProcessing(WTrack&&track)override;
 private:
 	InterpolationBasedReconstruction He3_Ekin,He3_theta,He3_phi;
 	vector<TH2F*> EDepHist;
 	vector<TH2F*> EDepFilteredHist;
 	vector<TH1F*> MissingMassDetailed;
 	TH1F *MissingMass,*DependenceOnPBeam,*P_Beam;
-	double cache_theoretical_e,cache_theoretical_th,cache_theoretical_phi;
 };
 #endif

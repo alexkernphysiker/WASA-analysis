@@ -13,35 +13,63 @@ Analysis::Analysis(){
 	CDTrackFinder = dynamic_cast<CDTracksSimple*>(gDataManager->GetAnalysisModule("CDTracksSimple","default"));
 	if (CDTrackFinder!=0) fTrackBankCD = CDTrackFinder->GetTrackBank();
 	fDetectorTable = dynamic_cast<CCardWDET*>(gParameterManager->GetParameterObject("CCardWDET","default")); 
+	p_beam_cache=INFINITY;
 }
 Analysis::~Analysis(){}
-typedef pair<WTrackBank*,function<bool(WTrack&&,TVector3)>> DetectorToProcess;
+Analysis::Kinematic::Kinematic(){
+	E=INFINITY;Th=INFINITY;Phi=INFINITY;
+}
+Analysis::particle_info::particle_info(ParticleType t, double m){
+	type=t;mass=m;
+}
+void Analysis::AddParticleToFirstVertex(ParticleType type, double mass){
+	first_vertex.push_back(particle_info(type,mass));
+}
+double Analysis::PBeam(){return p_beam_cache;}
+void Analysis::CachePBeam(double value){
+	if(value>0)
+		p_beam_cache=value;
+	else
+		throw exception();
+}
+Analysis::Kinematic& Analysis::FromFirstVertex(ParticleType type){
+	for(particle_info&info:first_vertex)
+		if(info.type==type)
+			return info.cache;
+	throw exception();
+}
+void Analysis::ForFirstVertex(function<void(ParticleType,double,Kinematic&)> cyclebody){
+	for(particle_info&info:first_vertex)
+		cyclebody(info.type,info.mass,info.cache);
+}
+
+typedef pair<WTrackBank*,function<bool(WTrack&&)>> DetectorToProcess;
 void Analysis::ProcessEvent(){
 	m_count++;
 	if(m_count%1000==0)
 		Log(NoLog)<<to_string(m_count)+" events";
 	SubLog log=Log(LogDebug);
+	log<<"event preparing started";
+	PrepairForEventAnalysis();
+	log<<"event preparing finished";
 	if (EventProcessingCondition()){
 		log<<"event passed the condition";
-		double beam_momenta=PBeam();
-		if(beam_momenta>0){
+		if(p_beam_cache>0){
 			log<<"p_beam>0";
-			TVector3 p_beam;
-			p_beam.SetMagThetaPhi(beam_momenta,0,0);
-			if(EventPreProcessing(static_right(p_beam))){
+			if(EventPreProcessing()){
 				log<<"preprocessing returned true. go further";
 				int ChargedCountInCentral = fTrackBankCD->GetEntries(kCDC);
 				int NeutralCountInCentral = fTrackBankCD->GetEntries(kCDN);
 				int ChargedCountinForward = fTrackBankFD->GetEntries(kFDC);
 				if(TrackCountTrigger(ChargedCountInCentral,NeutralCountInCentral,ChargedCountinForward)){
 					log<<"Track count conditions passed";
-					DetectorToProcess CENTRAL=make_pair(fTrackBankCD,[this,&log](WTrack&& t,TVector3&& p){
+					DetectorToProcess CENTRAL=make_pair(fTrackBankCD,[this,&log](WTrack&& t){
 						log<<"CENTRAL tracks processing";
-						return CentralTrackProcessing(static_right(t),static_right(p));
+						return CentralTrackProcessing(static_right(t));
 					});
-					DetectorToProcess FORWARD=make_pair(fTrackBankFD,[this,&log](WTrack&& t,TVector3&& p){
+					DetectorToProcess FORWARD=make_pair(fTrackBankFD,[this,&log](WTrack&& t){
 						log<<"FORWARD tracks processing";
-						return ForwardTrackProcessing(static_right(t),static_right(p));
+						return ForwardTrackProcessing(static_right(t));
 					});
 					vector<DetectorToProcess> QUEUE;
 					if(CentralFirst()){
@@ -54,13 +82,13 @@ void Analysis::ProcessEvent(){
 					for(DetectorToProcess DETECTOR:QUEUE){
 						int NrTracks=DETECTOR.first->GetEntries();
 						for (int trackindex=0; trackindex<NrTracks; trackindex++)
-							if(!DETECTOR.second(static_cast<WTrack&&>(*DETECTOR.first->GetTrack(trackindex)),static_right(p_beam))){
+							if(!DETECTOR.second(static_cast<WTrack&&>(*DETECTOR.first->GetTrack(trackindex)))){
 								log<<"proceccing returned FALSE. Exiting event processing.";
 								return;
 							}
 					}
 					log<<"Event postprocessing";
-					EventPostProcessing(static_right(p_beam));
+					EventPostProcessing();
 				}log<<"Track count conditions NOT passed";
 			}log<<"preprocessing returned false.";
 		}else Log(LogError)<<"p_beam <= 0";

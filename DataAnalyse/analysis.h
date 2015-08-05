@@ -37,25 +37,37 @@ public:
 	virtual ~Analysis();
 	virtual void ProcessEvent()final;
 protected:
+	virtual void PrepairForEventAnalysis()=0;
 	virtual bool EventProcessingCondition()=0;
-	virtual double PBeam()=0;
-	virtual double EventWeight()=0;
-	virtual bool GetTrueParameters(ParticleType type,double&Ekin,double&theta,double&phi)=0;
 
-	virtual bool EventPreProcessing(TVector3 &&pbeam)=0;
-	virtual void EventPostProcessing(TVector3 &&pbeam)=0;
+	virtual bool EventPreProcessing()=0;
+	virtual void EventPostProcessing()=0;
 	virtual bool TrackCountTrigger(int CinC,int NinC,int CinF)=0;
 	virtual bool CentralFirst()=0;
-	virtual bool ForwardTrackProcessing(WTrack &&track,TVector3 &&pbeam)=0;
-	virtual bool CentralTrackProcessing(WTrack &&track,TVector3 &&pbeam)=0;
+	virtual bool ForwardTrackProcessing(WTrack &&track)=0;
+	virtual bool CentralTrackProcessing(WTrack &&track)=0;
 
 	FDFTHTracks* TrackFinderFD;
 	CDTracksSimple* CDTrackFinder;
 	WTrackBank *fTrackBankFD,*fTrackBankCD;
 	CCardWDET *fDetectorTable;
-	vector<pair<ParticleType,double>> first_particles;
-	vector<pair<ParticleType,double>> final_particles;
+	double PBeam();
+	void CachePBeam(double value);
+	void AddParticleToFirstVertex(ParticleType type,double mass);
+	struct Kinematic{
+		Kinematic();
+		double E,Th,Phi;
+	};
+	Kinematic&FromFirstVertex(ParticleType type);
+	void ForFirstVertex(std::function<void(ParticleType,double,Kinematic&)>);
 private:
+	struct particle_info{
+		particle_info(ParticleType type,double mass);
+		ParticleType type;double mass;
+		Kinematic cache;
+	};
+	vector<particle_info> first_vertex;
+	double p_beam_cache;
 	unsigned long m_count;
 };
 template <class datatype,class reaction>
@@ -64,23 +76,18 @@ public:
 	CustomAnalysis():Analysis(),datatype(),reaction(){}
 	virtual ~CustomAnalysis(){}
 protected:
+	virtual void PrepairForEventAnalysis()override{
+		datatype::PrepairForEventAnalysis();
+	}
 	virtual bool EventProcessingCondition()override{
 		return datatype::EventProcessingCondition();
 	}
-	virtual double PBeam()override{
-		return datatype::PBeam();
+	
+	virtual bool EventPreProcessing()override{
+		return reaction::EventPreProcessing();
 	}
-	virtual double EventWeight()override{
-		return datatype::EventWeight();
-	}
-	virtual bool GetTrueParameters(ParticleType type,double&Ekin,double&theta,double&phi){
-		return GetTrueParameters(type,Ekin,theta,phi);
-	}
-	virtual bool EventPreProcessing(TVector3 &&pbeam)override{
-		return reaction::EventPreProcessing(static_cast<TVector3&&>(pbeam));
-	}
-	virtual void EventPostProcessing(TVector3 &&pbeam)override{
-		reaction::EventPostProcessing(static_cast<TVector3&&>(pbeam));
+	virtual void EventPostProcessing()override{
+		reaction::EventPostProcessing();
 	}
 	virtual bool TrackCountTrigger(int CinC,int NinC,int CinF)override{
 		return reaction::TrackCountTrigger(CinC,NinC,CinF);
@@ -88,11 +95,11 @@ protected:
 	virtual bool CentralFirst()override{
 		return reaction::CentralFirst();
 	}
-	virtual bool ForwardTrackProcessing(WTrack &&track,TVector3 &&pbeam)override{
-		return reaction::ForwardTrackProcessing(static_cast<WTrack&&>(track),static_cast<TVector3&&>(pbeam));
+	virtual bool ForwardTrackProcessing(WTrack &&track)override{
+		return reaction::ForwardTrackProcessing(static_cast<WTrack&&>(track));
 	}
-	virtual bool CentralTrackProcessing(WTrack &&track,TVector3 &&pbeam)override{
-		return reaction::CentralTrackProcessing(static_cast<WTrack&&>(track),static_cast<TVector3&&>(pbeam));
+	virtual bool CentralTrackProcessing(WTrack &&track)override{
+		return reaction::CentralTrackProcessing(static_cast<WTrack&&>(track));
 	}
 };
 #endif

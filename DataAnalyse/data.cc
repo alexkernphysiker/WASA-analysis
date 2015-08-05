@@ -26,18 +26,10 @@ RealData::~RealData(){}
 bool RealData::EventProcessingCondition(){
 	return true;
 }
-double RealData::EventWeight(){
-	return 1;
-}
-double RealData::PBeam(){
+void RealData::PrepairForEventAnalysis(){
 	double time=fHeader->GetTimeInCycle();
 	if((time>=p_beam.min())&&(time<=p_beam.max()))
-		return p_beam(time);
-	else{
+		CachePBeam(p_beam(time));
+	else
 		Log()<<"Time in cycle is out of range where beam energy is defined.";
-		return 0;
-	}
-}
-bool RealData::GetTrueParameters(ParticleType type, double& Ekin, double& theta, double& phi){
-	return false;
 }
