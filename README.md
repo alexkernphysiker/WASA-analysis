@@ -11,11 +11,11 @@ General - files that are included from different projects here.
 
 RunPluto - here is a cmake project for the application that runs pluto for simulating reactions analysed here.
 
-DataAnalyse - make project of application that runs data preselection and Monte Carlo data analysis for reactions analysed here.
+Preselection - make project of application that runs data preselection and Monte Carlo data analysis for reactions analysed here.
 
-DataAnalyse-scripts - bash scripts for running preselection.
+wasa-scripts - bash scripts for running preselection.
 
-PostAnalysis - cmake project for applications that run analysis of data after preselection.
+Analysis - cmake project for applications that run analysis of data after preselection.
 
 
 

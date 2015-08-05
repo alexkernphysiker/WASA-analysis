@@ -18,5 +18,6 @@ typedef PlotPoints<double,FuncTbl> PlotTbl;
 #define ParR(x) static_cast<ParamSet&&>(x)
 int main(int,char**){
 #include "env.cc"
-	Plotter::Instance().SetOutput(outpath+"/He3Eta");
+	string simulation=inputpath+"../Reconstruction";
+	Plotter::Instance().SetOutput(outpath+"../Reconstruction");
 }
