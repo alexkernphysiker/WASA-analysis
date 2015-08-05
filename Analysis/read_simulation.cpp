@@ -15,10 +15,10 @@ shared_ptr<FitPoints> ReadWeightedFrom2D(
 	double stepX=(toX-fromX)/double(binsX);
 	double stepY=(toY-fromY)/double(binsY);
 	for(unsigned int i=0;i<binsX;i++){
-		double x=fromX+stepX*double(i);
+		double x=fromX+stepX*(double(i)+0.5);
 		for(unsigned int j=0;j<binsY;j++){
-			double y=fromY+stepY*double(j);
-			p[i][j].X=ParamSet(x);
+			double y=fromY+stepY*(double(j)+0.5);
+			p[i][j].X<<x;
 			p[i][j].y=y;
 			p[i][j].wy=0;
 		}
