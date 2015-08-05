@@ -18,7 +18,7 @@ private:
 	std::string m_name;
 	bool data_present;
 	LinearInterpolation<double> data;
-	ofstream out;
+	std::vector<std::pair<double,double>> out;
 	delegate Experiment,Theory;
 };
 #endif 

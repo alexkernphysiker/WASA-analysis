@@ -24,13 +24,22 @@ InterpolationBasedReconstruction::InterpolationBasedReconstruction(string name,d
 	}else{
 		data_present=false;
 	}
-	if(!data_present){
-		out.open((nameprefix+m_name+".simulation.txt").c_str(),fstream::out|fstream::app);
-		Log(NoLog)<<"no input data. Running in simulation mode";
-	}else Log(NoLog)<<"Input data found. Running in reconstruction mode";
+	if(!data_present)Log(NoLog)<<"no input data. Running in simulation mode";
+	else Log(NoLog)<<"Input data found. Running in reconstruction mode";
 }
 InterpolationBasedReconstruction::~InterpolationBasedReconstruction(){
-	if(!data_present)out.close();
+	if(!data_present){
+		Log(NoLog)<<"Saving simulation data";
+		ofstream file;
+		file.open((nameprefix+m_name+".simulation.txt").c_str());
+		if(file.is_open()){
+			for(auto&p:out)
+				file<<p.first<<" "<<p.second<<"\n";
+			file.close();
+		}else{
+			Log(LogError)<<"cannot write output file.";
+		}
+	}
 }
 bool InterpolationBasedReconstruction::Reconstruct(double& calculated,WTrack&&track){
 	if(data_present){
@@ -42,8 +51,7 @@ bool InterpolationBasedReconstruction::Reconstruct(double& calculated,WTrack&&tr
 			return false;
 		}
 	}else{
-		if(out.is_open())
-			out<<Experiment(static_cast<WTrack&&>(track))<<" "<<Theory(static_cast<WTrack&&>(track))<<"\n";
+		out.push_back(make_pair(Experiment(static_cast<WTrack&&>(track)),Theory(static_cast<WTrack&&>(track))));
 		return false;
 	}
 }
