@@ -4,11 +4,11 @@
 #include "read_simulation.h"
 using namespace std;
 using namespace Genetic;
-shared_ptr< FitPoints > ReadWeightedFrom2D(
+shared_ptr<FitPoints> ReadWeightedFrom2D(
 	string name, 
 	double fromX, double toX, unsigned int binsX, 
 	double fromY, double toY, unsigned int binsY, 
-	function< bool > processing
+	function< bool(double&,double&)> processing
 ){
 	auto res=make_shared<FitPoints>();
 	FitPoints::Point p[binsX][binsY];
