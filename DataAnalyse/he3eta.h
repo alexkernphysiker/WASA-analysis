@@ -22,5 +22,6 @@ private:
 	vector<TH2F*> EDepFilteredHist;
 	vector<TH1F*> MissingMassDetailed;
 	TH1F *MissingMass,*DependenceOnPBeam,*P_Beam;
+	double cache_theoretical_e,cache_theoretical_th,cache_theoretical_phi;
 };
 #endif

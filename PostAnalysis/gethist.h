@@ -28,4 +28,5 @@ private:
 	std::vector<point> data;
 	double norm;
 };
+
 #endif

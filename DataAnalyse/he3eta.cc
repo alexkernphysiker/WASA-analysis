@@ -7,17 +7,17 @@ using namespace std;
 He3eta_gg_::He3eta_gg_():Analysis(),
 He3_Ekin("He3.E",
 		 [this](WTrack&&track){return EDep(static_right(track),kFRH1);},
-		 [this](WTrack&&track){double e,t,p;GetTrueParameters(kHe3,e,t,p);return e;},
+		 [this](WTrack&&track){return cache_theoretical_e;},
 		 0,1,200
 		),
 He3_theta("He3.th",
 		  [this](WTrack&&track){return track.Theta();},
-		  [this](WTrack&&track){double e,t,p;GetTrueParameters(kHe3,e,t,p);return t;},
+		  [this](WTrack&&track){return cache_theoretical_th;},
 		  0,3.1415926,180
  		),
 He3_phi("He3.phi",
 		[this](WTrack&&track){return NormPhi(track.Phi());},
-		[this](WTrack&&track){double e,t,p;GetTrueParameters(kHe3,e,t,p);return p;},
+		[this](WTrack&&track){return cache_theoretical_phi;},
 		0,2*3.1415926,360
    	)
 {
@@ -76,6 +76,7 @@ bool He3eta_gg_::CentralFirst(){
 }
 bool He3eta_gg_::ForwardTrackProcessing(WTrack&& track,TVector3 &&p_beam){
 	SubLog log=Log(LogDebug);
+	GetTrueParameters(kHe3,cache_theoretical_e,cache_theoretical_th,cache_theoretical_phi);
 	for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
 		EDepHist[i]->Fill(EDep(static_right(track),i+1),EDep(static_right(track),i));
 	if(
