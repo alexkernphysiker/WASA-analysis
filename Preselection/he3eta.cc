@@ -80,6 +80,7 @@ bool He3eta_gg_::ForwardTrackProcessing(WTrack&& track){
 		&&(EDep(static_right(track),kFTH1)<0.02)
 		&&(EDep(static_right(track),kFRH1)>0.08)
 		&&(EDep(static_right(track),kFRH1)<0.23)
+		&&((track.Theta()<0.124)||(track.Theta()>0.126))
 	){
 		log<<"stopping plane index condition passed";
 		for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
