@@ -9,8 +9,7 @@
 #include <paramfunc.h>
 #include <filter.h>
 #include <initialconditions.h>
-#include <phys_constants.h>
-#include "gethist.h"
+#include "read_simulation.h"
 using namespace std;
 using namespace Genetic;
 typedef LinearInterpolation<double> FuncTbl;
