@@ -18,7 +18,7 @@ Analysis::~Analysis(){}
 typedef pair<WTrackBank*,function<bool(WTrack&&,TVector3)>> DetectorToProcess;
 void Analysis::ProcessEvent(){
 	m_count++;
-	if(m_count%10000==0)
+	if(m_count%1000==0)
 		Log(NoLog)<<to_string(m_count)+" events";
 	SubLog log=Log(LogDebug);
 	if (EventProcessingCondition()){

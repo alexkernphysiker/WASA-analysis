@@ -4,6 +4,7 @@
 #define DAIHADDG
 #include <string>
 #include <vector>
+#include <fit.h>
 class hist{
 public:
 	struct point{
@@ -28,5 +29,5 @@ private:
 	std::vector<point> data;
 	double norm;
 };
-
+std::shared_ptr<Genetic::FitPoints> From2Dhist(std::string filename,std::vector<std::string>&&path,std::string histname);
 #endif

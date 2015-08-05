@@ -4,11 +4,13 @@
 #include <TObject.h>
 #include <TH1F.h>
 #include <TH1.h>
+#include <TH2F.h>
 #include <TFile.h>
 #include <TTree.h>
 #include <TDirectoryFile.h>
 #include "gethist.h"
 using namespace std;
+using namespace Genetic;
 hist::hist(){}
 hist::hist(string filename,vector<string>&&path,string histname){
 	TFile* file=TFile::Open(filename.c_str());
@@ -81,5 +83,24 @@ hist::const_iterator hist::cend() const{
 	return data.cend();
 }
 
+shared_ptr< Genetic::FitPoints > From2Dhist(string filename, vector< string >&& path, string histname){
+	TFile* file=TFile::Open(filename.c_str());
+	if(file){
+		TDirectoryFile* dir1=file;
+		for(string name:path){
+			TDirectoryFile* dir2=dynamic_cast<TDirectoryFile*>(dir1->Get(name.c_str()));
+			if(dir2)
+				dir1=dir2;
+		}
+		TH2F* histogram=dynamic_cast<TH2F*>(dir1->Get(histname.c_str()));
+		if(histogram){
+			for(int x=1,Nx=histogram->GetNbinsX();x<=Nx;x++)
+				for(int y=1,Ny=histogram->GetNbinsY();y<Ny;y++){
+					
+				}
+		}else
+			throw exception();
+	}
+}
 
 
