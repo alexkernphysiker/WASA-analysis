@@ -4,8 +4,7 @@
 #include "reconstruction.h"
 using namespace std;
 InterpolationBasedReconstruction::InterpolationBasedReconstruction(
-	std::string name,delegate measured,delegate theory,
-	double from,double to, int bins
+	std::string name,delegate measured,delegate theory
 ){
 	AddLogSubprefix("InterpolationBasedReconstruction");
 	m_name=name;

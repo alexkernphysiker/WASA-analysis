@@ -7,19 +7,16 @@ using namespace std;
 He3eta_gg_::He3eta_gg_():Analysis(),
 He3_Ekin("He3.E",
 		 [this](WTrack&&track){return EDep(static_right(track),kFRH1);},
-		 [this](WTrack&&track){return cache_theoretical_e;},
-		 0,1,200
-		),
+		 [this](WTrack&&track){return cache_theoretical_e;}
+	),
 He3_theta("He3.th",
 		  [this](WTrack&&track){return track.Theta();},
-		  [this](WTrack&&track){return cache_theoretical_th;},
-		  0,3.1415926,180
- 		),
+		  [this](WTrack&&track){return cache_theoretical_th;}
+	),
 He3_phi("He3.phi",
 		[this](WTrack&&track){return NormPhi(track.Phi());},
-		[this](WTrack&&track){return cache_theoretical_phi;},
-		0,2*3.1415926,360
-   	)
+		[this](WTrack&&track){return cache_theoretical_phi;}
+	)
 {
 	AddLogSubprefix("He3eta_gg_");
 	SubLog log=Log(LogDebug);
@@ -76,7 +73,6 @@ bool He3eta_gg_::CentralFirst(){
 }
 bool He3eta_gg_::ForwardTrackProcessing(WTrack&& track,TVector3 &&p_beam){
 	SubLog log=Log(LogDebug);
-	GetTrueParameters(kHe3,cache_theoretical_e,cache_theoretical_th,cache_theoretical_phi);
 	for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
 		EDepHist[i]->Fill(EDep(static_right(track),i+1),EDep(static_right(track),i));
 	if(
@@ -90,11 +86,11 @@ bool He3eta_gg_::ForwardTrackProcessing(WTrack&& track,TVector3 &&p_beam){
 		for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
 			EDepFilteredHist[i]->Fill(EDep(static_right(track),i+1),EDep(static_right(track),i));
 		double Ek,th,phi;
-		if(
-			He3_Ekin.Reconstruct(Ek,static_right(track))&&
-			He3_theta.Reconstruct(th,static_right(track))&&
-			He3_phi.Reconstruct(phi,static_right(track))
-		){
+		GetTrueParameters(kHe3,cache_theoretical_e,cache_theoretical_th,cache_theoretical_phi);
+		bool c1=He3_Ekin.Reconstruct(Ek,static_right(track)),
+			c2=He3_theta.Reconstruct(th,static_right(track)),
+			c3=He3_phi.Reconstruct(phi,static_right(track));
+		if(c1&&c2&&c3){
 			log<<"reconstruction successful";
 			double p=sqrt(Ek*(Ek+2*m_3He));
 			TVector3 p_He3;
