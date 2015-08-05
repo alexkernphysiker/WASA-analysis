@@ -69,7 +69,7 @@ bool He3eta_gg_::EventPreProcessing(TVector3 &&pbeam){
 	return true;
 }
 bool He3eta_gg_::TrackCountTrigger(int CinC,int NinC,int CinF){
-	return true;
+	return CinF>0;
 }
 bool He3eta_gg_::CentralFirst(){
 	return false;
