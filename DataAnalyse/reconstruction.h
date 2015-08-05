@@ -13,12 +13,12 @@ public:
 	typedef std::function<double(WTrack&&)> delegate;
 	InterpolationBasedReconstruction(std::string name,delegate measured,delegate theory);
 	virtual ~InterpolationBasedReconstruction();
-	bool Reconstruct(double& calculated,WTrack&&track);
+	bool Reconstruct(double&calculated,WTrack&&track);
 private:
 	std::string m_name;
 	bool data_present;
 	LinearInterpolation<double> data;
+	std::vector<std::pair<double,double>> out;
 	delegate Experiment,Theory;
 };
-
 #endif 

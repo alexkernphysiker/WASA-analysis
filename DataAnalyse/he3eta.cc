@@ -82,7 +82,7 @@ bool He3eta_gg_::ForwardTrackProcessing(WTrack&& track,TVector3 &&p_beam){
 		log<<"stopping plane index condition passed";
 		for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
 			EDepFilteredHist[i]->Fill(EDep(static_right(track),i+1),EDep(static_right(track),i));
-		/*double Ek,th,phi;
+		double Ek,th,phi;
 		if(
 			He3_Ekin.Reconstruct(Ek,static_right(track))&&
 			He3_theta.Reconstruct(th,static_right(track))&&
@@ -115,7 +115,7 @@ bool He3eta_gg_::ForwardTrackProcessing(WTrack&& track,TVector3 &&p_beam){
 				}
 				MissingMassDetailed[index]->Fill(missingmass);
 			}
-		}*/
+		}
 	}
 	return true;
 }

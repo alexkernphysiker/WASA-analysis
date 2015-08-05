@@ -33,7 +33,7 @@ InterpolationBasedReconstruction::~InterpolationBasedReconstruction(){
 		ofstream file;
 		file.open((nameprefix+m_name+".simulation.txt").c_str());
 		if(file.is_open()){
-			for(auto&p:data)
+			for(auto&p:out)
 				file<<p.first<<" "<<p.second<<"\n";
 			file.close();
 		}else{
@@ -51,7 +51,7 @@ bool InterpolationBasedReconstruction::Reconstruct(double& calculated,WTrack&&tr
 			return false;
 		}
 	}else{
-		data<<make_pair(Experiment(static_cast<WTrack&&>(track)),Theory(static_cast<WTrack&&>(track)));
+		out.push_back(make_pair(Experiment(static_cast<WTrack&&>(track)),Theory(static_cast<WTrack&&>(track))));
 		return false;
 	}
 }
