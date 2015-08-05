@@ -1,7 +1,0 @@
-cmake_minimum_required(VERSION 2.6)
-project(runfit)
-add_subdirectory(FitGen)
-include_directories(FitGen ../General)
-set(CMAKE_CXX_FLAGS "-pthread -std=gnu++11")
-add_executable(fitpolynom fitpolynom.cpp )
-target_link_libraries(fitpolynom FitGen)

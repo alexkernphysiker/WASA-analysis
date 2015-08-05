@@ -10,8 +10,13 @@
 #include <filter.h>
 #include <initialconditions.h>
 #include <phys_constants.h>
+#include "gethist.h"
 using namespace std;
 using namespace Genetic;
+typedef LinearInterpolation<double> FuncTbl;
+typedef PlotPoints<double,FuncTbl> PlotTbl;
+#define ParR(x) static_cast<ParamSet&&>(x)
 int main(int,char**){
-	auto points=make_shared<FitPoints>();
+#include "env.cc"
+	Plotter::Instance().SetOutput(outpath+"/He3Eta");
 }

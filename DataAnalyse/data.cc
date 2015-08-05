@@ -3,12 +3,13 @@
 #include <fstream>
 #include <exception>
 #include "data.h"
+#include "reconstruction.h"
 using namespace std;
 RealData::RealData(){
 	AddLogSubprefix("Real data analysis");
 	fHeader = dynamic_cast<REventHeader*>(gDataManager->GetDataObject("REventHeader","Header"));
 	ifstream file;
-	file.open("TIME_IN_CYCLE_MAY2014.dat");
+	file.open((rec_name_prefix+"TIME_IN_CYCLE.txt").c_str());
 	if(file.is_open()){
 		while(!file.eof()){
 			double time,p;

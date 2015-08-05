@@ -3,15 +3,17 @@
 #include <fstream>
 #include "reconstruction.h"
 using namespace std;
-const string nameprefix="../Reconstruction/";
-InterpolationBasedReconstruction::InterpolationBasedReconstruction(string name,delegate measured,delegate theory){
+InterpolationBasedReconstruction::InterpolationBasedReconstruction(
+	std::string name,delegate measured,delegate theory,
+	double from,double to, int bins
+){
 	AddLogSubprefix("InterpolationBasedReconstruction");
 	m_name=name;
 	AddLogSubprefix(m_name);
 	Experiment=measured;
 	Theory=theory;
 	ifstream file;
-	file.open((nameprefix+name+".calibration.txt").c_str());
+	file.open((rec_name_prefix+name+".calibration.txt").c_str());
 	if(file.is_open()){
 		Log(LogDebug)<<"reading input data";
 		while(!file.eof()){
@@ -24,23 +26,13 @@ InterpolationBasedReconstruction::InterpolationBasedReconstruction(string name,d
 	}else{
 		data_present=false;
 	}
-	if(!data_present)Log(NoLog)<<"no input data. Running in simulation mode";
-	else Log(NoLog)<<"Input data found. Running in reconstruction mode";
-}
-InterpolationBasedReconstruction::~InterpolationBasedReconstruction(){
 	if(!data_present){
-		Log(NoLog)<<"Saving simulation data";
-		ofstream file;
-		file.open((nameprefix+m_name+".simulation.txt").c_str());
-		if(file.is_open()){
-			for(auto&p:out)
-				file<<p.first<<" "<<p.second<<"\n";
-			file.close();
-		}else{
-			Log(LogError)<<"cannot write output file.";
-		}
-	}
+		Log(NoLog)<<"no input data. Running in simulation mode";
+		output=new TH2F(name.c_str(),"",bins,from,to,bins,from,to);
+		gHistoManager->Add(output,"Reconstruction");
+	}else Log(NoLog)<<"Input data found. Running in reconstruction mode";
 }
+InterpolationBasedReconstruction::~InterpolationBasedReconstruction(){}
 bool InterpolationBasedReconstruction::Reconstruct(double& calculated,WTrack&&track){
 	if(data_present){
 		try{
@@ -51,7 +43,7 @@ bool InterpolationBasedReconstruction::Reconstruct(double& calculated,WTrack&&tr
 			return false;
 		}
 	}else{
-		out.push_back(make_pair(Experiment(static_cast<WTrack&&>(track)),Theory(static_cast<WTrack&&>(track))));
+		output->Fill(Experiment(static_cast<WTrack&&>(track)),Theory(static_cast<WTrack&&>(track)));
 		return false;
 	}
 }

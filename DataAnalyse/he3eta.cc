@@ -7,13 +7,19 @@ using namespace std;
 He3eta_gg_::He3eta_gg_():Analysis(),
 He3_Ekin("He3.E",
 		 [this](WTrack&&track){return EDep(static_right(track),kFRH1);},
-		 [this](WTrack&&track){double e,t,p;GetTrueParameters(kHe3,e,t,p);return e;}),
+		 [this](WTrack&&track){double e,t,p;GetTrueParameters(kHe3,e,t,p);return e;},
+		 0,1,200
+		),
 He3_theta("He3.th",
 		  [this](WTrack&&track){return track.Theta();},
-		  [this](WTrack&&track){double e,t,p;GetTrueParameters(kHe3,e,t,p);return t;}),
+		  [this](WTrack&&track){double e,t,p;GetTrueParameters(kHe3,e,t,p);return t;},
+		  0,3.1415926,180
+ 		),
 He3_phi("He3.phi",
 		[this](WTrack&&track){return NormPhi(track.Phi());},
-		[this](WTrack&&track){double e,t,p;GetTrueParameters(kHe3,e,t,p);return p;})
+		[this](WTrack&&track){double e,t,p;GetTrueParameters(kHe3,e,t,p);return p;},
+		0,2*3.1415926,360
+   	)
 {
 	AddLogSubprefix("He3eta_gg_");
 	SubLog log=Log(LogDebug);
