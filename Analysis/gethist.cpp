@@ -48,10 +48,12 @@ hist::hist(bool from_data, string reaction, vector< string >&& path, string hist
 		#include "runs.cc"
 		for(string runsuffix:runsuffixes){
 			hist tmp(inputpath+"/Data"+reaction+runsuffix+".root",static_right(path),histname);
-			if(data.size()==0)
-				operator=(tmp);
-			else
-				operator+=(tmp);
+			if(tmp.data.size()>0){
+				if(data.size()==0)
+					operator=(tmp);
+				else
+					imbibe(tmp);
+			}
 		}
 	}
 }
@@ -71,6 +73,16 @@ int hist::count(){
 }
 double hist::Entries(){
 	return norm;
+}
+hist& hist::imbibe(hist& second){
+	for(int i=0,n=count();i<n;i++){
+		if(data[i].x==second.data[i].x){
+			data[i].y+=second.data[i].y;
+			data[i].dy=sqrt(data[i].y);
+		}else
+			throw exception();
+	}
+	return *this;
 }
 hist& hist::operator+=(hist& second){
 	for(int i=0,n=count();i<n;i++){

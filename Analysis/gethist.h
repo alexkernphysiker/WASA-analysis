@@ -18,6 +18,7 @@ public:
 	hist &operator=(const hist& source);
 	virtual ~hist();
 	double Entries();
+	hist &imbibe(hist& second);
 	hist &operator+=(hist& second);
 	point &operator[](int i);
 	int count();
