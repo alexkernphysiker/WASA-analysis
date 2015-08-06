@@ -38,6 +38,23 @@ hist::hist(string filename,vector<string>&&path,string histname){
 		}
 	}
 }
+hist::hist(bool from_data, string reaction, vector< string >&& path, string histname){
+	#include "env.cc"
+	if(!from_data){
+		hist tmp(inputpath+"/MC"+reaction+".root",static_right(path),histname);
+		operator=(tmp);
+	}else{
+		data.clear();
+		#include "runs.cc"
+		for(string runsuffix:runsuffixes){
+			hist tmp(inputpath+"/Data"+reaction+runsuffix+".root",static_right(path),histname);
+			if(data.size()==0)
+				operator=(tmp);
+			else
+				operator+=(tmp);
+		}
+	}
+}
 hist::hist(const hist& source){
 	data.clear();
 	for(point p: source.data)
@@ -57,13 +74,11 @@ double hist::Entries(){
 }
 hist& hist::operator+=(hist& second){
 	for(int i=0,n=count();i<n;i++){
-		point p1=data[i];
-		point p2=second.data[i];
-		if(p1.x==p2.x){
-			p1.y+=p2.y;
-			p1.dy+=p2.dy;
+		if(data[i].x==second.data[i].x){
+			data[i].y+=second.data[i].y;
+			data[i].dy+=second.data[i].dy;
 		}else
-			throw;
+			throw exception();
 	}
 	return *this;
 }

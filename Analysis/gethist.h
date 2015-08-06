@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <fit.h>
+#define static_right(A) (static_cast<decltype(A)&&>(A))
 class hist{
 public:
 	struct point{
@@ -12,6 +13,7 @@ public:
 	};
 	hist();
 	hist(std::string filename,std::vector<std::string>&&path,std::string histname);
+	hist(bool data,std::string reaction,std::vector<std::string>&&path,std::string histname);
 	hist(const hist& source);
 	hist &operator=(const hist& source);
 	virtual ~hist();
@@ -30,4 +32,10 @@ private:
 	double norm;
 };
 std::shared_ptr<Genetic::FitPoints> From2Dhist(std::string filename,std::vector<std::string>&&path,std::string histname);
+inline std::shared_ptr<Genetic::FitPoints> operator<<(std::shared_ptr<Genetic::FitPoints> dest,hist::point&&source){
+	Genetic::FitPoints::Point p;
+	p.X<<source.x;p.WX<<source.dx;
+	p.y=source.y;p.wy=source.dy;
+	return dest<<p;
+}
 #endif
