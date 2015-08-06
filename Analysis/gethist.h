@@ -31,7 +31,11 @@ private:
 	std::vector<point> data;
 	double norm;
 };
-std::shared_ptr<Genetic::FitPoints> From2Dhist(std::string filename,std::vector<std::string>&&path,std::string histname);
+class PlotHist:public Plot<double>{
+public:
+    PlotHist();
+	PlotHist&Hist(std::string name,hist&&data);
+};
 inline std::shared_ptr<Genetic::FitPoints> operator<<(std::shared_ptr<Genetic::FitPoints> dest,hist::point&&source){
 	Genetic::FitPoints::Point p;
 	p.X<<source.x;p.WX<<source.dx;

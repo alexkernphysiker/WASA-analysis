@@ -97,25 +97,11 @@ hist::iterator hist::end(){
 hist::const_iterator hist::cend() const{
 	return data.cend();
 }
-
-shared_ptr< Genetic::FitPoints > From2Dhist(string filename, vector< string >&& path, string histname){
-	TFile* file=TFile::Open(filename.c_str());
-	if(file){
-		TDirectoryFile* dir1=file;
-		for(string name:path){
-			TDirectoryFile* dir2=dynamic_cast<TDirectoryFile*>(dir1->Get(name.c_str()));
-			if(dir2)
-				dir1=dir2;
-		}
-		TH2F* histogram=dynamic_cast<TH2F*>(dir1->Get(histname.c_str()));
-		if(histogram){
-			for(int x=1,Nx=histogram->GetNbinsX();x<=Nx;x++)
-				for(int y=1,Ny=histogram->GetNbinsY();y<Ny;y++){
-					
-				}
-		}else
-			throw exception();
-	}
+PlotHist::PlotHist():Plot<double>(){}
+PlotHist& PlotHist::Hist(string name, hist&& data){
+	Plot<double>::OutputPlot(name,[&data](std::ofstream&str){
+		for(hist::point p:data)str<<p.x<<" "<<p.y<<" "<<p.dx<<" "<<p.dy<<"\n";
+	},"using 1:2:($1-$3):($1+$3):($2-$4):($2+$4) with xyerrorbars");
+	return *this;
 }
-
 

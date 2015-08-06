@@ -20,5 +20,5 @@ include_directories(
 )
 link_directories($ENV{PLUTOSYS} $ENV{ROOTSYS}/lib)
 set(CMAKE_CXX_FLAGS "-std=gnu++11")
-add_executable(runmc runmc.cpp)
+add_executable(runmc runmc.cpp math_h/gnuplot/gnuplot.cpp)
 target_link_libraries(runmc Pluto Core Gui GQt Gpad Hist RIO Proof TreePlayer EG m dl Physics)

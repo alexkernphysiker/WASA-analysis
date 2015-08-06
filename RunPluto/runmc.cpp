@@ -7,7 +7,7 @@
 #include <PBeamSmearing.h>
 #include <PReaction.h>
 #include <phys_constants.h>
-#include <replace.cc>
+#include "math_h/gnuplot/gnuplot.h"
 using namespace std;
 int main(int, char **){
 	string outpath;{
