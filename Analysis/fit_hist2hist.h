@@ -17,8 +17,31 @@ private:
 };
 template<class GENETIC>
 class FitHist:public virtual GENETIC{
+private:
+	std::shared_ptr<hist> DATA,MC;
+	Hist2Hist::bg_func BG;
 public:
 	FitHist(std::shared_ptr<hist>data,std::shared_ptr<hist>mc,Hist2Hist::bg_func background)
-		:Genetic::AbstractGenetic(std::make_shared<Hist2Hist>(data,mc,background)),GENETIC(){}
+		:Genetic::AbstractGenetic(std::make_shared<Hist2Hist>(data,mc,background)),GENETIC(){
+			DATA=data;MC=mc;BG=background;
+	}
+	LinearInterpolation<double> GetForeground(){
+		LinearInterpolation<double> res;
+		for(hist::point&p:*MC)
+			res<<std::make_pair(p.x,p.y*Genetic::AbstractGenetic::Parameters()[0]);
+		return res;
+	}
+	LinearInterpolation<double> GetBackground(){
+		LinearInterpolation<double> res;
+		for(hist::point&p:*MC)
+			res<<std::make_pair(p.x,BG(p.x,Genetic::AbstractGenetic::Parameters()));
+		return res;
+	}
+	LinearInterpolation<double> GetFitFunction(){
+		LinearInterpolation<double> res;
+		for(hist::point&p:*MC)
+			res<<std::make_pair(p.x,p.y*Genetic::AbstractGenetic::Parameters()[0]+BG(p.x,Genetic::AbstractGenetic::Parameters()));
+		return res;
+	}
 };
 #endif 

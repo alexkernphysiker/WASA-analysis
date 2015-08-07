@@ -116,4 +116,10 @@ PlotHist& PlotHist::Hist(string name, hist&& data){
 	},"using 1:2:($1-$3):($1+$3):($2-$4):($2+$4) with xyerrorbars");
 	return *this;
 }
+PlotHist& PlotHist::Hist(string name, shared_ptr< hist > data){
+	Plot<double>::OutputPlot(name,[&data](std::ofstream&str){
+		for(hist::point p:*data)str<<p.x<<" "<<p.y<<" "<<p.dx<<" "<<p.dy<<"\n";
+	},"using 1:2:($1-$3):($1+$3):($2-$4):($2+$4) with xyerrorbars");
+	return *this;
+}
 

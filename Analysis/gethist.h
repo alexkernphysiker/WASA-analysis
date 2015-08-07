@@ -36,6 +36,7 @@ class PlotHist:public Plot<double>{
 public:
     PlotHist();
 	PlotHist&Hist(std::string name,hist&&data);
+	PlotHist&Hist(std::string name,std::shared_ptr<hist>data);
 };
 inline std::shared_ptr<Genetic::FitPoints> operator<<(std::shared_ptr<Genetic::FitPoints> dest,hist::point&&source){
 	Genetic::FitPoints::Point p;
