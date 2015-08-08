@@ -13,7 +13,7 @@ using namespace std;
 int main(int,char**){
 	#include "env.cc"
 	size_t n=2;
-	double P[]={1.426,1.635};
+	double P[]={p_beam_low,p_beam_hi};
 	for(size_t i=0;i<n;i++){
 		TVector3 p_beam;
 		p_beam.SetMagThetaPhi(P[i],0,0);

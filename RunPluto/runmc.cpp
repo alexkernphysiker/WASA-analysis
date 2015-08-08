@@ -21,23 +21,22 @@ int main(int, char **){
 	chdir(outpath.c_str());
 	std::default_random_engine gen;
 	std::uniform_int_distribution<int> d(1,254);
-	PUtils::SetSeed(d(gen));
-	PBeamSmearing *smear = new PBeamSmearing("beam_smear", "Beam smearing");
-	smear->SetReaction("p+d");
-	smear->SetMomentumFunction(new TF1("Uniform","1",p_he3_eta_threshold,p_beam_hi));
-	makeDistributionManager()->Add(smear);
-	list<string> reactlist;
-	reactlist.push_back("He3 eta [g g]");
-	reactlist.push_back("He3 eta [pi0 pi0 pi0]");
-	reactlist.push_back("p p p pi-");
-	reactlist.push_back("d p pi0");
-	reactlist.push_back("p p n pi0");
+	list<pair<string,double>> reactlist;
+	reactlist.push_back(make_pair("He3 eta [g g]",p_he3_eta_threshold));
+	reactlist.push_back(make_pair("He3 pi0 pi0",p_beam_low));
+	reactlist.push_back(make_pair("He3 pi0 pi0 pi0",p_beam_low));
 	for(auto react:reactlist){
+		PUtils::SetSeed(d(gen));
+		PBeamSmearing *smear = new PBeamSmearing("beam_smear", "Beam smearing");
+		smear->SetReaction("p+d");
+		smear->SetMomentumFunction(new TF1("Uniform","1",react.second,p_beam_hi));
+		makeDistributionManager()->Add(smear);
 		PReaction my_reaction(p_beam_hi,"p","d",
-			const_cast<char*>(react.c_str()),
-			const_cast<char*>(ReplaceAll(ReplaceAll(ReplaceAll(react," ",""),"[","_"),"]","_").c_str())
+			const_cast<char*>(react.first.c_str()),
+			const_cast<char*>(ReplaceAll(ReplaceAll(ReplaceAll(react.first," ",""),"[","_"),"]","_").c_str())
 		,1,0,0,0);
 		my_reaction.Loop(1000000);
+		delete smear;
 	}
 	chdir(old.c_str());
 	return 0;
