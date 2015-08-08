@@ -79,6 +79,7 @@ hist& hist::imbibe(hist& second){
 		if(data[i].x==second.data[i].x){
 			data[i].y+=second.data[i].y;
 			data[i].dy=sqrt(data[i].y);
+			if(data[i].dy<1)data[i].dy=1;
 		}else
 			throw exception();
 	}
