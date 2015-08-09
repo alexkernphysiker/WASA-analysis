@@ -1,7 +1,9 @@
 // this file is distributed under 
 // GPL v 3.0 license
 #include "he3eta.h"
-He3eta_gg_::He3eta_gg_(){}
+He3eta_gg_::He3eta_gg_(){
+	AddLogSubprefix("He3eta_gg_");
+}
 He3eta_gg_::~He3eta_gg_(){}
 bool He3eta_gg_::Cuts(WTrack&& track){
 	return true

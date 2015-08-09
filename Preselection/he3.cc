@@ -17,7 +17,7 @@ He3_phi("He3.phi",
 	[this](WTrack&&track){return NormPhi(track.Phi());},
 	[this](WTrack&&track){return FromFirstVertex(kHe3).Phi;}
 ){
-	AddLogSubprefix("He3eta_gg_");
+	AddLogSubprefix("He3");
 	SubLog log=Log(LogDebug);
 	AddParticleToFirstVertex(kHe3,m_3He);
 	AddParticleToFirstVertex(kEta,m_eta);
