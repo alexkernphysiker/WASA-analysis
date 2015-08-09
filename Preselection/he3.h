@@ -5,13 +5,11 @@
 #include "analysis.h"
 #include "detectors.h"
 #include "reconstruction.h"
-class He3_production:public virtual Analysis,public ForwardDetectors{
+class He3_at_FRH1:public virtual Analysis,public ForwardDetectors{
 public:
-	He3_production();
-	virtual ~He3_production();
+	He3_at_FRH1();
+	virtual ~He3_at_FRH1();
 protected:
-	virtual bool Cuts(WTrack&&track)=0;
-	virtual bool MissingMassCut(double m)=0;
 	virtual bool EventPreProcessing()override;
 	virtual void EventPostProcessing()override;
 	virtual bool TrackCountTrigger(int CinC,int NinC,int CinF)override;

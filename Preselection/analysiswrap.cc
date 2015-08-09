@@ -7,7 +7,7 @@
 #include "analysiswrap.hh"
 #include "montecarlo.h"
 #include "data.h"
-#include "he3eta.h"
+#include "he3.h"
 using namespace std;
 string type="";
 void SetAnalysisType(string t){
@@ -23,10 +23,10 @@ AnalysisWrap::AnalysisWrap(const char* name): CAnalysisModule(name){
 	Logger::SubLog log=LOG.Log(NoLog);
 	IAnalysis *alg=nullptr;
 	log<<"Analysis type:"<<type;
-	if(type=="MC_He3eta_gg_")
-		alg=new CustomAnalysis<MonteCarlo,He3eta_gg_>();
-	if(type=="Data_He3eta_gg_")
-		alg=new CustomAnalysis<RealData,He3eta_gg_>();
+	if((type=="MC_He3eta")||(type=="MC_He3pi0pi0")||(type=="MC_He3pi0pi0pi0"))
+		alg=new CustomAnalysis<MonteCarlo,He3_at_FRH1>();
+	if(type=="Data_He3eta")
+		alg=new CustomAnalysis<RealData,He3_at_FRH1>();
 	if(alg)
 		m_data=(void*)alg;
 	else{

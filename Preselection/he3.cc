@@ -1,10 +1,10 @@
 // this file is distributed under 
 // GPL v 3.0 license
-#include "he3.hh"
+#include "he3.h"
 #include "detectors.h"
 #include "../General/phys_constants.h"
 using namespace std;
-He3_production::He3_production():Analysis(),
+He3_at_FRH1::He3_at_FRH1():Analysis(),
 He3_Ekin("He3.E",
 	[this](WTrack&&track){return EDep(static_right(track),kFRH1);},
 	[this](WTrack&&track){return FromFirstVertex(kHe3).E;}
@@ -58,33 +58,34 @@ He3_phi("He3.phi",
 	}
 	#undef missingmassparam
 }
-He3_production::~He3_production(){}
-bool He3_production::EventPreProcessing(){
+He3_at_FRH1::~He3_at_FRH1(){}
+bool He3_at_FRH1::EventPreProcessing(){
 	P_Beam->Fill(PBeam());
 	return true;
 }
-bool He3_production::TrackCountTrigger(int CinC,int NinC,int CinF){return CinF>0;}
-bool He3_production::CentralFirst(){return false;}
-bool He3_production::ForwardTrackProcessing(WTrack&& track){
+bool He3_at_FRH1::TrackCountTrigger(int CinC,int NinC,int CinF){return CinF>0;}
+bool He3_at_FRH1::CentralFirst(){return false;}
+bool He3_at_FRH1::ForwardTrackProcessing(WTrack&& track){
 	SubLog log=Log(LogDebug);
 	for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
 		EDepHist[i]->Fill(EDep(static_right(track),i+1),EDep(static_right(track),i));
-	if(true
-		&&(StopPlane(static_right(track))==kFRH1)
-		&&(EDep(static_right(track),kFTH1)>0.011)
-		&&(EDep(static_right(track),kFTH1)<0.027)
-		&&(EDep(static_right(track),kFWC2)>0.006)
+	if(
+		(StopPlane(static_right(track))==kFRH1)
 		&&(EDep(static_right(track),kFWC1)>0.006)
+		&&(EDep(static_right(track),kFWC1)<0.010)
+		&&(EDep(static_right(track),kFWC2)>0.006)
+		&&(EDep(static_right(track),kFWC2)<0.010)
+		&&(EDep(static_right(track),kFTH1)>0.011)
+		&&(EDep(static_right(track),kFTH1)<0.025)
 		&&((track.Theta()<0.1245)||(track.Theta()>0.1255))
-		&&Cuts(static_right(track))
 	){
 		log<<"stopping plane index condition passed";
 		for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
 			EDepFilteredHist[i]->Fill(EDep(static_right(track),i+1),EDep(static_right(track),i));
 		double Ek,th,phi;
 		bool c1=He3_Ekin.Reconstruct(Ek,static_right(track)),
-		c2=He3_theta.Reconstruct(th,static_right(track)),
-		c3=He3_phi.Reconstruct(phi,static_right(track));
+			c2=He3_theta.Reconstruct(th,static_right(track)),
+			c3=He3_phi.Reconstruct(phi,static_right(track));
 		if(c1&&c2&&c3){
 			log<<"reconstruction successful";
 			double p=sqrt(Ek*(Ek+2*m_3He));
@@ -105,21 +106,19 @@ bool He3_production::ForwardTrackProcessing(WTrack&& track){
 			}
 			TLorentzVector P_Missing=P_Total-P_He3;
 			double missingmass=P_Missing.M();
-			if(MissingMassCut(missingmass)){
-				MissingMass->Fill(missingmass);
-				DependenceOnPBeam->Fill(PBeam());
-				{int index=0;
-					for(int i=1,N=P_Beam->GetNbinsX();(i<=N)&&(index==0);i++){
-						double min=P_Beam->GetBinLowEdge(i);
-						if((PBeam()>=min)&&(PBeam()<(min+P_Beam->GetBinWidth(i))))
-							index=i;
-					}
-					MissingMassDetailed[index]->Fill(missingmass);
+			MissingMass->Fill(missingmass);
+			DependenceOnPBeam->Fill(PBeam());
+			{int index=0;
+				for(int i=1,N=P_Beam->GetNbinsX();(i<=N)&&(index==0);i++){
+					double min=P_Beam->GetBinLowEdge(i);
+					if((PBeam()>=min)&&(PBeam()<(min+P_Beam->GetBinWidth(i))))
+						index=i;
 				}
+				MissingMassDetailed[index]->Fill(missingmass);
 			}
 		}
 	}
 	return true;
 }
-bool He3_production::CentralTrackProcessing(WTrack&& track){return true;}
-void He3_production::EventPostProcessing(){}
+bool He3_at_FRH1::CentralTrackProcessing(WTrack&& track){return true;}
+void He3_at_FRH1::EventPostProcessing(){}

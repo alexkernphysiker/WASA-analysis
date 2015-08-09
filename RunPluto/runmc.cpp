@@ -22,7 +22,7 @@ int main(int, char **){
 	std::default_random_engine gen;
 	std::uniform_int_distribution<int> d(1,254);
 	list<pair<string,double>> reactlist;
-	reactlist.push_back(make_pair("He3 eta [g g]",p_he3_eta_threshold));
+	reactlist.push_back(make_pair("He3 eta",p_he3_eta_threshold));
 	reactlist.push_back(make_pair("He3 pi0 pi0",p_beam_low));
 	reactlist.push_back(make_pair("He3 pi0 pi0 pi0",p_beam_low));
 	for(auto react:reactlist){
