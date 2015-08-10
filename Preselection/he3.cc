@@ -71,12 +71,14 @@ bool He3_at_FRH1::ForwardTrackProcessing(WTrack&& track){
 		EDepHist[i]->Fill(EDep(static_right(track),i+1),EDep(static_right(track),i));
 	if(
 		(StopPlane(static_right(track))==kFRH1)
-		&&(EDep(static_right(track),kFWC1)>0.006)
-		&&(EDep(static_right(track),kFWC1)<0.010)
-		&&(EDep(static_right(track),kFWC2)>0.006)
-		&&(EDep(static_right(track),kFWC2)<0.010)
-		&&(EDep(static_right(track),kFTH1)>0.011)
-		&&(EDep(static_right(track),kFTH1)<0.025)
+		&&(EDep(static_right(track),kFWC1)>0.0055)
+		&&(EDep(static_right(track),kFWC1)<0.015)
+		&&(EDep(static_right(track),kFWC2)>0.0055)
+		&&(EDep(static_right(track),kFWC2)<0.015)
+		&&(EDep(static_right(track),kFTH1)>0.009)
+		&&(EDep(static_right(track),kFTH1)<0.030)
+		&&(EDep(static_right(track),kFRH1)>0.05)
+		&&(EDep(static_right(track),kFRH1)<0.30)
 		&&((track.Theta()<0.1245)||(track.Theta()>0.1255))
 	){
 		log<<"stopping plane index condition passed";
