@@ -22,8 +22,8 @@ int main(int,char**){
 #include "env.cc"
 	Plotter::Instance().SetOutput(outpath,"he3eta");
 	vector<string> kin_path={"Histograms","Kinematics"};
-	auto missingmass_mc=make_shared<hist>(false,"He3eta_gg_",static_right(kin_path),"MissingMass1633");
-	auto missingmass_data=make_shared<hist>(true,"He3eta_gg_",static_right(kin_path),"MissingMass1633");
+	auto missingmass_mc=make_shared<hist>(false,"He3eta",static_right(kin_path),"MissingMass1633");
+	auto missingmass_data=make_shared<hist>(true,"He3eta",static_right(kin_path),"MissingMass1633");
 	FitHist<DifferentialMutations<>> fit(missingmass_data,missingmass_mc,bg_polynom);
 	auto init=make_shared<GenerateByGauss>()<<make_pair(0.5,0.5);
 	fit.SetFilter([](ParamSet&&P){return P[0]>0;});
