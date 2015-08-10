@@ -11,6 +11,7 @@
 #include "read_simulation.h"
 using namespace std;
 using namespace Genetic;
+RANDOM engine;
 int main(int,char**){
 #include "env.cc"
 	string simulation=inputpath+"/../Reconstruction/";
@@ -31,10 +32,10 @@ int main(int,char**){
 			FitFunction<DifferentialMutations<>,fnc,SumWeightedSquareDiff> fit(data);
 			auto init=make_shared<GenerateByGauss>()<<make_pair(0,0.1)<<make_pair(1,0.1);
 			while(init->Count()<fnc::ParamCount)init<<make_pair(0,0.01);
-			fit.Init(20*fnc::ParamCount,init);
+			fit.Init(20*fnc::ParamCount,init,engine);
 			printf("Fitting...\n");
 			while(!fit.RelativeOptimalityExitCondition(0.000001)){
-				fit.Iterate();
+				fit.Iterate(engine);
 				printf("%i iterations. %f<=S<=%f               \r",fit.iteration_count(),fit.Optimality(),fit.Optimality(fit.PopulationSize()-1));
 			}
 			printf("\n");
@@ -56,10 +57,10 @@ int main(int,char**){
 			FitFunction<DifferentialMutations<>,fnc,SumWeightedSquareDiff> fit(data);
 			auto init=make_shared<GenerateByGauss>()<<make_pair(0,0.1)<<make_pair(1,0.1);
 			while(init->Count()<fnc::ParamCount)init<<make_pair(0,0.01);
-			fit.Init(20*fnc::ParamCount,init);
+			fit.Init(20*fnc::ParamCount,init,engine);
 			printf("Fitting...\n");
 			while(!fit.RelativeOptimalityExitCondition(0.000001)){
-				fit.Iterate();
+				fit.Iterate(engine);
 				printf("%i iterations. %f<=S<=%f               \r",fit.iteration_count(),fit.Optimality(),fit.Optimality(fit.PopulationSize()-1));
 			}
 			printf("\n");
@@ -81,10 +82,10 @@ int main(int,char**){
 			FitFunction<DifferentialMutations<>,fnc,SumWeightedSquareDiff> fit(data);
 			auto init=make_shared<GenerateByGauss>()<<make_pair(0,0.1)<<make_pair(1,0.1);
 			while(init->Count()<fnc::ParamCount)init<<make_pair(0,0.01);
-			fit.Init(20*fnc::ParamCount,init);
+			fit.Init(20*fnc::ParamCount,init,engine);
 			printf("Fitting...\n");
 			while(!fit.RelativeOptimalityExitCondition(0.000001)){
-				fit.Iterate();
+				fit.Iterate(engine);
 				printf("%i iterations. %f<=S<=%f               \r",fit.iteration_count(),fit.Optimality(),fit.Optimality(fit.PopulationSize()-1));
 			}
 			printf("\n");

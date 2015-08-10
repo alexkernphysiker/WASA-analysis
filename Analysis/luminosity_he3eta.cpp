@@ -13,6 +13,7 @@
 using namespace std;
 using namespace Genetic;
 const size_t bg_power=2;
+RANDOM engine;
 int main(int,char**){
 #include "env.cc"
 	Plotter::Instance().SetOutput(outpath,"he3eta");
@@ -23,9 +24,9 @@ int main(int,char**){
 	auto init=make_shared<GenerateByGauss>()<<make_pair(0.5,0.5);
 	fit.SetFilter([](ParamSet&&P){return P[0]>0;});
 	printf("%i par;\n",init->Count());
-	fit.Init(init->Count()*30,init);
+	fit.Init(init->Count()*30,init,engine);
 	while(!fit.RelativeOptimalityExitCondition(0.000001)){
-		fit.Iterate();
+		fit.Iterate(engine);
 		printf("%i;%f<=S<=%f        \r",fit.iteration_count(),fit.Optimality(),fit.Optimality(fit.PopulationSize()-1));
 	}
 	printf("\n");
