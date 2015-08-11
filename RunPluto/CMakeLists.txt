@@ -19,6 +19,9 @@ include_directories(
 	$ENV{PLUTOSYS}/plugins/w_decays
 )
 link_directories($ENV{PLUTOSYS} $ENV{ROOTSYS}/lib)
+set(libs Pluto Core Gui GQt Gpad Hist RIO Proof TreePlayer EG m dl Physics)
 set(CMAKE_CXX_FLAGS "-std=gnu++11")
-add_executable(runmc runmc.cpp math_h/gnuplot/gnuplot.cpp)
-target_link_libraries(runmc Pluto Core Gui GQt Gpad Hist RIO Proof TreePlayer EG m dl Physics)
+set(commonfiles math_h/gnuplot/gnuplot.cpp)
+#applications
+add_executable(he3 he3_production.cpp ${commonfiles})
+target_link_libraries(he3 ${libs})
