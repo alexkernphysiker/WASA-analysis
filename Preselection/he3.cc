@@ -6,7 +6,12 @@
 using namespace std;
 He3_at_FRH1::He3_at_FRH1():Analysis(),
 He3_Ekin("He3.E",
-	[this](WTrack&&track){return EDep(static_right(track),kFRH1);},
+	[this](WTrack&&track){
+		double res=0;
+		for(int i=0,n=ForwadrPlaneCount();i<(n-1);i++)
+			res+=EDep(static_right(track),i);
+		return res;
+	},
 	[this](WTrack&&track){return FromFirstVertex(kHe3).E;}
 ),
 He3_theta("He3.th",
