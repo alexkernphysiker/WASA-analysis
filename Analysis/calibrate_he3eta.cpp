@@ -23,8 +23,8 @@ int main(int,char**){
 			printf("\nEnergy...\n");
 			auto data=ReadWeightedFrom2D(
 				simulation+"He3.E.simulation.txt",
-				0.08,0.24,50,
-				0.22,0.4,50,
+				0.0,0.5,100,
+				0.0,0.5,100,
 				[](double&,double&){return true;}
 			);
 			printf("%i points with weights\n",data->count());
@@ -48,9 +48,9 @@ int main(int,char**){
 			printf("\ntheta...\n");
 			auto data=ReadWeightedFrom2D(
 				simulation+"He3.th.simulation.txt",
-				0.09,0.135,50,
-				0.07,0.125,50,
-				[](double&x,double&y){return pow(x-y-0.01,2)<0.0005;}
+				0.0,0.2,200,
+				0.0,0.2,200,
+				[](double&x,double&y){return pow(x-y-0.01,2)<0.0003;}
 			);
 			printf("%i points with weights\n",data->count());
 			typedef PolynomFunc<0,0,2> fnc;

@@ -8,7 +8,7 @@ He3_at_FRH1::He3_at_FRH1():Analysis(),
 He3_Ekin("He3.E",
 	[this](WTrack&&track){
 		double res=0;
-		for(int i=0,n=ForwadrPlaneCount();i<(n-1);i++)
+		for(int i=0,n=ForwardPlaneIndex(kFRH1);i<=n;i++)
 			res+=EDep(static_right(track),i);
 		return res;
 	},
