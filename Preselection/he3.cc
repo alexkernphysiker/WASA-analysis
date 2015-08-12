@@ -39,8 +39,10 @@ He3_phi("He3.phi",
 	}
 	P_Beam=new TH1F("AllEventsOnPBeam","",20,p_he3_eta_threshold,p_beam_hi);
 	gHistoManager->Add(P_Beam,"EventsCount");
-	DependenceOnPBeam=new TH1F("FilteredEventsOnPBeam","",20,p_he3_eta_threshold,p_beam_hi);
-	gHistoManager->Add(DependenceOnPBeam,"EventsCount");
+	P_Beam_filtered=new TH1F("FilteredEventsOnPBeam","",20,p_he3_eta_threshold,p_beam_hi);
+	gHistoManager->Add(P_Beam_filtered,"EventsCount");
+	P_Beam_reconstructed=new TH1F("ReconstructedEventsOnPBeam","",20,p_he3_eta_threshold,p_beam_hi);
+	gHistoManager->Add(P_Beam_reconstructed,"EventsCount");
 	#define missingmassparam 400,0.4,0.6
 	MissingMass=new TH1F("MissingMass_all","",missingmassparam);
 	gHistoManager->Add(MissingMass,"Kinematics");

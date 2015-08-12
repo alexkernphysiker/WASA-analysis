@@ -22,13 +22,13 @@ int main(int,char**){
 		{//Energy
 			printf("\nEnergy...\n");
 			auto data=ReadWeightedFrom2D(
-				simulation+"He3.E.simulation.txt",
+				simulation+"He3.E.FTH1nFRH1.simulation.txt",
 				0.0,0.5,100,
 				0.0,0.5,100,
 				[](double&,double&){return true;}
 			);
 			printf("%i points with weights\n",data->count());
-			typedef PolynomFunc<0,0,2> fnc;
+			typedef PolynomFunc<0,0,3> fnc;
 			FitFunction<DifferentialMutations<>,fnc,SumWeightedSquareDiff> fit(data);
 			auto init=make_shared<GenerateByGauss>()<<make_pair(0,0.1)<<make_pair(1,0.1);
 			while(init->Count()<fnc::ParamCount)init<<make_pair(0,0.01);
@@ -39,7 +39,7 @@ int main(int,char**){
 				printf("%i iterations. %f<=S<=%f               \r",fit.iteration_count(),fit.Optimality(),fit.Optimality(fit.PopulationSize()-1));
 			}
 			printf("\n");
-			PlotFit1D<decltype(fit)>().PointsWithoutErrors("points-E",data).Fit("He3.E.calibration",fit,0.0001);
+			PlotFit1D<decltype(fit)>().PointsWithoutErrors("points-E",data).Fit("He3.E.FTH1nFRH1.calibration",fit,0.0001);
 			file<<"Energy\n";
 			for(double p:fit)file<<p<<" ";
 			file<<"\n";

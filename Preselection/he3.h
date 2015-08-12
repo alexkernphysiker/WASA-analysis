@@ -21,7 +21,7 @@ private:
 	vector<TH2F*> EDepHist;
 	vector<TH2F*> EDepFilteredHist;
 	vector<TH1F*> MissingMassDetailed;
-	TH1F *MissingMass,*DependenceOnPBeam,*P_Beam;
+	TH1F *MissingMass,*P_Beam,*P_Beam_filtered,*P_Beam_reconstructed;
 };
 
 #endif 
