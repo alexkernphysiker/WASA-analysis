@@ -82,6 +82,7 @@ bool He3_at_FRH1::ForwardTrackProcessing(WTrack&& track){
 		&&((track.Theta()<0.1245)||(track.Theta()>0.1255))
 	){
 		log<<"stopping plane index condition passed";
+		P_Beam_filtered->Fill(PBeam());
 		for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
 			EDepFilteredHist[i]->Fill(EDep(static_right(track),i+1),EDep(static_right(track),i));
 		double Ek,th,phi;
@@ -109,7 +110,7 @@ bool He3_at_FRH1::ForwardTrackProcessing(WTrack&& track){
 			TLorentzVector P_Missing=P_Total-P_He3;
 			double missingmass=P_Missing.M();
 			MissingMass->Fill(missingmass);
-			DependenceOnPBeam->Fill(PBeam());
+			P_Beam_reconstructed->Fill(PBeam());
 			{int index=0;
 				for(int i=1,N=P_Beam->GetNbinsX();(i<=N)&&(index==0);i++){
 					double min=P_Beam->GetBinLowEdge(i);
