@@ -76,10 +76,10 @@ bool He3_at_FRH1::ForwardTrackProcessing(WTrack&& track){
 		EDepHist[i]->Fill(EDep(static_right(track),i+1),EDep(static_right(track),i));
 	if(
 		(StopPlane(static_right(track))==kFRH1)
-		&&(EDep(static_right(track),kFWC1)>0.0055)
-		&&(EDep(static_right(track),kFWC1)<0.015)
-		&&(EDep(static_right(track),kFWC2)>0.0055)
-		&&(EDep(static_right(track),kFWC2)<0.015)
+		//&&(EDep(static_right(track),kFWC1)>0.0055)
+		//&&(EDep(static_right(track),kFWC1)<0.015)
+		//&&(EDep(static_right(track),kFWC2)>0.0055)
+		//&&(EDep(static_right(track),kFWC2)<0.015)
 		&&(EDep(static_right(track),kFTH1)>0.009)
 		&&(EDep(static_right(track),kFTH1)<0.030)
 		&&(EDep(static_right(track),kFRH1)>0.05)
