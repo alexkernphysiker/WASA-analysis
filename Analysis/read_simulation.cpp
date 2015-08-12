@@ -23,9 +23,10 @@ shared_ptr<FitPoints> ReadWeightedFrom2D(
 			p[i][j].wy=0;
 		}
 	}
-	ifstream file;
+	ifstream file;ofstream out;
 	file.open(name.c_str());
-	if(file.is_open()){
+	out.open((name+".cut.txt").c_str());
+	if(file.is_open()&&out.is_open()){
 		while(!file.eof()){
 			double x,y;
 			file>>x>>y;
@@ -34,6 +35,7 @@ shared_ptr<FitPoints> ReadWeightedFrom2D(
 				int j=int((y-fromY)/stepY);
 				if((i>=0)&&(j>=0)&&(i<binsX)&&(j<binsY))
 					p[i][j].wy+=1.0;
+				out<<x<<" "<<y<<endl;
 			}
 		}
 		file.close();
