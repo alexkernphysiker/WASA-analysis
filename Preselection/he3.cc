@@ -5,12 +5,9 @@
 #include "../General/phys_constants.h"
 using namespace std;
 He3_at_FRH1::He3_at_FRH1():Analysis(),
-He3_Ekin("He3.E",
+He3_Ekin("He3.E.FTH1nFRH1",
 	[this](WTrack&&track){
-		double res=0;
-		for(int i=0,n=ForwardPlaneIndex(kFRH1);i<=n;i++)
-			res+=EDep(static_right(track),i);
-		return res;
+		return EDep(static_right(track),kFRH1)+EDep(static_right(track),kFTH1);
 	},
 	[this](WTrack&&track){return FromFirstVertex(kHe3).E;}
 ),
@@ -76,10 +73,6 @@ bool He3_at_FRH1::ForwardTrackProcessing(WTrack&& track){
 		EDepHist[i]->Fill(EDep(static_right(track),i+1),EDep(static_right(track),i));
 	if(
 		(StopPlane(static_right(track))==kFRH1)
-		//&&(EDep(static_right(track),kFWC1)>0.0055)
-		//&&(EDep(static_right(track),kFWC1)<0.015)
-		//&&(EDep(static_right(track),kFWC2)>0.0055)
-		//&&(EDep(static_right(track),kFWC2)<0.015)
 		&&(EDep(static_right(track),kFTH1)>0.009)
 		&&(EDep(static_right(track),kFTH1)<0.030)
 		&&(EDep(static_right(track),kFRH1)>0.05)
