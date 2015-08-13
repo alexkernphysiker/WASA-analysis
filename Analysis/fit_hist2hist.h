@@ -43,5 +43,16 @@ public:
 			res<<std::make_pair(p.x,p.y*Genetic::AbstractGenetic::Parameters()[0]+BG(p.x,Genetic::AbstractGenetic::Parameters()));
 		return res;
 	}
+protected:
+	virtual void mutations(Genetic::ParamSet &C,Genetic::RANDOM&R)override{
+		double offs=C[1];
+		GENETIC::mutations(C,R);
+		std::uniform_real_distribution<double> Prob(0,1);
+		if(Prob(R)<0.2)
+			offs+=1;
+		if(Prob(R)<0.2)
+			offs-=1;
+		C.Set(1,offs);
+	}
 };
 #endif 

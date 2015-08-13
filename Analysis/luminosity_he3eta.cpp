@@ -12,7 +12,6 @@
 #include "fit_hist2hist.h"
 using namespace std;
 using namespace Genetic;
-const size_t bg_power=2;
 RANDOM engine;
 int main(int,char**){
 #include "env.cc"
@@ -21,11 +20,11 @@ int main(int,char**){
 	auto missingmass_mc=make_shared<hist>(false,"He3eta",static_right(kin_path),"MissingMass1633");
 	auto missingmass_data=make_shared<hist>(true,"He3eta",static_right(kin_path),"MissingMass1633");
 	FitHist<DifferentialMutations<>> fit(missingmass_data,missingmass_mc,[](double x,ParamSet&&P){return 0.0;});
-	auto init=make_shared<GenerateByGauss>()<<make_pair(0.5,0.5);
+	auto init=make_shared<GenerateByGauss>()<<make_pair(0.5,0.5)<<make_pair(0,0);
 	fit.SetFilter([](ParamSet&&P){return P[0]>0;});
 	printf("%i par;\n",init->Count());
-	fit.Init(init->Count()*30,init,engine);
-	while(!fit.RelativeOptimalityExitCondition(0.000001)){
+	fit.Init(init->Count()*60,init,engine);
+	while(!fit.RelativeOptimalityExitCondition(0.0000001)){
 		fit.Iterate(engine);
 		printf("%i;%f<=S<=%f        \r",fit.iteration_count(),fit.Optimality(),fit.Optimality(fit.PopulationSize()-1));
 	}
