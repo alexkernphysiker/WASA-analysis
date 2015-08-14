@@ -2,6 +2,12 @@ for X in `seq 45873 1 46884`
   do
 	if [ -f ${RUNS_DATA}/run_${X} ]
 	then
+		if [ -f $PWD/../Preselection/Data$1_run_${X}.root ]
+		then
+	echo "Data$1_run_${X}.root already exists"
+		else
+			if [ "qstat|wc -l" -lt "50" ]
+			then
      scriptname="run_${X}.sh"
      rm -f ${scriptname}
      echo "#!/bin/bash" >> ${scriptname}
@@ -17,8 +23,18 @@ for X in `seq 45873 1 46884`
      qsub ${scriptname}
      echo "${scriptname} generated and executed"
      sleep 2 
+			fi
+		fi
+	else
+	echo "no file ${RUNS_DATA}/run_${X}"
 	fi
 done
+if [ -f $WMC_DATA/$1.wmc.data ]
+then
+	if [ -f $PWD/../Preselection/MC$1.root ]
+	then
+echo "MC$1.root already exists"
+	else
 scriptname="run_mc.sh"
 rm -f ${scriptname}
 echo "#!/bin/bash" >> ${scriptname}
@@ -32,3 +48,8 @@ echo "rm -f $PWD/${scriptname}" >> ${scriptname}
 chmod u+x ${scriptname}
 qsub ${scriptname}
 echo "${scriptname} generated and executed"
+	fi
+else
+echo "no file $WMC_DATA/$1.wmc.data"
+fi
+
