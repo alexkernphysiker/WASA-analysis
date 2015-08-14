@@ -45,9 +45,8 @@ hist::hist(bool from_data, string reaction, vector< string >&& path, string hist
 		operator=(tmp);
 	}else{
 		data.clear();
-		#include "runs.cc"
-		for(string runsuffix:runsuffixes){
-			hist tmp(inputpath+"/Data"+reaction+runsuffix+".root",static_right(path),histname);
+		for(int runindex=45873;runindex<=46884;runindex++){
+			hist tmp(inputpath+"/Data"+reaction+"_run_"+to_string(runindex)+".root",static_right(path),histname);
 			if(tmp.data.size()>0){
 				if(data.size()==0)
 					operator=(tmp);
