@@ -96,11 +96,41 @@ hist& hist::operator+=(hist& second){
 	}
 	return *this;
 }
+hist& hist::operator*=(hist& second){
+	for(int i=0,n=count();i<n;i++){
+		if(data[i].x==second.data[i].x){
+			auto Y=make_pair(data[i].y,data[i].dy);
+			data[i].y*=second.data[i].y;
+			data[i].dy=Y.second*second.data[i].y+second.data[i].dy*Y.first;
+		}else
+			throw exception();
+	}
+	return *this;
+}
 hist& hist::operator*=(double c){
 	if(c<0)throw exception();
 	for(int i=0,n=count();i<n;i++){
 		data[i].y*=c;
 		data[i].dy*=c;
+	}
+	return *this;
+}
+hist& hist::operator/=(hist& second){
+	for(int i=0,n=count();i<n;i++){
+		if(data[i].x==second.data[i].x){
+			auto Y=make_pair(data[i].y,data[i].dy);
+			data[i].y/=second.data[i].y;
+			data[i].dy=Y.second/second.data[i].y+second.data[i].dy*Y.first/second.data[i].y/second.data[i].y;
+		}else
+			throw exception();
+	}
+	return *this;
+}
+hist& hist::operator/=(double c){
+	if(c<=0)throw exception();
+	for(int i=0,n=count();i<n;i++){
+		data[i].y/=c;
+		data[i].dy/=c;
 	}
 	return *this;
 }

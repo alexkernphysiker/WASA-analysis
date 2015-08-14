@@ -20,7 +20,10 @@ public:
 	double Entries();
 	hist &imbibe(hist& second);
 	hist &operator+=(hist& second);
+	hist &operator*=(hist& second);
 	hist &operator*=(double c);
+	hist &operator/=(hist& second);
+	hist &operator/=(double c);
 	hist &operator<<(size_t c);
 	hist &operator>>(size_t c);
 	point &operator[](int i);
