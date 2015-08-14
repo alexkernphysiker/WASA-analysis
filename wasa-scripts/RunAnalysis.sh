@@ -1,3 +1,8 @@
+if [ `qstat|wc -l` -lt 50 ]
+then
+	echo "your wasa task queue is not empty"
+	exit 1
+fi
 for X in `seq 45873 1 46884`
   do
 	if [ -f ${RUNS_DATA}/run_${X} ]
