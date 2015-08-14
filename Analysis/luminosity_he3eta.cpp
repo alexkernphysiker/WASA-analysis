@@ -13,21 +13,44 @@
 using namespace std;
 using namespace Genetic;
 RANDOM engine;
+void AnalyseMMSpectra(hist::point&BeamMomentaBin,hist&data,vector<hist>&MC){
+	for(auto p:data)if(p.x>=0.5375)BeamMomentaBin.y+=p.y;
+	BeamMomentaBin.dy=sqrt(BeamMomentaBin.y);
+	if(BeamMomentaBin.dy<1)BeamMomentaBin.dy=1;
+}
 int main(int,char**){
 #include "env.cc"
 	Plotter::Instance().SetOutput(outpath,"he3eta");
 	vector<string> kin_path={"Histograms","Kinematics"};
 	vector<string> norm_path={"Histograms","EventsCount"};
 	
-	auto mc_norm=make_shared<hist>(false,"He3eta",static_right(norm_path),"AllEventsOnPBeam");
-	auto mc_filtered=make_shared<hist>(false,"He3eta",static_right(norm_path),"FilteredEventsOnPBeam");
-	auto mc_reconstructed=make_shared<hist>(false,"He3eta",static_right(norm_path),"ReconstructedEventsOnPBeam");
-	PlotHist().Hist("All MC events",mc_norm).Hist("Preselected",mc_filtered).Hist("Reconstructed",mc_reconstructed);
-	
-	auto acceptance=make_shared<hist>(*mc_reconstructed);acceptance->operator/=(*mc_norm);
-	PlotHist().Hist("Acceptance",acceptance);
-	
-	for(hist::point BeamMomentaBin:*acceptance){
-		
+	hist mc_norm(false,"He3eta",static_right(norm_path),"AllEventsOnPBeam"),
+		mc_filtered(false,"He3eta",static_right(norm_path),"FilteredEventsOnPBeam"),
+		acceptance(false,"He3eta",static_right(norm_path),"ReconstructedEventsOnPBeam");
+	PlotHist().Hist("All MC events",static_right(mc_norm))
+		.Hist("Preselected",static_right(mc_filtered))
+		.Hist("Reconstructed",static_right(acceptance));
+	acceptance/=mc_norm;
+	PlotHist().Hist("Acceptance",static_right(acceptance));
+	string missingmass="MissingMass";
+	hist datacount=acceptance.CloneEmptyBins();
+	for(hist::point&BeamMomentaBin:datacount)if(BeamMomentaBin.y>=0.2){
+		string suffix=to_string(int(BeamMomentaBin.x*1000));
+		vector<hist> MC={
+			hist(false,"He3eta",static_right(kin_path),missingmass+suffix),
+			hist(false,"He3pi0pi0",static_right(kin_path),missingmass+suffix),
+			hist(false,"He3pi0pi0pi0",static_right(kin_path),missingmass+suffix)
+		};
+		PlotHist()
+			.Hist(string("MCHe3eta")+suffix,static_cast<hist&&>(MC[0]))
+			.Hist(string("MCHe3pi0ppi0")+suffix,static_cast<hist&&>(MC[1]))
+			.Hist(string("MCHe3pi0pi0pi0")+suffix,static_cast<hist&&>(MC[2]));
+		hist data(true,"He3eta",static_right(kin_path),missingmass+suffix);
+		PlotHist().Hist(string("DataHe3eta")+suffix,static_right(data));
+		AnalyseMMSpectra(BeamMomentaBin,data,MC);
 	}
+	PlotHist eventcnt;
+	eventcnt.Hist("He3eta events in data",static_right(datacount));
+	datacount/=acceptance;
+	eventcnt.Hist("He3eta true events",static_right(datacount));
 }

@@ -16,6 +16,7 @@ public:
 	hist(bool data,std::string reaction,std::vector<std::string>&&path,std::string histname);
 	hist(const hist& source);
 	hist &operator=(const hist& source);
+	hist CloneEmptyBins();
 	virtual ~hist();
 	double Entries();
 	hist &imbibe(hist& second);

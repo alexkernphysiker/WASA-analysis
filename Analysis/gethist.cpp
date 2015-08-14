@@ -62,6 +62,15 @@ hist::hist(const hist& source){
 	for(point p: source.data)
 		data.push_back(p);
 }
+hist hist::CloneEmptyBins(){
+	hist res(*this);
+	for(point p:res){
+		p.y=0;
+		p.dy=1;
+	}
+	return res;
+}
+
 hist& hist::operator=(const hist& source){
 	data.clear();
 	for(point p: source.data)
