@@ -23,6 +23,8 @@ for X in `seq 45873 1 46884`
      qsub ${scriptname}
      echo "${scriptname} generated and executed"
      sleep 2 
+			else
+			echo "Too many jobs"
 			fi
 		fi
 	else
