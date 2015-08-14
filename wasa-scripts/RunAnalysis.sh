@@ -16,8 +16,8 @@ for X in `seq 45873 1 46884`
      chmod u+x ${scriptname}
      qsub ${scriptname}
      echo "${scriptname} generated and executed"
-	fi
      sleep 2 
+	fi
 done
 scriptname="run_mc.sh"
 rm -f ${scriptname}
