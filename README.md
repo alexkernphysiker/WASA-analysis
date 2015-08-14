@@ -36,5 +36,3 @@ RUNS_DATA - path where data from experiment are located
 
 WMC_DATA - path where data from WMC are located. These data are analysed further by preselection algorithm.
 
-RUNS_SEQ - sequence for run numbers analysed by preselection algorithm. Example: `seq 46219 1 46240`
-

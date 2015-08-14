@@ -1,5 +1,7 @@
-for X in ${RUNS_SEQ}
+for X in `seq 45873 1 46884`
   do
+	if [ -f ${RUNS_DATA}/run_${X} ]
+	then
      scriptname="run_${X}.sh"
      rm -f ${scriptname}
      echo "#!/bin/bash" >> ${scriptname}
@@ -14,6 +16,7 @@ for X in ${RUNS_SEQ}
      chmod u+x ${scriptname}
      qsub ${scriptname}
      echo "${scriptname} generated and executed"
+	fi
      sleep 2 
 done
 scriptname="run_mc.sh"
