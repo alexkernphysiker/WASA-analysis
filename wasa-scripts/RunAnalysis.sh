@@ -6,7 +6,7 @@ for X in `seq 45873 1 46884`
 		then
 	echo "Data$1_run_${X}.root already exists"
 		else
-			if [ "qstat|wc -l" -lt "50" ]
+			if [ `qstat|wc -l` -lt 50 ]	
 			then
      scriptname="run_${X}.sh"
      rm -f ${scriptname}
