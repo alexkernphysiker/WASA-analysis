@@ -4,55 +4,37 @@
 #define FOSfxdVj
 #include <functional>
 #include <abstract.h>
+#include <genetic.h>
+#include <fit.h>
 #include "gethist.h"
-class Hist2Hist:public Genetic::IOptimalityFunction{
+template<class GENETIC,class OPTIMALITY,class... ARGS>
+class HistFitWithShift:public virtual GENETIC{
 public:
-	typedef std::function<double(double,Genetic::ParamSet&&)> bg_func;
-	Hist2Hist(std::shared_ptr<hist>data,std::shared_ptr<hist>mc,bg_func background);
-    virtual ~Hist2Hist();
-    virtual double operator()(Genetic::ParamSet&& P)final;
-private:
-	std::shared_ptr<hist> DATA,MC;
-	bg_func BG;
-};
-template<class GENETIC>
-class FitHist:public virtual GENETIC{
-private:
-	std::shared_ptr<hist> DATA,MC;
-	Hist2Hist::bg_func BG;
-public:
-	FitHist(std::shared_ptr<hist>data,std::shared_ptr<hist>mc,Hist2Hist::bg_func background)
-		:Genetic::AbstractGenetic(std::make_shared<Hist2Hist>(data,mc,background)),GENETIC(){
-			DATA=data;MC=mc;BG=background;
-	}
-	LinearInterpolation<double> GetForeground(){
-		LinearInterpolation<double> res;
-		for(hist::point&p:*MC)
-			res<<std::make_pair(p.x,p.y*Genetic::AbstractGenetic::Parameters()[0]);
-		return res;
-	}
-	LinearInterpolation<double> GetBackground(){
-		LinearInterpolation<double> res;
-		for(hist::point&p:*MC)
-			res<<std::make_pair(p.x,BG(p.x,Genetic::AbstractGenetic::Parameters()));
-		return res;
-	}
-	LinearInterpolation<double> GetFitFunction(){
-		LinearInterpolation<double> res;
-		for(hist::point&p:*MC)
-			res<<std::make_pair(p.x,p.y*Genetic::AbstractGenetic::Parameters()[0]+BG(p.x,Genetic::AbstractGenetic::Parameters()));
-		return res;
+	HistFitWithShift(ARGS... args):Genetic::AbstractGenetic(std::make_shared<OPTIMALITY>(args...)),GENETIC(){}
+	virtual ~HistFitWithShift(){}
+	OPTIMALITY&&GetOpt(){
+		return static_cast<OPTIMALITY&&>(*Genetic::AbstractGenetic::OptimalityCalculator());
 	}
 protected:
-	virtual void mutations(Genetic::ParamSet &C,Genetic::RANDOM&R)override{
-		double offs=C[1];
+	virtual void mutations(Genetic::ParamSet&C,Genetic::RANDOM&R)override{
+		double offs=C[0];
 		GENETIC::mutations(C,R);
 		std::uniform_real_distribution<double> Prob(0,1);
 		if(Prob(R)<0.2)
 			offs+=1;
 		if(Prob(R)<0.2)
 			offs-=1;
-		C.Set(1,offs);
+		C.Set(0,offs);
 	}
+};
+class HistToHists:public Genetic::IOptimalityFunction{
+public:
+	HistToHists(std::shared_ptr<hist>data,std::vector<std::shared_ptr<hist>>simulation);
+    virtual ~HistToHists();
+	virtual double operator()(Genetic::ParamSet&&P)override;
+	std::shared_ptr<hist> GetSubHist(size_t i,Genetic::ParamSet&&P);
+private:
+	std::shared_ptr<hist>m_data;
+	std::vector<std::shared_ptr<hist>>m_simulation;
 };
 #endif 

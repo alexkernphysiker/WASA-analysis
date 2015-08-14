@@ -66,6 +66,7 @@ hist& hist::operator=(const hist& source){
 	data.clear();
 	for(point p: source.data)
 		data.push_back(p);
+	return *this;
 }
 hist::~hist(){}
 int hist::count(){
@@ -95,6 +96,33 @@ hist& hist::operator+=(hist& second){
 	}
 	return *this;
 }
+hist& hist::operator*=(double c){
+	if(c<0)throw exception();
+	for(int i=0,n=count();i<n;i++){
+		data[i].y*=c;
+		data[i].dy*=c;
+	}
+	return *this;
+}
+hist& hist::operator<<(size_t c){
+	for(int i=0,n=count()-c;i<n;i++){
+		data[i].y=data[i+c].y;
+		data[i].dy=data[i+c].dy;
+	}
+	for(int i=count()-c;i<count();)
+		data.erase(data.begin()+i);
+	return *this;
+}
+hist& hist::operator>>(size_t c){
+	for(int i=count()-1;i>=c;i--){
+		data[i].y=data[i-c].y;
+		data[i].dy=data[i-c].dy;
+	}
+	for(int i=count()-c;i<count();)
+		data.erase(data.begin());
+	return *this;
+}
+
 hist::point& hist::operator[](int i){
 	return data[i];
 }
