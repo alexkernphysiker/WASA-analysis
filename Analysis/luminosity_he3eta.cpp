@@ -14,7 +14,7 @@ using namespace std;
 using namespace Genetic;
 RANDOM engine;
 void AnalyseMMSpectra(hist::point&BeamMomentaBin,hist&data,vector<hist>&MC){
-	for(auto p:data)if(p.x>=0.5375)BeamMomentaBin.y+=p.y;
+	for(auto p:data)if(p.x>=0.54)BeamMomentaBin.y+=p.y;
 	BeamMomentaBin.dy=sqrt(BeamMomentaBin.y);
 	if(BeamMomentaBin.dy<1)BeamMomentaBin.dy=1;
 }
@@ -43,8 +43,8 @@ int main(int,char**){
 		};
 		PlotHist()
 			.Hist(string("MCHe3eta")+suffix,static_cast<hist&&>(MC[0]))
-			.Hist(string("MCHe3pi0ppi0")+suffix,static_cast<hist&&>(MC[1]))
-			.Hist(string("MCHe3pi0pi0pi0")+suffix,static_cast<hist&&>(MC[2]));
+			.Hist(string("MCHe3 2pi0")+suffix,static_cast<hist&&>(MC[1]))
+			.Hist(string("MCHe3 3pi0")+suffix,static_cast<hist&&>(MC[2]));
 		hist data(true,"He3eta",static_right(kin_path),missingmass+suffix);
 		PlotHist().Hist(string("DataHe3eta")+suffix,static_right(data));
 		AnalyseMMSpectra(BeamMomentaBin,data,MC);
