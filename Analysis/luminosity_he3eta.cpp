@@ -14,7 +14,7 @@ using namespace std;
 using namespace Genetic;
 RANDOM engine;
 void AnalyseMMSpectra(hist::point&BeamMomentaBin,hist&data,vector<hist>&MC){
-	for(auto p:data)if(p.x>=0.54)BeamMomentaBin.y+=p.y;
+	for(auto p:data)if(p.x>=0.542)BeamMomentaBin.y+=p.y;
 	BeamMomentaBin.dy=sqrt(BeamMomentaBin.y);
 	if(BeamMomentaBin.dy<1)BeamMomentaBin.dy=1;
 }
