@@ -8,6 +8,7 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <TDirectoryFile.h>
+#include <phys_constants.h>
 #include "gethist.h"
 using namespace std;
 using namespace Genetic;
@@ -36,6 +37,7 @@ hist::hist(string filename,vector<string>&&path,string histname){
 				data.push_back(p);
 			}
 		}
+		file->Close();
 	}
 }
 hist::hist(bool from_data, string reaction, vector< string >&& path, string histname){
@@ -45,7 +47,7 @@ hist::hist(bool from_data, string reaction, vector< string >&& path, string hist
 		operator=(tmp);
 	}else{
 		data.clear();
-		for(int runindex=45873;runindex<=46884;runindex++){
+		for(ALLRUNS){
 			hist tmp(inputpath+"/Data"+reaction+"_run_"+to_string(runindex)+".root",static_right(path),histname);
 			if(tmp.data.size()>0){
 				if(data.size()==0)
@@ -104,6 +106,27 @@ hist& hist::operator+=(hist& second){
 	}
 	return *this;
 }
+hist& hist::operator+=(function<double(double)>f){
+	for(point&p:*this)
+		p.y+=f(p.x);
+	return *this;
+}
+hist& hist::operator-=(hist& second){
+	for(int i=0,n=count();i<n;i++){
+		if(data[i].x==second.data[i].x){
+			data[i].y-=second.data[i].y;
+			data[i].dy+=second.data[i].dy;
+		}else
+			throw exception();
+	}
+	return *this;
+}
+hist& hist::operator-=(function<double(double)>f){
+	for(point&p:*this)
+		p.y-=f(p.x);
+	return *this;
+}
+
 hist& hist::operator*=(hist& second){
 	for(int i=0,n=count();i<n;i++){
 		if(data[i].x==second.data[i].x){
@@ -123,6 +146,14 @@ hist& hist::operator*=(double c){
 	}
 	return *this;
 }
+hist& hist::operator*=(function<double(double)>f){
+	for(point&p:*this){
+		double x=f(p.x);
+		p.y*=x;
+		p.dy*=x;
+	}
+	return *this;
+}
 hist& hist::operator/=(hist& second){
 	for(int i=0,n=count();i<n;i++){
 		if(data[i].x==second.data[i].x){
@@ -139,6 +170,14 @@ hist& hist::operator/=(double c){
 	for(int i=0,n=count();i<n;i++){
 		data[i].y/=c;
 		data[i].dy/=c;
+	}
+	return *this;
+}
+hist& hist::operator/=(function<double(double)>f){
+	for(point&p:*this){
+		double x=f(p.x);
+		p.y/=x;
+		p.dy/=x;
 	}
 	return *this;
 }

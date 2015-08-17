@@ -13,6 +13,9 @@
 using namespace std;
 using namespace Genetic;
 RANDOM engine;
+double sigma(double p_beam){
+	return 400;//nb
+}
 void AnalyseMMSpectra(hist::point&BeamMomentaBin,hist&data,vector<hist>&MC){
 	for(auto p:data)if(p.x>=0.542)BeamMomentaBin.y+=p.y;
 	BeamMomentaBin.dy=sqrt(BeamMomentaBin.y);
@@ -33,8 +36,8 @@ int main(int,char**){
 	acceptance/=mc_norm;
 	PlotHist().Hist("Acceptance",static_right(acceptance));
 	string missingmass="MissingMass";
-	hist datacount=acceptance.CloneEmptyBins();
-	for(hist::point&BeamMomentaBin:datacount)if(BeamMomentaBin.y>=0.2){
+	hist luminocity=acceptance.CloneEmptyBins();
+	for(hist::point&BeamMomentaBin:luminocity)if(BeamMomentaBin.y>=0.05){
 		string suffix=to_string(int(BeamMomentaBin.x*1000));
 		vector<hist> MC={
 			hist(false,"He3eta",static_right(kin_path),missingmass+suffix),
@@ -49,8 +52,12 @@ int main(int,char**){
 		PlotHist().Hist(string("DataHe3eta")+suffix,static_right(data));
 		AnalyseMMSpectra(BeamMomentaBin,data,MC);
 	}
-	PlotHist eventcnt;
-	eventcnt.Hist("He3eta events in data",static_right(datacount));
-	datacount/=acceptance;
-	eventcnt.Hist("He3eta true events",static_right(datacount));
+	{
+		PlotHist eventcnt;
+		eventcnt.Hist("He3eta events in data",static_right(luminocity));
+		luminocity/=acceptance;
+		eventcnt.Hist("He3eta true events",static_right(luminocity));
+	}
+	luminocity/=sigma;
+	PlotHist().Hist("Luminocity",static_right(luminocity));
 }

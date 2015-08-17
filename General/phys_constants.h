@@ -1,5 +1,6 @@
 #ifndef AXWBNBYL
 #define AXWBNBYL
+#define ALLRUNS int runindex=45873;runindex<=46884;runindex++
 const double m_p=0.938272;   //[GeV]
 const double m_n=0.93956;    //[GeV]
 const double m_d=1.875613;   //[GeV]

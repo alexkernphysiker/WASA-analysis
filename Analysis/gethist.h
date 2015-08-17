@@ -3,6 +3,7 @@
 #ifndef DAIHADDG
 #define DAIHADDG
 #include <string>
+#include <functional>
 #include <vector>
 #include <fit.h>
 #define static_right(A) (static_cast<decltype(A)&&>(A))
@@ -21,10 +22,15 @@ public:
 	double Entries();
 	hist &imbibe(hist& second);
 	hist &operator+=(hist& second);
+	hist &operator+=(std::function<double(double)>);
+	hist &operator-=(hist& second);
+	hist &operator-=(std::function<double(double)>);
 	hist &operator*=(hist& second);
 	hist &operator*=(double c);
+	hist &operator*=(std::function<double(double)>);
 	hist &operator/=(hist& second);
 	hist &operator/=(double c);
+	hist &operator/=(std::function<double(double)>);
 	hist &operator<<(size_t c);
 	hist &operator>>(size_t c);
 	point &operator[](int i);
