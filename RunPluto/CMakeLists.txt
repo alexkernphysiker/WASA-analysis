@@ -23,5 +23,5 @@ set(libs Pluto Core Gui GQt Gpad Hist RIO Proof TreePlayer EG m dl Physics)
 set(CMAKE_CXX_FLAGS "-std=gnu++11")
 set(commonfiles math_h/gnuplot/gnuplot.cpp)
 #applications
-add_executable(he3 he3_production.cpp ${commonfiles})
-target_link_libraries(he3 ${libs})
+add_executable(overthreshold overthreshold.cpp ${commonfiles})
+target_link_libraries(overthreshold ${libs})
