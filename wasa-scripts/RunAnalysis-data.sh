@@ -1,4 +1,4 @@
-if [ `qstat|wc -l` -gt 0 ]
+if [ `qstat|grep $1|wc -l` -gt 0 ]
 then
 	echo "your wasa task queue is not empty"
 	exit 1
