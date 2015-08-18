@@ -1,6 +1,6 @@
 if [ `qstat|grep $1|wc -l` -gt 0 ]
 then
-	echo "your wasa task queue is not empty"
+	echo "The task queue allready contains tasks for this reaction"
 	exit 1
 fi
 for X in `seq 45873 1 46884`
