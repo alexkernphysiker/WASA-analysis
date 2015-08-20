@@ -12,6 +12,20 @@
 #include "gethist.h"
 using namespace std;
 using namespace Genetic;
+double PresentRunsAmount(string reaction){
+	#include "env.cc"
+	size_t allruns=0,present_runs=0;
+	for(ALLRUNS){
+		allruns++;
+		TFile *file=TFile::Open((inputpath+"/Data"+reaction+"_run_"+to_string(runindex)+".root").c_str());
+		if(file){
+			present_runs++;
+			file->Close();
+			delete file;
+		}
+	}
+	return double(present_runs)/double(allruns);
+}
 hist::hist(){}
 hist::hist(string filename,vector<string>&&path,string histname){
 	TFile* file=TFile::Open(filename.c_str());
@@ -38,6 +52,7 @@ hist::hist(string filename,vector<string>&&path,string histname){
 			}
 		}
 		file->Close();
+		delete file;
 	}
 }
 hist::hist(bool from_data, string reaction, vector< string >&& path, string histname){

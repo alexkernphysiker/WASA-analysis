@@ -45,6 +45,7 @@ private:
 	std::vector<point> data;
 	double norm;
 };
+double PresentRunsAmount(std::string reaction);
 class PlotHist:public Plot<double>{
 public:
     PlotHist();

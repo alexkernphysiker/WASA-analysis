@@ -57,7 +57,11 @@ int main(int,char**){
 		eventcnt.Hist("He3eta events in data",static_right(luminocity));
 		luminocity/=acceptance;
 		eventcnt.Hist("He3eta true events",static_right(luminocity));
+	}{
+		PlotHist lum_plot;
+		luminocity/=sigma;
+		lum_plot.Hist("Integral luminocity(analysed)",static_right(luminocity));
+		luminocity/=PresentRunsAmount("He3eta");
+		lum_plot.Hist("Integral luminocity(estimated)",static_right(luminocity));
 	}
-	luminocity/=sigma;
-	PlotHist().Hist("Luminocity",static_right(luminocity));
 }
