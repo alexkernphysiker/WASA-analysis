@@ -25,3 +25,5 @@ set(commonfiles math_h/gnuplot/gnuplot.cpp)
 #applications
 add_executable(overthreshold overthreshold.cpp ${commonfiles})
 target_link_libraries(overthreshold ${libs})
+add_executable(allrange allrange.cpp ${commonfiles})
+target_link_libraries(allrange ${libs})
