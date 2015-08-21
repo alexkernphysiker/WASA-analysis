@@ -12,7 +12,7 @@
 #include "gethist.h"
 using namespace std;
 using namespace Genetic;
-double PresentRunsAmount(string reaction){
+double PresentRunsAmountRatio(string reaction){
 	#include "env.cc"
 	size_t allruns=0,present_runs=0;
 	for(ALLRUNS){

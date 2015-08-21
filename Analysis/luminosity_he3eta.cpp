@@ -37,7 +37,7 @@ int main(int,char**){
 	PlotHist().Hist("Acceptance",static_right(acceptance));
 	string missingmass="MissingMass";
 	hist luminocity=acceptance.CloneEmptyBins();
-	for(hist::point&BeamMomentaBin:luminocity)if(BeamMomentaBin.y>=0.05){
+	for(auto&BeamMomentaBin:luminocity){
 		string suffix=to_string(int(BeamMomentaBin.x*1000));
 		vector<hist> MC={
 			hist(false,"He3eta",static_right(kin_path),missingmass+suffix),
@@ -61,7 +61,7 @@ int main(int,char**){
 		PlotHist lum_plot;
 		luminocity/=sigma;
 		lum_plot.Hist("Integral luminocity(analysed)",static_right(luminocity));
-		luminocity/=PresentRunsAmount("He3eta");
+		luminocity/=PresentRunsAmountRatio("He3eta");
 		lum_plot.Hist("Integral luminocity(estimated)",static_right(luminocity));
 	}
 }
