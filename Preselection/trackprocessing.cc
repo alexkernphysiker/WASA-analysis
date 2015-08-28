@@ -50,6 +50,7 @@ void TrackConditionSet::ReferenceEvent(){
 }
 bool TrackConditionSet::Check(WTrack&& track,vector<double>&params){
 	double M=m_distr();
+	beforecut->Fill(M);
 	params.clear();
 	for(auto item:calc_procs){
 		if(dynamic_pointer_cast<ParamCalc>(item))
