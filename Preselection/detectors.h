@@ -4,6 +4,7 @@
 #define HGDOYENRKILTMEYD
 #include <string>
 #include <functional>
+#include <TH2F.h>
 #include "analysis.h"
 #define static_right(A) (static_cast<decltype(A)&&>(A))
 enum ForwardDetectorPlane{
@@ -13,7 +14,7 @@ enum ForwardDetectorPlane{
 };
 class ForwardDetectors:public virtual Logger{
 public:
-	ForwardDetectors();
+	ForwardDetectors(int markers);
 	virtual ~ForwardDetectors();
 protected:
 	int ForwadrPlaneCount();
@@ -30,6 +31,7 @@ protected:
 	int StopPlaneIndex(WTrack&& track);
 	ForwardDetectorPlane StopPlane(WTrack&& track);
 	bool UpperThresholdUpTo(WTrack&& track,int planeindex);
+	void ForwardDetectorTrackMarker(int m,WTrack&& track);
 private:
 	struct plane_data{
 	public:
@@ -39,5 +41,6 @@ private:
 		double upper,threshold;
 	};
 	std::vector<plane_data> PlaneData;
+	std::vector<std::vector<TH2F*>> EDepHist;
 };
 #endif

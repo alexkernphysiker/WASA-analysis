@@ -40,18 +40,17 @@ InterpolationBasedReconstruction::~InterpolationBasedReconstruction(){
 		}
 	}
 }
-bool InterpolationBasedReconstruction::Reconstruct(double& calculated,WTrack&&track){
+double InterpolationBasedReconstruction::Reconstruct(WTrack&&track){
 	if(data_present){
 		try{
-			calculated=data(Experiment(static_cast<WTrack&&>(track)));
-			return true;
+			return data(Experiment(static_cast<WTrack&&>(track)));
 		}catch(exception){
 			Log(LogWarning)<<"Possibly the measured value is out of range.";
-			return false;
+			return INFINITY;
 		}
 	}else{
 		out.push_back(make_pair(Experiment(static_cast<WTrack&&>(track)),Theory(static_cast<WTrack&&>(track))));
-		return false;
+		return INFINITY;
 	}
 }
 

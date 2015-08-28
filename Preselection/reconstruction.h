@@ -16,7 +16,7 @@ public:
 		std::string name,delegate measured,delegate theory
 	);
 	virtual ~InterpolationBasedReconstruction();
-	bool Reconstruct(double&calculated,WTrack&&track);
+	double Reconstruct(WTrack&&track);
 private:
 	std::string m_name;
 	bool data_present;
