@@ -43,12 +43,13 @@ ForwardDetectorPlane ForwardDetectors::ForwadrPlane(int index){
 		return PlaneData[index].plane;
 	return kForwardError;
 }
-string ForwardDetectors::ForwardPlaneName(int index){
+string&&ForwardDetectors::ForwardPlaneName(int index){
 	if((index>=0)&&(index<int(PlaneData.size())))
-		return PlaneData[index].name;
-	return "<NoPlane>";
+		return static_cast<string&&>(PlaneData[index].name);
+	static string noplane="<NoPlane>";
+	return static_right(noplane);
 }
-string ForwardDetectors::ForwardPlaneName(ForwardDetectorPlane plane){
+string&&ForwardDetectors::ForwardPlaneName(ForwardDetectorPlane plane){
 	return ForwardPlaneName(ForwardPlaneIndex(plane));
 }
 double ForwardDetectors::EDep(WTrack&& track, ForwardDetectorPlane plane){

@@ -21,7 +21,7 @@ He3_phi("He3.phi",
 ),
 Cuts("Events",[this](){return PBeam();},20,p_he3_eta_threshold,p_beam_hi),
 MissingMass("MissingMass",static_right(Cuts),
-	[this](vector<double>&&He3){
+	[this](vector<double>&He3){
 		double p=sqrt(He3[0]*(He3[0]+2*m_3He));
 		TVector3 p_He3;
 		p_He3.SetMagThetaPhi(p,He3[1],He3[2]);
@@ -53,11 +53,11 @@ MissingMass("MissingMass",static_right(Cuts),
 			&&(EDep(static_right(track),kFRH1)>0.05)&&(EDep(static_right(track),kFRH1)<0.30);
 	}).AddCondition("ThetaCut",[this](WTrack&&track,vector<double>&){
 		return ((track.Theta()<0.1245)||(track.Theta()>0.1255));
-	}).AddParameter([this](WTrack&&track){
+	}).AddParameter("E",[this](WTrack&&track){
 		return He3_Ekin.Reconstruct(static_right(track));
-	}).AddParameter([this](WTrack&&track){
+	}).AddParameter("Theta",[this](WTrack&&track){
 		return He3_theta.Reconstruct(static_right(track));
-	}).AddParameter([this](WTrack&&track){
+	}).AddParameter("Phi",[this](WTrack&&track){
 		return He3_phi.Reconstruct(static_right(track));
 	}).AddCondition("Reconstructed",[this](WTrack,vector<double>&P){
 		return isfinite(P[0])&&isfinite(P[1])&&isfinite(P[2]);
@@ -75,9 +75,8 @@ bool He3_at_FRH1::ForwardTrackProcessing(WTrack&& track){
 	ForwardDetectorTrackMarker(0,static_right(track));
 	vector<double> He3;
 	if(Cuts.Check(static_right(track),He3)){
-		log<<"Conditions passed";
 		ForwardDetectorTrackMarker(1,static_right(track));
-		MissingMass.AcceptEvent(static_right(He3));
+		MissingMass.AcceptEvent(He3);
 	}
 	return true;
 }

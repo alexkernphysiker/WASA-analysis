@@ -20,8 +20,8 @@ protected:
 	int ForwadrPlaneCount();
 	int ForwardPlaneIndex(ForwardDetectorPlane plane);
 	ForwardDetectorPlane ForwadrPlane(int index);
-	std::string ForwardPlaneName(int index);
-	std::string ForwardPlaneName(ForwardDetectorPlane plane);
+	std::string&&ForwardPlaneName(int index);
+	std::string&&ForwardPlaneName(ForwardDetectorPlane plane);
 	double EDep(WTrack&& track,ForwardDetectorPlane plane);
 	double EDep(WTrack&& track,int planeindex);
 	double UpperByIndex(int planeindex);

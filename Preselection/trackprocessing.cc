@@ -12,17 +12,35 @@ TrackConditionSet::TrackConditionSet(string name, Independent distr,int bins,dou
 	gHistoManager->Add(beforecut,m_name.c_str());
 }
 TrackConditionSet::~TrackConditionSet(){}
-TrackConditionSet& TrackConditionSet::AddParameter(TrackDependent parameter){
-	parameter_set.push_back(parameter);
-	return *this;
+TrackConditionSet::TrackCalc::TrackCalc(string n):name(n){}
+TrackConditionSet::TrackCalc::~TrackCalc(){}
+string&& TrackConditionSet::TrackCalc::Name(){return static_right(name);}
+TrackConditionSet::ParamCalc::ParamCalc(string n, TrackDependent d): TrackCalc(n){
+	m_delegate=d;
 }
-TrackConditionSet::CondData::CondData(string n, TrackConditionSet::Condition delegate, TrackConditionSet* master){
+TrackConditionSet::ParamCalc::~ParamCalc(){}
+double TrackConditionSet::ParamCalc::Get(WTrack&&track){
+	return m_delegate(static_right(track));
+}
+TrackConditionSet::TrackCondition::TrackCondition(string n, TrackConditionSet::Condition delegate, TrackConditionSet* master):
+	TrackCalc(n){
 	condition=delegate;
 	output=new TH1F(n.c_str(),"",master->m_bins,master->m_from,master->m_to);
 	gHistoManager->Add(output,master->m_name.c_str());
 }
+TrackConditionSet::TrackCondition::~TrackCondition(){}
+bool TrackConditionSet::TrackCondition::Check(WTrack&&track,vector<double>&P,double magnitude){
+	if(!condition(static_right(track),P))
+		return false;
+	output->Fill(magnitude);
+	return true;
+}
+TrackConditionSet& TrackConditionSet::AddParameter(std::string n,TrackDependent parameter){
+	calc_procs.push_back(make_shared<ParamCalc>(n,parameter));
+	return *this;
+}
 TrackConditionSet& TrackConditionSet::AddCondition(string name, TrackConditionSet::Condition condition){
-	condition_set.push_back(CondData(name,condition,this));
+	calc_procs.push_back(make_shared<TrackCondition>(name,condition,this));
 	return *this;
 }
 void TrackConditionSet::ReferenceEvent(){
@@ -30,15 +48,14 @@ void TrackConditionSet::ReferenceEvent(){
 	reference->Fill(M);
 }
 bool TrackConditionSet::Check(WTrack&& track,vector<double>&params){
-	params.clear();
-	for(TrackDependent par:parameter_set)
-		params.push_back(par(static_right(track)));
 	double M=m_distr();
-	beforecut->Fill(M);
-	for(CondData&item:condition_set){
-		if(!item.condition(static_right(track),params))
-			return false;
-		item.output->Fill(M);
+	params.clear();
+	for(auto item:calc_procs){
+		if(dynamic_pointer_cast<ParamCalc>(item))
+			 params.push_back(dynamic_pointer_cast<ParamCalc>(item)->Get(static_right(track)));
+		if(dynamic_pointer_cast<TrackCondition>(item))
+			if(!dynamic_pointer_cast<TrackCondition>(item)->Check(static_right(track),params,M))
+				return false;
 	}
 	return true;
 }
@@ -61,8 +78,8 @@ Analyser2D::Analyser2D(std::string name,TrackConditionSet&&Cuts,ParamDependent B
 	}
 }
 Analyser2D::~Analyser2D(){}
-void Analyser2D::AcceptEvent(vector<double>&&Parameters){
-	double B=m_B(static_right(Parameters));
+void Analyser2D::AcceptEvent(vector<double>&Parameters){
+	double B=m_B(Parameters);
 	double A=master->m_distr();
 	ForAllA->Fill(B);
 	{int index=0;
