@@ -35,14 +35,15 @@ bool TrackConditionSet::TrackCondition::Check(WTrack&&track,vector<double>&P,dou
 	output->Fill(magnitude);
 	return true;
 }
-TrackConditionSet& TrackConditionSet::AddParameter(std::string n,TrackDependent parameter){
+TrackConditionSet& TrackConditionSet::AddParameter(std::string&&n,TrackDependent parameter){
 	calc_procs.push_back(make_shared<ParamCalc>(n,parameter));
 	return *this;
 }
-TrackConditionSet& TrackConditionSet::AddCondition(string name, TrackConditionSet::Condition condition){
-	calc_procs.push_back(make_shared<TrackCondition>(name,condition,this));
+TrackConditionSet& TrackConditionSet::AddCondition(string&&n, TrackConditionSet::Condition condition){
+	calc_procs.push_back(make_shared<TrackCondition>(n,condition,this));
 	return *this;
 }
+
 void TrackConditionSet::ReferenceEvent(){
 	double M=m_distr();
 	reference->Fill(M);

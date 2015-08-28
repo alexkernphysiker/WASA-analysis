@@ -6,10 +6,10 @@
 #include "detectors.h"
 #include "reconstruction.h"
 #include "trackprocessing.h"
-class He3_at_FRH1:public virtual Analysis,public ForwardDetectors{
+class He3_in_forward:public virtual Analysis,public ForwardDetectors{
 public:
-	He3_at_FRH1();
-	virtual ~He3_at_FRH1();
+	He3_in_forward();
+	virtual ~He3_in_forward();
 protected:
 	virtual bool EventPreProcessing()override;
 	virtual void EventPostProcessing()override;
@@ -19,7 +19,7 @@ protected:
 	virtual bool CentralTrackProcessing(WTrack&&track)override;
 private:
 	InterpolationBasedReconstruction He3_Ekin,He3_theta,He3_phi;
-	TrackConditionSet Cuts;
+	TrackConditionSet CutFRH1;
 	Analyser2D MissingMass;
 };
 #endif 

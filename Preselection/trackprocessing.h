@@ -15,8 +15,8 @@ public:
 	typedef std::function<bool(WTrack&&,std::vector<double>&)> Condition;
 	TrackConditionSet(std::string name,Independent distr,int bins,double from,double to);
 	virtual ~TrackConditionSet();
-	TrackConditionSet&AddParameter(std::string name,TrackDependent parameter);
-	TrackConditionSet&AddCondition(std::string name,Condition condition);
+	TrackConditionSet&AddParameter(std::string&&name,TrackDependent parameter);
+	TrackConditionSet&AddCondition(std::string&&name,Condition condition);
 	void ReferenceEvent();
 	bool Check(WTrack&&track,std::vector<double>&parameters);
 protected:
