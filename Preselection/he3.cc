@@ -7,7 +7,6 @@
 using namespace std;
 He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 	Cut("Cuts",[this](){return PBeam();},20,p_he3_eta_threshold,p_beam_hi),
-	CutFRH1("FRH1",Cut),CutFTH1("FTH1",Cut),
 	He3_Ekin("He3.E.FTH1nFRH1",
 		 [this](const WTrack&track){return EDep(track,kFRH1)+EDep(track,kFTH1);},
 		 [this](const WTrack&){return FromFirstVertex(kHe3).E;}
@@ -25,7 +24,7 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 	SubLog log=Log(LogDebug);
 	AddParticleToFirstVertex(kHe3,m_3He);
 	AddParticleToFirstVertex(kEta,m_eta);
-	CutFRH1.AddCondition("StoppingPlane",[this](const WTrack&track,vector<double>&){
+	Cut.AddCondition("StoppingPlane",[this](const WTrack&track,vector<double>&){
 		return (StopPlane(track)==kFRH1);
 	}).AddCondition("SP2cut",[this](const WTrack&track,vector<double>&){
 		static TCutG *cut=nullptr;
@@ -45,14 +44,6 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 			cut->SetPoint(10,0.000,0.024);
 		}
 		return cut->IsInside(EDep(track,kFRH1),EDep(track,kFTH1));
-	});
-	CutFTH1.AddCondition("StoppingPlane",[this](const WTrack&track,vector<double>&){
-		return (StopPlane(track)==kFTH1);
-	}).AddCondition("SP2cut",[this](const WTrack&track,vector<double>&){
-		return EDep(track,kFWC2)>=0.012;
-	});
-	Cut.AddCondition("EdepCuts",[this](const WTrack&track,vector<double>&P){
-		return CutFRH1.Check(track,P)||CutFTH1.Check(track,P);
 	}).AddCondition("ThetaCut",[this](const WTrack&track,vector<double>&){
 		return ((track.Theta()<0.1245)||(track.Theta()>0.1255));
 	}).AddParameter("E",[this](const WTrack&track){
@@ -88,8 +79,6 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 He3_in_forward::~He3_in_forward(){}
 bool He3_in_forward::EventPreProcessing(){
 	Cut.ReferenceEvent();
-	CutFTH1.ReferenceEvent();
-	CutFRH1.ReferenceEvent();
 	return true;
 }
 bool He3_in_forward::TrackCountTrigger(int CinC,int NinC,int CinF){return CinF>0;}

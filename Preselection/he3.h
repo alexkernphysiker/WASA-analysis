@@ -18,7 +18,7 @@ protected:
 	virtual bool ForwardTrackProcessing(const WTrack&track)override;
 	virtual bool CentralTrackProcessing(const WTrack&track)override;
 private:
-	TrackConditionSet Cut,CutFRH1,CutFTH1;
+	TrackConditionSet Cut;
 	InterpolationBasedReconstruction He3_Ekin,He3_theta,He3_phi;
 	Analyser2D MissingMass;
 };
