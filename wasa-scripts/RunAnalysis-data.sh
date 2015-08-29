@@ -1,8 +1,3 @@
-if [ `qstat|grep $1|wc -l` -gt 49 ]
-then
-	echo "Too many jobs are running"
-	exit 1
-fi
 for X in `seq 45873 1 46884`; do
 	if [ -f ${RUNS_DATA}/run_${X} ]; then
 		if [ ! -f $PWD/../Preselection/Data$1_run_${X}.root ]; then
@@ -22,7 +17,10 @@ for X in `seq 45873 1 46884`; do
 					qsub ${scriptname}
 					echo "Analysis for run ${X} ($1 reaction) has been started"
 					sleep 2
-				fi 
+				fi
+			else
+				echo "We have already enough jobs running for this reaction"
+				exit 0
 			fi
 		fi
 	fi
