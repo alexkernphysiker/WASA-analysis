@@ -39,7 +39,7 @@ int main(int,char**){
 				printf("%i iterations. %f<=S<=%f               \r",fit.iteration_count(),fit.Optimality(),fit.Optimality(fit.PopulationSize()-1));
 			}
 			printf("\n");
-			PlotFit1D<decltype(fit)>().PointsWithoutErrors("points-E",data).Fit("He3.E.FTH1nFRH1.calibration",fit,0.0001);
+			Plot<double>().Line("He3.E.FTH1nFRH1.calibration",[&fit](double x){return fit(ParamSet(x));},0.0,0.3,0.0001);
 			file<<"Energy\n";
 			for(double p:fit)file<<p<<" ";
 			file<<"\n";
@@ -64,7 +64,7 @@ int main(int,char**){
 				printf("%i iterations. %f<=S<=%f               \r",fit.iteration_count(),fit.Optimality(),fit.Optimality(fit.PopulationSize()-1));
 			}
 			printf("\n");
-			PlotFit1D<decltype(fit)>().PointsWithoutErrors("points-th",data).Fit("He3.th.calibration",fit,0.0001);
+			Plot<double>().Line("He3.th.calibration",[&fit](double x){return fit(ParamSet(x));},0.0,0.15,0.0001);
 			file<<"Theta\n";
 			for(double p:fit)file<<p<<" ";
 			file<<"\n";
@@ -89,7 +89,7 @@ int main(int,char**){
 				printf("%i iterations. %f<=S<=%f               \r",fit.iteration_count(),fit.Optimality(),fit.Optimality(fit.PopulationSize()-1));
 			}
 			printf("\n");
-			PlotFit1D<decltype(fit)>().PointsWithoutErrors("points-phi",data).Fit("He3.phi.calibration",fit,0.0005);
+			Plot<double>().Line("He3.phi.calibration",[&fit](double x){return fit(ParamSet(x));},0.0,6.283,0.0005);
 			file<<"Phi\n";
 			for(double p:fit)file<<p<<" ";
 			file<<"\n";
