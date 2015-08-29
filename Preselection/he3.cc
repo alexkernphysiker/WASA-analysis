@@ -75,7 +75,7 @@ MissingMass("MissingMass",static_right(CutFRH1),
 		return He3_theta.Reconstruct(static_right(track));
 	}).AddParameter("Phi",[this](WTrack&&track){
 		return He3_phi.Reconstruct(static_right(track));
-	}).AddCondition("Reconstructed",[this](WTrack,vector<double>&P){
+	}).AddCondition("Reconstructed",[this](WTrack&&,vector<double>&P){
 		return isfinite(P[0])&&isfinite(P[1])&&isfinite(P[2]);
 	});
 }
