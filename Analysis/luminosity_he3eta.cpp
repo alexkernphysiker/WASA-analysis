@@ -28,7 +28,7 @@ int main(int,char**){
 	vector<string> norm_path={"Histograms","Cuts"};
 	
 	hist mc_norm(false,"He3eta",static_right(norm_path),"Reference"),
-		mc_filtered1(false,"He3eta",static_right(norm_path),"SP2cut"),
+		mc_filtered1(false,"He3eta",static_right(norm_path),"EdepCuts"),
 		mc_filtered2(false,"He3eta",static_right(norm_path),"ThetaCut"),
 		acceptance(false,"He3eta",static_right(norm_path),"Reconstructed");
 	PlotHist().Hist("All MC events",static_right(mc_norm))
