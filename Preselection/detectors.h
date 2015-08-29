@@ -6,7 +6,6 @@
 #include <functional>
 #include <TH2F.h>
 #include "analysis.h"
-#define static_right(A) (static_cast<decltype(A)&&>(A))
 enum ForwardDetectorPlane{
 	kForwardError=0,
 	kFWC1 = 10, kFWC2 = 11, kFTH1 = 1, kFTH2 =2, kFTH3 = 3, 
@@ -22,16 +21,16 @@ protected:
 	ForwardDetectorPlane ForwadrPlane(int index);
 	std::string&&ForwardPlaneName(int index);
 	std::string&&ForwardPlaneName(ForwardDetectorPlane plane);
-	double EDep(WTrack&& track,ForwardDetectorPlane plane);
-	double EDep(WTrack&& track,int planeindex);
+	double EDep(WTrack&track,ForwardDetectorPlane plane);
+	double EDep(const WTrack&track,int planeindex);
 	double UpperByIndex(int planeindex);
 	double Upper(ForwardDetectorPlane plane);
 	double ThresholdByIndex(int planeindex);
 	double Threshold(ForwardDetectorPlane plane);
-	int StopPlaneIndex(WTrack&& track);
-	ForwardDetectorPlane StopPlane(WTrack&& track);
-	bool UpperThresholdUpTo(WTrack&& track,int planeindex);
-	void ForwardDetectorTrackMarker(int m,WTrack&& track);
+	int StopPlaneIndex(const WTrack&track);
+	ForwardDetectorPlane StopPlane(const WTrack&track);
+	bool UpperThresholdUpTo(const WTrack&track,int planeindex);
+	void ForwardDetectorTrackMarker(int m,const WTrack&track);
 private:
 	struct plane_data{
 	public:

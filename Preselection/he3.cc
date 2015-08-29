@@ -6,31 +6,28 @@
 #include "../General/phys_constants.h"
 using namespace std;
 He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
-He3_Ekin("He3.E.FTH1nFRH1",
-	[this](WTrack&&track){
-		return EDep(static_right(track),kFRH1)+EDep(static_right(track),kFTH1);
-	},
-	[this](WTrack&&track){return FromFirstVertex(kHe3).E;}
-),
-He3_theta("He3.th",
-	[this](WTrack&&track){return track.Theta();},
-	[this](WTrack&&track){return FromFirstVertex(kHe3).Th;}
-),
-He3_phi("He3.phi",
-	[this](WTrack&&track){return NormPhi(track.Phi());},
-	[this](WTrack&&track){return FromFirstVertex(kHe3).Phi;}
-),
-Cut("Cuts",[this](){return PBeam();},20,p_he3_eta_threshold,p_beam_hi),
-CutFRH1("FRH1",Cut),CutFTH1("FTH1",Cut),
-MissingMass("MissingMass",static_right(Cut))
-{
+	Cut("Cuts",[this](){return PBeam();},20,p_he3_eta_threshold,p_beam_hi),
+	CutFRH1("FRH1",Cut),CutFTH1("FTH1",Cut),
+	He3_Ekin("He3.E.FTH1nFRH1",
+		 [this](const WTrack&track){return EDep(track,kFRH1)+EDep(track,kFTH1);},
+		 [this](const WTrack&){return FromFirstVertex(kHe3).E;}
+	),
+	He3_theta("He3.th",
+		  [this](const WTrack&track){return track.Theta();},
+		  [this](const WTrack&){return FromFirstVertex(kHe3).Th;}
+	),
+	He3_phi("He3.phi",
+		[this](const WTrack&track){return NormPhi(track.Phi());},
+		[this](const WTrack&){return FromFirstVertex(kHe3).Phi;}
+	),
+	MissingMass("MissingMass",Cut){
 	AddLogSubprefix("He3");
 	SubLog log=Log(LogDebug);
 	AddParticleToFirstVertex(kHe3,m_3He);
 	AddParticleToFirstVertex(kEta,m_eta);
-	CutFRH1.AddCondition("StoppingPlane",[this](WTrack&&track,vector<double>&){
-		return (StopPlane(static_right(track))==kFRH1);
-	}).AddCondition("SP2cut",[this](WTrack&&track,vector<double>&){
+	CutFRH1.AddCondition("StoppingPlane",[this](const WTrack&track,vector<double>&){
+		return (StopPlane(track)==kFRH1);
+	}).AddCondition("SP2cut",[this](const WTrack&track,vector<double>&){
 		static TCutG *cut=nullptr;
 		if(cut==nullptr){
 			cut=new TCutG("FRH1_cut",11);
@@ -47,24 +44,24 @@ MissingMass("MissingMass",static_right(Cut))
 			cut->SetPoint(9,0.047,0.016);
 			cut->SetPoint(10,0.000,0.024);
 		}
-		return cut->IsInside(EDep(static_right(track),kFRH1),EDep(static_right(track),kFTH1));
+		return cut->IsInside(EDep(track,kFRH1),EDep(track,kFTH1));
 	});
-	CutFTH1.AddCondition("StoppingPlane",[this](WTrack&&track,vector<double>&){
-		return (StopPlane(static_right(track))==kFTH1);
-	}).AddCondition("SP2cut",[this](WTrack&&track,vector<double>&){
-		return EDep(static_right(track),kFWC2)>=0.012;
+	CutFTH1.AddCondition("StoppingPlane",[this](const WTrack&track,vector<double>&){
+		return (StopPlane(track)==kFTH1);
+	}).AddCondition("SP2cut",[this](const WTrack&track,vector<double>&){
+		return EDep(track,kFWC2)>=0.012;
 	});
-	Cut.AddCondition("EdepCuts",[this](WTrack&&track,vector<double>&P){
-		return CutFRH1.Check(static_right(track),P)||CutFTH1.Check(static_right(track),P);
-	}).AddCondition("ThetaCut",[this](WTrack&&track,vector<double>&){
+	Cut.AddCondition("EdepCuts",[this](const WTrack&track,vector<double>&P){
+		return CutFRH1.Check(track,P)||CutFTH1.Check(track,P);
+	}).AddCondition("ThetaCut",[this](const WTrack&track,vector<double>&){
 		return ((track.Theta()<0.1245)||(track.Theta()>0.1255));
-	}).AddParameter("E",[this](WTrack&&track){
-		return He3_Ekin.Reconstruct(static_right(track));
-	}).AddParameter("Theta",[this](WTrack&&track){
-		return He3_theta.Reconstruct(static_right(track));
-	}).AddParameter("Phi",[this](WTrack&&track){
-		return He3_phi.Reconstruct(static_right(track));
-	}).AddCondition("Reconstructed",[this](WTrack&&,vector<double>&P){
+	}).AddParameter("E",[this](const WTrack&track){
+		return He3_Ekin.Reconstruct(track);
+	}).AddParameter("Theta",[this](const WTrack&track){
+		return He3_theta.Reconstruct(track);
+	}).AddParameter("Phi",[this](const WTrack&track){
+		return He3_phi.Reconstruct(track);
+	}).AddCondition("Reconstructed",[this](const WTrack&,vector<double>&P){
 		return isfinite(P[0])&&isfinite(P[1])&&isfinite(P[2]);
 	});
 	MissingMass.Setup([this](vector<double>&He3){
@@ -97,15 +94,15 @@ bool He3_in_forward::EventPreProcessing(){
 }
 bool He3_in_forward::TrackCountTrigger(int CinC,int NinC,int CinF){return CinF>0;}
 bool He3_in_forward::CentralFirst(){return false;}
-bool He3_in_forward::ForwardTrackProcessing(WTrack&& track){
+bool He3_in_forward::ForwardTrackProcessing(const WTrack&track){
 	SubLog log=Log(LogDebug);
-	ForwardDetectorTrackMarker(0,static_right(track));
+	ForwardDetectorTrackMarker(0,track);
 	vector<double> He3;
-	if(Cut.Check(static_right(track),He3)){
-		ForwardDetectorTrackMarker(1,static_right(track));
+	if(Cut.Check(track,He3)){
+		ForwardDetectorTrackMarker(1,track);
 		MissingMass.AcceptEvent(He3);
 	}
 	return true;
 }
-bool He3_in_forward::CentralTrackProcessing(WTrack&& track){return true;}
+bool He3_in_forward::CentralTrackProcessing(const WTrack&){return true;}
 void He3_in_forward::EventPostProcessing(){}

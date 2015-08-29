@@ -44,8 +44,8 @@ protected:
 	virtual void EventPostProcessing()=0;
 	virtual bool TrackCountTrigger(int CinC,int NinC,int CinF)=0;
 	virtual bool CentralFirst()=0;
-	virtual bool ForwardTrackProcessing(WTrack &&track)=0;
-	virtual bool CentralTrackProcessing(WTrack &&track)=0;
+	virtual bool ForwardTrackProcessing(const WTrack&track)=0;
+	virtual bool CentralTrackProcessing(const WTrack&track)=0;
 
 	FDFTHTracks* TrackFinderFD;
 	CDTracksSimple* CDTrackFinder;
@@ -95,11 +95,11 @@ protected:
 	virtual bool CentralFirst()override{
 		return reaction::CentralFirst();
 	}
-	virtual bool ForwardTrackProcessing(WTrack &&track)override{
-		return reaction::ForwardTrackProcessing(static_cast<WTrack&&>(track));
+	virtual bool ForwardTrackProcessing(const WTrack&track)override{
+		return reaction::ForwardTrackProcessing(track);
 	}
-	virtual bool CentralTrackProcessing(WTrack &&track)override{
-		return reaction::CentralTrackProcessing(static_cast<WTrack&&>(track));
+	virtual bool CentralTrackProcessing(const WTrack&track)override{
+		return reaction::CentralTrackProcessing(track);
 	}
 };
 #endif

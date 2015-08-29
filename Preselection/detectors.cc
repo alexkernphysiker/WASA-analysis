@@ -47,17 +47,17 @@ string&&ForwardDetectors::ForwardPlaneName(int index){
 	if((index>=0)&&(index<int(PlaneData.size())))
 		return static_cast<string&&>(PlaneData[index].name);
 	static string noplane="<NoPlane>";
-	return static_right(noplane);
+	return static_cast<string&&>(noplane);
 }
 string&&ForwardDetectors::ForwardPlaneName(ForwardDetectorPlane plane){
 	return ForwardPlaneName(ForwardPlaneIndex(plane));
 }
-double ForwardDetectors::EDep(WTrack&& track, ForwardDetectorPlane plane){
+double ForwardDetectors::EDep(WTrack&track, ForwardDetectorPlane plane){
 	return track.Edep(plane);
 }
 
-double ForwardDetectors::EDep(WTrack&& track, int planeindex){
-	return EDep(static_right(track),ForwadrPlane(planeindex));
+double ForwardDetectors::EDep(const WTrack&track, int planeindex){
+	return EDep(track,ForwadrPlane(planeindex));
 }
 double ForwardDetectors::UpperByIndex(int planeindex){
 	return PlaneData[planeindex].upper;
@@ -71,29 +71,29 @@ double ForwardDetectors::ThresholdByIndex(int planeindex){
 double ForwardDetectors::Threshold(ForwardDetectorPlane plane){
 	return PlaneData[ForwardPlaneIndex(plane)].threshold;
 }
-bool ForwardDetectors::UpperThresholdUpTo(WTrack&& track,int planeindex){
+bool ForwardDetectors::UpperThresholdUpTo(const WTrack&track,int planeindex){
 	SubLog log=Log(LogDebug);
 	log<<"UpperThresholdUpTo call";
 	bool res=true;
 	for(int c=0;c<=planeindex;c++)
-		res&=(EDep(static_right(track),c)>ThresholdByIndex(c));
+		res&=(EDep(track,c)>ThresholdByIndex(c));
 	if(res)log<<"YES";else log<<"NO";
 	return res;
 }
-int ForwardDetectors::StopPlaneIndex(WTrack&& track){
+int ForwardDetectors::StopPlaneIndex(const WTrack&track){
 	int res=-1;
 	for(size_t i=0;i<PlaneData.size();i++)
-		if(EDep(static_right(track),i)>PlaneData[i].threshold){
+		if(EDep(track,i)>PlaneData[i].threshold){
 			if(res==(int(i)-1))res++;
 			else res=-1;
 		}
 	return res;
 }
-ForwardDetectorPlane ForwardDetectors::StopPlane(WTrack&& track){
-	return ForwadrPlane(StopPlaneIndex(static_right(track)));
+ForwardDetectorPlane ForwardDetectors::StopPlane(const WTrack&track){
+	return ForwadrPlane(StopPlaneIndex(track));
 }
 
-void ForwardDetectors::ForwardDetectorTrackMarker(int m,WTrack&&track){
+void ForwardDetectors::ForwardDetectorTrackMarker(int m,const WTrack&track){
 	for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
-		EDepHist[i][m]->Fill(EDep(static_right(track),i+1),EDep(static_right(track),i));	
+		EDepHist[i][m]->Fill(EDep(track,i+1),EDep(track,i));
 }
