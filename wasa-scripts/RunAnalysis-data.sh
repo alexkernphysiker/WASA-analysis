@@ -3,18 +3,11 @@ then
 	echo "Too many jobs are running"
 	exit 1
 fi
-for X in `seq 45873 1 46884`
-  do
-	if [ -f ${RUNS_DATA}/run_${X} ]
-	then
-		if [ -f $PWD/../Preselection/Data$1_run_${X}.root ]
-		then
-		else
-			if [ `qstat|grep $1|wc -l` -lt 50 ]	
-			then
-				if [ `qstat|grep ${X}_$1|wc -l` -gt 0 ]
-				then
-				else
+for X in `seq 45873 1 46884`; do
+	if [ -f ${RUNS_DATA}/run_${X} ]; then
+		if [ ! -f $PWD/../Preselection/Data$1_run_${X}.root ]; then
+			if [ `qstat|grep $1|wc -l` -lt 50 ]; then
+				if [ `qstat|grep ${X}_$1|wc -l` -lt 1 ]; then
 					scriptname="run_${X}.sh"
 					rm -f ${scriptname}
 					echo "#!/bin/bash" >> ${scriptname}
@@ -30,10 +23,8 @@ for X in `seq 45873 1 46884`
 					echo "Analysis for run ${X} ($1 reaction) has been started"
 					sleep 2
 				fi 
-			else
 			fi
 		fi
-	else
 	fi
 done
 
