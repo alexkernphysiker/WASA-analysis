@@ -1,4 +1,4 @@
-if [ `qstat|wc -l` -gt 50 ]
+if [ `qstat|wc -l` -gt 49 ]
 then
 	echo "Your task queue contains too much tasks"
 	exit 1
