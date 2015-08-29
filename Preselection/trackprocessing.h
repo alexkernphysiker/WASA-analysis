@@ -14,6 +14,7 @@ class TrackConditionSet{
 public:
 	typedef std::function<bool(WTrack&&,std::vector<double>&)> Condition;
 	TrackConditionSet(std::string name,Independent distr,int bins,double from,double to);
+	TrackConditionSet(std::string name,const TrackConditionSet&master);
 	virtual ~TrackConditionSet();
 	TrackConditionSet&AddParameter(std::string&&name,TrackDependent parameter);
 	TrackConditionSet&AddCondition(std::string&&name,Condition condition);

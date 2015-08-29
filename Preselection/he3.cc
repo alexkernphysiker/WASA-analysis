@@ -21,8 +21,7 @@ He3_phi("He3.phi",
 	[this](WTrack&&track){return FromFirstVertex(kHe3).Phi;}
 ),
 Cut("Cuts",[this](){return PBeam();},20,p_he3_eta_threshold,p_beam_hi),
-CutFRH1("FRH1",[this](){return PBeam();},20,p_he3_eta_threshold,p_beam_hi),
-CutFTH1("FTH1",[this](){return PBeam();},20,p_he3_eta_threshold,p_beam_hi),
+CutFRH1("FRH1",Cut),CutFTH1("FTH1",Cut),
 MissingMass("MissingMass",static_right(Cut))
 {
 	AddLogSubprefix("He3");

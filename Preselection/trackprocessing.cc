@@ -11,6 +11,8 @@ TrackConditionSet::TrackConditionSet(string name, Independent distr,int bins,dou
 	beforecut=new TH1F("BeforeAllCuts","",m_bins,m_from,m_to);
 	gHistoManager->Add(beforecut,m_name.c_str());
 }
+TrackConditionSet::TrackConditionSet(string name, const TrackConditionSet& master):
+	TrackConditionSet(name,master.m_distr,master.m_bins,master.m_from,master.m_to){}
 TrackConditionSet::~TrackConditionSet(){}
 TrackConditionSet::TrackCalc::TrackCalc(string n):name(n){}
 TrackConditionSet::TrackCalc::~TrackCalc(){}
