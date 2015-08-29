@@ -19,7 +19,7 @@ protected:
 	virtual bool CentralTrackProcessing(WTrack&&track)override;
 private:
 	InterpolationBasedReconstruction He3_Ekin,He3_theta,He3_phi;
-	TrackConditionSet CutFRH1;
+	TrackConditionSet Cut,CutFRH1,CutFTH1;
 	Analyser2D MissingMass;
 };
 #endif 

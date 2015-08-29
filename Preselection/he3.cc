@@ -20,8 +20,10 @@ He3_phi("He3.phi",
 	[this](WTrack&&track){return NormPhi(track.Phi());},
 	[this](WTrack&&track){return FromFirstVertex(kHe3).Phi;}
 ),
+Cut("Cuts",[this](){return PBeam();},20,p_he3_eta_threshold,p_beam_hi),
 CutFRH1("FRH1",[this](){return PBeam();},20,p_he3_eta_threshold,p_beam_hi),
-MissingMass("MissingMass",static_right(CutFRH1))
+CutFTH1("FTH1",[this](){return PBeam();},20,p_he3_eta_threshold,p_beam_hi),
+MissingMass("MissingMass",static_right(Cut))
 {
 	AddLogSubprefix("He3");
 	SubLog log=Log(LogDebug);
@@ -47,6 +49,14 @@ MissingMass("MissingMass",static_right(CutFRH1))
 			cut->SetPoint(10,0.000,0.024);
 		}
 		return cut->IsInside(EDep(static_right(track),kFRH1),EDep(static_right(track),kFTH1));
+	});
+	CutFTH1.AddCondition("StoppingPlane",[this](WTrack&&track,vector<double>&){
+		return (StopPlane(static_right(track))==kFTH1);
+	}).AddCondition("SP2cut",[this](WTrack&&track,vector<double>&){
+		return EDep(static_right(track),kFWC2)>=0.012;
+	});
+	Cut.AddCondition("EdepCuts",[this](WTrack&&track,vector<double>&P){
+		return CutFRH1.Check(static_right(track),P)||CutFTH1.Check(static_right(track),P);
 	}).AddCondition("ThetaCut",[this](WTrack&&track,vector<double>&){
 		return ((track.Theta()<0.1245)||(track.Theta()>0.1255));
 	}).AddParameter("E",[this](WTrack&&track){
@@ -81,6 +91,8 @@ MissingMass("MissingMass",static_right(CutFRH1))
 }
 He3_in_forward::~He3_in_forward(){}
 bool He3_in_forward::EventPreProcessing(){
+	Cut.ReferenceEvent();
+	CutFTH1.ReferenceEvent();
 	CutFRH1.ReferenceEvent();
 	return true;
 }
@@ -90,7 +102,7 @@ bool He3_in_forward::ForwardTrackProcessing(WTrack&& track){
 	SubLog log=Log(LogDebug);
 	ForwardDetectorTrackMarker(0,static_right(track));
 	vector<double> He3;
-	if(CutFRH1.Check(static_right(track),He3)){
+	if(Cut.Check(static_right(track),He3)){
 		ForwardDetectorTrackMarker(1,static_right(track));
 		MissingMass.AcceptEvent(He3);
 	}

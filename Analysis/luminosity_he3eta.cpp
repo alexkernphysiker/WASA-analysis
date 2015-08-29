@@ -25,7 +25,7 @@ int main(int,char**){
 #include "env.cc"
 	Plotter::Instance().SetOutput(outpath,"he3eta");
 	vector<string> kin_path={"Histograms","MissingMass"};
-	vector<string> norm_path={"Histograms","FRH1"};
+	vector<string> norm_path={"Histograms","Cuts"};
 	
 	hist mc_norm(false,"He3eta",static_right(norm_path),"Reference"),
 		mc_filtered1(false,"He3eta",static_right(norm_path),"SP2cut"),
