@@ -56,9 +56,12 @@ private:
 class Analyser2D{
 public:
 	Analyser2D(std::string name,TrackConditionSet&&,ParamDependent B,int binsB,double fromB,double toB);
+	Analyser2D(std::string name,TrackConditionSet&&);
+	void Setup(ParamDependent B,int binsB,double fromB,double toB);
 	virtual ~Analyser2D();
 	void AcceptEvent(std::vector<double>&);
 private:
+	std::string m_name;
 	TrackConditionSet*master;
 	ParamDependent m_B;
 	TH1F *ForAllA;

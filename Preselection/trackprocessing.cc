@@ -62,21 +62,29 @@ bool TrackConditionSet::Check(WTrack&& track,vector<double>&params){
 	return true;
 }
 
-Analyser2D::Analyser2D(std::string name,TrackConditionSet&&Cuts,ParamDependent B,int binsB,double fromB,double toB){
-	ForAllA=new TH1F("All","",binsB,fromB,toB);
-	gHistoManager->Add(ForAllA,name.c_str());
+Analyser2D::Analyser2D(std::string name,TrackConditionSet&&Cuts){
+	master=&Cuts;m_name=name;
+	ForAllA=nullptr;
+}
+Analyser2D::Analyser2D(string name, TrackConditionSet&&Cuts, ParamDependent B, int binsB, double fromB, double toB):
+	Analyser2D(name,static_right(Cuts)){
+	Setup(B,binsB,fromB,toB);
+}
+
+void Analyser2D::Setup(ParamDependent B, int binsB, double fromB, double toB){
 	m_B=B;
-	master=&Cuts;
+	ForAllA=new TH1F("All","",binsB,fromB,toB);
+	gHistoManager->Add(ForAllA,m_name.c_str());
 	{
 		TH1F* OutOff=new TH1F("Out","",binsB,fromB,toB);
 		A_bin.push_back(OutOff);
-		gHistoManager->Add(OutOff,name.c_str());
+		gHistoManager->Add(OutOff,m_name.c_str());
 	}
-	for(int i=1,N=Cuts.reference->GetNbinsX();i<=N;i++){
-		int index=int(Cuts.reference->GetBinCenter(i)*1000);
+	for(int i=1,N=master->reference->GetNbinsX();i<=N;i++){
+		int index=int(master->reference->GetBinCenter(i)*1000);
 		TH1F* hist=new TH1F(to_string(index).c_str(),"",binsB,fromB,toB);
 		A_bin.push_back(hist);
-		gHistoManager->Add(hist,name.c_str());
+		gHistoManager->Add(hist,m_name.c_str());
 	}
 }
 Analyser2D::~Analyser2D(){}

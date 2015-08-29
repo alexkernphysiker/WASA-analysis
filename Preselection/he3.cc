@@ -21,27 +21,7 @@ He3_phi("He3.phi",
 	[this](WTrack&&track){return FromFirstVertex(kHe3).Phi;}
 ),
 CutFRH1("FRH1",[this](){return PBeam();},20,p_he3_eta_threshold,p_beam_hi),
-MissingMass("MissingMass",static_right(CutFRH1),
-	[this](vector<double>&He3){
-		double p=sqrt(He3[0]*(He3[0]+2*m_3He));
-		TVector3 p_He3;
-		p_He3.SetMagThetaPhi(p,He3[1],He3[2]);
-		TLorentzVector P_He3;
-		P_He3.SetVectM(p_He3,m_3He);
-		TLorentzVector P_Total;{
-			TVector3 p_beam;
-			p_beam.SetMagThetaPhi(PBeam(),0,0);
-			TLorentzVector P_Beam;
-			TLorentzVector P_Target;
-			P_Beam.SetVectM(p_beam,m_p);
-			TVector3 ptarget;
-			ptarget.SetMagThetaPhi(0,0,0);
-			P_Target.SetVectM(ptarget,m_d);
-			P_Total=P_Beam+P_Target;
-		}
-		TLorentzVector P_Missing=P_Total-P_He3;
-		return P_Missing.M();
-	},400,0.4,0.6)
+MissingMass("MissingMass",static_right(CutFRH1))
 {
 	AddLogSubprefix("He3");
 	SubLog log=Log(LogDebug);
@@ -78,6 +58,26 @@ MissingMass("MissingMass",static_right(CutFRH1),
 	}).AddCondition("Reconstructed",[this](WTrack&&,vector<double>&P){
 		return isfinite(P[0])&&isfinite(P[1])&&isfinite(P[2]);
 	});
+	MissingMass.Setup([this](vector<double>&He3){
+		double p=sqrt(He3[0]*(He3[0]+2*m_3He));
+		TVector3 p_He3;
+		p_He3.SetMagThetaPhi(p,He3[1],He3[2]);
+		TLorentzVector P_He3;
+		P_He3.SetVectM(p_He3,m_3He);
+		TLorentzVector P_Total;{
+			TVector3 p_beam;
+			p_beam.SetMagThetaPhi(PBeam(),0,0);
+			TLorentzVector P_Beam;
+			TLorentzVector P_Target;
+			P_Beam.SetVectM(p_beam,m_p);
+			TVector3 ptarget;
+			ptarget.SetMagThetaPhi(0,0,0);
+			P_Target.SetVectM(ptarget,m_d);
+			P_Total=P_Beam+P_Target;
+		}
+		TLorentzVector P_Missing=P_Total-P_He3;
+		return P_Missing.M();
+	},400,0.4,0.6);
 }
 He3_in_forward::~He3_in_forward(){}
 bool He3_in_forward::EventPreProcessing(){
