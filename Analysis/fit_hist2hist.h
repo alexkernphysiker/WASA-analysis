@@ -31,7 +31,7 @@ class HistToHists:public Genetic::IOptimalityFunction{
 public:
 	HistToHists(std::shared_ptr<hist>data,std::vector<std::shared_ptr<hist>>simulation);
     virtual ~HistToHists();
-	virtual double operator()(Genetic::ParamSet&&P)override;
+	virtual double operator()(const Genetic::ParamSet&P)const override;
 	std::shared_ptr<hist> GetSubHist(size_t i,Genetic::ParamSet&&P);
 private:
 	std::shared_ptr<hist>m_data;

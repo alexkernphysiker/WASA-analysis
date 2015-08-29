@@ -12,7 +12,7 @@
 #include "gethist.h"
 using namespace std;
 using namespace Genetic;
-double PresentRunsAmountRatio(string reaction){
+double PresentRunsAmountRatio(string&&reaction){
 	#include "env.cc"
 	size_t allruns=0,present_runs=0;
 	for(ALLRUNS){
@@ -27,7 +27,7 @@ double PresentRunsAmountRatio(string reaction){
 	return double(present_runs)/double(allruns);
 }
 hist::hist(){}
-hist::hist(string filename,vector<string>&&path,string histname){
+hist::hist(string&&filename,vector<string>&&path,string&&histname){
 	TFile* file=TFile::Open(filename.c_str());
 	if(file){
 		TDirectoryFile* dir1=file;
@@ -55,15 +55,15 @@ hist::hist(string filename,vector<string>&&path,string histname){
 		delete file;
 	}
 }
-hist::hist(bool from_data, string reaction, vector< string >&& path, string histname){
+hist::hist(bool from_data,string&&reaction,vector<string>&&path,string&&histname){
 	#include "env.cc"
 	if(!from_data){
-		hist tmp(inputpath+"/MC"+reaction+".root",static_right(path),histname);
+		hist tmp(inputpath+"/MC"+reaction+".root",static_cast<decltype(path)&&>(path),static_cast<string&&>(histname));
 		operator=(tmp);
 	}else{
 		data.clear();
 		for(ALLRUNS){
-			hist tmp(inputpath+"/Data"+reaction+"_run_"+to_string(runindex)+".root",static_right(path),histname);
+			hist tmp(inputpath+"/Data"+reaction+"_run_"+to_string(runindex)+".root",static_cast<decltype(path)&&>(path),static_cast<string&&>(histname));
 			if(tmp.data.size()>0){
 				if(data.size()==0)
 					operator=(tmp);
@@ -74,13 +74,12 @@ hist::hist(bool from_data, string reaction, vector< string >&& path, string hist
 	}
 }
 hist::hist(const hist& source){
-	data.clear();
 	for(point p: source.data)
 		data.push_back(p);
 }
-hist hist::CloneEmptyBins(){
+hist hist::CloneEmptyBins()const{
 	hist res(*this);
-	for(point p:res){
+	for(point p:res.data){
 		p.y=0;
 		p.dy=1;
 	}
@@ -89,21 +88,18 @@ hist hist::CloneEmptyBins(){
 
 hist& hist::operator=(const hist& source){
 	data.clear();
-	for(point p: source.data)
+	for(point p: source)
 		data.push_back(p);
 	return *this;
 }
 hist::~hist(){}
-int hist::count(){
-	return data.size();
-}
-double hist::Entries(){
-	return norm;
-}
-hist& hist::imbibe(hist& second){
+int hist::count()const{return data.size();}
+double hist::Entries()const{return norm;}
+
+hist& hist::imbibe(const hist& second){
 	for(int i=0,n=count();i<n;i++){
-		if(data[i].x==second.data[i].x){
-			data[i].y+=second.data[i].y;
+		if(data[i].x==second[i].x){
+			data[i].y+=second[i].y;
 			data[i].dy=sqrt(data[i].y);
 			if(data[i].dy<1)data[i].dy=1;
 		}else
@@ -111,11 +107,11 @@ hist& hist::imbibe(hist& second){
 	}
 	return *this;
 }
-hist& hist::operator+=(hist& second){
+hist& hist::operator+=(const hist& second){
 	for(int i=0,n=count();i<n;i++){
-		if(data[i].x==second.data[i].x){
-			data[i].y+=second.data[i].y;
-			data[i].dy+=second.data[i].dy;
+		if(data[i].x==second[i].x){
+			data[i].y+=second[i].y;
+			data[i].dy+=second[i].dy;
 		}else
 			throw exception();
 	}
@@ -126,11 +122,11 @@ hist& hist::operator+=(function<double(double)>f){
 		p.y+=f(p.x);
 	return *this;
 }
-hist& hist::operator-=(hist& second){
+hist& hist::operator-=(const hist& second){
 	for(int i=0,n=count();i<n;i++){
-		if(data[i].x==second.data[i].x){
-			data[i].y-=second.data[i].y;
-			data[i].dy+=second.data[i].dy;
+		if(data[i].x==second[i].x){
+			data[i].y-=second[i].y;
+			data[i].dy+=second[i].dy;
 		}else
 			throw exception();
 	}
@@ -142,12 +138,12 @@ hist& hist::operator-=(function<double(double)>f){
 	return *this;
 }
 
-hist& hist::operator*=(hist& second){
+hist& hist::operator*=(const hist& second_hist){
 	for(int i=0,n=count();i<n;i++){
-		if(data[i].x==second.data[i].x){
+		if(data[i].x==second_hist[i].x){
 			auto Y=make_pair(data[i].y,data[i].dy);
-			data[i].y*=second.data[i].y;
-			data[i].dy=Y.second*second.data[i].y+second.data[i].dy*Y.first;
+			data[i].y*=second_hist[i].y;
+			data[i].dy=Y.second*second_hist[i].y+second_hist[i].dy*Y.first;
 		}else
 			throw exception();
 	}
@@ -169,12 +165,12 @@ hist& hist::operator*=(function<double(double)>f){
 	}
 	return *this;
 }
-hist& hist::operator/=(hist& second){
+hist& hist::operator/=(const hist& second_hist){
 	for(int i=0,n=count();i<n;i++){
-		if(data[i].x==second.data[i].x){
+		if(data[i].x==second_hist[i].x){
 			auto Y=make_pair(data[i].y,data[i].dy);
-			data[i].y/=second.data[i].y;
-			data[i].dy=Y.second/second.data[i].y+second.data[i].dy*Y.first/second.data[i].y/second.data[i].y;
+			data[i].y/=second_hist[i].y;
+			data[i].dy=Y.second/second_hist[i].y+second_hist[i].dy*Y.first/second_hist[i].y/second_hist[i].y;
 		}else
 			throw exception();
 	}
@@ -215,30 +211,23 @@ hist& hist::operator>>(size_t c){
 	return *this;
 }
 
-hist::point& hist::operator[](int i){
-	return data[i];
-}
-hist::iterator hist::begin(){
-	return data.begin();
-}
-hist::const_iterator hist::cbegin() const{
-	return data.cbegin();
-}
-hist::iterator hist::end(){
-	return data.end();
-}
-hist::const_iterator hist::cend() const{
-	return data.cend();
-}
+hist::point& hist::operator[](int i)const{return const_cast<point&>(data[i]);}
+hist::iterator hist::begin(){return data.begin();}
+hist::const_iterator hist::begin() const{return data.begin();}
+hist::const_iterator hist::cbegin() const{return data.cbegin();}
+hist::iterator hist::end(){return data.end();}
+hist::const_iterator hist::end() const{return data.end();}
+hist::const_iterator hist::cend() const{return data.cend();}
+
 PlotHist::PlotHist():Plot<double>(){}
-PlotHist& PlotHist::Hist(string name, hist&& data){
-	Plot<double>::OutputPlot(name,[&data](std::ofstream&str){
+PlotHist& PlotHist::Hist(string&&name,const hist&data){
+	Plot<double>::OutputPlot(static_cast<string&&>(name),[&data](std::ofstream&str){
 		for(hist::point p:data)str<<p.x<<" "<<p.y<<" "<<p.dx<<" "<<p.dy<<"\n";
 	},"using 1:2:($1-$3):($1+$3):($2-$4):($2+$4) with xyerrorbars");
 	return *this;
 }
-PlotHist& PlotHist::Hist(string name, shared_ptr< hist > data){
-	Plot<double>::OutputPlot(name,[&data](std::ofstream&str){
+PlotHist& PlotHist::Hist(string&&name,shared_ptr<hist>data){
+	Plot<double>::OutputPlot(static_cast<string&&>(name),[&data](std::ofstream&str){
 		for(hist::point p:*data)str<<p.x<<" "<<p.y<<" "<<p.dx<<" "<<p.dy<<"\n";
 	},"using 1:2:($1-$3):($1+$3):($2-$4):($2+$4) with xyerrorbars");
 	return *this;

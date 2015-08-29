@@ -11,11 +11,11 @@ hist::point&Get(std::shared_ptr<hist>H,size_t i,double corr){
 	if(newi>last)return H->operator[](last);
 	return H->operator[](newi);
 }
-HistToHists::HistToHists(shared_ptr< hist > data, vector<shared_ptr<hist>> simulation):m_simulation(simulation){
+HistToHists::HistToHists(shared_ptr<hist> data, vector<shared_ptr<hist>> simulation):m_simulation(simulation){
 	m_data=data;
 }
 HistToHists::~HistToHists(){}
-double HistToHists::operator()(ParamSet&& P){
+double HistToHists::operator()(const ParamSet& P)const{
 	if(P.Count()!=(m_simulation.size()+1))
 		throw exception();
 	for(auto MC:m_simulation)
