@@ -31,7 +31,7 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 			cut=new TCutG("FRH1_cut",11);
 			cut->SetVarX("FRH1");
 			cut->SetVarY("FTH1");
-			cut->SetPoint(0,0.000,0.033);
+			cut->SetPoint(0,0.01,0.033);
 			cut->SetPoint(2,0.068,0.023);
 			cut->SetPoint(3,0.146,0.017);
 			cut->SetPoint(4,0.223,0.016);
@@ -40,7 +40,7 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 			cut->SetPoint(7,0.139,0.009);
 			cut->SetPoint(8,0.093,0.013);
 			cut->SetPoint(9,0.047,0.016);
-			cut->SetPoint(10,0.000,0.024);
+			cut->SetPoint(10,0.005,0.024);
 		}
 		return cut->IsInside(EDep(track,kFRH1),EDep(track,kFTH1));
 	}).AddCondition("ThetaCut",[this](WTrack&track,vector<double>&){
