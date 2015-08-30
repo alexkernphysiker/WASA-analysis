@@ -4,6 +4,7 @@
 #include "he3.h"
 #include "detectors.h"
 #include "../General/phys_constants.h"
+#include "geometry.h"
 using namespace std;
 He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 	Cut("Cuts",[this](){return PBeam();},20,p_he3_eta_threshold,p_beam_hi),
