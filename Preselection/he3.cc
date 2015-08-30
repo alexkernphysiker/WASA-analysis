@@ -49,7 +49,7 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 	CutFTH1.AddCondition("StoppingFTH1",[this](WTrack&track,vector<double>&){
 		return (StopPlane(track)==kFTH1);
 	}).AddCondition("FWC2cut",[this](WTrack&track,vector<double>&){
-		return EDep(track,kFWC2)>=0.012;
+		return EDep(track,kFWC2)>=0.011;
 	});
 	Cut.AddCondition("Edep_cuts",[this](WTrack&track,vector<double>&P){
 		return CutFRH1.Check(track,P)||CutFTH1.Check(track,P);
