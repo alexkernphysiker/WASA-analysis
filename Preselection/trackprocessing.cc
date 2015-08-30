@@ -2,7 +2,7 @@
 // GPL v 3.0 license
 #include "trackprocessing.h"
 using namespace std;
-TrackConditionSet::TrackConditionSet(string name, Independent distr,int bins,double from,double to){
+TrackConditionSet::TrackConditionSet(string&&name, Independent distr,int bins,double from,double to){
 	m_name=name;m_distr=distr;
 	m_from=from;m_to=to;m_bins=bins;
 	reference=new TH1F("Reference","",m_bins,m_from,m_to);
@@ -10,27 +10,25 @@ TrackConditionSet::TrackConditionSet(string name, Independent distr,int bins,dou
 	beforecut=new TH1F("BeforeAllCuts","",m_bins,m_from,m_to);
 	gHistoManager->Add(beforecut,m_name.c_str());
 }
-TrackConditionSet::TrackConditionSet(string name, const TrackConditionSet& master):
-	TrackConditionSet(name,master.m_distr,master.m_bins,master.m_from,master.m_to){}
+TrackConditionSet::TrackConditionSet(string&&name, const TrackConditionSet& master):
+	TrackConditionSet(static_cast<string&&>(name),master.m_distr,master.m_bins,master.m_from,master.m_to){}
 TrackConditionSet::~TrackConditionSet(){}
-TrackConditionSet::TrackCalc::TrackCalc(string n):name(n){}
+TrackConditionSet::TrackCalc::TrackCalc(const string&n):name(n){}
 TrackConditionSet::TrackCalc::~TrackCalc(){}
 string&& TrackConditionSet::TrackCalc::Name(){return static_cast<string&&>(name);}
-TrackConditionSet::ParamCalc::ParamCalc(string n, TrackDependent d): TrackCalc(n){
-	m_delegate=d;
-}
+TrackConditionSet::ParamCalc::ParamCalc(const string&n, TrackDependent d):TrackCalc(n){m_delegate=d;}
 TrackConditionSet::ParamCalc::~ParamCalc(){}
-double TrackConditionSet::ParamCalc::Get(const WTrack&track){
+double TrackConditionSet::ParamCalc::Get(WTrack&track){
 	return m_delegate(track);
 }
-TrackConditionSet::TrackCondition::TrackCondition(string n, TrackConditionSet::Condition delegate, TrackConditionSet* master):
+TrackConditionSet::TrackCondition::TrackCondition(const string&n,TrackConditionSet::Condition delegate, TrackConditionSet* master):
 	TrackCalc(n){
 	condition=delegate;
 	output=new TH1F(n.c_str(),"",master->m_bins,master->m_from,master->m_to);
 	gHistoManager->Add(output,master->m_name.c_str());
 }
 TrackConditionSet::TrackCondition::~TrackCondition(){}
-bool TrackConditionSet::TrackCondition::Check(const WTrack&track,vector<double>&P,double magnitude){
+bool TrackConditionSet::TrackCondition::Check(WTrack&track,vector<double>&P,double magnitude){
 	if(!condition(track,P))
 		return false;
 	output->Fill(magnitude);
@@ -49,7 +47,7 @@ void TrackConditionSet::ReferenceEvent(){
 	double M=m_distr();
 	reference->Fill(M);
 }
-bool TrackConditionSet::Check(const WTrack&track,vector<double>&params){
+bool TrackConditionSet::Check(WTrack&track,vector<double>&params){
 	double M=m_distr();
 	beforecut->Fill(M);
 	for(auto item:calc_procs){
@@ -62,15 +60,12 @@ bool TrackConditionSet::Check(const WTrack&track,vector<double>&params){
 	return true;
 }
 
-Analyser2D::Analyser2D(std::string name,const TrackConditionSet&Cuts){
+Analyser2D::Analyser2D(std::string&&name,const TrackConditionSet&Cuts){
 	m_name=name;
 	ForAllA=nullptr;
 	reference=Cuts.reference;
 	m_distr=Cuts.m_distr;
 }
-Analyser2D::Analyser2D(string name,const TrackConditionSet&Cuts, ParamDependent B, int binsB, double fromB, double toB):
-	Analyser2D(name,Cuts){Setup(B,binsB,fromB,toB);}
-
 void Analyser2D::Setup(ParamDependent B, int binsB, double fromB, double toB){
 	m_B=B;
 	ForAllA=new TH1F("All","",binsB,fromB,toB);

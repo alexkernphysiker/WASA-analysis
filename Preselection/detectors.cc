@@ -4,7 +4,7 @@
 #include <utility>
 #include "detectors.h"
 using namespace std;
-ForwardDetectors::plane_data::plane_data(ForwardDetectorPlane p, string n, double u,double thr)
+ForwardDetectors::plane_data::plane_data(ForwardDetectorPlane p, string&&n, double u,double thr)
 	:plane(p),name(n),upper(u),threshold(thr){}
 ForwardDetectors::ForwardDetectors(int markers){
 	AddLogSubprefix("Forward detector");
@@ -28,59 +28,53 @@ ForwardDetectors::ForwardDetectors(int markers){
 	
 }
 ForwardDetectors::~ForwardDetectors(){}
-int ForwardDetectors::ForwadrPlaneCount(){
-	return PlaneData.size();
-}
-int ForwardDetectors::ForwardPlaneIndex(ForwardDetectorPlane plane){
+
+int ForwardDetectors::ForwadrPlaneCount()const{return PlaneData.size();}
+int ForwardDetectors::ForwardPlaneIndex(ForwardDetectorPlane plane)const{
 	for(size_t i=0;i<PlaneData.size();i++)
 		if(PlaneData[i].plane==plane)
 			return i;
-		Log()<<"forward plane not found";
 	return -1;
 }
-ForwardDetectorPlane ForwardDetectors::ForwadrPlane(int index){
+ForwardDetectorPlane ForwardDetectors::ForwadrPlane(int index)const{
 	if((index>=0)&&(index<int(PlaneData.size())))
 		return PlaneData[index].plane;
 	return kForwardError;
 }
-string&&ForwardDetectors::ForwardPlaneName(int index){
+string&ForwardDetectors::ForwardPlaneName(int index)const{
 	if((index>=0)&&(index<int(PlaneData.size())))
-		return static_cast<string&&>(PlaneData[index].name);
+		return const_cast<string&>(PlaneData[index].name);
 	static string noplane="<NoPlane>";
-	return static_cast<string&&>(noplane);
+	return const_cast<string&>(noplane);
 }
-string&&ForwardDetectors::ForwardPlaneName(ForwardDetectorPlane plane){
+string&ForwardDetectors::ForwardPlaneName(ForwardDetectorPlane plane)const{
 	return ForwardPlaneName(ForwardPlaneIndex(plane));
 }
-double ForwardDetectors::EDep(WTrack&track, ForwardDetectorPlane plane){
+double ForwardDetectors::EDep(WTrack&track, ForwardDetectorPlane plane)const{
 	return track.Edep(plane);
 }
-
-double ForwardDetectors::EDep(const WTrack&track, int planeindex){
+double ForwardDetectors::EDep(WTrack&track, int planeindex)const{
 	return EDep(track,ForwadrPlane(planeindex));
 }
-double ForwardDetectors::UpperByIndex(int planeindex){
+double ForwardDetectors::UpperByIndex(int planeindex)const{
 	return PlaneData[planeindex].upper;
 }
-double ForwardDetectors::Upper(ForwardDetectorPlane plane){
+double ForwardDetectors::Upper(ForwardDetectorPlane plane)const{
 	return PlaneData[ForwardPlaneIndex(plane)].upper;
 }
-double ForwardDetectors::ThresholdByIndex(int planeindex){
+double ForwardDetectors::ThresholdByIndex(int planeindex)const{
 	return PlaneData[planeindex].threshold;
 }
-double ForwardDetectors::Threshold(ForwardDetectorPlane plane){
+double ForwardDetectors::Threshold(ForwardDetectorPlane plane)const{
 	return PlaneData[ForwardPlaneIndex(plane)].threshold;
 }
-bool ForwardDetectors::UpperThresholdUpTo(const WTrack&track,int planeindex){
-	SubLog log=Log(LogDebug);
-	log<<"UpperThresholdUpTo call";
+bool ForwardDetectors::UpperThresholdUpTo(WTrack&track,int planeindex)const{
 	bool res=true;
 	for(int c=0;c<=planeindex;c++)
 		res&=(EDep(track,c)>ThresholdByIndex(c));
-	if(res)log<<"YES";else log<<"NO";
 	return res;
 }
-int ForwardDetectors::StopPlaneIndex(const WTrack&track){
+int ForwardDetectors::StopPlaneIndex(WTrack&track)const{
 	int res=-1;
 	for(size_t i=0;i<PlaneData.size();i++)
 		if(EDep(track,i)>PlaneData[i].threshold){
@@ -89,11 +83,11 @@ int ForwardDetectors::StopPlaneIndex(const WTrack&track){
 		}
 	return res;
 }
-ForwardDetectorPlane ForwardDetectors::StopPlane(const WTrack&track){
+ForwardDetectorPlane ForwardDetectors::StopPlane(WTrack&track)const{
 	return ForwadrPlane(StopPlaneIndex(track));
 }
 
-void ForwardDetectors::ForwardDetectorTrackMarker(int m,const WTrack&track){
+void ForwardDetectors::ForwardDetectorTrackMarker(int m,WTrack&track){
 	for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++)
 		EDepHist[i][m]->Fill(EDep(track,i+1),EDep(track,i));
 }

@@ -16,25 +16,25 @@ public:
 	ForwardDetectors(int markers);
 	virtual ~ForwardDetectors();
 protected:
-	int ForwadrPlaneCount();
-	int ForwardPlaneIndex(ForwardDetectorPlane plane);
-	ForwardDetectorPlane ForwadrPlane(int index);
-	std::string&&ForwardPlaneName(int index);
-	std::string&&ForwardPlaneName(ForwardDetectorPlane plane);
-	double EDep(WTrack&track,ForwardDetectorPlane plane);
-	double EDep(const WTrack&track,int planeindex);
-	double UpperByIndex(int planeindex);
-	double Upper(ForwardDetectorPlane plane);
-	double ThresholdByIndex(int planeindex);
-	double Threshold(ForwardDetectorPlane plane);
-	int StopPlaneIndex(const WTrack&track);
-	ForwardDetectorPlane StopPlane(const WTrack&track);
-	bool UpperThresholdUpTo(const WTrack&track,int planeindex);
-	void ForwardDetectorTrackMarker(int m,const WTrack&track);
+	int ForwadrPlaneCount()const;
+	int ForwardPlaneIndex(ForwardDetectorPlane plane)const;
+	ForwardDetectorPlane ForwadrPlane(int index)const;
+	std::string&ForwardPlaneName(int index)const;
+	std::string&ForwardPlaneName(ForwardDetectorPlane plane)const;
+	double EDep(WTrack&track,ForwardDetectorPlane plane)const;
+	double EDep(WTrack&track,int planeindex)const;
+	double UpperByIndex(int planeindex)const;
+	double Upper(ForwardDetectorPlane plane)const;
+	double ThresholdByIndex(int planeindex)const;
+	double Threshold(ForwardDetectorPlane plane)const;
+	int StopPlaneIndex(WTrack&track)const;
+	ForwardDetectorPlane StopPlane(WTrack&track)const;
+	bool UpperThresholdUpTo(WTrack&track,int planeindex)const;
+	void ForwardDetectorTrackMarker(int m,WTrack&track);
 private:
 	struct plane_data{
 	public:
-		plane_data(ForwardDetectorPlane p, std::string n,double u,double thr);
+		plane_data(ForwardDetectorPlane p, std::string&&n,double u,double thr);
 		ForwardDetectorPlane plane;
 		std::string name;
 		double upper,threshold;

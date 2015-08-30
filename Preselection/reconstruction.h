@@ -11,12 +11,12 @@
 const string rec_name_prefix="../Reconstruction/";
 class InterpolationBasedReconstruction:public virtual Logger{
 public:
-	typedef std::function<double(const WTrack&)> delegate;
+	typedef std::function<double(WTrack&)> delegate;
 	InterpolationBasedReconstruction(
 		std::string name,delegate measured,delegate theory
 	);
 	virtual ~InterpolationBasedReconstruction();
-	double Reconstruct(const WTrack&);
+	double Reconstruct(WTrack&);
 private:
 	std::string m_name;
 	bool data_present;

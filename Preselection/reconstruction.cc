@@ -40,7 +40,7 @@ InterpolationBasedReconstruction::~InterpolationBasedReconstruction(){
 		}
 	}
 }
-double InterpolationBasedReconstruction::Reconstruct(const WTrack&track){
+double InterpolationBasedReconstruction::Reconstruct(WTrack&track){
 	if(data_present){
 		try{
 			return data(Experiment(track));

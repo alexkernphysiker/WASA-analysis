@@ -43,7 +43,7 @@ void Analysis::ForFirstVertex(function<void(ParticleType,double,Kinematic&)> cyc
 		cyclebody(info.type,info.mass,info.cache);
 }
 
-typedef pair<WTrackBank*,function<bool(const WTrack&)>> DetectorToProcess;
+typedef pair<WTrackBank*,function<bool(WTrack&)>> DetectorToProcess;
 void Analysis::ProcessEvent(){
 	m_count++;
 	if(m_count%1000==0)
@@ -63,8 +63,8 @@ void Analysis::ProcessEvent(){
 				int ChargedCountinForward = fTrackBankFD->GetEntries(kFDC);
 				if(TrackCountTrigger(ChargedCountInCentral,NeutralCountInCentral,ChargedCountinForward)){
 					log<<"Track count conditions passed";
-					DetectorToProcess CENTRAL=make_pair(fTrackBankCD,[this](const WTrack&t){return CentralTrackProcessing(t);});
-					DetectorToProcess FORWARD=make_pair(fTrackBankFD,[this](const WTrack&t){return ForwardTrackProcessing(t);});
+					DetectorToProcess CENTRAL=make_pair(fTrackBankCD,[this](WTrack&t){return CentralTrackProcessing(t);});
+					DetectorToProcess FORWARD=make_pair(fTrackBankFD,[this](WTrack&t){return ForwardTrackProcessing(t);});
 					vector<DetectorToProcess> QUEUE;
 					if(CentralFirst()){
 						QUEUE.push_back(CENTRAL);
