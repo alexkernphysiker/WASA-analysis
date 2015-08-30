@@ -51,7 +51,7 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 		return EDep(track,kFWC2)>=0.012;
 	});
 	Cut.AddCondition("EdepCut",[this](WTrack&track,vector<double>&P){
-		return CutFRH1.Check(track,P)||CutFTH1.Check(track,P);
+		return CutFRH1.Check(track,P);//||CutFTH1.Check(track,P);
 	}).AddCondition("ThetaCut",[this](WTrack&track,vector<double>&){
 		return ((track.Theta()<0.1245)||(track.Theta()>0.1255));
 	}).AddParameter("E",[this](WTrack&track){
