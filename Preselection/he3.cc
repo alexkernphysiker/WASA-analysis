@@ -41,7 +41,8 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 				<<make_pair(0.139,0.009)
 				<<make_pair(0.093,0.013)
 				<<make_pair(0.047,0.016)
-				<<make_pair(0.000,0.024);
+				<<make_pair(0.000,0.024)
+				<<make_pair(0.000,0.033);
 		}
 		return mycut(make_pair(EDep(track,kFRH1),EDep(track,kFTH1)));
 	}).AddCondition("ThetaCut",[this](WTrack&track,vector<double>&){

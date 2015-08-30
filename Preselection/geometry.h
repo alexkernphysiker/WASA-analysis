@@ -8,26 +8,59 @@ namespace PlaneGeometry{
 #define Point pair<numX,numX>
 #define Segment pair<pair<numX,numX>,pair<numX,numX>>
 	using namespace std;
-	template<class numX>
-	inline numX CrossProduct(const Point&A,const Point&B){
+	template<class numX>inline numX CrossProduct(const Point&A,const Point&B){
 		return B.first*A.second-A.first*B.second;
 	}
-	template<class numX>
-	inline Point Vector(const Segment&S){
-		return make_pair(S.first.first-S.second.first,S.first.second-S.second.second);
+	template<class numX>inline numX CrossProduct(Point&&A,Point&&B){
+		return CrossProduct<numX>(const_cast<Point&>(A),const_cast<Point&>(B));
+		
+	}
+	template<class numX>inline Point operator+(const Point&A,const Point&B){
+		return make_pair<numX,numX>(A.first+B.first,A.second+B.second);
+	}
+	template<class numX>inline Point operator+(Point&&A,Point&&B){
+		return make_pair<numX,numX>(A.first+B.first,A.second+B.second);
+	}
+	template<class numX>inline Point operator-(const Point&A,const Point&B){
+		return make_pair<numX,numX>(A.first-B.first,A.second-B.second);
+	}
+	template<class numX>inline Point operator-(Point&&A,Point&&B){
+		return make_pair<numX,numX>(A.first-B.first,A.second-B.second);
+	}
+	template<class numX>inline Point operator*(const Point&A,numX B){
+		return make_pair<numX,numX>(A.first*B,A.second*B);
+	}
+	template<class numX>inline Point operator*(Point&&A,numX B){
+		return make_pair<numX,numX>(A.first*B,A.second*B);
+	}
+	template<class numX>inline numX operator*(const Point&A,const Point&B){
+		return A.first*B.first+A.second*B.second;
+	}
+	template<class numX>inline numX operator*(Point&&A,Point&&B){
+		return A.first*B.first+A.second*B.second;
 	}
 	
+	template<class numX>inline bool PointOnLine(const Point&p,const Segment&S){
+		return CrossProduct<numX>(p-S.first,S.second-S.first)==0;
+	}
 	template<class numX>
 	bool SegmentsIntersect(const Segment&A,const Segment&B){
-		auto Va=Vector(A);
-		if(CrossProduct<numX>(Va,B.first)*CrossProduct<numX>(Va,B.second)<=0){
-			auto Vb=Vector(B);
-			if(CrossProduct<numX>(Vb,A.first)*CrossProduct<numX>(Vb,A.second)<=0)
+		if(CrossProduct(A.second-A.first,B.first-A.first)*CrossProduct<numX>(A.second-A.first,B.second-A.first)<=0)
+			if(CrossProduct(B.second-B.first,A.first-B.first)*CrossProduct<numX>(B.second-B.first,A.second-B.first)<=0)
 				return true;
-			else
-				return false;
-		}else 
-			return false;
+		return false;
+	}
+	template<class numX>
+	bool SegmentIntersectsLine(const Segment&S,const Segment&L){
+		return (CrossProduct(L.second-L.first,S.first-L.first)*CrossProduct<numX>(L.second-L.first,S.second-L.first)<=0);
+	}
+	template<class numX>numX LineYbyX(const Segment&A,double X){
+		if(A.first.first==A.second.first) throw exception();
+		return (X-A.first.first)*(A.second.second-A.first.second)/(A.second.first-A.first.first);
+	}
+	template<class numX>numX LineXbyY(const Segment&A,double Y){
+		if(A.first.second==A.second.second) throw exception();
+		return (Y-A.first.second)*(A.second.first-A.first.first)/(A.second.second-A.first.second);
 	}
 	
 	template<class numX>class Polygon{
@@ -35,29 +68,22 @@ namespace PlaneGeometry{
 		vector<Point> data;
 	public:
 		Polygon(){}
-		virtual Polygon &operator<<(Point&&p){
+		Polygon &operator<<(const Point&p){
 			size_t n=data.size();
 			if(n>1){
-				Segment last1=make_pair(p,data[0]);
-				Segment last2=make_pair(data[n-1],p);
+				Segment last=make_pair(data[n-1],p);
 				for(size_t i=1;i<n;i++){
-					auto cur=make_pair(data[i-1],data[i]);
-					if(SegmentsIntersect<numX>(last1,cur))
-						throw exception();
-					if(SegmentsIntersect<numX>(last2,cur))
+					Segment cur=make_pair(data[i-1],data[i]);
+					if(SegmentsIntersect<numX>(last,cur))
 						throw exception();
 				}
 			}
 			data.push_back(p);
 			return *this;
 		}
-		Polygon(vector<Point>&&points){
-			for(auto&p:points)
-				operator<<(static_cast<Point&&>(p));
-		}
+		Polygon &operator<<(Point&&p){return operator<<(const_cast<Point&>(p));}
 		Polygon(const Polygon&source){
-			for(auto&p:source.data)
-				operator<<(static_cast<Point&&>(p));
+			for(auto&p:source.data)operator<<(p);
 		}
 		virtual ~Polygon(){}
 		size_t size()const{return data.size();}
@@ -72,8 +98,17 @@ namespace PlaneGeometry{
 		const_iterator cend() const{return data.cend();}
 		
 		bool operator()(Point&&X){
-			//ToDo: implement
-			return false;
+			vector<numX> online;
+			for(size_t i=1,n=size();i<n;i++){
+				Segment seg=make_pair(data[i-1],data[i]);
+				if(seg.second.first!=seg.first.first)
+					if((seg.first.first-X.first)*(seg.second.first-X.first)<=0)
+						InsertSorted(LineYbyX(seg,X.first),online,std_size(online),std_insert(online,numX));
+			}
+			if(online.size()%2==1)throw exception();
+			size_t index=0;
+			while((index<online.size())&&(X.second<=online[index]))index++;
+			return (index%2)==1;
 		}
 	};
 #undef Point
