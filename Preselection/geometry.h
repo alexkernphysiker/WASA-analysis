@@ -35,8 +35,9 @@ public:
 	const_iterator end() const{return data.end();}
 	const_iterator cend() const{return data.cend();}
 	
-	bool operator()(Point&&p){
-		
+	bool operator()(Point&&X){
+		//ToDo: implement
+		return false;
 	}
 	bool operator()(numX x,numY y){return operator()(std::make_pair(x,y));}
 };
