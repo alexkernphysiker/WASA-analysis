@@ -3,8 +3,7 @@
 #include "trackprocessing.h"
 using namespace std;
 TrackConditionSet::TrackConditionSet(string&&name, Independent distr,int bins,double from,double to){
-	m_name=name;m_distr=distr;
-	m_from=from;m_to=to;m_bins=bins;
+	m_name=name;m_distr=distr;m_bins=bins;m_from=from;m_to=to;
 	reference=new TH1F("Reference","",m_bins,m_from,m_to);
 	gHistoManager->Add(reference,m_name.c_str());
 	beforecut=new TH1F("BeforeAllCuts","",m_bins,m_from,m_to);
