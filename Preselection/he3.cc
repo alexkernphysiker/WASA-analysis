@@ -28,6 +28,7 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 	Cut.AddCondition("StoppingPlane",[this](WTrack&track,vector<double>&){
 		return (StopPlane(track)==kFRH1);
 	}).AddCondition("SP2cut",[this](WTrack&track,vector<double>&){
+		using namespace PlaneGeometry;
 		static Polygon<double> mycut;
 		if(mycut.size()==0){
 			mycut
@@ -42,7 +43,7 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 				<<make_pair(0.047,0.016)
 				<<make_pair(0.000,0.024);
 		}
-		return mycut(EDep(track,kFRH1),EDep(track,kFTH1));
+		return mycut(make_pair(EDep(track,kFRH1),EDep(track,kFTH1)));
 	}).AddCondition("ThetaCut",[this](WTrack&track,vector<double>&){
 		return ((track.Theta()<0.1245)||(track.Theta()>0.1255));
 	}).AddParameter("E",[this](WTrack&track){
