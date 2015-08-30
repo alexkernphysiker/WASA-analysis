@@ -28,23 +28,21 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 	Cut.AddCondition("StoppingPlane",[this](WTrack&track,vector<double>&){
 		return (StopPlane(track)==kFRH1);
 	}).AddCondition("SP2cut",[this](WTrack&track,vector<double>&){
-		static TCutG *cut=nullptr;if(cut==nullptr){
-			cut=new TCutG("FRH1_cut",12);
-			cut->SetVarX("FRH1");
-			cut->SetVarY("FTH1");
-			cut->SetPoint(11,0.000,0.033);
-			cut->SetPoint(10,0.068,0.023);
-			cut->SetPoint(9,0.146,0.017);
-			cut->SetPoint(8,0.223,0.016);
-			cut->SetPoint(7,0.284,0.013);
-			cut->SetPoint(6,0.214,0.009);
-			cut->SetPoint(5,0.139,0.009);
-			cut->SetPoint(4,0.093,0.013);
-			cut->SetPoint(3,0.047,0.016);
-			cut->SetPoint(2,0.000,0.024);
-			cut->SetPoint(1,0.000,0.033);
+		static Polygon<double> mycut;
+		if(mycut.size()==0){
+			mycut
+				<<make_pair(0.000,0.033)
+				<<make_pair(0.068,0.023)
+				<<make_pair(0.146,0.017)
+				<<make_pair(0.223,0.016)
+				<<make_pair(0.284,0.013)
+				<<make_pair(0.214,0.009)
+				<<make_pair(0.139,0.009)
+				<<make_pair(0.093,0.013)
+				<<make_pair(0.047,0.016)
+				<<make_pair(0.000,0.024);
 		}
-		return cut->IsInside(EDep(track,kFRH1),EDep(track,kFTH1));
+		return mycut(EDep(track,kFRH1),EDep(track,kFTH1));
 	}).AddCondition("ThetaCut",[this](WTrack&track,vector<double>&){
 		return ((track.Theta()<0.1245)||(track.Theta()>0.1255));
 	}).AddParameter("E",[this](WTrack&track){
