@@ -7,9 +7,20 @@
 namespace PlaneGeometry{
 #define Point pair<numX,numX>
 #define Segment pair<pair<numX,numX>,pair<numX,numX>>
+	template<class numX>class exception:public std::exception{
+	private:
+		std::string m_msg;
+	public:
+		exception<numX>(std::string&&msg){m_msg=msg;}
+		virtual ~exception<numX>() throw(){}
+		virtual const char* what() const throw(){return m_msg.c_str();}
+	};
 	using namespace std;
 	template<class numX>inline bool operator==(const Point&A,const Point&B){
 		return (A.first==B.first)&&(A.second==B.second);
+	}
+	template<class numX>inline bool operator!=(const Point&A,const Point&B){
+		return (A.first!=B.first)||(A.second!=B.second);
 	}
 	template<class numX>inline numX CrossProduct(const Point&A,const Point&B){
 		return B.first*A.second-A.first*B.second;
@@ -58,11 +69,11 @@ namespace PlaneGeometry{
 		return (CrossProduct(L.second-L.first,S.first-L.first)*CrossProduct<numX>(L.second-L.first,S.second-L.first)<=0);
 	}
 	template<class numX>numX LineYbyX(const Segment&A,double X){
-		if(A.first.first==A.second.first) throw exception();
+		if(A.first.first==A.second.first) throw exception<numX>("LineYbyX error");
 		return (X-A.first.first)*(A.second.second-A.first.second)/(A.second.first-A.first.first);
 	}
 	template<class numX>numX LineXbyY(const Segment&A,double Y){
-		if(A.first.second==A.second.second) throw exception();
+		if(A.first.second==A.second.second) throw exception<numX>("LineXbyY error");
 		return (Y-A.first.second)*(A.second.first-A.first.first)/(A.second.second-A.first.second);
 	}
 	
@@ -79,7 +90,7 @@ namespace PlaneGeometry{
 					Segment cur=make_pair(data[i-1],data[i]);
 					if((i>1)||(p==data[0]))
 					if(SegmentsIntersect<numX>(last,cur))
-						throw exception();
+						throw exception<numX>("Polygon: intersection detected!");
 				}
 			}
 			data.push_back(p);
@@ -103,13 +114,16 @@ namespace PlaneGeometry{
 		
 		bool operator()(Point&&X){
 			vector<numX> online;
-			for(size_t i=1,n=size();i<n;i++){
+			size_t n=size();
+			if(data[0]!=data[n-1])
+				throw exception<numX>("Using of incomplete polygon");
+			for(size_t i=1;i<n;i++){
 				Segment seg=make_pair(data[i-1],data[i]);
 				if(seg.second.first!=seg.first.first)
 					if((seg.first.first-X.first)*(seg.second.first-X.first)<=0)
 						InsertSorted(LineYbyX(seg,X.first),online,std_size(online),std_insert(online,numX));
 			}
-			if(online.size()%2==1)throw exception();
+			if(online.size()%2==1)throw exception<numX>("Polynom: Odd number of intersections with vertical line");
 			size_t index=0;
 			while((index<online.size())&&(X.second<=online[index]))index++;
 			return (index%2)==1;
