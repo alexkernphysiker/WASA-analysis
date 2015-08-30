@@ -8,6 +8,9 @@ namespace PlaneGeometry{
 #define Point pair<numX,numX>
 #define Segment pair<pair<numX,numX>,pair<numX,numX>>
 	using namespace std;
+	template<class numX>inline bool operator==(const Point&A,const Point&B){
+		return (A.first==B.first)&&(A.second==B.second);
+	}
 	template<class numX>inline numX CrossProduct(const Point&A,const Point&B){
 		return B.first*A.second-A.first*B.second;
 	}
@@ -74,6 +77,7 @@ namespace PlaneGeometry{
 				Segment last=make_pair(data[n-1],p);
 				for(size_t i=1;i<n;i++){
 					Segment cur=make_pair(data[i-1],data[i]);
+					if((i>1)||(p==data[0]))
 					if(SegmentsIntersect<numX>(last,cur))
 						throw exception();
 				}
