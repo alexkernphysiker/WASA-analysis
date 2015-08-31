@@ -25,10 +25,8 @@ AnalysisWrap::AnalysisWrap(const char* name): CAnalysisModule(name){
 	log<<"Analysis type:"<<type;
 	if(type=="MC_He3eta")
 		alg=new CustomAnalysis<MonteCarlo,He3eta>();
-	if(type=="MC_He3pi0pi0")
-		alg=new CustomAnalysis<MonteCarlo,He3pi0<2>>();
-	if(type=="MC_He3pi0pi0pi0")
-		alg=new CustomAnalysis<MonteCarlo,He3pi0<3>>();
+	if((type=="MC_He3pi0pi0")||(type=="MC_He3pi0pi0pi0"))
+		alg=new CustomAnalysis<MonteCarlo,He3pi0>();
 	if(type=="Data_He3")
 		alg=new CustomAnalysis<RealData,He3eta>();
 	if(alg)

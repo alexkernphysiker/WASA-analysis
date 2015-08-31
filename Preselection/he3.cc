@@ -83,9 +83,9 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 		return P_Missing.M();
 	},400,0.4,0.6);
 }
-He3eta::He3eta():He3_in_forward(){
-	AddParticleToFirstVertex(kEta,m_eta);
-}
+He3eta::He3eta():He3_in_forward(){AddParticleToFirstVertex(kEta,m_eta);}
+He3pi0::He3pi0():He3_in_forward(){AddParticleToFirstVertex(kPi0,m_pi0);}
+
 He3_in_forward::~He3_in_forward(){}
 bool He3_in_forward::EventPreProcessing(){
 	Cut.ReferenceEvent();

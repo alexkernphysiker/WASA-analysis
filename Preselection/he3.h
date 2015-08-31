@@ -27,12 +27,8 @@ class He3eta:public He3_in_forward{
 public:
     He3eta();
 };
-template<unsigned int count>
 class He3pi0:public He3_in_forward{
 public:
-	He3pi0():He3_in_forward(){
-		for(unsigned int i=0;i<count;i++)
-			AddParticleToFirstVertex(kPi0,m_pi0);
-	}
+	He3pi0();
 };
 #endif 
