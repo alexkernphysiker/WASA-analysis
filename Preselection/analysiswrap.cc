@@ -23,12 +23,9 @@ AnalysisWrap::AnalysisWrap(const char* name): CAnalysisModule(name){
 	Logger::SubLog log=LOG.Log(NoLog);
 	IAnalysis *alg=nullptr;
 	log<<"Analysis type:"<<type;
-	if(type=="MC_He3eta")
-		alg=new CustomAnalysis<MonteCarlo,He3eta>();
-	if((type=="MC_He3pi0pi0")||(type=="MC_He3pi0pi0pi0"))
-		alg=new CustomAnalysis<MonteCarlo,He3pi0>();
-	if(type=="Data_He3")
-		alg=new CustomAnalysis<RealData,He3eta>();
+	if(type=="MC_He3eta")alg=new He3eta();
+	if((type=="MC_He3pi0pi0")||(type=="MC_He3pi0pi0pi0"))alg=new He3pi0();
+	if(type=="Data_He3")alg=new He3Data();
 	if(alg)
 		m_data=(void*)alg;
 	else{

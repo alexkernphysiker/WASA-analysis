@@ -13,7 +13,7 @@
 using namespace std;
 using namespace Genetic;
 RANDOM engine;
-double sigma(double p_beam){
+double sigmaHe3eta(double p_beam){
 	return 400;//nb
 }
 void AnalyseMMSpectra(hist::point&BeamMomentaBin,const hist&data,const vector<hist>&MC){
@@ -52,6 +52,6 @@ int main(int,char**){
 	}
 	PlotHist().Hist("He3eta events in data",luminocity)
 		.Hist("He3eta true events",luminocity/=acceptance);
-	PlotHist().Hist("Integral luminocity(analysed)",luminocity/=sigma)
+	PlotHist().Hist("Integral luminocity(analysed)",luminocity/=sigmaHe3eta)
 		.Hist("Integral luminocity(estimated)",luminocity/=PresentRunsAmountRatio("He3eta"));
 }

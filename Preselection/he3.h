@@ -6,6 +6,8 @@
 #include "detectors.h"
 #include "reconstruction.h"
 #include "trackprocessing.h"
+#include "data.h"
+#include "montecarlo.h"
 #include "../General/phys_constants.h"
 class He3_in_forward:public virtual Analysis,public ForwardDetectors{
 public:
@@ -23,11 +25,12 @@ private:
 	InterpolationBasedReconstruction He3_Ekin,He3_theta,He3_phi;
 	Analyser2D MissingMass;
 };
-class He3eta:public He3_in_forward{
+typedef CustomAnalysis<RealData,He3_in_forward> He3Data;
+class He3eta:public CustomAnalysis<MonteCarlo,He3_in_forward>{
 public:
     He3eta();
 };
-class He3pi0:public He3_in_forward{
+class He3pi0:public CustomAnalysis<MonteCarlo,He3_in_forward>{
 public:
 	He3pi0();
 };
