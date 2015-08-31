@@ -48,7 +48,7 @@ int main(int,char**){
 		//Read data
 		hist data(true,"He3",{"Histograms","MissingMass"},to_string(index));
 		printf("Loaded spectrum %s\n",to_string(index).c_str());
-		PlotHist().Hist(string("DataHe3eta")+to_string(index),data);
+		PlotHist().Hist(string("DataHe3")+to_string(index),data);
 		AnalyseMMSpectra(BeamMomentaBin,data,MC);
 	}
 	Plotter::Instance()<<"set xrange [1.58:*]";
