@@ -232,4 +232,3 @@ PlotHist& PlotHist::Hist(string&&name,shared_ptr<hist>data){
 	},"using 1:2:($1-$3):($1+$3):($2-$4):($2+$4) with xyerrorbars");
 	return *this;
 }
-

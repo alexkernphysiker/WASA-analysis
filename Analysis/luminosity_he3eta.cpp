@@ -26,7 +26,7 @@ int main(int,char**){
 	Plotter::Instance().SetOutput(outpath,"he3eta");
 	
 	hist mc_norm(false,"He3eta",{"Histograms","Cuts"},"Reference"),
-	mc_filtered1(false,"He3eta",{"Histograms","Cuts"},"EdepCuts"),
+	mc_filtered1(false,"He3eta",{"Histograms","Cuts"},"Edep_cuts"),
 	mc_filtered2(false,"He3eta",{"Histograms","Cuts"},"ThetaCut"),
 	acceptance(false,"He3eta",{"Histograms","Cuts"},"Reconstructed");
 	PlotHist().Hist("All MC events",mc_norm).Hist("EdepCut",mc_filtered1)
@@ -47,11 +47,12 @@ int main(int,char**){
 			.Hist(string("MCHe3 3pi0")+to_string(index),MC[2]);
 		//Read data
 		hist data(true,"He3",{"Histograms","MissingMass"},to_string(index));
+		printf("Loaded spectrum %s\n",to_string(index).c_str());
 		PlotHist().Hist(string("DataHe3eta")+to_string(index),data);
 		AnalyseMMSpectra(BeamMomentaBin,data,MC);
 	}
 	PlotHist().Hist("He3eta events in data",luminocity)
 		.Hist("He3eta true events",luminocity/=acceptance);
-	PlotHist().Hist("Integral luminocity(analysed)",luminocity/=sigmaHe3eta)
-		.Hist("Integral luminocity(estimated)",luminocity/=PresentRunsAmountRatio("He3eta"));
+	PlotHist().Hist("Integral luminocity(analysed)",luminocity/=sigmaHe3eta);
+		//.Hist("Integral luminocity(estimated)",luminocity/=PresentRunsAmountRatio("He3eta"));
 }
