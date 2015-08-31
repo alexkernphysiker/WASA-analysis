@@ -16,7 +16,7 @@ RANDOM engine;
 double sigma(double p_beam){
 	return 400;//nb
 }
-void AnalyseMMSpectra(hist::point&BeamMomentaBin,hist&data,vector<hist>&MC){
+void AnalyseMMSpectra(hist::point&BeamMomentaBin,const hist&data,const vector<hist>&MC){
 	for(auto p:data)if(p.x>=0.542)BeamMomentaBin.y+=p.y;
 	BeamMomentaBin.dy=sqrt(BeamMomentaBin.y);
 	if(BeamMomentaBin.dy<1)BeamMomentaBin.dy=1;
@@ -35,18 +35,19 @@ int main(int,char**){
 
 	hist luminocity=acceptance.CloneEmptyBins();
 	for(auto&BeamMomentaBin:luminocity){
-		string suffix=to_string(int(BeamMomentaBin.x*1000));
+		int index=int(BeamMomentaBin.x*1000);
 		vector<hist> MC={
-			hist(false,"He3eta",{"Histograms","MissingMass"},static_cast<string&&>(suffix)),
-			hist(false,"He3pi0pi0",{"Histograms","MissingMass"},static_cast<string&&>(suffix)),
-			hist(false,"He3pi0pi0pi0",{"Histograms","MissingMass"},static_cast<string&&>(suffix))
+			hist(false,"He3eta",{"Histograms","MissingMass"},to_string(index)),
+			hist(false,"He3pi0pi0",{"Histograms","MissingMass"},to_string(index)),
+			hist(false,"He3pi0pi0pi0",{"Histograms","MissingMass"},to_string(index))
 		};
 		PlotHist()
-			.Hist(string("MCHe3eta")+suffix,static_cast<hist&&>(MC[0]))
-			.Hist(string("MCHe3 2pi0")+suffix,static_cast<hist&&>(MC[1]))
-			.Hist(string("MCHe3 3pi0")+suffix,static_cast<hist&&>(MC[2]));
-		hist data(true,"He3eta",{"Histograms","MissingMass"},static_cast<string&&>(suffix));
-		PlotHist().Hist(string("DataHe3eta")+suffix,data);
+			.Hist(string("MCHe3eta")+to_string(index),MC[0])
+			.Hist(string("MCHe3 2pi0")+to_string(index),MC[1])
+			.Hist(string("MCHe3 3pi0")+to_string(index),MC[2]);
+		//Read data
+		hist data(true,"He3",{"Histograms","MissingMass"},to_string(index));
+		PlotHist().Hist(string("DataHe3eta")+to_string(index),data);
 		AnalyseMMSpectra(BeamMomentaBin,data,MC);
 	}
 	PlotHist().Hist("He3eta events in data",luminocity)
