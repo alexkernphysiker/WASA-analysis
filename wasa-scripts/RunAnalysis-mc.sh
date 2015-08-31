@@ -11,3 +11,5 @@ echo "rm -f $PWD/${scriptname}" >> ${scriptname}
 chmod u+x ${scriptname}
 qsub ${scriptname}
 echo "${scriptname} generated and executed"
+qstat
+

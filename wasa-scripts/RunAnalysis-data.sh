@@ -25,4 +25,5 @@ for X in `seq 45873 1 46884`; do
 		fi
 	fi
 done
+qstat
 
