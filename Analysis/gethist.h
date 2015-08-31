@@ -21,6 +21,16 @@ public:
 	hist&operator=(const hist& source);
 	hist CloneEmptyBins()const;
 	double Entries()const;
+	point&operator[](int i)const;
+	int count()const;
+	typedef std::vector<point>::iterator iterator;
+	typedef std::vector<point>::const_iterator const_iterator;
+	iterator begin();
+	const_iterator begin()const;
+	const_iterator cbegin()const;
+	iterator end();
+	const_iterator end() const;
+	const_iterator cend() const;
 	
 	hist &imbibe(const hist& second);
 	hist &operator+=(const hist& second);
@@ -35,16 +45,6 @@ public:
 	hist &operator/=(std::function<double(double)>);
 	hist &operator<<(size_t c);
 	hist &operator>>(size_t c);
-	point&operator[](int i)const;
-	int count()const;
-	typedef std::vector<point>::iterator iterator;
-	typedef std::vector<point>::const_iterator const_iterator;
-	iterator begin();
-	const_iterator begin()const;
-	const_iterator cbegin()const;
-	iterator end();
-	const_iterator end() const;
-	const_iterator cend() const;
 private:
 	std::vector<point> data;
 	double norm;
@@ -52,8 +52,7 @@ private:
 class PlotHist:public Plot<double>{
 public:
     PlotHist();
-	PlotHist&Hist(std::string&&name,const hist&data);
-	PlotHist&Hist(std::string&&name,std::shared_ptr<hist>data);
+	PlotHist& Hist(std::string&&name,const hist&data);
 };
 inline std::shared_ptr<Genetic::FitPoints> operator<<(std::shared_ptr<Genetic::FitPoints> dest,const hist::point&source){
 	Genetic::FitPoints::Point p;

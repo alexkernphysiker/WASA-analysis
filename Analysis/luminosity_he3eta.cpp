@@ -51,8 +51,11 @@ int main(int,char**){
 		PlotHist().Hist(string("DataHe3eta")+to_string(index),data);
 		AnalyseMMSpectra(BeamMomentaBin,data,MC);
 	}
-	PlotHist().Hist("He3eta events in data",luminocity)
-		.Hist("He3eta true events",luminocity/=acceptance);
-	PlotHist().Hist("Integral luminocity(analysed)",luminocity/=sigmaHe3eta);
-		//.Hist("Integral luminocity(estimated)",luminocity/=PresentRunsAmountRatio("He3eta"));
+	Plotter::Instance()<<"set xrange [1.58:*]";
+	PlotHist eventsplot;
+	eventsplot.Hist("He3eta events in data",luminocity);
+	eventsplot.Hist("He3eta true events",luminocity/=acceptance);
+	PlotHist lumplot;
+	lumplot.Hist("Integral luminocity(analysed)",luminocity/=sigmaHe3eta);
+	lumplot.Hist("Integral luminocity(estimated)",luminocity/=PresentRunsAmountRatio("He3"));
 }

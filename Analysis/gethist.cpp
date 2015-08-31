@@ -95,6 +95,13 @@ hist& hist::operator=(const hist& source){
 hist::~hist(){}
 int hist::count()const{return data.size();}
 double hist::Entries()const{return norm;}
+hist::point& hist::operator[](int i)const{return const_cast<point&>(data[i]);}
+hist::iterator hist::begin(){return data.begin();}
+hist::const_iterator hist::begin() const{return data.begin();}
+hist::const_iterator hist::cbegin() const{return data.cbegin();}
+hist::iterator hist::end(){return data.end();}
+hist::const_iterator hist::end() const{return data.end();}
+hist::const_iterator hist::cend() const{return data.cend();}
 
 hist& hist::imbibe(const hist& second){
 	for(int i=0,n=count();i<n;i++){
@@ -211,24 +218,11 @@ hist& hist::operator>>(size_t c){
 	return *this;
 }
 
-hist::point& hist::operator[](int i)const{return const_cast<point&>(data[i]);}
-hist::iterator hist::begin(){return data.begin();}
-hist::const_iterator hist::begin() const{return data.begin();}
-hist::const_iterator hist::cbegin() const{return data.cbegin();}
-hist::iterator hist::end(){return data.end();}
-hist::const_iterator hist::end() const{return data.end();}
-hist::const_iterator hist::cend() const{return data.cend();}
 
 PlotHist::PlotHist():Plot<double>(){}
 PlotHist& PlotHist::Hist(string&&name,const hist&data){
 	Plot<double>::OutputPlot(static_cast<string&&>(name),[&data](std::ofstream&str){
 		for(hist::point p:data)str<<p.x<<" "<<p.y<<" "<<p.dx<<" "<<p.dy<<"\n";
-	},"using 1:2:($1-$3):($1+$3):($2-$4):($2+$4) with xyerrorbars");
-	return *this;
-}
-PlotHist& PlotHist::Hist(string&&name,shared_ptr<hist>data){
-	Plot<double>::OutputPlot(static_cast<string&&>(name),[&data](std::ofstream&str){
-		for(hist::point p:*data)str<<p.x<<" "<<p.y<<" "<<p.dx<<" "<<p.dy<<"\n";
 	},"using 1:2:($1-$3):($1+$3):($2-$4):($2+$4) with xyerrorbars");
 	return *this;
 }
