@@ -3,7 +3,6 @@
 #include <TCutG.h>
 #include "he3.h"
 #include "detectors.h"
-#include "../General/phys_constants.h"
 using namespace std;
 He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 	Cut("Cuts",[this](){return PBeam();},20,p_he3_eta_threshold,p_beam_hi),
@@ -24,7 +23,6 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 	AddLogSubprefix("He3");
 	SubLog log=Log(LogDebug);
 	AddParticleToFirstVertex(kHe3,m_3He);
-	AddParticleToFirstVertex(kEta,m_eta);
 	CutFRH1.AddCondition("StoppingFRH1",[this](WTrack&track,vector<double>&){
 		return (StopPlane(track)==kFRH1);
 	}).AddCondition("SP2cut",[this](WTrack&track,vector<double>&){
@@ -84,6 +82,9 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 		TLorentzVector P_Missing=P_Total-P_He3;
 		return P_Missing.M();
 	},400,0.4,0.6);
+}
+He3eta::He3eta():He3_in_forward(){
+	AddParticleToFirstVertex(kEta,m_eta);
 }
 He3_in_forward::~He3_in_forward(){}
 bool He3_in_forward::EventPreProcessing(){
