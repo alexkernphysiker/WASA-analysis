@@ -88,8 +88,7 @@ namespace PlaneGeometry{
 				Segment last=make_pair(data[n-1],p);
 				for(size_t i=1;i<n;i++){
 					Segment cur=make_pair(data[i-1],data[i]);
-					if((i>1)||(p==data[0]))
-					if(SegmentsIntersect<numX>(last,cur))
+					if((i>1)||(p!=data[0]))if(SegmentsIntersect<numX>(last,cur))
 						throw exception<numX>("Polygon: intersection detected!");
 				}
 			}
