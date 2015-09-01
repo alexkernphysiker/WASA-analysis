@@ -79,9 +79,9 @@ hist::hist(const hist& source){
 }
 hist hist::CloneEmptyBins()const{
 	hist res(*this);
-	for(point p:res.data){
-		p.y=0;
-		p.dy=1;
+	for(int i=0,n=count();i<n;i++){
+		res.data[i].y=0;
+		res.data[i].dy=1;
 	}
 	return res;
 }
@@ -103,7 +103,7 @@ hist::iterator hist::end(){return data.end();}
 hist::const_iterator hist::end() const{return data.end();}
 hist::const_iterator hist::cend() const{return data.cend();}
 
-hist& hist::imbibe(const hist& second){
+void hist::imbibe(const hist& second){
 	for(int i=0,n=count();i<n;i++){
 		if(data[i].x==second[i].x){
 			data[i].y+=second[i].y;
@@ -112,7 +112,6 @@ hist& hist::imbibe(const hist& second){
 		}else
 			throw exception();
 	}
-	return *this;
 }
 hist& hist::operator+=(const hist& second){
 	for(int i=0,n=count();i<n;i++){
@@ -125,8 +124,10 @@ hist& hist::operator+=(const hist& second){
 	return *this;
 }
 hist& hist::operator+=(function<double(double)>f){
-	for(point&p:*this)
-		p.y+=f(p.x);
+	for(int i=0,n=count();i<n;i++){
+		double c=f(data[i].x);
+		data[i].y+=c;
+	}
 	return *this;
 }
 hist& hist::operator-=(const hist& second){
@@ -140,8 +141,10 @@ hist& hist::operator-=(const hist& second){
 	return *this;
 }
 hist& hist::operator-=(function<double(double)>f){
-	for(point&p:*this)
-		p.y-=f(p.x);
+	for(int i=0,n=count();i<n;i++){
+		double c=f(data[i].x);
+		data[i].y-=c;
+	}
 	return *this;
 }
 
@@ -165,10 +168,10 @@ hist& hist::operator*=(double c){
 	return *this;
 }
 hist& hist::operator*=(function<double(double)>f){
-	for(point&p:*this){
-		double x=f(p.x);
-		p.y*=x;
-		p.dy*=x;
+	for(int i=0,n=count();i<n;i++){
+		double c=f(data[i].x);
+		data[i].y*=c;
+		data[i].dy*=c;
 	}
 	return *this;
 }
@@ -192,10 +195,10 @@ hist& hist::operator/=(double c){
 	return *this;
 }
 hist& hist::operator/=(function<double(double)>f){
-	for(point&p:*this){
-		double x=f(p.x);
-		p.y/=x;
-		p.dy/=x;
+	for(int i=0,n=count();i<n;i++){
+		double c=f(data[i].x);
+		data[i].y/=c;
+		data[i].dy/=c;
 	}
 	return *this;
 }
@@ -217,6 +220,18 @@ hist& hist::operator>>(size_t c){
 		data.erase(data.begin());
 	return *this;
 }
+double hist::ChiSquare(const hist& second_hist){
+	double res=0;
+	for(int i=0,n=count();i<n;i++){
+		if(data[i].x==second_hist[i].x){
+			auto Y1=make_pair(data[i].y,data[i].dy);
+			auto Y2=make_pair(second_hist[i].y,second_hist[i].dy);
+			res+=pow((Y1.first-Y2.first)/(Y1.second+Y2.second),2);
+		}else
+			throw exception();
+	}
+	return res;
+}
 
 
 PlotHist::PlotHist():Plot<double>(){}
@@ -226,3 +241,10 @@ PlotHist& PlotHist::Hist(string&&name,const hist&data){
 	},"using 1:2:($1-$3):($1+$3):($2-$4):($2+$4) with xyerrorbars");
 	return *this;
 }
+PlotHist& PlotHist::HistWLine(string&& name, const hist& data){
+	Plot<double>::OutputPlot(static_cast<string&&>(name),[&data](std::ofstream&str){
+		for(hist::point p:data)str<<p.x<<" "<<p.y<<" "<<p.dx<<" "<<p.dy<<"\n";
+	},"using 1:2 w l");
+	return *this;
+}
+

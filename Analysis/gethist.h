@@ -32,7 +32,6 @@ public:
 	const_iterator end() const;
 	const_iterator cend() const;
 	
-	hist &imbibe(const hist& second);
 	hist &operator+=(const hist& second);
 	hist &operator+=(std::function<double(double)>);
 	hist &operator-=(const hist& second);
@@ -45,7 +44,9 @@ public:
 	hist &operator/=(std::function<double(double)>);
 	hist &operator<<(size_t c);
 	hist &operator>>(size_t c);
+	double ChiSquare(const hist&B);
 private:
+	void imbibe(const hist& second);
 	std::vector<point> data;
 	double norm;
 };
@@ -53,6 +54,7 @@ class PlotHist:public Plot<double>{
 public:
     PlotHist();
 	PlotHist& Hist(std::string&&name,const hist&data);
+	PlotHist& HistWLine(std::string&&name,const hist&data);
 };
 inline std::shared_ptr<Genetic::FitPoints> operator<<(std::shared_ptr<Genetic::FitPoints> dest,const hist::point&source){
 	Genetic::FitPoints::Point p;

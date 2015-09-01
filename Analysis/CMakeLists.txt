@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 project(runfit)
 set(libs FitGen Core Hist RIO Tree Physics)
-set(common gethist.cpp read_simulation.cpp fit_hist2hist.cpp)
+set(common gethist.cpp read_simulation.cpp)
 add_subdirectory(FitGen)
 include_directories(FitGen $ENV{ROOTSYS}/include ../General)
 link_directories($ENV{ROOTSYS}/lib)
