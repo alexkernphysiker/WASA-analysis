@@ -77,6 +77,15 @@ hist::hist(const hist& source){
 	for(point p: source.data)
 		data.push_back(p);
 }
+hist& hist::Cut(double a, double b){
+	for(int i=0;i<data.size();i++)if((data[i].x<a)||(data[i].x>b)){
+		data.erase(data.begin()+i);
+		i--;
+	}
+	return *this;
+}
+
+
 hist hist::CloneEmptyBins()const{
 	hist res(*this);
 	for(int i=0,n=count();i<n;i++){

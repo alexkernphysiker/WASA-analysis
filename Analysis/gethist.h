@@ -17,6 +17,7 @@ public:
 	hist(bool data,std::string&&reaction,std::vector<std::string>&&path,std::string&&histname);
 	hist(const hist& source);
 	virtual ~hist();
+	hist& Cut(double a,double b);
 
 	hist&operator=(const hist& source);
 	double HowClose(const hist&B)const;

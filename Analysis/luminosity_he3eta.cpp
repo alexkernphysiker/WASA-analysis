@@ -40,7 +40,7 @@ void AnalyseMMSpectra(hist::point&BeamMomentaBin,const hist&data,const vector<hi
 	});
 	fit.SetFilter([](const ParamSet&P){
 		bool res=true;
-		for(double p:P)res&=(p>=0);
+		for(double p:P)res&=(p>0);
 		return res;
 	});
 	auto init=make_shared<GenerateUniform>();
@@ -51,7 +51,7 @@ void AnalyseMMSpectra(hist::point&BeamMomentaBin,const hist&data,const vector<hi
 	hist fithist=histsum(fit.Parameters());
 	fitplot.HistWLine(string("Fit")+suffix,fithist);
 	BeamMomentaBin.y=fit[0];
-	BeamMomentaBin.dy=fit.GetParamParabolicError(0.1,0);
+	BeamMomentaBin.dy=fit.GetParamParabolicError(0.0000001,0);
 }
 int main(int,char**){
 #include "env.cc"
@@ -64,7 +64,8 @@ int main(int,char**){
 	PlotHist().Hist("All MC events",mc_norm).Hist("EdepCut",mc_filtered1)
 		.Hist("ThetaCut",mc_filtered2).Hist("Reconstructed",acceptance);
 	
-	PlotHist().Hist("Acceptance",acceptance/=mc_norm);
+	(acceptance/=mc_norm).Cut(1.61,1.65);
+	PlotHist().Hist("Acceptance",acceptance);
 	hist luminocity=acceptance.CloneEmptyBins();
 	
 	for(auto&BeamMomentaBin:luminocity){
@@ -76,14 +77,11 @@ int main(int,char**){
 		};
 		//Read data
 		hist data(true,"He3",{"Histograms","MissingMass"},to_string(index));
+		(data>>4).Cut(0.5,0.6);for(hist&H:MC)H.Cut(0.5,0.6);
 		AnalyseMMSpectra(BeamMomentaBin,data,MC);
 	}
-	
-	Plotter::Instance()<<"set xrange [1.58:*]";
+
 	PlotHist eventsplot;
-	eventsplot.Hist("He3eta events in data",luminocity);
+	eventsplot.Hist("He3eta events in data",luminocity*=1000000.0);
 	eventsplot.Hist("He3eta true events",luminocity/=acceptance);
-	PlotHist lumplot;
-	lumplot.Hist("Integral luminocity(analysed)",luminocity/=sigmaHe3eta);
-	lumplot.Hist("Integral luminocity(estimated)",luminocity/=PresentRunsAmountRatio("He3"));
 }
