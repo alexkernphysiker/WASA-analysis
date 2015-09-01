@@ -119,7 +119,7 @@ void hist::imbibe(const hist& second){
 			data[i].dy=sqrt(data[i].y);
 			if(data[i].dy<1)data[i].dy=1;
 		}else
-			throw exception();
+			throw math_h_error<hist>("Cannot imbibe histogram. bins differ");
 	}
 }
 hist& hist::operator+=(const hist& second){
@@ -128,7 +128,7 @@ hist& hist::operator+=(const hist& second){
 			data[i].y+=second[i].y;
 			data[i].dy+=second[i].dy;
 		}else
-			throw exception();
+			throw math_h_error<hist>("Cannot add histogram. bins differ");
 	}
 	return *this;
 }
@@ -145,7 +145,7 @@ hist& hist::operator-=(const hist& second){
 			data[i].y-=second[i].y;
 			data[i].dy+=second[i].dy;
 		}else
-			throw exception();
+			throw math_h_error<hist>("Cannot substract histogram. bins differ");
 	}
 	return *this;
 }
@@ -164,7 +164,7 @@ hist& hist::operator*=(const hist& second_hist){
 			data[i].y*=second_hist[i].y;
 			data[i].dy=Y.second*second_hist[i].y+second_hist[i].dy*Y.first;
 		}else
-			throw exception();
+			throw math_h_error<hist>("Cannot multiply by a histogram. bins differ");
 	}
 	return *this;
 }
@@ -191,7 +191,7 @@ hist& hist::operator/=(const hist& second_hist){
 			data[i].y/=second_hist[i].y;
 			data[i].dy=Y.second/second_hist[i].y+second_hist[i].dy*Y.first/second_hist[i].y/second_hist[i].y;
 		}else
-			throw exception();
+			throw math_h_error<hist>("Cannot divide by a histogram. bins differ");
 	}
 	return *this;
 }
@@ -237,7 +237,7 @@ double hist::HowClose(const hist& second_hist) const{
 			auto Y2=make_pair(second_hist[i].y,second_hist[i].dy);
 			res+=pow((Y1.first-Y2.first)/(Y1.second+Y2.second),2);
 		}else
-			throw exception();
+			throw math_h_error<hist>("Cannot calculate optimality of fit by another histogram. bins differ");
 	}
 	return res;
 }
