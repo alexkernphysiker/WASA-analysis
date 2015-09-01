@@ -220,7 +220,7 @@ hist& hist::operator>>(size_t c){
 		data.erase(data.begin());
 	return *this;
 }
-double hist::ChiSquare(const hist& second_hist){
+double hist::HowClose(const hist& second_hist) const{
 	double res=0;
 	for(int i=0,n=count();i<n;i++){
 		if(data[i].x==second_hist[i].x){

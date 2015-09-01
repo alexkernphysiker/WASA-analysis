@@ -19,6 +19,7 @@ public:
 	virtual ~hist();
 
 	hist&operator=(const hist& source);
+	double HowClose(const hist&B)const;
 	hist CloneEmptyBins()const;
 	double Entries()const;
 	point&operator[](int i)const;
@@ -44,7 +45,6 @@ public:
 	hist &operator/=(std::function<double(double)>);
 	hist &operator<<(size_t c);
 	hist &operator>>(size_t c);
-	double ChiSquare(const hist&B);
 private:
 	void imbibe(const hist& second);
 	std::vector<point> data;
