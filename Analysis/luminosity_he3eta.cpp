@@ -66,9 +66,9 @@ int main(int,char**){
 	
 	(acceptance/=mc_norm).Cut(1.61,1.65);
 	PlotHist().Hist("Acceptance",acceptance);
-	hist luminocity=acceptance.CloneEmptyBins();
+	hist luminosity=acceptance.CloneEmptyBins();
 	
-	for(auto&BeamMomentaBin:luminocity){
+	for(auto&BeamMomentaBin:luminosity){
 		int index=int(BeamMomentaBin.x*1000);
 		vector<hist> MC={
 			hist(false,"He3eta",{"Histograms","MissingMass"},to_string(index)),
@@ -80,8 +80,8 @@ int main(int,char**){
 		(data>>7).Cut(0.5,0.6);for(hist&H:MC)H.Cut(0.5,0.6);
 		AnalyseMMSpectra(BeamMomentaBin,data,MC);
 	}
-
-	PlotHist eventsplot;
-	eventsplot.Hist("He3eta events in data",luminocity*=1000000.0);
-	eventsplot.Hist("He3eta true events",luminocity/=acceptance);
+	PlotHist().Hist("He3eta true events in data",luminosity*=1000000.0);
+	PlotHist lumplot;
+	lumplot.Hist("Integral luminosity (analysed)",luminosity/=sigmaHe3eta);
+	lumplot.Hist("Integral luminosity (estimated)",luminosity/=PresentRunsAmountRatio("He3"));
 }
