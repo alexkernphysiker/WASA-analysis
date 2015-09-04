@@ -46,7 +46,7 @@ void AnalyseMMSpectra(hist::point&BeamMomentaBin,const hist&data,const vector<hi
 	auto init=make_shared<GenerateUniform>();
 	for(auto H:MC)init<<make_pair(0,1);
 	fit.Init(MC.size()*10,init,engine);
-	while(!fit.AbsoluteOptimalityExitCondition(0.00001))
+	while(!fit.AbsoluteOptimalityExitCondition(0.0000001))
 		fit.Iterate(engine);
 	hist fithist=histsum(fit.Parameters());
 	fitplot.HistWLine(string("Fit")+suffix,fithist);
@@ -77,7 +77,7 @@ int main(int,char**){
 		};
 		//Read data
 		hist data(true,"He3",{"Histograms","MissingMass"},to_string(index));
-		(data>>4).Cut(0.5,0.6);for(hist&H:MC)H.Cut(0.5,0.6);
+		(data>>7).Cut(0.5,0.6);for(hist&H:MC)H.Cut(0.5,0.6);
 		AnalyseMMSpectra(BeamMomentaBin,data,MC);
 	}
 
