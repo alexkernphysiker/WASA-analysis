@@ -32,7 +32,7 @@ InterpolationBasedReconstruction::~InterpolationBasedReconstruction(){
 	if(!data_present){
 		Log(NoLog)<<"saving simulation data";
 		ofstream file;
-		file.open((rec_name_prefix+m_name+".simulation.txt").c_str());
+		file.open((rec_name_prefix+m_name+".simulation.txt").c_str(),ios_base::app);
 		if(file.is_open()){
 			for(auto&p:out)
 				file<<p.first<<" "<<p.second<<"\n";
