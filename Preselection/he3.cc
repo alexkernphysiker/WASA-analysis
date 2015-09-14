@@ -52,8 +52,9 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 	Cut.AddCondition("Edep_cuts",[this](WTrack&track,vector<double>&P){
 		return CutFRH1.Check(track,P)||CutFTH1.Check(track,P);
 	}).AddCondition("IsInFPC",[this](WTrack&track,vector<double>&){
-		return true||track.IsInTrack(16) || track.IsInTrack(17) || track.IsInTrack(18) || track.IsInTrack(19) 
-		|| track.IsInTrack(20) || track.IsInTrack(21) || track.IsInTrack(22) || track.IsInTrack(23);
+		bool res=false;
+		for(int i=16;i<=23;i++)res|=track.IsInTrack(i);
+		return res;
 	}).AddParameter("E",[this](WTrack&track){
 		return He3_Ekin.Reconstruct(track);
 	}).AddParameter("Theta",[this](WTrack&track){
