@@ -53,7 +53,7 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 		return CutFRH1.Check(track,P)||CutFTH1.Check(track,P);
 	}).AddCondition("IsInFPC",[this](WTrack&track,vector<double>&){
 		bool res=false;
-		for(int i=16;i<=23;i++)res|=track.IsInTrack(i);
+		for(int i=16;i<=23;i++)res=res||track.IsInTrack(i);
 		return res;
 	}).AddParameter("E",[this](WTrack&track){
 		return He3_Ekin.Reconstruct(track);
