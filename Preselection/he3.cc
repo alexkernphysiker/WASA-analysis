@@ -50,7 +50,8 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 		return EDep(track,kFWC2)>=0.011;
 	});
 	Cut.AddCondition("Edep_cuts",[this](WTrack&track,vector<double>&P){
-		return CutFRH1.Check(track,P)||CutFTH1.Check(track,P);
+		auto one=CutFRH1.Check(track,P),two=CutFTH1.Check(track,P);
+		return one||two;//for we could see correct numbers of events on histograms
 	}).AddCondition("IsInFPC",[this](WTrack&track,vector<double>&){
 		bool res=false;
 		for(int i=16;i<=23;i++)res=res||track.IsInTrack(i);
