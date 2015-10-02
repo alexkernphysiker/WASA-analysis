@@ -53,9 +53,9 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 		auto one=CutFRH1.Check(track,P),two=CutFTH1.Check(track,P);
 		return one||two;//for we could see correct numbers of events on histograms
 	}).AddCondition("IsInFPC",[this](WTrack&track,vector<double>&){
-		bool res=false;
-		for(int i=16;i<=23;i++)res=res||track.IsInTrack(i);
-		return res;
+		//bool res=false;
+		//for(int i=16;i<=23;i++)res=res||track.IsInTrack(i);
+		return (track.Theta()>12.45)||(track.Theta()<12.55);
 	}).AddParameter("E",[this](WTrack&track){
 		return He3_Ekin.Reconstruct(track);
 	}).AddParameter("Theta",[this](WTrack&track){
