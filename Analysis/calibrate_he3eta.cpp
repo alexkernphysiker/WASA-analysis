@@ -36,8 +36,8 @@ int main(int,char**){
 			printf("\n");
 			Plot<double>().File(name+".simulation.txt",name+" Points","using 1:2");
 			Plot<double>()
-				.Line(name+".calibration",[&fit](double x){return fit(ParamSet(x));},from,to,0.001)
-				.File(name+".simulation.txt.cut.txt",name+" Points","using 1:2");
+				.File(name+".simulation.txt.cut.txt",name+" Points","using 1:2")
+				.Line(name+".calibration",[&fit](double x){return fit(ParamSet(x));},from,to,0.001);
 			file<<name.c_str()<<"\n";
 			for(double p:fit)file<<p<<" ";
 			file<<"\n";
