@@ -34,8 +34,9 @@ int main(int,char**){
 				printf("%i iterations. %f<=S<=%f               \r",fit.iteration_count(),fit.Optimality(),fit.Optimality(fit.PopulationSize()-1));
 			}
 			printf("\n");
-			Plot<double>().Line(name+".calibration",[&fit](double x){return fit(ParamSet(x));},0.0,0.3,0.0001)
-			<<"\"\"";
+			Plot<double>()
+				.Line(name+".calibration",[&fit](double x){return fit(ParamSet(x));},0.0,0.3,0.0001)
+				.File(name+".simulation.txt",name+" Points","using 1:2");
 			file<<name.c_str()<<"\n";
 			for(double p:fit)file<<p<<" ";
 			file<<"\n";
