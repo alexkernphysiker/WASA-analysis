@@ -7,10 +7,6 @@ using namespace std;
 He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 	Cut("Cuts",[this](){return PBeam();},20,p_he3_eta_threshold,p_beam_hi),
 	CutFRH1("FRH1",Cut),CutFTH1("FTH1",Cut),
-	He3_Ekin("He3.E.FTH1nFRH1",
-		 [this](WTrack&track){return EDep(track,kFRH1)+EDep(track,kFTH1);},
-		 [this](WTrack&){return FromFirstVertex(kHe3).E;}
-	),
 	He3_theta("He3.th",
 		  [this](WTrack&track){return track.Theta();},
 		  [this](WTrack&){return FromFirstVertex(kHe3).Th;}
@@ -19,10 +15,21 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 		[this](WTrack&track){return NormPhi(track.Phi());},
 		[this](WTrack&){return FromFirstVertex(kHe3).Phi;}
 	),
-	MissingMass("MissingMass",Cut){
+	MissingMass("MissingMass",Cut)
+{
 	AddLogSubprefix("He3");
 	SubLog log=Log(LogDebug);
 	AddParticleToFirstVertex(kHe3,m_3He);
+	He3_Ekin.push_back(InterpolationBasedReconstruction(
+		"He3.E.FTH1",
+		[this](WTrack&track){return EDep(track,kFTH1);},
+		[this](WTrack&){return FromFirstVertex(kHe3).E;}
+	));
+	He3_Ekin.push_back(InterpolationBasedReconstruction(
+		"He3.E.FRH1",
+		[this](WTrack&track){return EDep(track,kFRH1)+EDep(track,kFTH1);},
+		[this](WTrack&){return FromFirstVertex(kHe3).E;}
+	));
 	CutFRH1.AddCondition("StoppingFRH1",[this](WTrack&track,vector<double>&){
 		return (StopPlane(track)==kFRH1);
 	}).AddCondition("SP2cut",[this](WTrack&track,vector<double>&){
@@ -43,21 +50,23 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 			cut->SetPoint(1,0.000,0.033);
 		}
 		return cut->IsInside(EDep(track,kFRH1),EDep(track,kFTH1));
+	}).AddParameter("E",[this](WTrack&track){
+		return He3_Ekin[1].Reconstruct(track);
 	});
 	CutFTH1.AddCondition("StoppingFTH1",[this](WTrack&track,vector<double>&){
 		return (StopPlane(track)==kFTH1);
 	}).AddCondition("FWC2cut",[this](WTrack&track,vector<double>&){
 		return EDep(track,kFWC2)>=0.011;
+	}).AddParameter("E",[this](WTrack&track){
+		return He3_Ekin[0].Reconstruct(track);
 	});
-	Cut.AddCondition("Edep_cuts",[this](WTrack&track,vector<double>&P){
-		auto one=CutFRH1.Check(track,P),two=CutFTH1.Check(track,P);
-		return one||two;//for we could see correct numbers of events on histograms
-	}).AddCondition("IsInFPC",[this](WTrack&track,vector<double>&){
+	Cut.AddCondition("IsInFPC",[this](WTrack&track,vector<double>&){
 		//bool res=false;
 		//for(int i=16;i<=23;i++)res=res||track.IsInTrack(i);
 		return (track.Theta()<0.1245)||(track.Theta()>0.1255);
-	}).AddParameter("E",[this](WTrack&track){
-		return He3_Ekin.Reconstruct(track);
+	}).AddCondition("Edep_cuts",[this](WTrack&track,vector<double>&P){
+		auto one=CutFRH1.Check(track,P),two=CutFTH1.Check(track,P);
+		return one||two;//for we could see correct numbers of events on histograms
 	}).AddParameter("Theta",[this](WTrack&track){
 		return He3_theta.Reconstruct(track);
 	}).AddParameter("Phi",[this](WTrack&track){

@@ -22,7 +22,8 @@ protected:
 	virtual bool CentralTrackProcessing(WTrack&track)override;
 private:
 	TrackConditionSet Cut,CutFRH1,CutFTH1;
-	InterpolationBasedReconstruction He3_Ekin,He3_theta,He3_phi;
+	InterpolationBasedReconstruction He3_theta,He3_phi;
+	vector<InterpolationBasedReconstruction> He3_Ekin;
 	Analyser2D MissingMass;
 };
 typedef CustomAnalysis<RealData,He3_in_forward> He3Data;

@@ -20,9 +20,9 @@ int main(int,char**){
 	file.open(simulation+"he3eta.parameters.txt");
 	if(file.is_open()){
 		{//Energy
-			printf("\nEnergy...\n");
+			printf("\nEnergy1...\n");
 			auto data=ReadWeightedFrom2D(
-				simulation+"He3.E.FTH1nFRH1.simulation.txt",
+				simulation+"He3.E.FRH1.simulation.txt",
 				0.0,0.5,100,
 				0.0,0.5,100,
 				[](double&,double&){return true;}
@@ -39,7 +39,32 @@ int main(int,char**){
 				printf("%i iterations. %f<=S<=%f               \r",fit.iteration_count(),fit.Optimality(),fit.Optimality(fit.PopulationSize()-1));
 			}
 			printf("\n");
-			Plot<double>().Line("He3.E.FTH1nFRH1.calibration",[&fit](double x){return fit(ParamSet(x));},0.0,0.3,0.0001);
+			Plot<double>().Line("He3.E.FRH1.calibration",[&fit](double x){return fit(ParamSet(x));},0.0,0.3,0.0001);
+			file<<"Energy\n";
+			for(double p:fit)file<<p<<" ";
+			file<<"\n";
+		}
+		{//Energy
+			printf("\nEnergy...\n");
+			auto data=ReadWeightedFrom2D(
+				simulation+"He3.E.FTH1.simulation.txt",
+				0.0,0.5,100,
+				0.0,0.5,100,
+				[](double&,double&){return true;}
+			);
+			printf("%i points with weights\n",data->count());
+			typedef PolynomFunc<0,0,3> fnc;
+			FitFunction<DifferentialMutations<>,fnc,SumWeightedSquareDiff> fit(data);
+			auto init=make_shared<GenerateByGauss>()<<make_pair(0,0.1)<<make_pair(1,0.1);
+			while(init->Count()<fnc::ParamCount)init<<make_pair(0,0.01);
+			fit.Init(20*fnc::ParamCount,init,engine);
+			printf("Fitting...\n");
+			while(!fit.RelativeOptimalityExitCondition(0.000001)){
+				fit.Iterate(engine);
+				printf("%i iterations. %f<=S<=%f               \r",fit.iteration_count(),fit.Optimality(),fit.Optimality(fit.PopulationSize()-1));
+			}
+			printf("\n");
+			Plot<double>().Line("He3.E.FTH1.calibration",[&fit](double x){return fit(ParamSet(x));},0.0,0.3,0.0001);
 			file<<"Energy\n";
 			for(double p:fit)file<<p<<" ";
 			file<<"\n";
