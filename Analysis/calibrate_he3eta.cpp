@@ -34,15 +34,16 @@ int main(int,char**){
 				printf("%i iterations. %f<=S<=%f               \r",fit.iteration_count(),fit.Optimality(),fit.Optimality(fit.PopulationSize()-1));
 			}
 			printf("\n");
+			Plot<double>().File(name+".simulation.txt",name+" Points","using 1:2");
 			Plot<double>()
-				.Line(name+".calibration",[&fit](double x){return fit(ParamSet(x));},0.0,0.3,0.0001)
-				.File(name+".simulation.txt",name+" Points","using 1:2");
+				.Line(name+".calibration",[&fit](double x){return fit(ParamSet(x));},from,to,0.001)
+				.File(name+".simulation.txt.cut.txt",name+" Points","using 1:2");
 			file<<name.c_str()<<"\n";
 			for(double p:fit)file<<p<<" ";
 			file<<"\n";
 		};
 		processfile("He3.E.FRH1",0,0.5,100,[](double&,double&){return true;});
-		processfile("He3.E.FTH1",0,0.5,100,[](double&,double&){return true;});
+		processfile("He3.E.FTH1",0,0.2,100,[](double&,double&){return true;});
 		processfile("He3.th",0,0.2,200,[](double&x,double&y){return pow(x-y-0.01,2)<0.0003;});
 		processfile("He3.phi",0,6.3,50,[](double&x,double&y){return pow(x-y,2)<0.5;});
 		file.close();
