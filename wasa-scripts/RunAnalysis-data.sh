@@ -15,14 +15,20 @@ for X in `seq 45873 1 46884`; do
 					echo "rm -f $PWD/${scriptname}" >> ${scriptname}
 					chmod u+x ${scriptname}
 					qsub ${scriptname}
-					echo "Analysis for run ${X} ($1 reaction) has been started"
+					echo "${X} STARTED!!!"
 					sleep 2
+				else
+					echo "${X} is already running"
 				fi
 			else
 				echo "We have already enough jobs running for this reaction"
 				exit 0
 			fi
+		else
+			echo "${X} is finished already"
 		fi
+	else
+		echo "${X} not present"
 	fi
 done
 qstat
