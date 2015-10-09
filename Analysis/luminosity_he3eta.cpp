@@ -58,11 +58,11 @@ int main(int,char**){
 	Plotter::Instance().SetOutput(outpath,"he3eta");
 	
 	hist mc_norm(false,"He3eta",{"Histograms","Cuts"},"Reference"),
-	mc_filtered1(false,"He3eta",{"Histograms","Cuts"},"Edep_cuts"),
-	mc_filtered2(false,"He3eta",{"Histograms","Cuts"},"ThetaCut"),
+	mc_filtered1(false,"He3eta",{"Histograms","Cuts"},"IsInFPC"),
+	mc_filtered2(false,"He3eta",{"Histograms","Cuts"},"Edep_cuts"),
 	acceptance(false,"He3eta",{"Histograms","Cuts"},"Reconstructed");
-	PlotHist().Hist("All MC events",mc_norm).Hist("EdepCut",mc_filtered1)
-		.Hist("ThetaCut",mc_filtered2).Hist("Reconstructed",acceptance);
+	PlotHist().Hist("All MC events",mc_norm).Hist("FPC",mc_filtered1)
+		.Hist("E_{dep} cuts",mc_filtered2).Hist("Reconstructed",acceptance);
 	
 	(acceptance/=mc_norm).Cut(1.61,1.65);
 	PlotHist().Hist("Acceptance",acceptance);
@@ -77,7 +77,7 @@ int main(int,char**){
 		};
 		//Read data
 		hist data(true,"He3",{"Histograms","MissingMass"},to_string(index));
-		(data>>7).Cut(0.5,0.6);for(hist&H:MC)H.Cut(0.5,0.6);
+		data.Cut(0.5,0.6);for(hist&H:MC)H.Cut(0.5,0.6);
 		AnalyseMMSpectra(BeamMomentaBin,data,MC);
 	}
 	PlotHist().Hist("He3eta true events in data",luminosity*=1000000.0);
