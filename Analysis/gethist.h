@@ -49,7 +49,6 @@ public:
 private:
 	void imbibe(const hist& second);
 	std::vector<point> data;
-	double norm;
 };
 class PlotHist:public Plot<double>{
 public:

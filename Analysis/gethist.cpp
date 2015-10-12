@@ -38,7 +38,6 @@ hist::hist(string&&filename,vector<string>&&path,string&&histname){
 		}
 		TH1F* histogram=dynamic_cast<TH1F*>(dir1->Get(histname.c_str()));
 		if(histogram){
-			norm=histogram->GetEntries();
 			for(int i=1,N=histogram->GetNbinsX();i<=N;i++){
 				double y=histogram->GetBinContent(i);
 				double dy=sqrt(y);
@@ -103,7 +102,12 @@ hist& hist::operator=(const hist& source){
 }
 hist::~hist(){}
 int hist::count()const{return data.size();}
-double hist::Entries()const{return norm;}
+double hist::Entries()const{
+	double res=0;
+	for(const point& P:data)
+		res+=P.y;
+	return res;
+}
 hist::point& hist::operator[](int i)const{return const_cast<point&>(data[i]);}
 hist::iterator hist::begin(){return data.begin();}
 hist::const_iterator hist::begin() const{return data.begin();}
