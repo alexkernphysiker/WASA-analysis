@@ -43,9 +43,9 @@ void AnalyseMMSpectra(hist::point&BeamMomentaBin,const hist&data,const vector<hi
 		for(double p:P)res&=(p>0);
 		return res;
 	});
-	auto init=make_shared<GenerateUniform>();
-	for(auto H:MC)init<<make_pair(0,1);
-	fit.Init(MC.size()*10,init,engine);
+	auto init=make_shared<GenerateByGauss>();
+	for(auto H:MC)init<<make_pair(1,1);
+	fit.Init(MC.size()*20,init,engine);
 	while(!fit.AbsoluteOptimalityExitCondition(0.0000001))
 		fit.Iterate(engine);
 	hist fithist=histsum(fit.Parameters());
