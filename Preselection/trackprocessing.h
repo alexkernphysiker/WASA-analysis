@@ -69,25 +69,24 @@ private:
 	TH1F* reference;
 	Independent m_distr;
 };
+struct Axis{
+	TrackDependent value;
+	double from;
+	double to;
+	int bins;
+};
 class Debug2DSpectraSet{
 public:
 	Debug2DSpectraSet(string&&name);
 	virtual ~Debug2DSpectraSet();
 	void CatchState(WTrack&track);
 	typedef std::pair<double,double> point;
-	typedef std::function<double(WTrack&)> Magnitude;
 	typedef std::function<point(WTrack&)> Process;
 	typedef std::pair<TH2F*,Process> Item;
-	struct Axis{
-		Magnitude value;
-		double from;
-		double to;
-		int bins;
-	};
 	void Add(string&&name,const Axis&X,const Axis&Y);
 private:
 	std::string m_name;
 	std::vector<Item> jobs;
-	Process Create(Magnitude x,Magnitude y);
+	Process Create(TrackDependent x,TrackDependent y);
 };
 #endif 

@@ -98,7 +98,7 @@ void Analyser2D::AcceptEvent(vector<double>&Parameters){
 
 Debug2DSpectraSet::Debug2DSpectraSet(string&&name):m_name(name){}
 Debug2DSpectraSet::~Debug2DSpectraSet(){}
-Debug2DSpectraSet::Process Debug2DSpectraSet::Create(Debug2DSpectraSet::Magnitude x, Debug2DSpectraSet::Magnitude y){
+Debug2DSpectraSet::Process Debug2DSpectraSet::Create(TrackDependent x, TrackDependent y){
 	return [this,x,y](WTrack&track){return make_pair(x(track),y(track));};
 }
 void Debug2DSpectraSet::CatchState(WTrack& track){
@@ -107,7 +107,7 @@ void Debug2DSpectraSet::CatchState(WTrack& track){
 		item.first->Fill(P.first,P.second);
 	}
 }
-void Debug2DSpectraSet::Add(string&&name,const Debug2DSpectraSet::Axis& X, const Debug2DSpectraSet::Axis& Y){
+void Debug2DSpectraSet::Add(string&&name,const Axis& X, const Axis& Y){
 	TH2F* hist=new TH2F(name.c_str(),"",X.bins,X.from,X.to,Y.bins,Y.from,Y.to);
 	gHistoManager->Add(hist,m_name.c_str());
 	jobs.push_back(make_pair(hist,Create(X.value,Y.value)));
