@@ -6,34 +6,30 @@
 using namespace std;
 He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 	Cut("Cuts",[this](){return PBeam();},20,p_he3_eta_threshold,p_beam_hi),
-	CutFRH1("FRH1",Cut),CutFTH1("FTH1",Cut),
-	He3_theta("He3.th",
-		  [this](WTrack&track){return track.Theta();},
-		  [this](WTrack&){return FromFirstVertex(kHe3).Th;}
-	),
-	He3_phi("He3.phi",
-		[this](WTrack&track){return NormPhi(track.Phi());},
-		[this](WTrack&){return FromFirstVertex(kHe3).Phi;}
-	),
+	CutFTH1("FTH1",Cut),CutFRH1("FRH1",Cut),
 	MissingMass("MissingMass",Cut)
 {
 	AddLogSubprefix("He3");
 	SubLog log=Log(LogDebug);
 	AddParticleToFirstVertex(kHe3,m_3He);
-	He3_Ekin.push_back(InterpolationBasedReconstruction(
-		"He3.E.FTH1",
-		[this](WTrack&track){return EDep(track,kFTH1);},
-		[this](WTrack&){return FromFirstVertex(kHe3).E;}
-	));
-	He3_Ekin.push_back(InterpolationBasedReconstruction(
-		"He3.E.FRH1",
-		[this](WTrack&track){return EDep(track,kFRH1)+EDep(track,kFTH1);},
-		[this](WTrack&){return FromFirstVertex(kHe3).E;}
-	));
+
+	Th_m=[this](WTrack&track){return track.Theta();};
+	Th_t=[this](WTrack&){return FromFirstVertex(kHe3).Th;};
+	Ph_m=[this](WTrack&track){return NormPhi(track.Phi());};
+	Ph_t=[this](WTrack&){return FromFirstVertex(kHe3).Phi;};
+	Elow_m=[this](WTrack&track){return EDep(track,kFTH1);};
+	Ehi_m=[this](WTrack&track){return EDep(track,kFRH1)+EDep(track,kFTH1);};
+	E_t=[this](WTrack&){return FromFirstVertex(kHe3).E;};
+
+	He3_theta=InterpolationBasedReconstruction("He3.th",Th_m,Th_t);
+	He3_phi=InterpolationBasedReconstruction("He3.phi",Ph_m,Ph_t);
+	He3_Ekin.push_back(InterpolationBasedReconstruction("He3.E.FTH1",Elow_m,E_t));
+	He3_Ekin.push_back(InterpolationBasedReconstruction("He3.E.FRH1",Ehi_m,E_t));
 	CutFRH1.AddCondition("StoppingFRH1",[this](WTrack&track,vector<double>&){
 		return (StopPlane(track)==kFRH1);
 	}).AddCondition("SP2cut",[this](WTrack&track,vector<double>&){
-		static TCutG *cut=nullptr;if(cut==nullptr){
+		static TCutG *cut=nullptr;
+		if(cut==nullptr){
 			cut=new TCutG("FRH1_cut",12);
 			cut->SetVarX("FRH1");
 			cut->SetVarY("FTH1");
@@ -61,9 +57,10 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 		return He3_Ekin[0].Reconstruct(track);
 	});
 	Cut.AddCondition("IsInFPC",[this](WTrack&track,vector<double>&){
-		//bool res=false;
-		//for(int i=16;i<=23;i++)res=res||track.IsInTrack(i);
-		return (track.Theta()<0.1245)||(track.Theta()>0.1255);
+		bool passes=(track.Theta()<0.1245)||(track.Theta()>0.1255);
+		if(passes)debug_notcut(track);
+		else debug_cut(track);
+		return passes;
 	}).AddCondition("Edep_cuts",[this](WTrack&track,vector<double>&P){
 		auto one=CutFRH1.Check(track,P),two=CutFTH1.Check(track,P);
 		return one||two;//for we could see correct numbers of events on histograms
@@ -95,8 +92,8 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 		return P_Missing.M();
 	},400,0.4,0.6);
 }
-He3eta::He3eta():He3_in_forward(){AddParticleToFirstVertex(kEta,m_eta);}
-He3pi0::He3pi0():He3_in_forward(){AddParticleToFirstVertex(kPi0,m_pi0);}
+He3eta::He3eta():He3_debug(){AddParticleToFirstVertex(kEta,m_eta);}
+He3pi0::He3pi0():He3_debug(){AddParticleToFirstVertex(kPi0,m_pi0);}
 
 He3_in_forward::~He3_in_forward(){}
 bool He3_in_forward::EventPreProcessing(){
@@ -117,3 +114,34 @@ bool He3_in_forward::ForwardTrackProcessing(WTrack&track){
 }
 bool He3_in_forward::CentralTrackProcessing(WTrack&){return true;}
 void He3_in_forward::EventPostProcessing(){}
+
+void He3_in_forward::debug_cut(WTrack&){}
+void He3_in_forward::debug_notcut(WTrack&){}
+
+He3_debug::He3_debug():He3_in_forward(),Yes("FPC_cut_pass"),No("FPC_cut_dont_pass"){
+	auto prepare=[this](Debug2DSpectraSet&D){
+		Axis Ekin={.value=E_t,.from=0,.to=0.5,.bins=500};
+		Axis Ehi={.value=Ehi_m,.from=0,.to=0.3,.bins=300};
+		Axis Tht={.value=Th_t,.from=0,.to=0.3,.bins=300};
+		Axis Thm={.value=Th_m,.from=0.09,.to=0.16,.bins=70};
+		Axis Pht={.value=Ph_t,.from=0,.to=7,.bins=700};
+		Axis Phm={.value=Ph_m,.from=0,.to=7,.bins=700};
+		D.Add("Th_E_vs_Th",Ekin,Tht);
+		D.Add("Th_E_vs_Ph",Ekin,Pht);
+		D.Add("Th_Th_vs_Ph",Tht,Pht);
+		D.Add("Exp_E_vs_Th",Ehi,Thm);
+		D.Add("Exp_E_vs_Ph",Ehi,Phm);
+		D.Add("Exp_Th_vs_Ph",Thm,Phm);
+	};
+	prepare(Yes);
+	prepare(No);
+}
+He3_debug::~He3_debug(){}
+void He3_debug::debug_cut(WTrack&track){
+	He3_in_forward::debug_cut(track);
+	No.CatchState(track);
+}
+void He3_debug::debug_notcut(WTrack&track){
+	He3_in_forward::debug_notcut(track);
+	Yes.CatchState(track);
+}
