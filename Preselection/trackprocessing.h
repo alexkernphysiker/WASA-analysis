@@ -4,6 +4,7 @@
 #define xoyoyptv
 #include <functional>
 #include <vector>
+#include <string>
 #include "analysis.h"
 typedef std::function<double()> Independent;
 typedef std::function<double(WTrack&)> TrackDependent;
@@ -67,5 +68,26 @@ private:
 	std::vector<TH1F*> A_bin;
 	TH1F* reference;
 	Independent m_distr;
+};
+class Debug2DSpectraSet{
+public:
+	Debug2DSpectraSet(string&&name);
+	virtual ~Debug2DSpectraSet();
+	void CatchState(WTrack&track);
+	typedef std::pair<double,double> point;
+	typedef std::function<double(WTrack&)> Magnitude;
+	typedef std::function<point(WTrack&)> Process;
+	typedef std::pair<TH2F*,Process> Item;
+	struct Axis{
+		Magnitude value;
+		double from;
+		double to;
+		int bins;
+	};
+	void Add(string&&name,const Axis&X,const Axis&Y);
+private:
+	std::string m_name;
+	std::vector<Item> jobs;
+	Process Create(Magnitude x,Magnitude y);
 };
 #endif 
