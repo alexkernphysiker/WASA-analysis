@@ -1,8 +1,22 @@
 // this file is distributed under 
 // GPL v 3.0 license
 #include <fstream>
+#include "math_h/exception_math_h.h"
 #include "reconstruction.h"
 using namespace std;
+InterpolationBasedReconstruction::InterpolationBasedReconstruction(){
+	m_name="";
+}
+InterpolationBasedReconstruction::InterpolationBasedReconstruction(
+	const InterpolationBasedReconstruction& source
+){
+	m_name=source.m_name;
+	data_present=source.data_present;
+	data=source.data;
+	out=source.out;
+	Experiment=source.Experiment;
+	Theory=source.Theory;
+}
 InterpolationBasedReconstruction::InterpolationBasedReconstruction(
 	std::string name,delegate measured,delegate theory
 ){
@@ -41,6 +55,8 @@ InterpolationBasedReconstruction::~InterpolationBasedReconstruction(){
 	}
 }
 double InterpolationBasedReconstruction::Reconstruct(WTrack&track){
+	if(m_name=="")
+		throw math_h_error<decltype(*this)>("The instance is not initialized");
 	if(data_present){
 		try{
 			return data(Experiment(track));
