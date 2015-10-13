@@ -135,11 +135,9 @@ He3_mc_debug::He3_mc_debug():He3_in_forward(),Yes("FPC_cut_pass"),No("FPC_cut_do
 }
 He3_mc_debug::~He3_mc_debug(){}
 void He3_mc_debug::debug_cut(WTrack&track){
-	He3_in_forward::debug_cut(track);
 	No.CatchState(track);
 }
 void He3_mc_debug::debug_notcut(WTrack&track){
-	He3_in_forward::debug_notcut(track);
 	Yes.CatchState(track);
 }
 

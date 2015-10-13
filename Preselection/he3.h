@@ -27,8 +27,8 @@ private:
 	vector<InterpolationBasedReconstruction> He3_Ekin;
 protected:
 	TrackDependent Th_m,Th_t,Ph_m,Ph_t,Elow_m,Ehi_m,E_t;
-	virtual void debug_cut(WTrack&);
-	virtual void debug_notcut(WTrack&);
+	virtual void debug_cut(WTrack&track);
+	virtual void debug_notcut(WTrack&track);
 };
 typedef CustomAnalysis<RealData,He3_in_forward> He3Data;
 class He3_mc_debug:public He3_in_forward{
@@ -36,14 +36,14 @@ public:
 	He3_mc_debug();
 	virtual ~He3_mc_debug();
 protected:
-	virtual void debug_cut(WTrack&)override;
-	virtual void debug_notcut(WTrack&)override;
+	virtual void debug_cut(WTrack&track)override;
+	virtual void debug_notcut(WTrack&track)override;
 private:
 	Debug2DSpectraSet Yes,No;
 };
 class He3eta:public CustomAnalysis<MonteCarlo,He3_mc_debug>{
 public:
-    He3eta();
+	He3eta();
 };
 class He3pi0:public CustomAnalysis<MonteCarlo,He3_mc_debug>{
 public:
