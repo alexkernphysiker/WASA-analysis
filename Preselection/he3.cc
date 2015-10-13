@@ -92,9 +92,6 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 		return P_Missing.M();
 	},400,0.4,0.6);
 }
-He3eta::He3eta():He3_debug(){AddParticleToFirstVertex(kEta,m_eta);}
-He3pi0::He3pi0():He3_debug(){AddParticleToFirstVertex(kPi0,m_pi0);}
-
 He3_in_forward::~He3_in_forward(){}
 bool He3_in_forward::EventPreProcessing(){
 	Cut.ReferenceEvent();
@@ -118,7 +115,7 @@ void He3_in_forward::EventPostProcessing(){}
 void He3_in_forward::debug_cut(WTrack&){}
 void He3_in_forward::debug_notcut(WTrack&){}
 
-He3_debug::He3_debug():He3_in_forward(),Yes("FPC_cut_pass"),No("FPC_cut_dont_pass"){
+He3_mc_debug::He3_mc_debug():He3_in_forward(),Yes("FPC_cut_pass"),No("FPC_cut_dont_pass"){
 	auto prepare=[this](Debug2DSpectraSet&D){
 		Axis Ekin={.value=E_t,.from=0,.to=0.5,.bins=500};
 		Axis Ehi={.value=Ehi_m,.from=0,.to=0.3,.bins=300};
@@ -136,12 +133,15 @@ He3_debug::He3_debug():He3_in_forward(),Yes("FPC_cut_pass"),No("FPC_cut_dont_pas
 	prepare(Yes);
 	prepare(No);
 }
-He3_debug::~He3_debug(){}
-void He3_debug::debug_cut(WTrack&track){
+He3_mc_debug::~He3_mc_debug(){}
+void He3_mc_debug::debug_cut(WTrack&track){
 	He3_in_forward::debug_cut(track);
 	No.CatchState(track);
 }
-void He3_debug::debug_notcut(WTrack&track){
+void He3_mc_debug::debug_notcut(WTrack&track){
 	He3_in_forward::debug_notcut(track);
 	Yes.CatchState(track);
 }
+
+He3eta::He3eta():He3_mc_debug(){AddParticleToFirstVertex(kEta,m_eta);}
+He3pi0::He3pi0():He3_mc_debug(){AddParticleToFirstVertex(kPi0,m_pi0);}

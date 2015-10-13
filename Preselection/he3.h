@@ -21,8 +21,8 @@ protected:
 	virtual bool ForwardTrackProcessing(WTrack&track)override;
 	virtual bool CentralTrackProcessing(WTrack&track)override;
 private:
+	TrackConditionSet Cut,CutFTH1,CutFRH1;
 	Analyser2D MissingMass;
-	TrackConditionSet Cut,CutFRH1,CutFTH1;
 	InterpolationBasedReconstruction He3_theta,He3_phi;
 	vector<InterpolationBasedReconstruction> He3_Ekin;
 protected:
@@ -31,21 +31,21 @@ protected:
 	virtual void debug_notcut(WTrack&);
 };
 typedef CustomAnalysis<RealData,He3_in_forward> He3Data;
-class He3_debug:public He3_in_forward{
+class He3_mc_debug:public He3_in_forward{
 public:
-	He3_debug();
-	virtual ~He3_debug();
+	He3_mc_debug();
+	virtual ~He3_mc_debug();
 protected:
 	virtual void debug_cut(WTrack&)override;
 	virtual void debug_notcut(WTrack&)override;
 private:
 	Debug2DSpectraSet Yes,No;
 };
-class He3eta:public CustomAnalysis<MonteCarlo,He3_debug>{
+class He3eta:public CustomAnalysis<MonteCarlo,He3_mc_debug>{
 public:
     He3eta();
 };
-class He3pi0:public CustomAnalysis<MonteCarlo,He3_debug>{
+class He3pi0:public CustomAnalysis<MonteCarlo,He3_mc_debug>{
 public:
 	He3pi0();
 };
