@@ -56,10 +56,10 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 	}).AddParameter("E",[this](WTrack&track){
 		return He3_Ekin[0].Reconstruct(track);
 	});
-	Cut.AddCondition("IsInFPC",[this](WTrack&track,vector<double>&){
+	Cut.AddCondition("ReconstructionCondition",[this](WTrack&track,vector<double>&){
 		bool passes=(track.Theta()<0.1245)||(track.Theta()>0.1255);
-		if(passes)debug_notcut(track);
-		else debug_cut(track);
+		if(passes)debug_yes(track);
+		else debug_no(track);
 		return passes;
 	}).AddCondition("Edep_cuts",[this](WTrack&track,vector<double>&P){
 		auto one=CutFRH1.Check(track,P),two=CutFTH1.Check(track,P);
@@ -112,10 +112,10 @@ bool He3_in_forward::ForwardTrackProcessing(WTrack&track){
 bool He3_in_forward::CentralTrackProcessing(WTrack&){return true;}
 void He3_in_forward::EventPostProcessing(){}
 
-void He3_in_forward::debug_cut(WTrack&){}
-void He3_in_forward::debug_notcut(WTrack&){}
+void He3_in_forward::debug_yes(WTrack&){}
+void He3_in_forward::debug_no(WTrack&){}
 
-He3_mc_debug::He3_mc_debug():He3_in_forward(),Yes("IsInFPC"),No("IsNotInFPC"){
+He3_mc_debug::He3_mc_debug():He3_in_forward(),Yes("ReconstructionConditionYes"),No("ReconstructionConditionNo"){
 	auto prepare=[this](Debug2DSpectraSet&D){
 		Axis Ekin={.value=E_t,.from=0,.to=0.5,.bins=500};
 		Axis Ehi={.value=Ehi_m,.from=0,.to=0.3,.bins=300};
@@ -134,11 +134,11 @@ He3_mc_debug::He3_mc_debug():He3_in_forward(),Yes("IsInFPC"),No("IsNotInFPC"){
 	prepare(No);
 }
 He3_mc_debug::~He3_mc_debug(){}
-void He3_mc_debug::debug_cut(WTrack&track){
-	No.CatchState(track);
-}
-void He3_mc_debug::debug_notcut(WTrack&track){
+void He3_mc_debug::debug_yes(WTrack&track){
 	Yes.CatchState(track);
+}
+void He3_mc_debug::debug_no(WTrack&track){
+	No.CatchState(track);
 }
 
 He3eta::He3eta():He3_mc_debug(){AddParticleToFirstVertex(kEta,m_eta);}
