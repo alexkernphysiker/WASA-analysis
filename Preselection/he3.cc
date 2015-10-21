@@ -115,7 +115,7 @@ void He3_in_forward::EventPostProcessing(){}
 void He3_in_forward::debug_cut(WTrack&){}
 void He3_in_forward::debug_notcut(WTrack&){}
 
-He3_mc_debug::He3_mc_debug():He3_in_forward(),Yes("FPC_cut_pass"),No("FPC_cut_dont_pass"){
+He3_mc_debug::He3_mc_debug():He3_in_forward(),Yes("IsInFPC"),No("IsNotInFPC"){
 	auto prepare=[this](Debug2DSpectraSet&D){
 		Axis Ekin={.value=E_t,.from=0,.to=0.5,.bins=500};
 		Axis Ehi={.value=Ehi_m,.from=0,.to=0.3,.bins=300};
@@ -123,12 +123,12 @@ He3_mc_debug::He3_mc_debug():He3_in_forward(),Yes("FPC_cut_pass"),No("FPC_cut_do
 		Axis Thm={.value=Th_m,.from=0.09,.to=0.16,.bins=70};
 		Axis Pht={.value=Ph_t,.from=0,.to=7,.bins=700};
 		Axis Phm={.value=Ph_m,.from=0,.to=7,.bins=700};
-		D.Add("Th_E_vs_Th",Ekin,Tht);
-		D.Add("Th_E_vs_Ph",Ekin,Pht);
-		D.Add("Th_Th_vs_Ph",Tht,Pht);
-		D.Add("Exp_E_vs_Th",Ehi,Thm);
-		D.Add("Exp_E_vs_Ph",Ehi,Phm);
-		D.Add("Exp_Th_vs_Ph",Thm,Phm);
+		D.Add("Vertex_E_vs_Theta",Ekin,Tht);
+		D.Add("Vertex_E_vs_Phi",Ekin,Pht);
+		D.Add("Vertex_Theta_vs_Phi",Tht,Pht);
+		D.Add("Detector_E_vs_Th",Ehi,Thm);
+		D.Add("Detector_E_vs_Ph",Ehi,Phm);
+		D.Add("Detector_Th_vs_Ph",Thm,Phm);
 	};
 	prepare(Yes);
 	prepare(No);
