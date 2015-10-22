@@ -97,7 +97,9 @@ bool He3_in_forward::EventPreProcessing(){
 	Cut.ReferenceEvent();
 	return true;
 }
-bool He3_in_forward::TrackCountTrigger(int CinC,int NinC,int CinF){return CinF>0;}
+bool He3_in_forward::TrackCountTrigger(int CinC,int NinC,int CinF){
+	return CinF>0;
+}
 bool He3_in_forward::CentralFirst(){return false;}
 bool He3_in_forward::ForwardTrackProcessing(WTrack&track){
 	SubLog log=Log(LogDebug);
