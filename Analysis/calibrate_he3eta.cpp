@@ -42,8 +42,8 @@ int main(int,char**){
 			for(double p:fit)file<<p<<" ";
 			file<<"\n";
 		};
-		processfile("He3.E.FRH1",0,0.5,100,[](double&,double&){return true;});
-		processfile("He3.E.FTH1",0,0.2,100,[](double&,double&){return true;});
+		processfile("He3.E.FRH1",0,0.4,200,[](double&,double&){return true;});
+		processfile("He3.E.FTH1",0,0.4,200,[](double&,double&){return true;});
 		processfile("He3.th",0,0.2,200,[](double&x,double&y){return pow(x-y-0.01,2)<0.0003;});
 		processfile("He3.phi",0,6.3,50,[](double&x,double&y){return pow(x-y,2)<0.5;});
 		file.close();
