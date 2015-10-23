@@ -97,7 +97,7 @@ bool He3_in_forward::EventPreProcessing(){
 	Cut.ReferenceEvent();
 	return true;
 }
-bool He3_in_forward::TrackCountTrigger(int CinC,int NinC,int CinF){
+bool He3_in_forward::TrackCountTrigger(int CinC,int NinC,int CinF,int NinF){
 	return CinF>0;
 }
 bool He3_in_forward::CentralFirst(){return false;}

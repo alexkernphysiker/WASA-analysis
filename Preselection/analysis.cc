@@ -61,7 +61,8 @@ void Analysis::ProcessEvent(){
 				int ChargedCountInCentral = fTrackBankCD->GetEntries(kCDC);
 				int NeutralCountInCentral = fTrackBankCD->GetEntries(kCDN);
 				int ChargedCountinForward = fTrackBankFD->GetEntries(kFDC);
-				if(TrackCountTrigger(ChargedCountInCentral,NeutralCountInCentral,ChargedCountinForward)){
+				int NeutralCountinForward = fTrackBankFD->GetEntries(kFDN);
+				if(TrackCountTrigger(ChargedCountInCentral,NeutralCountInCentral,ChargedCountinForward,NeutralCountinForward)){
 					log<<"Track count conditions passed";
 					DetectorToProcess CENTRAL=make_pair(fTrackBankCD,[this](WTrack&t){return CentralTrackProcessing(t);});
 					DetectorToProcess FORWARD=make_pair(fTrackBankFD,[this](WTrack&t){return ForwardTrackProcessing(t);});

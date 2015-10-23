@@ -42,7 +42,7 @@ protected:
 
 	virtual bool EventPreProcessing()=0;
 	virtual void EventPostProcessing()=0;
-	virtual bool TrackCountTrigger(int CinC,int NinC,int CinF)=0;
+	virtual bool TrackCountTrigger(int CinC,int NinC,int CinF,int NinF)=0;
 	virtual bool CentralFirst()=0;
 	virtual bool ForwardTrackProcessing(WTrack&track)=0;
 	virtual bool CentralTrackProcessing(WTrack&track)=0;
@@ -89,8 +89,8 @@ protected:
 	virtual void EventPostProcessing()override{
 		reaction::EventPostProcessing();
 	}
-	virtual bool TrackCountTrigger(int CinC,int NinC,int CinF)override{
-		return reaction::TrackCountTrigger(CinC,NinC,CinF);
+	virtual bool TrackCountTrigger(int CinC,int NinC,int CinF,int NinF)override{
+		return reaction::TrackCountTrigger(CinC,NinC,CinF,NinF);
 	}
 	virtual bool CentralFirst()override{
 		return reaction::CentralFirst();

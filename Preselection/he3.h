@@ -16,7 +16,7 @@ public:
 protected:
 	virtual bool EventPreProcessing()override;
 	virtual void EventPostProcessing()override;
-	virtual bool TrackCountTrigger(int CinC,int NinC,int CinF)override;
+	virtual bool TrackCountTrigger(int CinC,int NinC,int CinF,int NinF)override;
 	virtual bool CentralFirst()override;
 	virtual bool ForwardTrackProcessing(WTrack&track)override;
 	virtual bool CentralTrackProcessing(WTrack&track)override;
