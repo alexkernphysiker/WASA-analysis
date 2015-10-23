@@ -57,13 +57,15 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 		return He3_Ekin[0].Reconstruct(track);
 	});
 	Cut.AddCondition("Edep_cuts",[this](WTrack&track,vector<double>&P){
+		ForwardDetectorTrackMarker(0,track);
 		auto one=CutFRH1.Check(track,P),two=CutFTH1.Check(track,P);
 		return one||two;//for we could see correct numbers of events on histograms
 	}).AddParameter("Theta",[this](WTrack&track){
 		return He3_theta.Reconstruct(track);
 	}).AddParameter("Phi",[this](WTrack&track){
 		return He3_phi.Reconstruct(track);
-	}).AddCondition("Reconstructed",[this](WTrack&,vector<double>&P){
+	}).AddCondition("Reconstructed",[this](WTrack&track,vector<double>&P){
+		ForwardDetectorTrackMarker(1,track);
 		return isfinite(P[0])&&isfinite(P[1])&&isfinite(P[2]);
 	});
 	MissingMass.Setup([this](vector<double>&He3){
@@ -88,12 +90,9 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 	},400,0.4,0.6);
 	AddTrackProcessing(make_pair(kFDC,[this](WTrack&track){
 		SubLog log=Log(LogDebug);
-		ForwardDetectorTrackMarker(0,track);
 		vector<double> He3;
-		if(Cut.Check(track,He3)){
-			ForwardDetectorTrackMarker(1,track);
+		if(Cut.Check(track,He3))
 			MissingMass.AcceptEvent(He3);
-		}
 	}));
 }
 He3_in_forward::~He3_in_forward(){}
