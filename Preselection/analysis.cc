@@ -71,7 +71,7 @@ void Analysis::ProcessEvent(){
 							WTrackIter iterator(bank);
 							iterator.SetType(process.first);
 							while(WTrack* track = dynamic_cast<WTrack*> (iterator.Next()))
-								process.second(*bank->GetTrack(*track));
+								process.second(*track);
 						}
 					}
 					log<<"Event postprocessing";
