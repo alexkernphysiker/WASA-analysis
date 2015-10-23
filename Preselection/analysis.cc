@@ -68,10 +68,10 @@ void Analysis::ProcessEvent(){
 					BANK.push_back(fTrackBankFD);
 					for(TrackProcessing&process:m_processing){
 						for(WTrackBank*bank:BANK){
-							bank->SetTrackTypes(process.first);
-							for(int trackindex=0,NrTracks=bank->GetEntries();trackindex<NrTracks;trackindex++)
-								process.second(*bank->GetTrack(trackindex));
-							bank->SetTrackTypes(0);
+							WTrackIter iterator(bank);
+							iterator.SetType(process.first);
+							while(WTrack* track = dynamic_cast<WTrack*> (iterator.Next()))
+								process.second(*bank->GetTrack(*track));
 						}
 					}
 					log<<"Event postprocessing";

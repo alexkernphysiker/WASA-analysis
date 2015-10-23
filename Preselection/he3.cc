@@ -13,7 +13,7 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 	SubLog log=Log(LogDebug);
 	AddParticleToFirstVertex(kHe3,m_3He);
 
-	chargehist=new TH1F("Charge","",16,0,15);
+	chargehist=new TH1F("Charge","",16,-0.5,15.5);
 	gHistoManager->Add(chargehist,"Especial");
 	
 	Th_m=[this](WTrack&track){return track.Theta();};
@@ -60,6 +60,7 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 		return He3_Ekin[0].Reconstruct(track);
 	});
 	Cut.AddCondition("ReconstructionCondition",[this](WTrack&track,vector<double>&){
+		chargehist->Fill(track.Type());
 		return true;
 	}).AddCondition("Edep_cuts",[this](WTrack&track,vector<double>&P){
 		auto one=CutFRH1.Check(track,P),two=CutFTH1.Check(track,P);
