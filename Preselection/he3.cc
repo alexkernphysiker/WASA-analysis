@@ -57,7 +57,7 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 		return He3_Ekin[0].Reconstruct(track);
 	});
 	Cut.AddCondition("ReconstructionCondition",[this](WTrack&track,vector<double>&){
-		bool passes=(track.Theta()<0.1245)||(track.Theta()>0.1255);
+		bool passes=track.Charge()>0;
 		if(passes)debug_yes(track);
 		else debug_no(track);
 		return passes;
