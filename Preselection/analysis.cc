@@ -43,7 +43,6 @@ void Analysis::ForFirstVertex(function<void(ParticleType,double,Kinematic&)> cyc
 		cyclebody(info.type,info.mass,info.cache);
 }
 
-typedef pair<WTrackBank*,function<bool(WTrack&)>> DetectorToProcess;
 void Analysis::ProcessEvent(){
 	m_count++;
 	if(m_count%1000==0)
@@ -63,29 +62,22 @@ void Analysis::ProcessEvent(){
 				int ChargedCountinForward = fTrackBankFD->GetEntries(kFDC);
 				int NeutralCountinForward = fTrackBankFD->GetEntries(kFDN);
 				if(TrackCountTrigger(ChargedCountInCentral,NeutralCountInCentral,ChargedCountinForward,NeutralCountinForward)){
-					log<<"Track count conditions passed";
-					DetectorToProcess CENTRAL=make_pair(fTrackBankCD,[this](WTrack&t){return CentralTrackProcessing(t);});
-					DetectorToProcess FORWARD=make_pair(fTrackBankFD,[this](WTrack&t){return ForwardTrackProcessing(t);});
-					vector<DetectorToProcess> QUEUE;
-					if(CentralFirst()){
-						QUEUE.push_back(CENTRAL);
-						QUEUE.push_back(FORWARD);
-					}else{
-						QUEUE.push_back(FORWARD);
-						QUEUE.push_back(CENTRAL);
-					}
-					for(DetectorToProcess DETECTOR:QUEUE){
-						int NrTracks=DETECTOR.first->GetEntries();
-						for (int trackindex=0; trackindex<NrTracks; trackindex++)
-							if(!DETECTOR.second(*DETECTOR.first->GetTrack(trackindex))){
-								log<<"proceccing returned FALSE. Exiting event processing.";
-								return;
-							}
+					log<<"Track enumerating";
+					vector<WTrackBank*> BANK;
+					BANK.push_back(fTrackBankCD);
+					BANK.push_back(fTrackBankFD);
+					for(TrackProcessing&process:m_processing){
+						for(WTrackBank*bank:BANK){
+							bank->SetTrackTypes(process.first);
+							for(int trackindex=0,NrTracks=bank->GetEntries();trackindex<NrTracks;trackindex++)
+								process.second(*bank->GetTrack(trackindex));
+							bank->SetTrackTypes(0);
+						}
 					}
 					log<<"Event postprocessing";
 					EventPostProcessing();
 				}log<<"Track count conditions NOT passed";
 			}log<<"preprocessing returned false.";
 		}else Log(LogError)<<"p_beam <= 0";
-	}else log<<"event did not pass the condition";
+	}else log<<"event did not pass the processing condition";
 }

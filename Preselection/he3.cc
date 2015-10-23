@@ -96,6 +96,15 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 		TLorentzVector P_Missing=P_Total-P_He3;
 		return P_Missing.M();
 	},400,0.4,0.6);
+	AddTrackProcessing(make_pair(kFDC,[this](WTrack&track){
+		SubLog log=Log(LogDebug);
+		ForwardDetectorTrackMarker(0,track);
+		vector<double> He3;
+		if(Cut.Check(track,He3)){
+			ForwardDetectorTrackMarker(1,track);
+			MissingMass.AcceptEvent(He3);
+		}
+	}));
 }
 He3_in_forward::~He3_in_forward(){}
 bool He3_in_forward::EventPreProcessing(){
@@ -105,22 +114,7 @@ bool He3_in_forward::EventPreProcessing(){
 bool He3_in_forward::TrackCountTrigger(int CinC,int NinC,int CinF,int NinF){
 	return CinF>0;
 }
-bool He3_in_forward::CentralFirst(){return false;}
-bool He3_in_forward::ForwardTrackProcessing(WTrack&track){
-	SubLog log=Log(LogDebug);
-	ForwardDetectorTrackMarker(0,track);
-	vector<double> He3;
-	if(Cut.Check(track,He3)){
-		ForwardDetectorTrackMarker(1,track);
-		MissingMass.AcceptEvent(He3);
-	}
-	return true;
-}
-bool He3_in_forward::CentralTrackProcessing(WTrack&){
-	return true;
-}
 void He3_in_forward::EventPostProcessing(){}
-
 void He3_in_forward::debug_yes(WTrack&){}
 void He3_in_forward::debug_no(WTrack&){}
 

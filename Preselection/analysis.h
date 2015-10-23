@@ -43,9 +43,6 @@ protected:
 	virtual bool EventPreProcessing()=0;
 	virtual void EventPostProcessing()=0;
 	virtual bool TrackCountTrigger(int CinC,int NinC,int CinF,int NinF)=0;
-	virtual bool CentralFirst()=0;
-	virtual bool ForwardTrackProcessing(WTrack&track)=0;
-	virtual bool CentralTrackProcessing(WTrack&track)=0;
 
 	FDFTHTracks* TrackFinderFD;
 	CDTracksSimple* CDTrackFinder;
@@ -58,6 +55,8 @@ protected:
 		Kinematic();
 		double E,Th,Phi;
 	};
+	typedef pair<TrackType,function<void(WTrack&)>> TrackProcessing;
+	void AddTrackProcessing(TrackProcessing&&proc);
 	Kinematic&FromFirstVertex(ParticleType type);
 	void ForFirstVertex(std::function<void(ParticleType,double,Kinematic&)>);
 private:
@@ -67,6 +66,7 @@ private:
 		Kinematic cache;
 	};
 	vector<particle_info> first_vertex;
+	vector<TrackProcessing> m_processing;
 	double p_beam_cache;
 	unsigned long m_count;
 };
@@ -91,15 +91,6 @@ protected:
 	}
 	virtual bool TrackCountTrigger(int CinC,int NinC,int CinF,int NinF)override{
 		return reaction::TrackCountTrigger(CinC,NinC,CinF,NinF);
-	}
-	virtual bool CentralFirst()override{
-		return reaction::CentralFirst();
-	}
-	virtual bool ForwardTrackProcessing(WTrack&track)override{
-		return reaction::ForwardTrackProcessing(track);
-	}
-	virtual bool CentralTrackProcessing(WTrack&track)override{
-		return reaction::CentralTrackProcessing(track);
 	}
 };
 #endif
