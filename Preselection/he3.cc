@@ -13,9 +13,6 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 	SubLog log=Log(LogDebug);
 	AddParticleToFirstVertex(kHe3,m_3He);
 
-	chargehist=new TH1F("Charge","",16,-0.5,15.5);
-	gHistoManager->Add(chargehist,"Especial");
-	
 	Th_m=[this](WTrack&track){return track.Theta();};
 	Th_t=[this](WTrack&){return FromFirstVertex(kHe3).Th;};
 	Ph_m=[this](WTrack&track){return NormPhi(track.Phi());};
@@ -59,10 +56,7 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 	}).AddParameter("E",[this](WTrack&track){
 		return He3_Ekin[0].Reconstruct(track);
 	});
-	Cut.AddCondition("ReconstructionCondition",[this](WTrack&track,vector<double>&){
-		chargehist->Fill(track.Type());
-		return true;
-	}).AddCondition("Edep_cuts",[this](WTrack&track,vector<double>&P){
+	Cut.AddCondition("Edep_cuts",[this](WTrack&track,vector<double>&P){
 		auto one=CutFRH1.Check(track,P),two=CutFTH1.Check(track,P);
 		return one||two;//for we could see correct numbers of events on histograms
 	}).AddParameter("Theta",[this](WTrack&track){

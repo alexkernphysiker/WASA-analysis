@@ -69,6 +69,7 @@ private:
 	vector<TrackProcessing> m_processing;
 	double p_beam_cache;
 	unsigned long m_count;
+	TH1F* type_hist;
 };
 template <class datatype,class reaction>
 class CustomAnalysis:public virtual datatype,public virtual reaction{

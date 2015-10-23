@@ -22,7 +22,6 @@ private:
 	Analyser2D MissingMass;
 	InterpolationBasedReconstruction He3_theta,He3_phi;
 	vector<InterpolationBasedReconstruction> He3_Ekin;
-	TH1F* chargehist;
 protected:
 	TrackDependent Th_m,Th_t,Ph_m,Ph_t,Elow_m,Ehi_m,E_t;
 	virtual void debug_yes(WTrack&track);

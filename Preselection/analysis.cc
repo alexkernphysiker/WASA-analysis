@@ -14,6 +14,8 @@ Analysis::Analysis(){
 	if (CDTrackFinder!=0) fTrackBankCD = CDTrackFinder->GetTrackBank();
 	fDetectorTable = dynamic_cast<CCardWDET*>(gParameterManager->GetParameterObject("CCardWDET","default")); 
 	p_beam_cache=INFINITY;
+	type_hist=new TH1F("Particle code type","",32,-0.5,31.5);
+	gHistoManager->Add(type_hist,"DebugData");
 }
 Analysis::~Analysis(){}
 Analysis::Kinematic::Kinematic(){
@@ -69,12 +71,13 @@ void Analysis::ProcessEvent(){
 					vector<WTrackBank*> BANK;
 					BANK.push_back(fTrackBankCD);
 					BANK.push_back(fTrackBankFD);
-					for(TrackProcessing&process:m_processing){
-						for(WTrackBank*bank:BANK){
-							WTrackIter iterator(bank);
-							iterator.SetType(process.first);
-							while(WTrack* track = dynamic_cast<WTrack*> (iterator.Next()))
-								process.second(*track);
+					for(WTrackBank*bank:BANK){
+						WTrackIter iterator(bank);
+						while(WTrack* track = dynamic_cast<WTrack*> (iterator.Next())){
+							type_hist->Fill(track->Type());
+							for(TrackProcessing&process:m_processing)
+								if(track->Type()==process.first)
+									process.second(*track);
 						}
 					}
 					log<<"Event postprocessing";
