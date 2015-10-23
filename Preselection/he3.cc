@@ -13,6 +13,9 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 	SubLog log=Log(LogDebug);
 	AddParticleToFirstVertex(kHe3,m_3He);
 
+	chargehist=new TH1F("Charge","",16,0,15);
+	gHistoManager->Add(chargehist,"Especial");
+	
 	Th_m=[this](WTrack&track){return track.Theta();};
 	Th_t=[this](WTrack&){return FromFirstVertex(kHe3).Th;};
 	Ph_m=[this](WTrack&track){return NormPhi(track.Phi());};
@@ -57,7 +60,9 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 		return He3_Ekin[0].Reconstruct(track);
 	});
 	Cut.AddCondition("ReconstructionCondition",[this](WTrack&track,vector<double>&){
-		bool passes=track.Charge()>0;
+		auto type=track.ParticleType();
+		chargehist->Fill(type);
+		bool passes=(type==kFDC);
 		if(passes)debug_yes(track);
 		else debug_no(track);
 		return passes;
@@ -111,7 +116,9 @@ bool He3_in_forward::ForwardTrackProcessing(WTrack&track){
 	}
 	return true;
 }
-bool He3_in_forward::CentralTrackProcessing(WTrack&){return true;}
+bool He3_in_forward::CentralTrackProcessing(WTrack&){
+	return true;
+}
 void He3_in_forward::EventPostProcessing(){}
 
 void He3_in_forward::debug_yes(WTrack&){}
