@@ -42,6 +42,9 @@ void Analysis::ForFirstVertex(function<void(ParticleType,double,Kinematic&)> cyc
 	for(particle_info&info:first_vertex)
 		cyclebody(info.type,info.mass,info.cache);
 }
+void Analysis::AddTrackProcessing(Analysis::TrackProcessing&& proc){
+	m_processing.push_back(proc);
+}
 
 void Analysis::ProcessEvent(){
 	m_count++;
