@@ -60,12 +60,7 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 		return He3_Ekin[0].Reconstruct(track);
 	});
 	Cut.AddCondition("ReconstructionCondition",[this](WTrack&track,vector<double>&){
-		auto type=track.ParticleType();
-		chargehist->Fill(type);
-		bool passes=(type==kFDC);
-		if(passes)debug_yes(track);
-		else debug_no(track);
-		return passes;
+		return true;
 	}).AddCondition("Edep_cuts",[this](WTrack&track,vector<double>&P){
 		auto one=CutFRH1.Check(track,P),two=CutFTH1.Check(track,P);
 		return one||two;//for we could see correct numbers of events on histograms
