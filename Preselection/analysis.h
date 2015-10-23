@@ -55,8 +55,7 @@ protected:
 		Kinematic();
 		double E,Th,Phi;
 	};
-	typedef pair<TrackType,function<void(WTrack&)>> TrackProcessing;
-	void AddTrackProcessing(TrackProcessing&&proc);
+	void AddTrackProcessing(TrackType ttype,function<void(WTrack&)> func);
 	Kinematic&FromFirstVertex(ParticleType type);
 	void ForFirstVertex(std::function<void(ParticleType,double,Kinematic&)>);
 private:
@@ -66,7 +65,7 @@ private:
 		Kinematic cache;
 	};
 	vector<particle_info> first_vertex;
-	vector<TrackProcessing> m_processing;
+	vector<pair<pair<TrackType,function<void(WTrack&)>>,TH1F*>> m_processing;
 	double p_beam_cache;
 	unsigned long m_count;
 	TH1F* type_hist;
@@ -83,7 +82,6 @@ protected:
 	virtual bool EventProcessingCondition()override{
 		return datatype::EventProcessingCondition();
 	}
-	
 	virtual bool EventPreProcessing()override{
 		return reaction::EventPreProcessing();
 	}

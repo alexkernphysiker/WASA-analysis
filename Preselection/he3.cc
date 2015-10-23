@@ -88,12 +88,12 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 		TLorentzVector P_Missing=P_Total-P_He3;
 		return P_Missing.M();
 	},400,0.4,0.6);
-	AddTrackProcessing(make_pair(kFDC,[this](WTrack&track){
+	AddTrackProcessing(kFDC,[this](WTrack&track){
 		SubLog log=Log(LogDebug);
 		vector<double> He3;
 		if(Cut.Check(track,He3))
 			MissingMass.AcceptEvent(He3);
-	}));
+	});
 }
 He3_in_forward::~He3_in_forward(){}
 bool He3_in_forward::EventPreProcessing(){

@@ -5,6 +5,11 @@
 #define static_right(A) (static_cast<decltype(A)&&>(A))
 using namespace std;
 IAnalysis::~IAnalysis(){}
+TH1F* Hist(string&&name){
+	TH1F* hist=new TH1F(name.c_str(),"",32,-0.5,31.5);
+	gHistoManager->Add(hist,"DebugData");
+	return hist;
+}
 Analysis::Analysis(){
 	m_count=0;
 	AddLogSubprefix("Analysis");
@@ -14,8 +19,7 @@ Analysis::Analysis(){
 	if (CDTrackFinder!=0) fTrackBankCD = CDTrackFinder->GetTrackBank();
 	fDetectorTable = dynamic_cast<CCardWDET*>(gParameterManager->GetParameterObject("CCardWDET","default")); 
 	p_beam_cache=INFINITY;
-	type_hist=new TH1F("Particle code type","",32,-0.5,31.5);
-	gHistoManager->Add(type_hist,"DebugData");
+	type_hist=Hist("Particle code type");
 }
 Analysis::~Analysis(){}
 Analysis::Kinematic::Kinematic(){
@@ -44,8 +48,8 @@ void Analysis::ForFirstVertex(function<void(ParticleType,double,Kinematic&)> cyc
 	for(particle_info&info:first_vertex)
 		cyclebody(info.type,info.mass,info.cache);
 }
-void Analysis::AddTrackProcessing(Analysis::TrackProcessing&& proc){
-	m_processing.push_back(proc);
+void Analysis::AddTrackProcessing(TrackType ttype,function<void(WTrack&)> func){
+	m_processing.push_back(make_pair(make_pair(ttype,func),Hist(to_string(ttype))));
 }
 
 void Analysis::ProcessEvent(){
@@ -75,9 +79,11 @@ void Analysis::ProcessEvent(){
 						WTrackIter iterator(bank);
 						while(WTrack* track = dynamic_cast<WTrack*> (iterator.Next())){
 							type_hist->Fill(track->Type());
-							for(TrackProcessing&process:m_processing)
-								if(track->Type()==process.first)
-									process.second(*track);
+							for(auto&process:m_processing)
+								if(track->Type()==process.first.first){
+									process.second->Fill(track->Type());
+									process.first.second(*track);
+								}
 						}
 					}
 					log<<"Event postprocessing";
