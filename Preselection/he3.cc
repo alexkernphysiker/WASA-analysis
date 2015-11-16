@@ -56,7 +56,9 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 	}).AddParameter("E",[this](WTrack&track){
 		return He3_Ekin[0].Reconstruct(track);
 	});
-	Cut.AddCondition("Edep_cuts",[this](WTrack&track,vector<double>&P){
+	Cut.AddCondition("Theta_reconstruction_correct",[this](WTrack&track,vector<double>&P){
+		return 0.125!=track.Theta();//Magic number taken from framework
+	}).AddCondition("Edep_cuts",[this](WTrack&track,vector<double>&P){
 		ForwardDetectorTrackMarker(0,track);
 		auto one=CutFRH1.Check(track,P),two=CutFTH1.Check(track,P);
 		return one||two;//for we could see correct numbers of events on histograms
