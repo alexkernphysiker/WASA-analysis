@@ -6,66 +6,90 @@
 #include "detectors.h"
 using namespace std;
 He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
-	Cut("Cuts",[this](){return PBeam();},20,p_he3_eta_threshold,p_beam_hi),
-	CutFTH1("FTH1",Cut),CutFRH1("FRH1",Cut),
-	MissingMass("MissingMass",Cut)
+	Reconstruction("Reconstruction",[this](){return PBeam();},50,p_beam_low,p_beam_hi),
+	MissingMass("MissingMass",Reconstruction)
 {
 	AddLogSubprefix("He3");
 	SubLog log=Log(LogDebug);
 	AddParticleToFirstVertex(kHe3,m_3He);
 
-	Th_m=[this](WTrack&track){return track.Theta();};
-	Th_t=[this](WTrack&){return FromFirstVertex(kHe3).Th;};
-	Ph_m=[this](WTrack&track){return NormPhi(track.Phi());};
-	Ph_t=[this](WTrack&){return FromFirstVertex(kHe3).Phi;};
-	Elow_m=[this](WTrack&track){return EDep(track,kFTH1);};
-	Ehi_m=[this](WTrack&track){return EDep(track,kFRH1)+EDep(track,kFTH1);};
-	E_t=[this](WTrack&){return FromFirstVertex(kHe3).E;};
-
-	He3_theta=InterpolationBasedReconstruction("He3.th",Th_m,Th_t);
-	He3_phi=InterpolationBasedReconstruction("He3.phi",Ph_m,Ph_t);
-	He3_Ekin.push_back(InterpolationBasedReconstruction("He3.E.FTH1",Elow_m,E_t));
-	He3_Ekin.push_back(InterpolationBasedReconstruction("He3.E.FRH1",Ehi_m,E_t));
-	CutFRH1.AddCondition("StoppingFRH1",[this](WTrack&track,vector<double>&){
-		return (StopPlane(track)==kFRH1);
-	}).AddCondition("SP2cut",[this](WTrack&track,vector<double>&){
-		static TCutG *cut=nullptr;
-		if(cut==nullptr){
-			cut=new TCutG("FRH1_cut",12);
-			cut->SetVarX("FRH1");
-			cut->SetVarY("FTH1");
-			cut->SetPoint(11,0.000,0.033);
-			cut->SetPoint(10,0.068,0.023);
-			cut->SetPoint(9,0.146,0.017);
-			cut->SetPoint(8,0.223,0.016);
-			cut->SetPoint(7,0.284,0.013);
-			cut->SetPoint(6,0.214,0.009);
-			cut->SetPoint(5,0.139,0.009);
-			cut->SetPoint(4,0.093,0.013);
-			cut->SetPoint(3,0.047,0.016);
-			cut->SetPoint(2,0.000,0.024);
-			cut->SetPoint(1,0.000,0.033);
-		}
-		return cut->IsInside(EDep(track,kFRH1),EDep(track,kFTH1));
-	}).AddParameter("E",[this](WTrack&track){
-		return He3_Ekin[1].Reconstruct(track);
-	});
-	CutFTH1.AddCondition("StoppingFTH1",[this](WTrack&track,vector<double>&){
-		return (StopPlane(track)==kFTH1);
-	}).AddCondition("FWC2cut",[this](WTrack&track,vector<double>&){
-		return EDep(track,kFWC2)>=0.011;
-	}).AddParameter("E",[this](WTrack&track){
-		return He3_Ekin[0].Reconstruct(track);
-	});
-	Cut.AddCondition("Theta_reconstruction_correct",[this](WTrack&track,vector<double>&P){
+	ForwardLayerCuts.push_back(
+		TrackConditionSet("FTH1",Reconstruction).AddCondition("Stopping",[this](WTrack&track,vector<double>&){
+			return (StopPlane(track)==kFTH1);
+		}).AddCondition("FWC2cut",[this](WTrack&track,vector<double>&){
+			return EDep(track,kFWC2)>=0.011;
+		}).AddParameter("E",[this](WTrack&track){
+			static InterpolationBasedReconstruction energy("He3.E.FTH1"
+				,[this](WTrack&track){return EDep(track,kFTH1);}
+				,[this](WTrack&){return FromFirstVertex(kHe3).E;}
+			);
+			return energy.Reconstruct(track);
+		})
+	);
+	ForwardLayerCuts.push_back(
+		TrackConditionSet("FRH1",Reconstruction).AddCondition("Stopping",[this](WTrack&track,vector<double>&){
+			return (StopPlane(track)==kFRH1);
+		}).AddCondition("SP2cut",[this](WTrack&track,vector<double>&){
+			//Achtung - static
+			static TCutG *cut=nullptr;
+			if(cut==nullptr){
+				cut=new TCutG("FRH1_cut",13);
+				cut->SetVarX("FRH1");
+				cut->SetVarY("FTH1");
+				cut->SetPoint(12,0.000,0.033);
+				cut->SetPoint(11,0.068,0.023);
+				cut->SetPoint(10,0.146,0.017);
+				cut->SetPoint(9,0.223,0.016);
+				cut->SetPoint(8,0.4,0.012);
+				cut->SetPoint(7,0.4,0.008);
+				cut->SetPoint(6,0.233,0.008);
+				cut->SetPoint(5,0.139,0.009);
+				cut->SetPoint(4,0.093,0.013);
+				cut->SetPoint(3,0.047,0.016);
+				cut->SetPoint(2,0.000,0.024);
+				cut->SetPoint(1,0.000,0.033);
+			}
+			return cut->IsInside(EDep(track,kFRH1),EDep(track,kFTH1));
+		}).AddParameter("E",[this](WTrack&track){
+			static InterpolationBasedReconstruction energy("He3.E.FRH1"
+				,[this](WTrack&track){return EDep(track,kFRH1);}
+				,[this](WTrack&){return FromFirstVertex(kHe3).E;}
+			);
+			return energy.Reconstruct(track);
+		})
+	);
+	ForwardLayerCuts.push_back(
+		TrackConditionSet("FRH2",Reconstruction).AddCondition("Stopping",[this](WTrack&track,vector<double>&){
+			return (StopPlane(track)==kFRH2);
+		}).AddCondition("FRH1_cut",[this](WTrack&track,vector<double>&){
+			return 0.17<EDep(track,kFRH1);
+		}).AddParameter("E",[this](WTrack&track){
+			//Achtung - static
+			static InterpolationBasedReconstruction energy("He3.E.FRH2"
+				,[this](WTrack&track){return EDep(track,kFRH1)+EDep(track,kFRH2);}
+				,[this](WTrack&){return FromFirstVertex(kHe3).E;}
+			);
+			return energy.Reconstruct(track);
+		})
+	);
+	Reconstruction.AddCondition("Theta_reconstruction_correct",[this](WTrack&track,vector<double>&P){
 		return 0.125!=track.Theta();//Magic number taken from framework
 	}).AddCondition("Edep_cuts",[this](WTrack&track,vector<double>&P){
 		ForwardDetectorTrackMarker(0,track);
-		auto one=CutFRH1.Check(track,P),two=CutFTH1.Check(track,P);
-		return one||two;//for we could see correct numbers of events on histograms
+		bool res=false;
+		for(auto&layer:ForwardLayerCuts)res|=layer.Check(track,P);
+		return res;
 	}).AddParameter("Theta",[this](WTrack&track){
+		auto Th_m=[this](WTrack&track){return track.Theta();};
+		auto Th_t=[this](WTrack&){return FromFirstVertex(kHe3).Th;};
+		//Achtung - static
+		static InterpolationBasedReconstruction He3_theta("He3.th",Th_m,Th_t);
 		return He3_theta.Reconstruct(track);
 	}).AddParameter("Phi",[this](WTrack&track){
+		auto Ph_m=[this](WTrack&track){return NormPhi(track.Phi());};
+		auto Ph_t=[this](WTrack&){return FromFirstVertex(kHe3).Phi;};
+		//Achtung - static
+		static InterpolationBasedReconstruction He3_phi("He3.phi",Ph_m,Ph_t);
 		return He3_phi.Reconstruct(track);
 	}).AddCondition("Reconstructed",[this](WTrack&track,vector<double>&P){
 		ForwardDetectorTrackMarker(1,track);
@@ -92,15 +116,14 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 		return P_Missing.M();
 	},600,m_pi0-0.05,m_eta+0.05);
 	AddTrackProcessing(kFDC,[this](WTrack&track){
-		SubLog log=Log(LogDebug);
-		vector<double> He3;
-		if(Cut.Check(track,He3))
-			MissingMass.AcceptEvent(He3);
+		vector<double> He3params;
+		if(Reconstruction.Check(track,He3params))
+			MissingMass.AcceptEvent(He3params);
 	});
 }
 He3_in_forward::~He3_in_forward(){}
 bool He3_in_forward::EventPreProcessing(){
-	Cut.ReferenceEvent();
+	Reconstruction.ReferenceEvent();
 	return true;
 }
 bool He3_in_forward::TrackCountTrigger(int CinC,int NinC,int CinF,int NinF){

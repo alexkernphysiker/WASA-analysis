@@ -12,8 +12,8 @@ ForwardDetectors::ForwardDetectors(int markers){
 	PlaneData.push_back(plane_data(kFWC2,"FWC2",0.03,0.002));
 	//PlaneData.push_back(plane_data(kFPC,"FPC",0.03,0.002));
 	PlaneData.push_back(plane_data(kFTH1,"FTH1",0.05,0.0015));
-	PlaneData.push_back(plane_data(kFRH1,"FRH1",0.3 ,0.001));
-	PlaneData.push_back(plane_data(kFRH2,"FRH2",0.3 ,0.001));
+	PlaneData.push_back(plane_data(kFRH1,"FRH1",0.5 ,0.001));
+	PlaneData.push_back(plane_data(kFRH2,"FRH2",0.5 ,0.001));
 	
 	for(int i=0,n=ForwadrPlaneCount()-1;i<n;i++){
 		string histname=ForwardPlaneName(i)+"_vs_"+ForwardPlaneName(i+1)+"_";

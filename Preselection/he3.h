@@ -17,11 +17,9 @@ protected:
 	virtual void EventPostProcessing()override;
 	virtual bool TrackCountTrigger(int CinC,int NinC,int CinF,int NinF)override;
 private:
-	TrackConditionSet Cut,CutFTH1,CutFRH1;
+	vector<TrackConditionSet> ForwardLayerCuts;
+	TrackConditionSet Reconstruction;
 	Analyser2D MissingMass;
-	InterpolationBasedReconstruction He3_theta,He3_phi;
-	vector<InterpolationBasedReconstruction> He3_Ekin;
-	TrackDependent Th_m,Th_t,Ph_m,Ph_t,Elow_m,Ehi_m,E_t;
 };
 typedef CustomAnalysis<RealData,He3_in_forward> He3Data;
 class He3eta:public CustomAnalysis<MonteCarlo,He3_in_forward>{
