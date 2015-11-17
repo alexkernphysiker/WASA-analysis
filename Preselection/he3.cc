@@ -106,34 +106,6 @@ bool He3_in_forward::TrackCountTrigger(int CinC,int NinC,int CinF,int NinF){
 	return CinF>0;
 }
 void He3_in_forward::EventPostProcessing(){}
-void He3_in_forward::debug_yes(WTrack&){}
-void He3_in_forward::debug_no(WTrack&){}
 
-He3_mc_debug::He3_mc_debug():He3_in_forward(),Yes("ReconstructionConditionYes"),No("ReconstructionConditionNo"){
-	auto prepare=[this](Debug2DSpectraSet&D){
-		Axis Ekin={.value=E_t,.from=0,.to=0.5,.bins=500};
-		Axis Ehi={.value=Ehi_m,.from=0,.to=0.3,.bins=300};
-		Axis Tht={.value=Th_t,.from=0,.to=0.3,.bins=300};
-		Axis Thm={.value=Th_m,.from=0.09,.to=0.16,.bins=70};
-		Axis Pht={.value=Ph_t,.from=0,.to=7,.bins=700};
-		Axis Phm={.value=Ph_m,.from=0,.to=7,.bins=700};
-		D.Add("Vertex_E_vs_Theta",Ekin,Tht);
-		D.Add("Vertex_E_vs_Phi",Ekin,Pht);
-		D.Add("Vertex_Theta_vs_Phi",Tht,Pht);
-		D.Add("Detector_E_vs_Th",Ehi,Thm);
-		D.Add("Detector_E_vs_Ph",Ehi,Phm);
-		D.Add("Detector_Th_vs_Ph",Thm,Phm);
-	};
-	prepare(Yes);
-	prepare(No);
-}
-He3_mc_debug::~He3_mc_debug(){}
-void He3_mc_debug::debug_yes(WTrack&track){
-	Yes.CatchState(track);
-}
-void He3_mc_debug::debug_no(WTrack&track){
-	No.CatchState(track);
-}
-
-He3eta::He3eta():He3_mc_debug(){AddParticleToFirstVertex(kEta,m_eta);}
-He3pi0::He3pi0():He3_mc_debug(){AddParticleToFirstVertex(kPi0,m_pi0);}
+He3eta::He3eta():He3_in_forward(){AddParticleToFirstVertex(kEta,m_eta);}
+He3pi0::He3pi0():He3_in_forward(){AddParticleToFirstVertex(kPi0,m_pi0);}
