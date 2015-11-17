@@ -1,6 +1,7 @@
 // this file is distributed under 
 // GPL v 3.0 license
 #include <TCutG.h>
+#include "../General/phys_constants.h"
 #include "he3.h"
 #include "detectors.h"
 using namespace std;
@@ -89,7 +90,7 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 		}
 		TLorentzVector P_Missing=P_Total-P_He3;
 		return P_Missing.M();
-	},400,0.4,0.6);
+	},600,m_pi0-0.05,m_eta+0.05);
 	AddTrackProcessing(kFDC,[this](WTrack&track){
 		SubLog log=Log(LogDebug);
 		vector<double> He3;

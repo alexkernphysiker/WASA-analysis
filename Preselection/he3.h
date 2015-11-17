@@ -8,7 +8,6 @@
 #include "trackprocessing.h"
 #include "data.h"
 #include "montecarlo.h"
-#include "../General/phys_constants.h"
 class He3_in_forward:public virtual Analysis,public ForwardDetectors{
 public:
 	He3_in_forward();
