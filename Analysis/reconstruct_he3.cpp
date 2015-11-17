@@ -23,7 +23,7 @@ int main(int,char**){
 			printf("\nProcessing \"%s\"...\n",name.c_str());
 			auto data=ReadWeightedFrom2D(simulation+name+".simulation.txt",from,to,bins,from,to,bins,cut);
 			printf("%i points with weights\n",data->count());
-			typedef PolynomFunc<0,0,3> fnc;
+			typedef PolynomFunc<0,0,4> fnc;
 			FitFunction<DifferentialMutations<>,fnc,SumWeightedSquareDiff> fit(data);
 			auto init=make_shared<GenerateByGauss>()<<make_pair(0,0.1)<<make_pair(1,0.1);
 			while(init->Count()<fnc::ParamCount)init<<make_pair(0,0.01);
@@ -42,9 +42,9 @@ int main(int,char**){
 			for(double p:fit)file<<p<<" ";
 			file<<"\n";
 		};
-		processfile("He3.E.FTH1",0,0.1,50,[](double&,double&){return true;});
-		processfile("He3.E.FRH1",0,0.4,200,[](double&,double&){return true;});
-		processfile("He3.E.FRH2",0,0.4,200,[](double&,double&){return true;});
+		processfile("He3.E.FTH1",0,0.4,200,[](double&,double&){return true;});
+		processfile("He3.E.FRH1",0,0.8,400,[](double&,double&){return true;});
+		processfile("He3.E.FRH2",0,0.8,400,[](double&x,double&y){return y>0.45;});
 		processfile("He3.th",0,0.2,200,[](double&x,double&y){return pow(x-y-0.01,2)<0.0003;});
 		processfile("He3.phi",0,6.3,50,[](double&x,double&y){return pow(x-y,2)<0.5;});
 		file.close();

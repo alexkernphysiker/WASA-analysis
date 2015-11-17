@@ -8,10 +8,14 @@ shared_ptr<FitPoints> ReadWeightedFrom2D(
 	string name, 
 	double fromX, double toX, unsigned int binsX, 
 	double fromY, double toY, unsigned int binsY, 
-	function< bool(double&,double&)> processing
+	function<bool(double&,double&)> processing
 ){
 	auto res=make_shared<FitPoints>();
-	FitPoints::Point p[binsX][binsY];
+	typedef FitPoints::Point point;
+	typedef point* ppoint;
+	ppoint *p=new ppoint[binsX];
+	for(unsigned int x=0;x<binsX;x++)
+		p[x]=new point[binsY];
 	double stepX=(toX-fromX)/double(binsX);
 	double stepY=(toY-fromY)/double(binsY);
 	for(unsigned int i=0;i<binsX;i++){
@@ -39,10 +43,14 @@ shared_ptr<FitPoints> ReadWeightedFrom2D(
 			}
 		}
 		file.close();
-	}
+	}else
+		throw math_h_error<ifstream>("Not found");
 	for(unsigned int i=0;i<binsX;i++)
 		for(unsigned int j=0;j<binsY;j++)
 			if(p[i][j].wy>0)
 				res<<p[i][j];
+	for(unsigned int x=0;x<binsX;x++)
+		delete[] p[x];
+	delete[] p;
 	return res;
 }
