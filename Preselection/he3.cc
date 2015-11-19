@@ -61,8 +61,12 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 	ForwardLayerCuts.push_back(
 		TrackConditionSet("FRH2",Reconstruction).AddCondition("Stopping",[this](WTrack&track,vector<double>&){
 			return (StopPlane(track)==kFRH2);
-		}).AddCondition("FRH1_cut",[this](WTrack&track,vector<double>&){
-			return 0.17<EDep(track,kFRH1);
+		}).AddCondition("Linear_cuts",[this](WTrack&track,vector<double>&){
+			// two linear cuts
+			return
+				(EDep(track,kFRH1)>(0.25-4.17*EDep(track,kFRH2)))
+				&&(EDep(track,kFRH1)<(0.35-4.17*EDep(track,kFRH2)))
+				&&(EDep(track,kFRH2)<0.22);
 		}).AddParameter("E",[this](WTrack&track){
 			//Achtung - static
 			static InterpolationBasedReconstruction energy("He3.E.FRH2"
