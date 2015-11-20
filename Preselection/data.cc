@@ -2,6 +2,7 @@
 // GPL v 3.0 license
 #include <fstream>
 #include <exception>
+#include "config.h"
 #include "data.h"
 #include "reconstruction.h"
 using namespace std;
@@ -9,7 +10,7 @@ RealData::RealData(){
 	AddLogSubprefix("Real data analysis");
 	fHeader = dynamic_cast<REventHeader*>(gDataManager->GetDataObject("REventHeader","Header"));
 	ifstream file;
-	file.open((rec_name_prefix+"TIME_IN_CYCLE.txt").c_str());
+	file.open((DataFiles+"TIME_IN_CYCLE.txt").c_str());
 	if(file.is_open()){
 		while(!file.eof()){
 			double time,p;

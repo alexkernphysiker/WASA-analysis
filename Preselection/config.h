@@ -6,4 +6,5 @@
 #include "log.h"
 void SetAnalysisType(std::string t);
 void InitLog(LogLevel level,char* type);
+const std::string DataFiles="DataFiles/";
 #endif

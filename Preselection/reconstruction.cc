@@ -2,6 +2,7 @@
 // GPL v 3.0 license
 #include <fstream>
 #include "math_h/exception_math_h.h"
+#include "config.h"
 #include "reconstruction.h"
 using namespace std;
 InterpolationBasedReconstruction::InterpolationBasedReconstruction(){
@@ -26,7 +27,7 @@ InterpolationBasedReconstruction::InterpolationBasedReconstruction(
 	Experiment=measured;
 	Theory=theory;
 	ifstream file;
-	file.open((rec_name_prefix+name+".calibration.txt").c_str());
+	file.open((DataFiles+name+".calibration.txt").c_str());
 	if(file.is_open()){
 		Log(LogDebug)<<"reading input data";
 		while(!file.eof()){
@@ -46,7 +47,7 @@ InterpolationBasedReconstruction::~InterpolationBasedReconstruction(){
 	if(!data_present){
 		Log(NoLog)<<"saving simulation data";
 		ofstream file;
-		file.open((rec_name_prefix+m_name+".simulation.txt").c_str(),ios_base::app);
+		file.open((DataFiles+m_name+".simulation.txt").c_str(),ios_base::app);
 		if(file.is_open()){
 			for(auto&p:out)
 				file<<p.first<<" "<<p.second<<"\n";

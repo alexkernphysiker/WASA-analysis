@@ -1,7 +1,7 @@
 // this file is distributed under 
 // GPL v 3.0 license
 #include <TCutG.h>
-#include "../General/phys_constants.h"
+#include "../phys_constants.h"
 #include "he3.h"
 #include "detectors.h"
 using namespace std;

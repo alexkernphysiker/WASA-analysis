@@ -8,7 +8,6 @@
 #include "math_h/interpolate.h"
 #include "analysis.h"
 #include "log.h"
-const string rec_name_prefix="../Reconstruction/";
 class InterpolationBasedReconstruction:public virtual Logger{
 public:
 	typedef std::function<double(WTrack&)> delegate;
