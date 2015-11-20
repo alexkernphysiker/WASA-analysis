@@ -13,9 +13,7 @@
 using namespace std;
 using namespace Genetic;
 RANDOM engine;
-double sigmaHe3eta(double p_beam){
-	return 400;//nb
-}
+
 void AnalyseMMSpectra(hist::point&BeamMomentaBin,const hist&data,const vector<hist>&MC){
 	string suffix=string(" P=")+to_string(BeamMomentaBin.x)+"GeVc";
 	{hist bg1=MC[1],bg2=MC[2];
