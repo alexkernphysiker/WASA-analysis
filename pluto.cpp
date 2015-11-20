@@ -22,7 +22,7 @@ int main(int argc, char **arg){
 		if(i<(argc-1))react+=" ";
 	}
 	printf("%s\n",react.c_str());
-	string old=getcwd(NULL,0);
+	PUSHD();
 	CD(PLUTO);
 	PBeamSmearing *smear = new PBeamSmearing("beam_smear", "Beam smearing");
 	smear->SetReaction("p+d");
@@ -39,6 +39,6 @@ int main(int argc, char **arg){
 		const_cast<char*>(ReplaceAll(ReplaceAll(ReplaceAll(react," ",""),"[","_"),"]","_").c_str())
 		,1,0,0,0);
 	my_reaction.Loop(5000000);
-	chdir(old.c_str());
+	POPD();
 	return 0;
 }
