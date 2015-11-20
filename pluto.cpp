@@ -15,6 +15,7 @@ int main(int argc, char **arg){
 		printf("reaction expected\n");
 		return -1;
 	}
+	printf("%s\n",arg[1]);
 	string react="";
 	for(int i=2;i<argc;i++){
 		react+=string(arg[i]);
@@ -22,7 +23,7 @@ int main(int argc, char **arg){
 	}
 	printf("%s\n",react.c_str());
 	string old=getcwd(NULL,0);
-	chdir(ENV(PLUTO).c_str());
+	CD(PLUTO);
 	PBeamSmearing *smear = new PBeamSmearing("beam_smear", "Beam smearing");
 	smear->SetReaction("p+d");
 	if(string(arg[1])=="all")

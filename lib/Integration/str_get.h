@@ -4,5 +4,6 @@
 #define dmwuhvtn
 #include <string>
 #include "../../config.h"
+void CD(std::string name);
 std::string ENV(std::string name);
 #endif 
