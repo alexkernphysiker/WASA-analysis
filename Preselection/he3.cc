@@ -6,7 +6,7 @@
 #include "detectors.h"
 using namespace std;
 He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
-	Reconstruction("Reconstruction",[this](){return PBeam();},50,p_beam_low,p_beam_hi),
+	Reconstruction("Reconstruction",[this](){return PBeam();},beam_momenta_bins,p_beam_low,p_beam_hi),
 	MissingMass("MissingMass",Reconstruction)
 {
 	AddLogSubprefix("He3");
