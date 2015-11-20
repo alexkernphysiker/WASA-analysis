@@ -8,12 +8,14 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <TDirectoryFile.h>
-#include <phys_constants.h>
+#include "../../phys_constants.h"
 #include "gethist.h"
+#include "str_get.h"
 using namespace std;
 using namespace Genetic;
+string inputpath=ENV(PRESEL_DATA);
+string outpath=ENV(OUTPUT_PLOTS);
 double PresentRunsAmountRatio(string&&reaction){
-	#include "env.cc"
 	size_t allruns=0,present_runs=0;
 	for(ALLRUNS){
 		allruns++;
@@ -55,7 +57,6 @@ hist::hist(string&&filename,vector<string>&&path,string&&histname){
 	}
 }
 hist::hist(bool from_data,string&&reaction,vector<string>&&path,string&&histname){
-	#include "env.cc"
 	if(!from_data){
 		hist tmp(inputpath+"/MC"+reaction+".root",static_cast<decltype(path)&&>(path),static_cast<string&&>(histname));
 		operator=(tmp);
