@@ -14,7 +14,9 @@
 using namespace std;
 using namespace Genetic;
 string SimulationDataPath(){
-	return ENV(PRESEL_DATA)+"/../Reconstruction/";
+	static string str="";
+	if(str=="")str=ENV(PRESEL_DATA)+string("/../Reconstruction/");
+	return str;
 }
 void ProcessReconstruction(string&&name,double from,double to, size_t bins,function<bool(double&,double&)> cut,RANDOM&engine){
 	printf("\nProcessing \"%s\"...\n",name.c_str());

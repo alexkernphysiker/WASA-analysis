@@ -5,6 +5,7 @@
 Genetic::RANDOM engine;
 int main(int,char**){
 	Plotter::Instance().SetOutput(SimulationDataPath(),"he3reconstruction");
+	printf("begin\n");
 	ProcessReconstruction("He3.E.FTH1",0.00,0.20,40,[](double&,double&){return true;},engine);
 	ProcessReconstruction("He3.E.FRH1",0.00,0.60,60,[](double&,double&){return true;},engine);
 	ProcessReconstruction("He3.E.FRH2",0.25,0.60,60,[](double&x,double&y){return (x>0.25)&&(y>0.45);},engine);

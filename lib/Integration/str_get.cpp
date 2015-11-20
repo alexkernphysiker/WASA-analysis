@@ -19,6 +19,7 @@ string ENV(string name){
 	stringbuf buffer;
 	ostream(&buffer)<<getenv(name.c_str());
 	printf("%s: %s\n",name.c_str(),buffer.str().c_str());
+	return buffer.str();
 }
 void CD(string name){
 	chdir(getenv(name.c_str()));
