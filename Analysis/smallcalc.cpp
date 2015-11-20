@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <TVector3.h>
 #include <TLorentzVector.h>
-#include <phys_constants.h>
+#include "../phys_constants.h"
 using namespace std;
 #define ParR(x) static_cast<ParamSet&&>(x)
 int main(int,char**){
