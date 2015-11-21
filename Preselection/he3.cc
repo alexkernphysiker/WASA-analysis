@@ -64,8 +64,8 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 		}).AddCondition("Linear_cuts",[this](WTrack&track,vector<double>&){
 			// two linear cuts
 			return
-				(EDep(track,kFRH1)>(0.25-4.17*EDep(track,kFRH2)))
-				&&(EDep(track,kFRH1)<(0.35-4.17*EDep(track,kFRH2)))
+				(EDep(track,kFRH1)>(0.25-0.417*EDep(track,kFRH2)))
+				&&(EDep(track,kFRH1)<(0.35-0.417*EDep(track,kFRH2)))
 				&&(EDep(track,kFRH2)<0.22);
 		}).AddParameter("E",[this](WTrack&track){
 			//Achtung - static
