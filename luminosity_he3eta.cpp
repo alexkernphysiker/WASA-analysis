@@ -34,21 +34,21 @@ int main(int,char**){
 		int index=int(BeamMomentaBin.x*1000);
 		vector<hist> MC={
 			hist(false,"He3eta",{"Histograms","MissingMass"},to_string(index)),
+			hist(false,"He3pi0",{"Histograms","MissingMass"},to_string(index)),
 			hist(false,"He3pi0pi0",{"Histograms","MissingMass"},to_string(index)),
 			hist(false,"He3pi0pi0pi0",{"Histograms","MissingMass"},to_string(index))
 		};
 		hist data(true,"He3",{"Histograms","MissingMass"},to_string(index));
 		data.Cut(0.5,0.6);for(hist&H:MC)H.Cut(0.5,0.6);
-		AnalyseMMSpectra(BeamMomentaBin,data,MC,engine,[&BeamMomentaBin,&MC,&data](hist&result){
-			string suffix=string(" P=")+to_string(BeamMomentaBin.x)+"GeVc";
-			{hist bg1=MC[1],bg2=MC[2];
-				PlotHist().HistWLine(string("MCHe3eta")+suffix,MC[0])
-					.Hist(string("MCHe3 2pi0")+suffix,bg1*=5)
-					.Hist(string("MCHe3 3pi0")+suffix,bg2*=5);
-			}
-			PlotHist().Hist(string("DataHe3")+suffix,data)
-				.HistWLine(string("Fit")+suffix,result);
-		});
+		hist result=FitHistByHists(BeamMomentaBin,data,MC,engine);
+		string suffix=string(" P=")+to_string(BeamMomentaBin.x)+"GeVc";
+		{hist bg1=MC[1],bg2=MC[2];
+			PlotHist().HistWLine(string("MCHe3eta")+suffix,MC[0])
+				.Hist(string("MCHe3 2pi0")+suffix,bg1*=5)
+				.Hist(string("MCHe3 3pi0")+suffix,bg2*=5);
+		}
+		PlotHist().Hist(string("DataHe3")+suffix,data)
+			.HistWLine(string("Fit")+suffix,result);
 	}
 	PlotHist().Hist("He3eta true events in data",luminosity*=1000000.0);
 	PlotHist lumplot;

@@ -13,7 +13,7 @@
 #include <gethist.h>
 using namespace std;
 using namespace Genetic;
-void AnalyseMMSpectra(hist::point&out_bin,const hist&data,const vector<hist>&MC, RANDOM&engine,function<void(hist&)>handle){
+hist FitHistByHists(hist::point&out_bin,const hist&data,const vector<hist>&MC, Genetic::RANDOM&engine){
 	auto histsum=[&data,&MC](const ParamSet&P){
 		hist sum=data.CloneEmptyBins();
 		for(size_t i=0;i<MC.size();i++){
@@ -38,8 +38,7 @@ void AnalyseMMSpectra(hist::point&out_bin,const hist&data,const vector<hist>&MC,
 	fit.Init(MC.size()*30,init,engine);
 	while(!fit.AbsoluteOptimalityExitCondition(0.0000001))
 		fit.Iterate(engine);
-	hist fithist=histsum(fit.Parameters());
-	handle(fithist);
 	out_bin.y=fit[0];
 	out_bin.dy=fit.GetParamParabolicError(0.0000001,0);
+	return histsum(fit.Parameters());
 }

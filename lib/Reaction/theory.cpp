@@ -18,5 +18,6 @@ double Q(double p){
 	return P_Total.M()-(m_3He+m_eta);
 }
 double sigmaHe3eta(double p_beam){
-	return 400;//nb
+	if(p_beam<=p_he3_eta_threshold)return 0;
+	else return 400;
 }

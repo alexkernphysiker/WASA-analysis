@@ -3,5 +3,5 @@
 #ifndef xylgjnjy
 #define xylgjnjy
 double Q(double p);
-double sigmaHe3eta(double p_beam);
+double sigmaHe3eta(double p_beam);//nb
 #endif 
