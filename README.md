@@ -3,22 +3,6 @@ WASA Analysis
 Sources of my software used for analysis of data obtained from the experiment WASA-at-COSY on searching eta-mesic 3He in May 2014.
 
 
-Folders in this repository
-==========================
-
-
-General - files that are included from different projects here.
-
-RunPluto - here is a cmake project for the application that runs pluto for simulating reactions analysed here.
-
-Preselection - make project of application that runs data preselection and Monte Carlo data analysis for reactions analysed here.
-
-wasa-scripts - bash scripts for running preselection.
-
-Analysis - cmake project for applications that run analysis of data after preselection.
-
-
-
 Needed environment variables
 ============================
 
