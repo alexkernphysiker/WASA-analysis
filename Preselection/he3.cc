@@ -2,12 +2,12 @@
 // GPL v 3.0 license
 #include <TCutG.h>
 #include "../phys_constants.h"
+#include "../kinematics.h"
 #include "he3.h"
 #include "detectors.h"
-#include "theory.h"
 using namespace std;
 He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(3),
-	Reconstruction("Reconstruction",[this](){return Q(PBeam());},Q_bins,Q_lo,Q_hi),
+	Reconstruction("Reconstruction",[this](){return Q_He3eta(PBeam());},Q_bins,Q_lo,Q_hi),
 	MissingMass("MissingMass",Reconstruction)
 {
 	AddLogSubprefix("He3");
@@ -108,7 +108,7 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(3),
 		}
 		TLorentzVector P_Missing=P_Total-P_He3;
 		return P_Missing.M();
-	},600,m_pi0-0.05,m_eta+0.05);
+	},300,m_pi0-0.05,m_eta+0.05);
 	AddTrackProcessing(kFDC,[this](WTrack&track){
 		vector<double> He3params;
 		if(Reconstruction.Check(track,He3params))
@@ -125,5 +125,14 @@ bool He3_in_forward::TrackCountTrigger(int CinC,int NinC,int CinF,int NinF){
 }
 void He3_in_forward::EventPostProcessing(){}
 
-He3eta::He3eta():He3_in_forward(){AddParticleToFirstVertex(kEta,m_eta);}
-He3pi0::He3pi0():He3_in_forward(){AddParticleToFirstVertex(kPi0,m_pi0);}
+He3_Modification_for_eta::He3_Modification_for_eta(){
+	AddCondition([this](WTrack&track){return true;});
+}
+
+
+MC_He3eta::MC_He3eta(){
+	AddParticleToFirstVertex(kEta,m_eta);
+}
+MC_He3pi0::MC_He3pi0(){
+	AddParticleToFirstVertex(kPi0,m_pi0);
+}

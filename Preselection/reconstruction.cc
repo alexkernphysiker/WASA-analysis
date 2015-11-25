@@ -19,7 +19,7 @@ InterpolationBasedReconstruction::InterpolationBasedReconstruction(
 	Theory=source.Theory;
 }
 InterpolationBasedReconstruction::InterpolationBasedReconstruction(
-	std::string name,delegate measured,delegate theory
+	std::string name,ValueTrackDependent measured,ValueTrackDependent theory
 ){
 	AddLogSubprefix("InterpolationBasedReconstruction");
 	m_name=name;

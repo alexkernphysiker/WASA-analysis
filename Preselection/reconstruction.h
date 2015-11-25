@@ -8,12 +8,12 @@
 #include "math_h/interpolate.h"
 #include "analysis.h"
 #include "log.h"
+#include "trackprocessing.h"
 class InterpolationBasedReconstruction:public virtual Logger{
 public:
-	typedef std::function<double(WTrack&)> delegate;
 	InterpolationBasedReconstruction();
 	InterpolationBasedReconstruction(
-		std::string name,delegate measured,delegate theory
+		std::string name,ValueTrackDependent measured,ValueTrackDependent theory
 	);
 	InterpolationBasedReconstruction(
 		const InterpolationBasedReconstruction&source
@@ -25,6 +25,6 @@ private:
 	bool data_present;
 	LinearInterpolation<double> data;
 	std::vector<std::pair<double,double>> out;
-	delegate Experiment,Theory;
+	ValueTrackDependent Experiment,Theory;
 };
 #endif 

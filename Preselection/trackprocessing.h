@@ -6,24 +6,27 @@
 #include <vector>
 #include <string>
 #include "analysis.h"
-typedef std::function<double()> Independent;
-typedef std::function<double(WTrack&)> TrackDependent;
-typedef std::function<double(std::vector<double>&)> ParamDependent;
+typedef std::function<double()> ValueIndependent;
+typedef std::function<double(WTrack&)> ValueTrackDependent;
+typedef std::function<double(std::vector<double>&)> ValueParamDependent;
+typedef std::function<bool()> ConditionIndependent;
+typedef std::function<bool(WTrack&)> ConditionTrackDependent;
+typedef std::function<bool(std::vector<double>&)> ConditionParamDependent;
 class Analyser2D;
 class TrackConditionSet{
 	friend class Analyser2D;
 public:
 	typedef std::function<bool(WTrack&,std::vector<double>&)> Condition;
-	TrackConditionSet(std::string&&name,Independent distr,int bins,double from,double to);
+	TrackConditionSet(std::string&&name,ValueIndependent distr,int bins,double from,double to);
 	TrackConditionSet(std::string&&name,const TrackConditionSet&master);
 	virtual ~TrackConditionSet();
-	TrackConditionSet&AddParameter(std::string&&name,TrackDependent parameter);
+	TrackConditionSet&AddParameter(std::string&&name,ValueTrackDependent parameter);
 	TrackConditionSet&AddCondition(std::string&&name,Condition condition);
 	void ReferenceEvent();
 	bool Check(WTrack&track,std::vector<double>&parameters);
 protected:
 	TH1F* reference;
-	Independent m_distr;
+	ValueIndependent m_distr;
 private:
 	class TrackCalc{
 	public:
@@ -35,11 +38,11 @@ private:
 	};
 	class ParamCalc:public TrackCalc{
 	public:
-		ParamCalc(const std::string&n,TrackDependent);
+		ParamCalc(const std::string&n,ValueTrackDependent);
 		virtual ~ParamCalc();
 		double Get(WTrack&);
 	private:
-		TrackDependent m_delegate;
+		ValueTrackDependent m_delegate;
 	};
 	class TrackCondition:public TrackCalc{
 	public:
@@ -58,19 +61,19 @@ private:
 class Analyser2D{
 public:
 	Analyser2D(std::string&&name,const TrackConditionSet&);
-	void Setup(ParamDependent B,int binsB,double fromB,double toB);
+	void Setup(ValueParamDependent B,int binsB,double fromB,double toB);
 	virtual ~Analyser2D();
 	void AcceptEvent(std::vector<double>&);
 private:
 	std::string m_name;
-	ParamDependent m_B;
+	ValueParamDependent m_B;
 	TH1F *ForAllA;
 	std::vector<TH1F*> A_bin;
 	TH1F* reference;
-	Independent m_distr;
+	ValueIndependent m_distr;
 };
 struct Axis{
-	TrackDependent value;
+	ValueTrackDependent value;
 	double from;
 	double to;
 	int bins;
@@ -87,6 +90,6 @@ public:
 private:
 	std::string m_name;
 	std::vector<Item> jobs;
-	Process Create(TrackDependent x,TrackDependent y);
+	Process Create(ValueTrackDependent x,ValueTrackDependent y);
 };
 #endif 
