@@ -6,7 +6,7 @@
 #include "he3.h"
 #include "detectors.h"
 using namespace std;
-He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(3),
+He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(4),
 	Reconstruction("Reconstruction",[this](){return Q_He3eta(PBeam());},Q_bins,Q_lo,Q_hi),
 	MissingMass("MissingMass",Reconstruction)
 {
@@ -86,6 +86,13 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(3),
 	}).AddCondition("Reconstructed",[this](WTrack&track,vector<double>&P){
 		ForwardDetectorTrackMarker(2,track);
 		return isfinite(P[0])&&isfinite(P[1])&&isfinite(P[2]);
+	}).AddCondition("Additional",[this](WTrack&track,vector<double>&P){
+		bool total=true;
+		for(auto condition:AdditionalConditions)
+			total&=condition(track);
+		if(!total)return false;
+		ForwardDetectorTrackMarker(3,track);
+		return true;
 	});
 	MissingMass.Setup([this](vector<double>&He3){
 		double p=sqrt(He3[0]*(He3[0]+2*m_3He));
@@ -114,6 +121,9 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(3),
 	});
 }
 He3_in_forward::~He3_in_forward(){}
+void He3_in_forward::AddCondition(ConditionTrackDependent condition){
+	AdditionalConditions.push_back(condition);
+}
 bool He3_in_forward::EventPreProcessing(){
 	Reconstruction.ReferenceEvent();
 	return true;
