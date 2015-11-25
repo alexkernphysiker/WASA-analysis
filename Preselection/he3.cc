@@ -4,9 +4,10 @@
 #include "../phys_constants.h"
 #include "he3.h"
 #include "detectors.h"
+#include "theory.h"
 using namespace std;
-He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
-	Reconstruction("Reconstruction",[this](){return PBeam();},beam_momenta_bins,p_beam_low,p_beam_hi),
+He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(3),
+	Reconstruction("Reconstruction",[this](){return Q(PBeam());},Q_bins,Q_lo,Q_hi),
 	MissingMass("MissingMass",Reconstruction)
 {
 	AddLogSubprefix("He3");
@@ -14,22 +15,9 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 	AddParticleToFirstVertex(kHe3,m_3He);
 
 	ForwardLayerCuts.push_back(
-		TrackConditionSet("FTH1",Reconstruction).AddCondition("Stopping",[this](WTrack&track,vector<double>&){
-			return (StopPlane(track)==kFTH1);
-		}).AddCondition("FWC2cut",[this](WTrack&track,vector<double>&){
-			return EDep(track,kFWC2)>=0.011;
-		}).AddParameter("E",[this](WTrack&track){
-			static InterpolationBasedReconstruction energy("He3.E.FTH1"
-				,[this](WTrack&track){return EDep(track,kFTH1);}
-				,[this](WTrack&){return FromFirstVertex(kHe3).E;}
-			);
-			return energy.Reconstruct(track);
-		})
-	);
-	ForwardLayerCuts.push_back(
 		TrackConditionSet("FRH1",Reconstruction).AddCondition("Stopping",[this](WTrack&track,vector<double>&){
 			return (StopPlane(track)==kFRH1);
-		}).AddCondition("SP2cut",[this](WTrack&track,vector<double>&){
+		}).AddCondition("He3Locus",[this](WTrack&track,vector<double>&){
 			//Achtung - static
 			static TCutG *cut=nullptr;
 			if(cut==nullptr){
@@ -61,8 +49,7 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 	ForwardLayerCuts.push_back(
 		TrackConditionSet("FRH2",Reconstruction).AddCondition("Stopping",[this](WTrack&track,vector<double>&){
 			return (StopPlane(track)==kFRH2);
-		}).AddCondition("Linear_cuts",[this](WTrack&track,vector<double>&){
-			// two linear cuts
+		}).AddCondition("He3Locus",[this](WTrack&track,vector<double>&){
 			return
 				(EDep(track,kFRH1)>(0.25-0.417*EDep(track,kFRH2)))
 				&&(EDep(track,kFRH1)<(0.35-0.417*EDep(track,kFRH2)))
@@ -76,7 +63,9 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 			return energy.Reconstruct(track);
 		})
 	);
+	
 	Reconstruction.AddCondition("Theta_reconstruction_correct",[this](WTrack&track,vector<double>&P){
+		//ToDo: replace by more reasonable condition
 		return 0.125!=track.Theta();//Magic number taken from framework
 	}).AddCondition("Edep_cuts",[this](WTrack&track,vector<double>&P){
 		ForwardDetectorTrackMarker(0,track);
@@ -84,6 +73,7 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 		for(auto&layer:ForwardLayerCuts)res|=layer.Check(track,P);
 		return res;
 	}).AddParameter("Theta",[this](WTrack&track){
+		ForwardDetectorTrackMarker(2,track);
 		auto Th_m=[this](WTrack&track){return track.Theta();};
 		auto Th_t=[this](WTrack&){return FromFirstVertex(kHe3).Th;};
 		//Achtung - static
@@ -96,7 +86,7 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(2),
 		static InterpolationBasedReconstruction He3_phi("He3.phi",Ph_m,Ph_t);
 		return He3_phi.Reconstruct(track);
 	}).AddCondition("Reconstructed",[this](WTrack&track,vector<double>&P){
-		ForwardDetectorTrackMarker(1,track);
+		ForwardDetectorTrackMarker(2,track);
 		return isfinite(P[0])&&isfinite(P[1])&&isfinite(P[2]);
 	});
 	MissingMass.Setup([this](vector<double>&He3){

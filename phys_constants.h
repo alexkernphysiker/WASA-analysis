@@ -16,7 +16,9 @@ const int c_He=2;
 const double p_beam_low=1.426;
 const double p_beam_hi=1.635;
 const double p_he3_eta_threshold=1.5727;
-const unsigned int beam_momenta_bins=30;
+const unsigned int Q_bins=20;
+const double Q_lo=-70;
+const double Q_hi=30;
 //calsulational designations
 inline double NormPhi(double p){
 	const double twopi=2*3.1415926;
