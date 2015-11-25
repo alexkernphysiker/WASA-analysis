@@ -13,7 +13,6 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(3),
 	AddLogSubprefix("He3");
 	SubLog log=Log(LogDebug);
 	AddParticleToFirstVertex(kHe3,m_3He);
-
 	ForwardLayerCuts.push_back(
 		TrackConditionSet("FRH1",Reconstruction).AddCondition("Stopping",[this](WTrack&track,vector<double>&){
 			return (StopPlane(track)==kFRH1);
@@ -63,7 +62,6 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(3),
 			return energy.Reconstruct(track);
 		})
 	);
-	
 	Reconstruction.AddCondition("Theta_reconstruction_correct",[this](WTrack&track,vector<double>&P){
 		//ToDo: replace by more reasonable condition
 		return 0.125!=track.Theta();//Magic number taken from framework
@@ -126,10 +124,10 @@ bool He3_in_forward::TrackCountTrigger(int CinC,int NinC,int CinF,int NinF){
 void He3_in_forward::EventPostProcessing(){}
 
 He3_Modification_for_eta::He3_Modification_for_eta(){
-	AddCondition([this](WTrack&track){return true;});
+	AddCondition([this](WTrack&track){
+		return (EDep(track,kFRH1)<0.22)&&(EDep(track,kFRH1)>0.08)&&(StopPlane(track)==kFRH1);
+	});
 }
-
-
 MC_He3eta::MC_He3eta(){
 	AddParticleToFirstVertex(kEta,m_eta);
 }
