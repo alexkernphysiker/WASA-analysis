@@ -71,7 +71,7 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(4),
 		for(auto&layer:ForwardLayerCuts)res|=layer.Check(track,P);
 		return res;
 	}).AddParameter("Theta",[this](WTrack&track){
-		ForwardDetectorTrackMarker(2,track);
+		ForwardDetectorTrackMarker(1,track);
 		auto Th_m=[this](WTrack&track){return track.Theta();};
 		auto Th_t=[this](WTrack&){return FromFirstVertex(kHe3).Th;};
 		//Achtung - static
@@ -84,9 +84,9 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(4),
 		static InterpolationBasedReconstruction He3_phi("He3.phi",Ph_m,Ph_t);
 		return He3_phi.Reconstruct(track);
 	}).AddCondition("Reconstructed",[this](WTrack&track,vector<double>&P){
-		ForwardDetectorTrackMarker(2,track);
 		return isfinite(P[0])&&isfinite(P[1])&&isfinite(P[2]);
 	}).AddCondition("Additional",[this](WTrack&track,vector<double>&P){
+		ForwardDetectorTrackMarker(2,track);
 		bool total=true;
 		for(auto condition:AdditionalConditions)
 			total&=condition(track);
@@ -135,7 +135,7 @@ void He3_in_forward::EventPostProcessing(){}
 
 He3_Modification_for_eta::He3_Modification_for_eta(){
 	AddCondition([this](WTrack&track){
-		return (EDep(track,kFRH1)<0.22)&&(EDep(track,kFRH1)>0.08)&&(StopPlane(track)==kFRH1);
+		return (EDep(track,kFTH1)>0.1)&&(EDep(track,kFRH1)<0.22)&&(EDep(track,kFRH1)>0.08)&&(StopPlane(track)==kFRH1);
 	});
 }
 MC_He3eta::MC_He3eta(){

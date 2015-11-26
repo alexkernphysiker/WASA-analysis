@@ -26,7 +26,7 @@ private:
 //Here will be different modifications of analysis
 class He3_Modification_for_eta:public He3_in_forward{public:He3_Modification_for_eta();};
 
-typedef He3_in_forward He3Catcher;//This analysis class will be used for all procedures
+typedef He3_Modification_for_eta He3Catcher;//This analysis class will be used for all procedures
 typedef CustomAnalysis<RealData,He3Catcher> Data_He3;
 class MC_He3eta:public CustomAnalysis<MonteCarlo,He3Catcher>{public:MC_He3eta();};
 class MC_He3pi0:public CustomAnalysis<MonteCarlo,He3Catcher>{public:MC_He3pi0();};
