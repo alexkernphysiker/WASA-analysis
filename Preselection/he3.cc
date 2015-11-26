@@ -135,7 +135,7 @@ bool He3_in_forward::TrackCountTrigger(int CinC,int NinC,int CinF,int NinF){
 }
 void He3_in_forward::EventPostProcessing(){}
 
-He3_Modification_for_eta::He3_Modification_for_eta():He3_in_forward(0.0,40.0,5){
+He3_Modification_for_eta::He3_Modification_for_eta():He3_in_forward(0.0,30.0,12){
 	AddCondition([this](WTrack&track){
 		if(StopPlane(track)!=kFRH1)
 			return false;
