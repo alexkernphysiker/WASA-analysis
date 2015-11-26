@@ -7,7 +7,7 @@
 #include "detectors.h"
 using namespace std;
 He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(4),
-	Reconstruction("Reconstruction",[this](){return Q_He3eta(PBeam());},Q_bins,Q_lo,Q_hi),
+	Reconstruction("Reconstruction",[this](){return 1000.0*Q_He3eta(PBeam());},Q_bins,Q_lo,Q_hi),
 	MissingMass("MissingMass",Reconstruction)
 {
 	AddLogSubprefix("He3");
@@ -135,7 +135,7 @@ void He3_in_forward::EventPostProcessing(){}
 
 He3_Modification_for_eta::He3_Modification_for_eta(){
 	AddCondition([this](WTrack&track){
-		return (EDep(track,kFTH1)>0.1)&&(EDep(track,kFRH1)<0.22)&&(EDep(track,kFRH1)>0.08)&&(StopPlane(track)==kFRH1);
+		return (EDep(track,kFRH1)<0.22)&&(EDep(track,kFRH1)>0.08)&&(StopPlane(track)==kFRH1);
 	});
 }
 MC_He3eta::MC_He3eta(){
