@@ -20,21 +20,24 @@ He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analys
 			//Achtung - static
 			static TCutG *cut=nullptr;
 			if(cut==nullptr){
-				cut=new TCutG("FRH1_cut",13);
+				cut=new TCutG("FRH1_cut",15);
 				cut->SetVarX("FRH1");
 				cut->SetVarY("FTH1");
-				cut->SetPoint(12,0.000,0.033);
-				cut->SetPoint(11,0.068,0.023);
-				cut->SetPoint(10,0.146,0.017);
-				cut->SetPoint(9,0.223,0.016);
-				cut->SetPoint(8,0.4,0.012);
-				cut->SetPoint(7,0.4,0.008);
-				cut->SetPoint(6,0.233,0.008);
-				cut->SetPoint(5,0.139,0.009);
-				cut->SetPoint(4,0.093,0.013);
-				cut->SetPoint(3,0.047,0.016);
-				cut->SetPoint(2,0.000,0.024);
-				cut->SetPoint(1,0.000,0.033);
+				cut->SetPoint(15,0.019,0.025);
+				cut->SetPoint(14,0.069,0.019);
+				cut->SetPoint(13,0.121,0.016);
+				cut->SetPoint(12,0.162,0.014);
+				cut->SetPoint(11,0.206,0.013);
+				cut->SetPoint(10,0.304,0.012);
+				cut->SetPoint(9,0.4,0.012);
+				cut->SetPoint(8,0.4,0.008);
+				cut->SetPoint(7,0.298,0.008);
+				cut->SetPoint(6,0.201,0.010);
+				cut->SetPoint(5,0.141,0.012);
+				cut->SetPoint(4,0.105,0.013);
+				cut->SetPoint(3,0.061,0.017);
+				cut->SetPoint(2,0.027,0.021);
+				cut->SetPoint(1,0.019,0.025);
 			}
 			return cut->IsInside(EDep(track,kFRH1),EDep(track,kFTH1));
 		}).AddParameter("E",[this](WTrack&track){
