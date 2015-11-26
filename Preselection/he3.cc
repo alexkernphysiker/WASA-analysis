@@ -87,8 +87,9 @@ He3_in_forward::He3_in_forward():Analysis(),ForwardDetectors(4),
 		return isfinite(P[0])&&isfinite(P[1])&&isfinite(P[2]);
 	}).AddCondition("Additional",[this](WTrack&track,vector<double>&P){
 		ForwardDetectorTrackMarker(2,track);
-		for(auto condition:AdditionalConditions)
-			if(!condition(track))return false;
+		for(auto condition:this->AdditionalConditions)
+			if(condition(track)==false)
+				return false;
 		ForwardDetectorTrackMarker(3,track);
 		return true;
 	});
@@ -133,10 +134,10 @@ void He3_in_forward::EventPostProcessing(){}
 
 He3_Modification_for_eta::He3_Modification_for_eta(){
 	AddCondition([this](WTrack&track){
-		return 
-			(StopPlane(track)==kFRH1)
-			&&(EDep(track,kFRH1)<0.22)
-			&&(EDep(track,kFRH1)>0.08);
+		if(StopPlane(track)!=kFRH1)
+			return false;
+		double E=EDep(track,kFRH1);
+		return (E>0.08)&&(E<0.22);
 	});
 }
 MC_He3eta::MC_He3eta(){
