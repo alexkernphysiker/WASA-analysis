@@ -10,7 +10,7 @@
 #include "montecarlo.h"
 class He3_in_forward:public virtual Analysis,public ForwardDetectors{
 public:
-	He3_in_forward();
+	He3_in_forward(double Q_lo,double Q_hi,unsigned int bins);//Q is in MeV
 	virtual ~He3_in_forward();
 protected:
 	virtual bool EventPreProcessing()override;
