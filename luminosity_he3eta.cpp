@@ -42,14 +42,11 @@ int main(int,char**){
 		hist DATAhist(DATA,"He3",{"Histograms","MissingMass"},to_string(index));
 		for(hist&H:MChists)H.Cut(MissingMass_range);
 		DATAhist.Cut(MissingMass_range);
-		hist result=FitHistByHists(
-			DATAhist,MChists,engine,
-			{&(qBin.y)},{&(qBin.dy)}
-		);
 		string suffix=string("Q=")+to_string(qBin.x)+"MeV";
 		PlotHist().HistWLine(string("MCHe3eta")+suffix,MChists[0])
-			.HistWLine(string("MCHe3 2pi0")+suffix,MChists[1])
-			.HistWLine(string("MCHe3 3pi0")+suffix,MChists[2]);
+		.HistWLine(string("MCHe3 2pi0")+suffix,MChists[1])
+		.HistWLine(string("MCHe3 3pi0")+suffix,MChists[2]);
+		hist result=FitHistByHists(DATAhist,MChists,engine,{&(qBin.y)},{&(qBin.dy)});
 		PlotHist().Hist(string("DataHe3")+suffix,DATAhist)
 			.HistWLine(string("Fit")+suffix,result);
 	}
