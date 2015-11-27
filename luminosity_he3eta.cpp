@@ -16,6 +16,8 @@
 using namespace std;
 using namespace Genetic;
 RANDOM engine;
+#define Q_range 15.0,30.0
+#define MissingMass_range 0.5,0.6
 int main(int,char**){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta");
 	hist mc_norm(MC,"He3eta",{"Histograms","Reconstruction"},"Reference");
@@ -26,7 +28,7 @@ int main(int,char**){
 		PlotHist().Hist("All MC events",mc_norm).Hist("FPC",mc_filtered1)
 		.Hist("Reconstructed",mc_filtered2).Hist("Preselected",acceptance);
 	}
-	(acceptance/=mc_norm).Cut(15,30);
+	(acceptance/=mc_norm).Cut(Q_range);
 	PlotHist().Hist("Acceptance",acceptance);
 	hist luminosity=acceptance.CloneEmptyBins();
 	
@@ -38,9 +40,8 @@ int main(int,char**){
 			hist(MC,"He3pi0pi0pi0",{"Histograms","MissingMass"},to_string(index))
 		};
 		hist DATAhist(DATA,"He3",{"Histograms","MissingMass"},to_string(index));
-		for(hist&H:MChists)
-			H.Cut(0.5,0.6);
-		DATAhist.Cut(0.5,0.6);
+		for(hist&H:MChists)H.Cut(MissingMass_range);
+		DATAhist.Cut(MissingMass_range);
 		hist result=FitHistByHists(
 			DATAhist,MChists,engine,
 			{&(qBin.y)},{&(qBin.dy)}
