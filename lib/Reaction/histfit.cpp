@@ -13,7 +13,10 @@
 #include <gethist.h>
 using namespace std;
 using namespace Genetic;
-hist FitHistByHists(hist::point&out_bin,const hist&data,const vector<hist>&MC, Genetic::RANDOM&engine){
+hist FitHistByHists(
+	const hist&data,const std::vector<hist>&MC,Genetic::RANDOM&engine,
+	const std::vector<double*> out,const std::vector<double*> out_err
+){
 	auto histsum=[&data,&MC](const ParamSet&P){
 		hist sum=data.CloneEmptyBins();
 		for(size_t i=0;i<MC.size();i++){
@@ -38,7 +41,10 @@ hist FitHistByHists(hist::point&out_bin,const hist&data,const vector<hist>&MC, G
 	fit.Init(MC.size()*30,init,engine);
 	while(!fit.AbsoluteOptimalityExitCondition(0.0000001))
 		fit.Iterate(engine);
-	out_bin.y=fit[0];
-	out_bin.dy=fit.GetParamParabolicError(0.0000001,0);
+	for(int i=0;(i<fit.Parameters().Count())&&(i<out.size());i++)
+		*(out[i])=fit[i];
+	for(int i=0;(i<fit.Parameters().Count())&&(i<out_err.size());i++){
+		*(out_err[i])=fit.GetParamParabolicError(0.0000001,i);
+	}
 	return histsum(fit.Parameters());
 }

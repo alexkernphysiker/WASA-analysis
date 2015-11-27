@@ -12,5 +12,8 @@
 #include <initialconditions.h>
 #include <equation.h>
 #include <gethist.h>
-hist FitHistByHists(hist::point&out_bin,const hist&data,const std::vector<hist>&MC, Genetic::RANDOM&engine);
+hist FitHistByHists(
+	const hist&data,const std::vector<hist>&MC,Genetic::RANDOM&engine,
+	const std::vector<double*> out,const std::vector<double*> out_err
+);
 #endif 
