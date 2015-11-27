@@ -31,7 +31,7 @@ int main(int,char**){
 	hist luminosity=acceptance.CloneEmptyBins();
 	
 	for(auto&qBin:luminosity){
-		int index=int(qBin.x*1000);
+		int index=int(qBin.x*1000.0);
 		vector<hist> MC={
 			hist(false,"He3eta",{"Histograms","MissingMass"},to_string(index)),
 			hist(false,"He3pi0pi0",{"Histograms","MissingMass"},to_string(index)),
