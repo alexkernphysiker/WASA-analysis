@@ -6,10 +6,9 @@
 #include "data.h"
 #include "reconstruction.h"
 using namespace std;
-RealData::RealData():BeamMomenta("Time.2.PBeam",
-		[this](){return fHeader->GetTimeInCycle()*1000.0;},
-		[](){return INFINITY;}
-){
+RealData::RealData():BeamMomenta("Time.2.PBeam",[this](){
+	return 1000.0*fHeader->GetTimeInCycle();
+},[](){return INFINITY;}){
 	AddLogSubprefix("Real data analysis");
 	fHeader = dynamic_cast<REventHeader*>(gDataManager->GetDataObject("REventHeader","Header"));
 }
