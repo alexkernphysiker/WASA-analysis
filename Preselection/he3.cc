@@ -6,7 +6,8 @@
 #include "he3.h"
 #include "detectors.h"
 using namespace std;
-He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analysis(),ForwardDetectors(5),
+He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analysis(),
+	ForwardDetectors(7),
 	Reconstruction("Reconstruction",[this](){return 1000.0*Q_He3eta(PBeam());},bins,Q_lo,Q_hi),
 	MissingMass("MissingMass",Reconstruction)
 {
@@ -41,6 +42,7 @@ He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analys
 			}
 			return cut->IsInside(EDep(track,kFRH1),EDep(track,kFTH1));
 		}).AddParameter("E",[this](WTrack&track){
+			ForwardDetectorTrackMarker(2,track);
 			static InterpolationBasedReconstruction energy("He3.E.FRH1"
 				,[this](WTrack&track){return EDep(track,kFRH1);}
 				,[this](WTrack&){return FromFirstVertex(kHe3).E;}
@@ -57,6 +59,7 @@ He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analys
 				(Ed[0]>(0.25-0.417*Ed[1]))&&(Ed[0]>(0.35-0.417*Ed[1]))
 				&&(Ed[1]<0.22);
 		}).AddParameter("E",[this](WTrack&track){
+			ForwardDetectorTrackMarker(3,track);
 			//Achtung - static
 			static InterpolationBasedReconstruction energy("He3.E.FRH2"
 				,[this](WTrack&track){return EDep(track,kFRH1)+EDep(track,kFRH2);}
@@ -75,7 +78,7 @@ He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analys
 		for(auto&layer:ForwardLayerCuts)res|=layer.Check(track,P);
 		return res;
 	}).AddParameter("Theta",[this](WTrack&track){
-		ForwardDetectorTrackMarker(2,track);
+		ForwardDetectorTrackMarker(4,track);
 		auto Th_m=[this](WTrack&track){return track.Theta();};
 		auto Th_t=[this](WTrack&){return FromFirstVertex(kHe3).Th;};
 		//Achtung - static
@@ -90,11 +93,11 @@ He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analys
 	}).AddCondition("Reconstructed",[this](WTrack&track,vector<double>&P){
 		return isfinite(P[0])&&isfinite(P[1])&&isfinite(P[2]);
 	}).AddCondition("Additional",[this](WTrack&track,vector<double>&P){
-		ForwardDetectorTrackMarker(3,track);
+		ForwardDetectorTrackMarker(5,track);
 		for(auto condition:this->AdditionalConditions)
 			if(condition(track)==false)
 				return false;
-		ForwardDetectorTrackMarker(4,track);
+		ForwardDetectorTrackMarker(6,track);
 		return true;
 	});
 	MissingMass.Setup([this](vector<double>&He3){
