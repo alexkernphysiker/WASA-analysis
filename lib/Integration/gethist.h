@@ -7,6 +7,7 @@
 #include <vector>
 #include <fit.h>
 double PresentRunsAmountRatio(std::string&&reaction);
+enum histsource{MC,DATA};
 class hist{
 public:
 	struct point{
@@ -14,7 +15,7 @@ public:
 	};
 	hist();
 	hist(std::string&&filename,std::vector<std::string>&&path,std::string&&histname);
-	hist(bool data,std::string&&reaction,std::vector<std::string>&&path,std::string&&histname);
+	hist(histsource src,std::string&&reaction,std::vector<std::string>&&path,std::string&&histname);
 	hist(const hist& source);
 	virtual ~hist();
 	hist& Cut(double a,double b);

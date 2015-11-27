@@ -18,11 +18,11 @@ using namespace Genetic;
 RANDOM engine;
 int main(int,char**){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta");
-	hist mc_norm(false,"He3eta",{"Histograms","Reconstruction"},"Reference");
-	hist acceptance(false,"He3eta",{"Histograms","Reconstruction"},"Additional");
+	hist mc_norm(MC,"He3eta",{"Histograms","Reconstruction"},"Reference");
+	hist acceptance(MC,"He3eta",{"Histograms","Reconstruction"},"Additional");
 	{
-		hist mc_filtered1(false,"He3eta",{"Histograms","Reconstruction"},"Theta_reconstruction_correct");
-		hist mc_filtered2(false,"He3eta",{"Histograms","Reconstruction"},"Reconstructed");
+		hist mc_filtered1(MC,"He3eta",{"Histograms","Reconstruction"},"Theta_reconstruction_correct");
+		hist mc_filtered2(MC,"He3eta",{"Histograms","Reconstruction"},"Reconstructed");
 		PlotHist().Hist("All MC events",mc_norm).Hist("FPC",mc_filtered1)
 		.Hist("Reconstructed",mc_filtered2).Hist("Preselected",acceptance);
 	}
@@ -32,24 +32,24 @@ int main(int,char**){
 	
 	for(auto&qBin:luminosity){
 		int index=int(qBin.x*1000.0);
-		vector<hist> MC={
-			hist(false,"He3eta",{"Histograms","MissingMass"},to_string(index)),
-			hist(false,"He3pi0pi0",{"Histograms","MissingMass"},to_string(index)),
-			hist(false,"He3pi0pi0pi0",{"Histograms","MissingMass"},to_string(index))
+		vector<hist> MChists={
+			hist(MC,"He3eta",{"Histograms","MissingMass"},to_string(index)),
+			hist(MC,"He3pi0pi0",{"Histograms","MissingMass"},to_string(index)),
+			hist(MC,"He3pi0pi0pi0",{"Histograms","MissingMass"},to_string(index))
 		};
-		hist data(true,"He3",{"Histograms","MissingMass"},to_string(index));
-		for(hist&H:MC)
+		hist DATAhist(DATA,"He3",{"Histograms","MissingMass"},to_string(index));
+		for(hist&H:MChists)
 			H.Cut(0.5,0.6);
-		data.Cut(0.5,0.6);
+		DATAhist.Cut(0.5,0.6);
 		hist result=FitHistByHists(
-			data,MC,engine,
+			DATAhist,MChists,engine,
 			{&(qBin.y)},{&(qBin.dy)}
 		);
 		string suffix=string("Q=")+to_string(qBin.x)+"MeV";
-		PlotHist().HistWLine(string("MCHe3eta")+suffix,MC[0])
-			.HistWLine(string("MCHe3 2pi0")+suffix,MC[1])
-			.HistWLine(string("MCHe3 3pi0")+suffix,MC[2]);
-		PlotHist().Hist(string("DataHe3")+suffix,data)
+		PlotHist().HistWLine(string("MCHe3eta")+suffix,MChists[0])
+			.HistWLine(string("MCHe3 2pi0")+suffix,MChists[1])
+			.HistWLine(string("MCHe3 3pi0")+suffix,MChists[2]);
+		PlotHist().Hist(string("DataHe3")+suffix,DATAhist)
 			.HistWLine(string("Fit")+suffix,result);
 	}
 	PlotHist().Hist("He3eta true events in data",luminosity);

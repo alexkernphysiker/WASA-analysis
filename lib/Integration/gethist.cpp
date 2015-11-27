@@ -56,22 +56,25 @@ hist::hist(string&&filename,vector<string>&&path,string&&histname){
 		delete file;
 	}
 }
-hist::hist(bool from_data,string&&reaction,vector<string>&&path,string&&histname){
-	if(!from_data){
-		hist tmp(inputpath+"/MC"+reaction+".root",static_cast<decltype(path)&&>(path),static_cast<string&&>(histname));
-		operator=(tmp);
-	}else{
-		data.clear();
-		for(ALLRUNS){
-			hist tmp(inputpath+"/Data"+reaction+"_run_"+to_string(runindex)+".root",static_cast<decltype(path)&&>(path),static_cast<string&&>(histname));
-			if(tmp.data.size()>0){
-				if(data.size()==0)
-					operator=(tmp);
-				else
-					imbibe(tmp);
+hist::hist(histsource src,string&&reaction,vector<string>&&path,string&&histname){
+	switch(src){
+		case MC:{
+			hist tmp(inputpath+"/MC"+reaction+".root",static_cast<decltype(path)&&>(path),static_cast<string&&>(histname));
+			operator=(tmp);
+		}break;
+		case DATA:{
+			data.clear();
+			for(ALLRUNS){
+				hist tmp(inputpath+"/Data"+reaction+"_run_"+to_string(runindex)+".root",static_cast<decltype(path)&&>(path),static_cast<string&&>(histname));
+				if(tmp.data.size()>0){
+					if(data.size()==0)
+						operator=(tmp);
+					else
+						imbibe(tmp);
+				}
 			}
-		}
-	}
+		}break;
+	};
 }
 hist::hist(const hist& source){
 	for(point p: source.data)
