@@ -26,12 +26,12 @@ int main(int,char**){
 		hist mc_filtered1(MC,"He3eta",{"Histograms","Reconstruction"},"Theta_reconstruction_correct");
 		hist mc_filtered2(MC,"He3eta",{"Histograms","Reconstruction"},"Reconstructed");
 		PlotHist().Hist("All MC events",mc_norm).Hist("FPC",mc_filtered1)
-		.Hist("Reconstructed",mc_filtered2).Hist("Preselected",acceptance);
+			.Hist("Reconstructed",mc_filtered2).Hist("Preselected",acceptance)
+			<<"set xlabel 'Q, MeV'"<<"set ylabel 'Events count'";
 	}
 	(acceptance/=mc_norm).Cut(Q_range);
-	PlotHist().Hist("Acceptance",acceptance);
+	PlotHist().Hist("Acceptance",acceptance)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Acceptance, n.d.'"<<"set nokey";
 	hist luminosity=acceptance.CloneEmptyBins();
-	
 	for(auto&qBin:luminosity){
 		int index=int(qBin.x*1000.0);
 		vector<hist> MChists={
@@ -44,14 +44,18 @@ int main(int,char**){
 		DATAhist.Cut(MissingMass_range);
 		string suffix=string("Q=")+to_string(qBin.x)+"MeV";
 		PlotHist().HistWLine(string("MCHe3eta")+suffix,MChists[0])
-		.HistWLine(string("MCHe3 2pi0")+suffix,MChists[1])
-		.HistWLine(string("MCHe3 3pi0")+suffix,MChists[2]);
+			.HistWLine(string("MCHe3 2pi0")+suffix,MChists[1])
+			.HistWLine(string("MCHe3 3pi0")+suffix,MChists[2])
+			<<"set xlabel 'Q, MeV'"<<"set ylabel 'Counts'";
 		hist result=FitHistByHists(DATAhist,MChists,engine,{&(qBin.y)},{&(qBin.dy)});
 		PlotHist().Hist(string("DataHe3")+suffix,DATAhist)
-			.HistWLine(string("Fit")+suffix,result);
+			.HistWLine(string("Fit")+suffix,result)
+			<<"set xlabel 'Q, MeV'"<<"set ylabel 'Counts'";
 	}
-	PlotHist().Hist("He3eta true events in data",luminosity);
+	PlotHist().Hist("He3eta true events in data",luminosity)
+		<<"set xlabel 'Q, MeV'"<<"set ylabel 'True events, counts'"<<"set nokey";
 	PlotHist lumplot;
-	lumplot.Hist("Integral luminosity (analysed)",luminosity/=sigmaHe3eta);
-	lumplot.Hist("Integral luminosity (estimated)",luminosity/=PresentRunsAmountRatio("He3"));
+	lumplot.Hist("analysed",luminosity/=sigmaHe3eta);
+	lumplot.Hist("estimated",luminosity/=PresentRunsAmountRatio("He3"));
+	lumplot<<"set xlabel 'Q, MeV'"<<"set ylabel 'Integrated luminocity, 1/nb'";
 }
