@@ -23,6 +23,10 @@ private:
 	Analyser2D MissingMass;
 	vector<ConditionTrackDependent> AdditionalConditions;
 };
+class He3_Modification_for_reconstruction:public He3_in_forward{
+public:
+	He3_Modification_for_reconstruction();
+};
 class He3_Modification_for_eta:public He3_in_forward{
 public:
 	He3_Modification_for_eta();

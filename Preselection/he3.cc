@@ -136,6 +136,8 @@ bool He3_in_forward::TrackCountTrigger(int CinC,int NinC,int CinF,int NinF){
 }
 void He3_in_forward::EventPostProcessing(){}
 
+He3_Modification_for_reconstruction::He3_Modification_for_reconstruction()
+	:He3_in_forward(-70.0,40.0,1){}
 He3_Modification_for_eta::He3_Modification_for_eta():He3_in_forward(0.0,30.0,12){
 	AddCondition([this](WTrack&track){
 		if(StopPlane(track)!=kFRH1)
@@ -144,6 +146,7 @@ He3_Modification_for_eta::He3_Modification_for_eta():He3_in_forward(0.0,30.0,12)
 		return (E>0.08)&&(E<0.22);
 	});
 }
+
 MC_He3eta::MC_He3eta(){
 	AddParticleToFirstVertex(kEta,m_eta);
 }
