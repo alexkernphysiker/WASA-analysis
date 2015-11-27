@@ -6,7 +6,7 @@
 #include "he3.h"
 #include "detectors.h"
 using namespace std;
-He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analysis(),ForwardDetectors(4),
+He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analysis(),ForwardDetectors(5),
 	Reconstruction("Reconstruction",[this](){return 1000.0*Q_He3eta(PBeam());},bins,Q_lo,Q_hi),
 	MissingMass("MissingMass",Reconstruction)
 {
@@ -66,15 +66,16 @@ He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analys
 		})
 	);
 	Reconstruction.AddCondition("Theta_reconstruction_correct",[this](WTrack&track,vector<double>&P){
+		ForwardDetectorTrackMarker(0,track);
 		//ToDo: replace by more reasonable condition
 		return 0.125!=track.Theta();//Magic number taken from framework
 	}).AddCondition("Edep_cuts",[this](WTrack&track,vector<double>&P){
-		ForwardDetectorTrackMarker(0,track);
+		ForwardDetectorTrackMarker(1,track);
 		bool res=false;
 		for(auto&layer:ForwardLayerCuts)res|=layer.Check(track,P);
 		return res;
 	}).AddParameter("Theta",[this](WTrack&track){
-		ForwardDetectorTrackMarker(1,track);
+		ForwardDetectorTrackMarker(2,track);
 		auto Th_m=[this](WTrack&track){return track.Theta();};
 		auto Th_t=[this](WTrack&){return FromFirstVertex(kHe3).Th;};
 		//Achtung - static
@@ -89,11 +90,11 @@ He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analys
 	}).AddCondition("Reconstructed",[this](WTrack&track,vector<double>&P){
 		return isfinite(P[0])&&isfinite(P[1])&&isfinite(P[2]);
 	}).AddCondition("Additional",[this](WTrack&track,vector<double>&P){
-		ForwardDetectorTrackMarker(2,track);
+		ForwardDetectorTrackMarker(3,track);
 		for(auto condition:this->AdditionalConditions)
 			if(condition(track)==false)
 				return false;
-		ForwardDetectorTrackMarker(3,track);
+		ForwardDetectorTrackMarker(4,track);
 		return true;
 	});
 	MissingMass.Setup([this](vector<double>&He3){
