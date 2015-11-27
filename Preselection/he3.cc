@@ -52,10 +52,10 @@ He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analys
 		TrackConditionSet("FRH2",Reconstruction).AddCondition("Stopping",[this](WTrack&track,vector<double>&){
 			return (StopPlane(track)==kFRH2);
 		}).AddCondition("He3Locus",[this](WTrack&track,vector<double>&){
-			return
-				(EDep(track,kFRH1)>(0.25-0.417*EDep(track,kFRH2)))
-				&&(EDep(track,kFRH1)<(0.35-0.417*EDep(track,kFRH2)))
-				&&(EDep(track,kFRH2)<0.22);
+			vector<double> Ed={EDep(track,kFTH1),EDep(track,kFRH1),EDep(track,kFRH2)};
+			return (Ed[0]>0.007)
+				&&(Ed[1]>(0.25-0.417*Ed[2]))&&(Ed[1]>(0.35-0.417*Ed[2]))
+				&&(Ed[2]<0.22);
 		}).AddParameter("E",[this](WTrack&track){
 			//Achtung - static
 			static InterpolationBasedReconstruction energy("He3.E.FRH2"
