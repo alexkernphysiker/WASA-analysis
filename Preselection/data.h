@@ -3,7 +3,7 @@
 #ifndef GXMEYPWAEFAIYNHM
 #define GXMEYPWAEFAIYNHM
 #include "analysis.h"
-#include "math_h/interpolate.h"
+#include "reconstruction.h"
 class RealData:public virtual Analysis{
 public:
 	RealData();
@@ -13,6 +13,6 @@ protected:
 	virtual bool EventProcessingCondition()override;
 private:
 	REventHeader *fHeader;
-	LinearInterpolation<double> p_beam;
+	InterpolationBasedReconstruction<> BeamMomenta;
 };
 #endif

@@ -43,7 +43,7 @@ He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analys
 			return cut->IsInside(EDep(track,kFRH1),EDep(track,kFTH1));
 		}).AddParameter("E",[this](WTrack&track){
 			ForwardDetectorTrackMarker(2,track);
-			static InterpolationBasedReconstruction energy("He3.E.FRH1"
+			static InterpolationBasedReconstruction<WTrack&> energy("He3.E.FRH1"
 				,[this](WTrack&track){return EDep(track,kFRH1);}
 				,[this](WTrack&){return FromFirstVertex(kHe3).E;}
 			);
@@ -61,7 +61,7 @@ He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analys
 		}).AddParameter("E",[this](WTrack&track){
 			ForwardDetectorTrackMarker(3,track);
 			//Achtung - static
-			static InterpolationBasedReconstruction energy("He3.E.FRH2"
+			static InterpolationBasedReconstruction<WTrack&> energy("He3.E.FRH2"
 				,[this](WTrack&track){return EDep(track,kFRH1)+EDep(track,kFRH2);}
 				,[this](WTrack&){return FromFirstVertex(kHe3).E;}
 			);
@@ -82,13 +82,13 @@ He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analys
 		auto Th_m=[this](WTrack&track){return track.Theta();};
 		auto Th_t=[this](WTrack&){return FromFirstVertex(kHe3).Th;};
 		//Achtung - static
-		static InterpolationBasedReconstruction He3_theta("He3.th",Th_m,Th_t);
+		static InterpolationBasedReconstruction<WTrack&> He3_theta("He3.th",Th_m,Th_t);
 		return He3_theta.Reconstruct(track);
 	}).AddParameter("Phi",[this](WTrack&track){
 		auto Ph_m=[this](WTrack&track){return NormPhi(track.Phi());};
 		auto Ph_t=[this](WTrack&){return FromFirstVertex(kHe3).Phi;};
 		//Achtung - static
-		static InterpolationBasedReconstruction He3_phi("He3.phi",Ph_m,Ph_t);
+		static InterpolationBasedReconstruction<WTrack&> He3_phi("He3.phi",Ph_m,Ph_t);
 		return He3_phi.Reconstruct(track);
 	}).AddCondition("Reconstructed",[this](WTrack&track,vector<double>&P){
 		return isfinite(P[0])&&isfinite(P[1])&&isfinite(P[2]);
