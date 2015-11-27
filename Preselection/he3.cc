@@ -56,7 +56,7 @@ He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analys
 		}).AddCondition("He3Locus",[this](WTrack&track,vector<double>&){
 			vector<double> Ed={EDep(track,kFRH1),EDep(track,kFRH2)};
 			return 
-				(Ed[0]>(0.25-0.417*Ed[1]))&&(Ed[0]>(0.35-0.417*Ed[1]))
+				(Ed[0]>(0.25-0.417*Ed[1]))&&(Ed[0]<(0.35-0.417*Ed[1]))
 				&&(Ed[1]<0.22);
 		}).AddParameter("E",[this](WTrack&track){
 			ForwardDetectorTrackMarker(3,track);
