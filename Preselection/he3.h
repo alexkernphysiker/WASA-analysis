@@ -23,13 +23,18 @@ private:
 	Analyser2D MissingMass;
 	vector<ConditionTrackDependent> AdditionalConditions;
 };
-class He3_Modification_for_eta:public He3_in_forward{public:He3_Modification_for_eta();};
-
-
-//This analysis class will be used for all procedures
-typedef He3_Modification_for_eta He3Catcher;
-//Classes for analysiswrapper
-typedef CustomAnalysis<RealData,He3Catcher> Data_He3;
-class MC_He3eta:public CustomAnalysis<MonteCarlo,He3Catcher>{public:MC_He3eta();};
-class MC_He3pi0:public CustomAnalysis<MonteCarlo,He3Catcher>{public:MC_He3pi0();};
+class He3_Modification_for_eta:public He3_in_forward{
+public:
+	He3_Modification_for_eta();
+};
+typedef He3_Modification_for_eta He3Catcher_used_in_analysis;
+typedef CustomAnalysis<RealData,He3Catcher_used_in_analysis> Data_He3;
+class MC_He3eta:public CustomAnalysis<MonteCarlo,He3Catcher_used_in_analysis>{
+public:
+	MC_He3eta();
+};
+class MC_He3pi0:public CustomAnalysis<MonteCarlo,He3Catcher_used_in_analysis>{
+public:
+	MC_He3pi0();
+};
 #endif 
