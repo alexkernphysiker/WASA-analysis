@@ -105,7 +105,9 @@ hist& hist::operator=(const hist& source){
 	return *this;
 }
 hist::~hist(){}
-int hist::count()const{return data.size();}
+size_t hist::count()const{
+	return data.size();
+}
 double hist::Entries()const{
 	double res=0;
 	for(const point& P:data)
@@ -131,7 +133,7 @@ void hist::imbibe(const hist& second){
 	}
 }
 hist& hist::operator+=(const hist& second){
-	for(int i=0,n=count();i<n;i++){
+	for(size_t i=0,n=count();i<n;i++){
 		if(data[i].x==second[i].x){
 			data[i].y+=second[i].y;
 			data[i].dy+=second[i].dy;
@@ -141,14 +143,12 @@ hist& hist::operator+=(const hist& second){
 	return *this;
 }
 hist& hist::operator+=(function<double(double)>f){
-	for(int i=0,n=count();i<n;i++){
-		double c=f(data[i].x);
-		data[i].y+=c;
-	}
+	for(size_t i=0,n=count();i<n;i++)
+		data[i].y+=f(data[i].x);
 	return *this;
 }
 hist& hist::operator-=(const hist& second){
-	for(int i=0,n=count();i<n;i++){
+	for(size_t i=0,n=count();i<n;i++){
 		if(data[i].x==second[i].x){
 			data[i].y-=second[i].y;
 			data[i].dy+=second[i].dy;
@@ -158,29 +158,27 @@ hist& hist::operator-=(const hist& second){
 	return *this;
 }
 hist& hist::operator-=(function<double(double)>f){
-	for(int i=0,n=count();i<n;i++){
-		double c=f(data[i].x);
-		data[i].y-=c;
-	}
+	for(size_t i=0,n=count();i<n;i++)
+		data[i].y-=f(data[i].x);
 	return *this;
 }
-
 hist& hist::operator*=(const hist& second_hist){
-	for(int i=0,n=count();i<n;i++){
+	for(size_t i=0,n=count();i<n;i++){
 		if(data[i].x==second_hist[i].x){
-			auto Y=make_pair(data[i].y,data[i].dy);
-			data[i].y*=second_hist[i].y;
-			data[i].dy=Y.second*second_hist[i].y+second_hist[i].dy*Y.first;
+			auto Y1=make_pair(data[i].y,data[i].dy);
+			auto Y2=make_pair(second_hist[i].y,second_hist[i].dy);
+			data[i].y=Y1.first*Y2.first;
+			data[i].dy=Y1.second*Y2.first+Y2.second*Y1.first;
 		}else
 			throw math_h_error<hist>("Cannot multiply by a histogram. bins differ");
 	}
 	return *this;
 }
 hist& hist::operator*=(double c){
-	if(c<0)throw exception();
-	for(int i=0,n=count();i<n;i++){
+	for(size_t i=0,n=count();i<n;i++){
 		data[i].y*=c;
-		data[i].dy*=c;
+		if(c>=0)data[i].dy*=c;
+		else data[i].dy*=-c;
 	}
 	return *this;
 }
@@ -188,68 +186,68 @@ hist& hist::operator*=(function<double(double)>f){
 	for(int i=0,n=count();i<n;i++){
 		double c=f(data[i].x);
 		data[i].y*=c;
-		data[i].dy*=c;
+		if(c>=0)data[i].dy*=c;
+		else data[i].dy*=-c;
 	}
 	return *this;
 }
 hist& hist::operator/=(const hist& second_hist){
-	for(int i=0,n=count();i<n;i++){
+	for(size_t i=0,n=count();i<n;i++){
 		if(data[i].x==second_hist[i].x){
-			auto Y=make_pair(data[i].y,data[i].dy);
-			data[i].y/=second_hist[i].y;
-			data[i].dy=Y.second/second_hist[i].y+second_hist[i].dy*Y.first/second_hist[i].y/second_hist[i].y;
+			auto Y1=make_pair(data[i].y,data[i].dy);
+			auto Y2=make_pair(second_hist[i].y,second_hist[i].dy);
+			data[i].y=Y1.first/Y2.first;
+			data[i].dy=Y1.second/Y2.first+Y2.second*Y1.first/pow(Y2.first,2);
 		}else
-			throw math_h_error<hist>("Cannot divide by a histogram. bins differ");
+			throw math_h_error<hist>("Cannot multiply by a histogram. bins differ");
 	}
 	return *this;
 }
 hist& hist::operator/=(double c){
-	if(c<=0)throw exception();
-	for(int i=0,n=count();i<n;i++){
-		data[i].y/=c;
-		data[i].dy/=c;
-	}
-	return *this;
+	return operator*=(1.0/c);
 }
 hist& hist::operator/=(function<double(double)>f){
-	for(int i=0,n=count();i<n;i++){
-		double c=f(data[i].x);
-		data[i].y/=c;
-		data[i].dy/=c;
-	}
-	return *this;
+	return operator*=([f](double x){return 1.0/f(x);});
 }
 hist& hist::operator<<(size_t c){
-	for(int i=0,n=count()-c;i<n;i++){
+	for(size_t i=0,n=count()-c;i<n;i++){
 		data[i].y=data[i+c].y;
 		data[i].dy=data[i+c].dy;
 	}
-	for(int i=count()-c;i<count();)
-		data.erase(data.begin()+i);
+	for(size_t n=count(),i=n-c;i<n;i++){
+		data[i].y=0;
+		data[i].dy=1;
+	}
 	return *this;
 }
 hist& hist::operator>>(size_t c){
-	for(int i=count()-1;i>=c;i--){
+	for(size_t i=count()-1;i>=c;i--){
 		data[i].y=data[i-c].y;
 		data[i].dy=data[i-c].dy;
 	}
-	for(int i=count()-c;i<count();)
-		data.erase(data.begin());
+	for(size_t i=0;i<c;i++){
+		data[i].y=0;
+		data[i].dy=1;
+	}
 	return *this;
 }
 double hist::HowClose(const hist& second_hist) const{
 	double res=0;
-	for(int i=0,n=count();i<n;i++){
+	for(size_t i=1,n=count()-1;i<n;i++){
 		if(data[i].x==second_hist[i].x){
-			auto Y1=make_pair(data[i].y,data[i].dy);
-			auto Y2=make_pair(second_hist[i].y,second_hist[i].dy);
-			res+=pow((Y1.first-Y2.first)/(Y1.second+Y2.second),2);
+			auto pnt=[i](const hist&H){
+				return make_pair(
+					H.data[i].y,
+					sqrt(pow(H.data[i].dy,2)+pow(H.data[i+1].y-H.data[i-1].y,2)/4.0)
+				);
+			};
+			auto Y1=pnt(*this),Y2=pnt(second_hist);
+			res+=pow(Y1.first-Y2.first,2)/(pow(Y1.second,2)+pow(Y2.second,2));
 		}else
 			throw math_h_error<hist>("Cannot calculate optimality of fit by another histogram. bins differ");
 	}
 	return res;
 }
-
 
 PlotHist::PlotHist():Plot<double>(){}
 PlotHist& PlotHist::Hist(string&&name,const hist&data){

@@ -26,6 +26,7 @@ hist FitHistByHists(
 		}
 		return sum;
 	};
+	printf("Fitting...\n");
 	SearchMin<DifferentialMutations<Parabolic>> fit([&data,&MC,histsum](const ParamSet&P){
 		hist bg=histsum(P);
 		return data.HowClose(bg);
@@ -35,12 +36,14 @@ hist FitHistByHists(
 		for(double p:P)res&=(p>0);
 		return res;
 	});
-	fit.SetThreadCount(1);
+	printf("Fitting init...\n");
 	auto init=make_shared<GenerateByGauss>();
 	for(auto H:MC)init<<make_pair(1,1);
-	fit.Init(MC.size()*30,init,engine);
-	while(!fit.AbsoluteOptimalityExitCondition(0.0000001))
+	fit.Init(MC.size()*15,init,engine);
+	printf("Fitting loop...\n");
+	while(!fit.RelativeOptimalityExitCondition(0.00000001))
 		fit.Iterate(engine);
+	printf("Fitting done.\n");
 	for(int i=0;(i<fit.Parameters().Count())&&(i<out.size());i++)
 		*(out[i])=fit[i];
 	for(int i=0;(i<fit.Parameters().Count())&&(i<out_err.size());i++){
