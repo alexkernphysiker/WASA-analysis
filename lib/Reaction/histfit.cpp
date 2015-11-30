@@ -38,10 +38,10 @@ hist FitHistByHists(
 	});
 	printf("Fitting init...\n");
 	auto init=make_shared<GenerateByGauss>();
-	for(auto H:MC)init<<make_pair(1,1);
-	fit.Init(MC.size()*15,init,engine);
+	for(auto H:MC)init<<make_pair(1,2);
+	fit.Init(MC.size()*30,init,engine);
 	printf("Fitting loop...\n");
-	while(!fit.RelativeOptimalityExitCondition(0.00000001))
+	while(!fit.AbsoluteOptimalityExitCondition(0.00000001))
 		fit.Iterate(engine);
 	printf("Fitting done.\n");
 	for(int i=0;(i<fit.Parameters().Count())&&(i<out.size());i++)

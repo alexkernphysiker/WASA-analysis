@@ -47,7 +47,7 @@ int main(int,char**){
 			.HistWLine(string("MCHe3 2pi0")+suffix,MChists[1])
 			.HistWLine(string("MCHe3 3pi0")+suffix,MChists[2])
 			<<"set xlabel 'Q, MeV'"<<"set ylabel 'Counts'";
-		hist result=FitHistByHists(DATAhist>>1,MChists,engine,{&(qBin.y)},{&(qBin.dy)});
+		hist result=FitHistByHists(DATAhist>>2,MChists,engine,{&(qBin.y)},{&(qBin.dy)});
 		PlotHist().Hist(string("DataHe3")+suffix,DATAhist)
 			.HistWLine(string("Fit")+suffix,result)
 			<<"set xlabel 'Q, MeV'"<<"set ylabel 'Counts'";
