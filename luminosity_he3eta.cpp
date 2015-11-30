@@ -46,11 +46,11 @@ int main(int,char**){
 		PlotHist().HistWLine(string("MCHe3eta")+suffix,MChists[0])
 			.HistWLine(string("MCHe3 2pi0")+suffix,MChists[1])
 			.HistWLine(string("MCHe3 3pi0")+suffix,MChists[2])
-			<<"set xlabel 'Q, MeV'"<<"set ylabel 'Counts'";
-		hist result=FitHistByHists(DATAhist>>2,MChists,engine,{&(qBin.y)},{&(qBin.dy)});
+			<<"set xlabel 'MM, GeV'"<<"set ylabel 'Counts'";
+		hist result=FitHistByHists(DATAhist,MChists,engine,{&(qBin.y)},{&(qBin.dy)});
 		PlotHist().Hist(string("DataHe3")+suffix,DATAhist)
 			.HistWLine(string("Fit")+suffix,result)
-			<<"set xlabel 'Q, MeV'"<<"set ylabel 'Counts'";
+			<<"set xlabel 'MM, GeV'"<<"set ylabel 'Counts'";
 	}
 	const double MC_events_count=5000000;
 	PlotHist().Hist("He3eta true events in data",luminosity*=MC_events_count)
