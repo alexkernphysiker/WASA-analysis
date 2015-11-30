@@ -12,12 +12,11 @@
 #include <str_get.h>
 #include <gethist.h>
 #include <theory.h>
-#include <histfit.h>
 using namespace std;
 using namespace Genetic;
 RANDOM engine;
 #define Q_range 15.0,30.0
-#define MissingMass_range 0.5,0.6
+#define MissingMass_range 0.50,0.57
 int main(int,char**){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta");
 	hist mc_norm(MC,"He3eta",{"Histograms","Reconstruction"},"Reference");
@@ -47,10 +46,7 @@ int main(int,char**){
 			.HistWLine(string("MCHe3 2pi0")+suffix,MChists[1])
 			.HistWLine(string("MCHe3 3pi0")+suffix,MChists[2])
 			<<"set xlabel 'MM, GeV'"<<"set ylabel 'Counts'";
-		hist result=FitHistByHists(DATAhist,MChists,engine,{&(qBin.y)},{&(qBin.dy)});
-		PlotHist().Hist(string("DataHe3")+suffix,DATAhist)
-			.HistWLine(string("Fit")+suffix,result)
-			<<"set xlabel 'MM, GeV'"<<"set ylabel 'Counts'";
+		PlotHist().Hist(string("DataHe3")+suffix,DATAhist)<<"set xlabel 'MM, GeV'"<<"set ylabel 'Counts'";
 	}
 	const double MC_events_count=5000000;
 	PlotHist().Hist("He3eta true events in data",luminosity*=MC_events_count)

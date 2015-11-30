@@ -7,7 +7,7 @@
 #include <PBeamSmearing.h>
 #include <PReaction.h>
 #include <str_get.h>
-#include <math_h/gnuplot/gnuplot.h>
+#include <gnuplot_wrap.h>
 #include "phys_constants.h"
 using namespace std;
 int main(int argc, char **arg){
