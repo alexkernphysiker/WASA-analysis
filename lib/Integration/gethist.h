@@ -12,6 +12,7 @@ class hist{
 public:
 	struct point{
 		double x,y,dx,dy;
+		
 	};
 	hist();
 	hist(std::string&&filename,std::vector<std::string>&&path,std::string&&histname);
@@ -51,6 +52,13 @@ private:
 	void imbibe(const hist& second);
 	std::vector<point> data;
 };
+template<class CONT>
+inline CONT operator<<(CONT C,const hist&H){
+	for(const hist::point&p:H)
+		C<<std::make_pair(p.x,p.y);
+	return C;
+}
+
 class PlotHist:public Plot<double>{
 public:
     PlotHist();
