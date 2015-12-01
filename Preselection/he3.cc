@@ -1,5 +1,5 @@
 // this file is distributed under 
-// GPL v 3.0 license
+// MIT license
 #include <TCutG.h>
 #include "../phys_constants.h"
 #include "../kinematics.h"

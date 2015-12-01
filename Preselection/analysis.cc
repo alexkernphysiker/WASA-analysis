@@ -1,5 +1,5 @@
 // this file is distributed under 
-// GPL v 3.0 license
+// MIT license
 #include <functional>
 #include "analysis.h"
 #define static_right(A) (static_cast<decltype(A)&&>(A))

@@ -1,5 +1,5 @@
 // this file is distributed under 
-// GPL v 3.0 license
+// MIT license
 #ifndef YGCXMVEIRHRTKMLS
 #define YGCXMVEIRHRTKMLS
 #include <string>
