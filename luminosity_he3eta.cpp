@@ -18,7 +18,7 @@ using namespace std;
 using namespace Genetic;
 RANDOM engine;
 #define Q_range 15.0,30.0
-#define MissingMass_range 0.50,0.57
+#define MissingMass_range 0.4,0.6
 const double MC_events_count=5000000;
 
 template<int x_index,int p_index>
@@ -34,6 +34,8 @@ public:
 		data<<static_cast<std::pair<double,double>&&>(point);
 		return *this;
 	}
+	size_t size()const{return data.size();}
+	std::pair<double,double>&operator[](size_t i)const{return data[i];}
 	enum{ParamCount=p_index+1,ArgCount=x_index+1};
 };
 template<int x,int p>
@@ -62,44 +64,41 @@ int main(int,char**){
 		int index=int(qBin.x*1000.0);
 		hist MC_He3eta(MC,"He3eta",{"Histograms","MissingMass"},to_string(index)),
 			MC_He3pi0pi0(MC,"He3pi0pi0",{"Histograms","MissingMass"},to_string(index)),
-			MC_He3pi0pi0pi0(MC,"He3pi0pi0pi0",{"Histograms","MissingMass"},to_string(index));
-		hist DATAhist(DATA,"He3",{"Histograms","MissingMass"},to_string(index));
-		DATAhist.Cut(MissingMass_range);
+			MC_He3pi0pi0pi0(MC,"He3pi0pi0pi0",{"Histograms","MissingMass"},to_string(index)),
+			DATAhist(DATA,"He3",{"Histograms","MissingMass"},to_string(index));
 		MC_He3eta.Cut(MissingMass_range);
-		MC_He3pi0pi0.Cut(MissingMass_range);
-		MC_He3pi0pi0pi0.Cut(MissingMass_range);
+		DATAhist.Cut(MissingMass_range);
 		string suffix=string("Q=")+to_string(qBin.x)+"MeV";
 		PlotHist().HistWLine(string("MCHe3eta")+suffix,MC_He3eta)
 			.HistWLine(string("MCHe3 2pi0")+suffix,MC_He3pi0pi0)
 			.HistWLine(string("MCHe3 3pi0")+suffix,MC_He3pi0pi0pi0)
 			<<"set xlabel 'MM, GeV'"<<"set ylabel 'Counts'";
-		PlotHist().Hist(string("DataHe3")+suffix,DATAhist)<<"set xlabel 'MM, GeV'"<<"set ylabel 'Counts'";
-		printf("1dupa\n");
-		const size_t pop_size=30;
+		printf("%f MeV \n",qBin.x);
+		const size_t pop_size=100;
 		typedef Mul<Func3<Gaussian,Arg<0>,Par<1>,Par<2>>,Par<0>> Peak;
-		FitFunction<DifferentialMutations<>,Peak,ChiSquareWithXError> fitMC(make_shared<FitPoints>()<<MC_He3eta);
-		printf("2dupa\n");
-#define init make_shared<GenerateByGauss>()<<make_pair(1,1)<<make_pair(m_eta,1)<<make_pair(0,1)
+		FitFunction<DifferentialMutations<>,Peak,ChiSquare> fitMC(make_shared<FitPoints>()<<MC_He3eta);
+#define init make_shared<GenerateByGauss>()<<make_pair(100,100)<<make_pair(m_eta,0.1)<<make_pair(0.1,0.1)
 #define filter make_shared<Above>()<<0<<0<<0
 		fitMC.SetFilter(filter).Init(pop_size,init,engine);
-		printf("3dupa\n");
+		while(!fitMC.RelativeParametersDispersionExitCondition(0.0001))
+			fitMC.Iterate(engine);
+		PlotFit1D<decltype(fitMC)>().Fit("mc_fit_"+suffix,"mc_"+suffix,fitMC,0.0001);
+
+		PlotHist().Hist(string("Data")+suffix,DATAhist)<<"set xlabel 'MM, GeV'"<<"set ylabel 'Counts'";
 		typedef Add<TableData<0,3>,TableData<0,4>> BackGround;
-		FitFunction<DifferentialMutations<>,Add<Peak,BackGround>,ChiSquareWithXError> fitdata(make_shared<FitPoints>()<<DATAhist);
-		printf("4dupa\n");
+		FitFunction<DifferentialMutations<>,Add<Peak,BackGround>,ChiSquare> fitdata(make_shared<FitPoints>()<<DATAhist);
 		for(auto&P:MC_He3pi0pi0)
 			dynamic_pointer_cast<TableData<0,3>>(fitdata.Func())<<make_pair(P.x,P.y);
 		for(auto&P:MC_He3pi0pi0pi0)
 			dynamic_pointer_cast<TableData<0,4>>(fitdata.Func())<<make_pair(P.x,P.y);
-		printf("5dupa\n");
-		fitdata.SetFilter(filter<<0<<0).Init(pop_size,init<<make_pair(1,1)<<make_pair(1,1),engine);
-		printf("6dupa\n");
-		Find(fitMC,engine);
-		printf("7dupa\n");
-		Find(fitdata,engine);
-		printf("8dupa\n");
-		qBin.y=fitdata[0]/fitMC[0];
-		qBin.dy=fitdata.GetParamParabolicError(0.01,0)/fitMC.GetParamParabolicError(0.01,0);
-		printf("9dupa\n");
+		fitdata.SetFilter(filter<<0<<0);
+		//fitdata.Init(pop_size,init<<make_pair(1,1)<<make_pair(1,1),engine);
+		//while(!fitdata.RelativeParametersDispersionExitCondition(0.0001))
+		//	fitdata.Iterate(engine);
+
+		//qBin.y=fitdata[0]/fitMC[0];
+		//qBin.dy=fitdata.GetParamParabolicError(0.01,0)/fitMC.GetParamParabolicError(0.01,0);
+
 	}
 	PlotHist().Hist("He3eta true events in data",luminosity*=MC_events_count)
 		<<"set xlabel 'Q, MeV'"<<"set ylabel 'True events, counts'"<<"set nokey";

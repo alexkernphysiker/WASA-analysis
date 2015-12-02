@@ -52,23 +52,21 @@ private:
 	void imbibe(const hist& second);
 	std::vector<point> data;
 };
-template<class CONT>
-inline CONT operator<<(CONT C,const hist&H){
-	for(const hist::point&p:H)
-		C<<std::make_pair(p.x,p.y);
-	return C;
-}
-
 class PlotHist:public Plot<double>{
 public:
     PlotHist();
 	PlotHist& Hist(std::string&&name,const hist&data);
 	PlotHist& HistWLine(std::string&&name,const hist&data);
 };
-inline std::shared_ptr<Genetic::FitPoints> operator<<(std::shared_ptr<Genetic::FitPoints> dest,const hist::point&source){
+inline std::shared_ptr<Genetic::FitPoints> operator<<(std::shared_ptr<Genetic::FitPoints>dest,const hist::point&source){
 	Genetic::FitPoints::Point p;
 	p.X<<source.x;p.WX<<source.dx;
 	p.y=source.y;p.wy=source.dy;
 	return dest<<p;
+}
+inline std::shared_ptr<Genetic::FitPoints> operator<<(std::shared_ptr<Genetic::FitPoints>dest,const hist&source){
+	for(auto&P:source)
+		dest<<P;
+	return dest;
 }
 #endif
