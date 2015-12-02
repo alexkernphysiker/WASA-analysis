@@ -36,12 +36,13 @@ int main(int,char**){
 	hist luminosity=acceptance.CloneEmptyBins();
 	for(auto&qBin:luminosity){
 		int index=int(qBin.x*1000.0);
-		hist MC_He3eta(MC,"He3eta",{"Histograms","MissingMass"},to_string(index)),
+		hist
+			DATAhist(DATA,"He3",{"Histograms","MissingMass"},to_string(index)),
+			MC_He3eta(MC,"He3eta",{"Histograms","MissingMass"},to_string(index)),
 			MC_He3pi0pi0(MC,"He3pi0pi0",{"Histograms","MissingMass"},to_string(index)),
-			MC_He3pi0pi0pi0(MC,"He3pi0pi0pi0",{"Histograms","MissingMass"},to_string(index)),
-			DATAhist(DATA,"He3",{"Histograms","MissingMass"},to_string(index));
-		MC_He3eta.Cut(MissingMass_range);
+			MC_He3pi0pi0pi0(MC,"He3pi0pi0pi0",{"Histograms","MissingMass"},to_string(index));
 		DATAhist.Cut(MissingMass_range);
+		MC_He3eta.Cut(MissingMass_range);
 		MC_He3pi0pi0.Cut(MissingMass_range);
 		MC_He3pi0pi0pi0.Cut(MissingMass_range);
 		string suffix=string("Q=")+to_string(qBin.x)+"MeV";
@@ -53,8 +54,8 @@ int main(int,char**){
 		printf("%f MeV \n",qBin.x);
 		const size_t pop_size=60;
 		
-		typedef Mul<Par<0>,Func3<Gaussian,Arg<0>,Par<1>,Par<2>>> Peak;
-		#define init make_pair(m_eta,0.01)<<make_pair(0.01,0.01)<<make_pair(0.0,0.1)
+		typedef Mul<Par<0>,Func4<Novosibirsk,Arg<0>,Par<1>,Par<2>,Par<3>>> Peak;
+		#define init make_pair(m_eta,0.01)<<make_pair(0.01,0.01)<<make_pair(0.0,0.01)
 		
 		FitFunction<DifferentialMutations<>,Peak,ChiSquareWithXError> 
 			fitMC(make_shared<FitPoints>()<<MC_He3eta.Cut(0.54,0.56));
@@ -63,24 +64,24 @@ int main(int,char**){
 		while(!fitMC.AbsoluteOptimalityExitCondition(0.0001))
 			fitMC.Iterate(engine);
 		PlotFit1D<decltype(fitMC)>()
-			.Fit("mc_fit_"+suffix,"mc_"+suffix,fitMC,0.001)
+			.Fit("mc_fit_"+suffix,"mc_"+suffix,fitMC,0.00001)
 			<<"set xlabel 'MM, GeV'"<<"set ylabel 'counts'";
 
 		Fit<DifferentialMutations<>,ChiSquareWithXError> fitdata(
 			make_shared<FitPoints>()<<DATAhist,
 			[&MC_He3pi0pi0,&MC_He3pi0pi0pi0](const ParamSet&X,const ParamSet&P){
 				static Peak peak;
-				return peak(X,P)+P[3]*MC_He3pi0pi0(X[0]).y+P[4]*MC_He3pi0pi0pi0(X[0]).y;
+				return peak(X,P)+P[4]*MC_He3pi0pi0(X[0]).y+P[5]*MC_He3pi0pi0pi0(X[0]).y;
 			}
 		);
 		fitdata.SetFilter(make_shared<Above>()<<0<<0<<0)
 			.Init(pop_size,
 				  make_shared<GenerateByGauss>()<<make_pair(1,1)<<init<<make_pair(1,1)<<make_pair(1,1)
 			,engine);
-		while(!fitdata.AbsoluteOptimalityExitCondition(0.0001))
+		while(!fitdata.AbsoluteOptimalityExitCondition(0.00001))
 			fitdata.Iterate(engine);
 		PlotFit1D<decltype(fitdata)>()
-			.Fit("data_fit_"+suffix,"data_"+suffix,fitdata,0.001)
+			.Fit("data_fit_"+suffix,"data_"+suffix,fitdata,0.0001)
 			<<"set xlabel 'MM, GeV'"<<"set ylabel 'counts'";
 		
 		double yd=fitdata[0],ym=fitMC[0];
