@@ -5,7 +5,7 @@
 settings.pri
 *~
 bin
-build-*
+build*
 *_app*
 ANALYSE_*
 run_*.sh
