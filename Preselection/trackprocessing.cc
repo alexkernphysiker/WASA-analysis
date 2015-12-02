@@ -1,6 +1,7 @@
 // this file is distributed under 
 // MIT license
 #include "trackprocessing.h"
+#include "../config.h"
 using namespace std;
 TrackConditionSet::TrackConditionSet(string&&name, ValueIndependent distr,int bins,double from,double to){
 	m_name=name;m_distr=distr;m_bins=bins;m_from=from;m_to=to;
@@ -75,7 +76,7 @@ void Analyser2D::Setup(ValueParamDependent B, int binsB, double fromB, double to
 		gHistoManager->Add(OutOff,m_name.c_str());
 	}
 	for(int i=1,N=reference->GetNbinsX();i<=N;i++){
-		int index=int(reference->GetBinCenter(i)*1000);
+		int index=int(reference->GetBinCenter(i)*binning_coefficient);
 		TH1F* hist=new TH1F(to_string(index).c_str(),"",binsB,fromB,toB);
 		A_bin.push_back(hist);
 		gHistoManager->Add(hist,m_name.c_str());

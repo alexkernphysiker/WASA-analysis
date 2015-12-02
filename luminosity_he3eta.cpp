@@ -18,7 +18,6 @@ using namespace Genetic;
 RANDOM engine;
 #define Q_range 18.0,28.0
 #define MissingMass_range 0.4,0.6
-const double MC_events_count=5000000.0;
 int main(int,char**){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta");
 	hist mc_norm(MC,"He3eta",{"Histograms","Reconstruction"},"Reference");
@@ -34,7 +33,7 @@ int main(int,char**){
 	PlotHist().Hist("Acceptance",acceptance)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Acceptance, n.d.'"<<"set nokey";
 	hist luminosity=acceptance.CloneEmptyBins();
 	for(auto&qBin:luminosity){
-		int index=int(qBin.x*1000.0);
+		int index=int(qBin.x*binning_coefficient);
 		hist
 			DATAhist(DATA,"He3",{"Histograms","MissingMass"},to_string(index)),
 			MC_He3eta(MC,"He3eta",{"Histograms","MissingMass"},to_string(index)),
@@ -85,7 +84,7 @@ int main(int,char**){
 		
 		double yd=fitdata[0],ym=fitMC[0];
 		double dd=fitdata.GetParamParabolicError(0.01,0),dm=fitMC.GetParamParabolicError(0.01,0);
-		qBin.y=MC_events_count*yd/ym;
+		qBin.y=double(MC_events_count)*yd/ym;
 		//ToDo: check all stages of error calculation and provide here the good formula
 		qBin.dy=dd/ym;
 	}

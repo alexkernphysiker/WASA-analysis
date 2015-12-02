@@ -9,6 +9,7 @@
 #include <str_get.h>
 #include <gnuplot_wrap.h>
 #include "phys_constants.h"
+#include "config.h"
 using namespace std;
 int main(int argc, char **arg){
 	if(argc<3){
@@ -38,7 +39,7 @@ int main(int argc, char **arg){
 		const_cast<char*>(react.c_str()),
 		const_cast<char*>(ReplaceAll(ReplaceAll(ReplaceAll(react," ",""),"[","_"),"]","_").c_str())
 		,1,0,0,0);
-	my_reaction.Loop(5000000);
+	my_reaction.Loop(MC_events_count);
 	POPD();
 	return 0;
 }
