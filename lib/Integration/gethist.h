@@ -24,6 +24,7 @@ public:
 	hist CloneEmptyBins()const;
 	double Entries()const;
 	point&operator[](int i)const;
+	point&operator()(double x)const;
 	size_t count()const;
 
 	typedef std::vector<point>::iterator iterator;

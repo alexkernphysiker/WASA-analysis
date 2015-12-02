@@ -115,6 +115,19 @@ double hist::Entries()const{
 	return res;
 }
 hist::point& hist::operator[](int i)const{return const_cast<point&>(data[i]);}
+hist::point& hist::operator()(double x)const{
+	size_t res_ind=0;
+	double difference=+INFINITY;
+	for(size_t i=0,n=count();i<n;i++){
+		double d=pow(data[i].x-x,2);
+		if(d<difference){
+			difference=d;
+			res_ind=i;
+		}
+	}
+	return operator[](res_ind);
+}
+
 hist::iterator hist::begin(){return data.begin();}
 hist::const_iterator hist::begin() const{return data.begin();}
 hist::const_iterator hist::cbegin() const{return data.cbegin();}
