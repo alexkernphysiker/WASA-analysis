@@ -50,7 +50,9 @@ int main(int,char**){
 			<<"set xlabel 'MM, GeV'"<<"set ylabel 'Counts'";
 		printf("%f MeV \n",qBin.x);
 		const size_t pop_size=50;
+		
 		typedef Mul<Par<0>,Func3<Gaussian,Arg<0>,Par<1>,Par<2>>> Peak;
+		
 		FitFunction<DifferentialMutations<>,Peak,ChiSquareWithXError> fitMC(make_shared<FitPoints>()<<MC_He3eta);
 #define init make_pair(m_eta,0.01)<<make_pair(0.01,0.01)
 		fitMC.SetFilter(make_shared<Above>()<<0<<0<<0)
@@ -58,7 +60,7 @@ int main(int,char**){
 		while(!fitMC.AbsoluteOptimalityExitCondition(0.0001))
 			fitMC.Iterate(engine);
 		PlotFit1D<decltype(fitMC)>()
-			.Fit("mc_fit_"+suffix,"mc_"+suffix,fitMC,0.0001)
+			.Fit("mc_fit_"+suffix,"mc_"+suffix,fitMC,0.001)
 			<<"set xlabel 'MM, GeV'"<<"set ylabel 'counts'";
 
 		Fit<DifferentialMutations<>,ChiSquareWithXError> fitdata(
@@ -73,7 +75,7 @@ int main(int,char**){
 		while(!fitdata.AbsoluteOptimalityExitCondition(0.0001))
 			fitdata.Iterate(engine);
 		PlotFit1D<decltype(fitdata)>()
-			.Fit("data_fit_"+suffix,"data_"+suffix,fitdata,0.0001)
+			.Fit("data_fit_"+suffix,"data_"+suffix,fitdata,0.001)
 			<<"set xlabel 'MM, GeV'"<<"set ylabel 'counts'";
 		
 		double yd=fitdata[0],ym=fitMC[0];
