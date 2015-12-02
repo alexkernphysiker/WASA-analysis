@@ -42,6 +42,8 @@ int main(int,char**){
 			DATAhist(DATA,"He3",{"Histograms","MissingMass"},to_string(index));
 		MC_He3eta.Cut(MissingMass_range);
 		DATAhist.Cut(MissingMass_range);
+		MC_He3pi0pi0.Cut(MissingMass_range);
+		MC_He3pi0pi0pi0.Cut(MissingMass_range);
 		string suffix=string("Q=")+to_string(qBin.x)+"MeV";
 		PlotHist()
 			.HistWLine(string("MCHe3eta")+suffix,MC_He3eta)
@@ -49,14 +51,15 @@ int main(int,char**){
 			.HistWLine(string("MCHe3 3pi0")+suffix,MC_He3pi0pi0pi0)
 			<<"set xlabel 'MM, GeV'"<<"set ylabel 'Counts'";
 		printf("%f MeV \n",qBin.x);
-		const size_t pop_size=50;
+		const size_t pop_size=60;
 		
 		typedef Mul<Par<0>,Func3<Gaussian,Arg<0>,Par<1>,Par<2>>> Peak;
+		#define init make_pair(m_eta,0.01)<<make_pair(0.01,0.01)<<make_pair(0.0,0.1)
 		
-		FitFunction<DifferentialMutations<>,Peak,ChiSquareWithXError> fitMC(make_shared<FitPoints>()<<MC_He3eta);
-#define init make_pair(m_eta,0.01)<<make_pair(0.01,0.01)
+		FitFunction<DifferentialMutations<>,Peak,ChiSquareWithXError> 
+			fitMC(make_shared<FitPoints>()<<MC_He3eta.Cut(0.54,0.56));
 		fitMC.SetFilter(make_shared<Above>()<<0<<0<<0)
-			.Init(pop_size,make_shared<GenerateByGauss>()<<make_pair(100,100)<<init,engine);
+			.Init(pop_size,make_shared<GenerateByGauss>()<<make_pair(10,10)<<init,engine);
 		while(!fitMC.AbsoluteOptimalityExitCondition(0.0001))
 			fitMC.Iterate(engine);
 		PlotFit1D<decltype(fitMC)>()
@@ -70,8 +73,10 @@ int main(int,char**){
 				return peak(X,P)+P[3]*MC_He3pi0pi0(X[0]).y+P[4]*MC_He3pi0pi0pi0(X[0]).y;
 			}
 		);
-		fitdata.SetFilter(make_shared<Above>()<<0<<0<<0<<0<<0)
-			.Init(pop_size,make_shared<GenerateByGauss>()<<make_pair(1,1)<<init<<make_pair(1,1)<<make_pair(1,1),engine);
+		fitdata.SetFilter(make_shared<Above>()<<0<<0<<0)
+			.Init(pop_size,
+				  make_shared<GenerateByGauss>()<<make_pair(1,1)<<init<<make_pair(1,1)<<make_pair(1,1)
+			,engine);
 		while(!fitdata.AbsoluteOptimalityExitCondition(0.0001))
 			fitdata.Iterate(engine);
 		PlotFit1D<decltype(fitdata)>()
