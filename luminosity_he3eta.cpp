@@ -9,7 +9,6 @@
 #include <paramfunc.h>
 #include <filter.h>
 #include <initialconditions.h>
-#include <equation.h>
 #include <str_get.h>
 #include <gethist.h>
 #include <theory.h>
@@ -19,7 +18,7 @@ using namespace Genetic;
 RANDOM engine;
 #define Q_range 15.0,30.0
 #define MissingMass_range 0.4,0.6
-const double MC_events_count=5000000;
+const double MC_events_count=5000000.0;
 int main(int,char**){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta");
 	hist mc_norm(MC,"He3eta",{"Histograms","Reconstruction"},"Reference");
@@ -52,44 +51,45 @@ int main(int,char**){
 			.HistWLine(string("MCHe3 3pi0")+suffix,MC_He3pi0pi0pi0)
 			<<"set xlabel 'MM, GeV'"<<"set ylabel 'Counts'";
 		printf("%f MeV \n",qBin.x);
-		const size_t pop_size=60;
+		const size_t pop_size=200;
+		const size_t thr=8;
+		const double plot_step=0.0001;
+		const double accu=0.0000001;
 		
-		typedef Mul<Par<0>,Func4<Novosibirsk,Arg<0>,Par<1>,Par<2>,Par<3>>> Peak;
-		#define init make_pair(m_eta,0.01)<<make_pair(0.01,0.01)<<make_pair(0.0,0.01)
+		typedef Mul<Par<0>,Func3<Gaussian,Arg<0>,Par<1>,Par<2>>> Peak;
+		#define init make_pair(m_eta,0.005)<<make_pair(0.0,0.01)<<make_pair(0.0,0.01)
 		
-		FitFunction<DifferentialMutations<>,Peak,ChiSquareWithXError> 
-			fitMC(make_shared<FitPoints>()<<MC_He3eta.Cut(0.54,0.56));
-		fitMC.SetFilter(make_shared<Above>()<<0<<0<<0)
-			.Init(pop_size,make_shared<GenerateByGauss>()<<make_pair(10,10)<<init,engine);
-		while(!fitMC.AbsoluteOptimalityExitCondition(0.0001))
+		FitFunction<DifferentialMutations<>,Peak,ChiSquare> fitMC(make_shared<FitPoints>()<<MC_He3eta.Cut(0.54,0.56));
+		fitMC.SetFilter(make_shared<Above>()<<0<<0<<0).SetThreadCount(thr)
+			.Init(pop_size,make_shared<GenerateByGauss>()<<make_pair(200,300)<<init,engine);
+		while(!fitMC.AbsoluteOptimalityExitCondition(accu))
 			fitMC.Iterate(engine);
 		PlotFit1D<decltype(fitMC)>()
-			.Fit("mc_fit_"+suffix,"mc_"+suffix,fitMC,0.00001)
+			.Fit("mc_fit_"+suffix,"mc_"+suffix,fitMC,plot_step)
 			<<"set xlabel 'MM, GeV'"<<"set ylabel 'counts'";
 
 		Fit<DifferentialMutations<>,ChiSquareWithXError> fitdata(
 			make_shared<FitPoints>()<<DATAhist,
 			[&MC_He3pi0pi0,&MC_He3pi0pi0pi0](const ParamSet&X,const ParamSet&P){
 				static Peak peak;
-				return peak(X,P)+P[4]*MC_He3pi0pi0(X[0]).y+P[5]*MC_He3pi0pi0pi0(X[0]).y;
+				return peak(X,P)+P[3]*MC_He3pi0pi0(X[0]).y+P[4]*MC_He3pi0pi0pi0(X[0]).y;
 			}
 		);
-		fitdata.SetFilter(make_shared<Above>()<<0<<0<<0)
-			.Init(pop_size,
-				  make_shared<GenerateByGauss>()<<make_pair(1,1)<<init<<make_pair(1,1)<<make_pair(1,1)
-			,engine);
-		while(!fitdata.AbsoluteOptimalityExitCondition(0.00001))
+		fitdata.SetFilter(make_shared<Above>()<<0<<0<<0).SetThreadCount(thr)
+			.Init(pop_size,make_shared<GenerateByGauss>()<<make_pair(1,2)<<init<<make_pair(1,1)<<make_pair(1,1),engine);
+		while(!fitdata.AbsoluteOptimalityExitCondition(accu))
 			fitdata.Iterate(engine);
 		PlotFit1D<decltype(fitdata)>()
-			.Fit("data_fit_"+suffix,"data_"+suffix,fitdata,0.0001)
+			.Fit("data_fit_"+suffix,"data_"+suffix,fitdata,plot_step)
 			<<"set xlabel 'MM, GeV'"<<"set ylabel 'counts'";
 		
 		double yd=fitdata[0],ym=fitMC[0];
 		double dd=fitdata.GetParamParabolicError(0.01,0),dm=fitMC.GetParamParabolicError(0.01,0);
-		qBin.y=yd/ym;
-		qBin.dy=dd/ym+yd*dm/pow(ym,2);
+		qBin.y=MC_events_count*yd/ym;
+		//ToDo: check all stages of error calculation and provide here the good formula
+		qBin.dy=dd/ym;
 	}
-	PlotHist().Hist("He3eta true events in data",luminosity*=MC_events_count)
+	PlotHist().Hist("He3eta true events in data",luminosity)
 		<<"set xlabel 'Q, MeV'"<<"set ylabel 'True events, counts'"<<"set nokey";
 	PlotHist lumplot;
 	lumplot.Hist("analysed",luminosity/=sigmaHe3eta);
