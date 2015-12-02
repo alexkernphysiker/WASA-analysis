@@ -19,14 +19,13 @@ public:
 	hist(histsource src,std::string&&reaction,std::vector<std::string>&&path,std::string&&histname);
 	hist(const hist& source);
 	virtual ~hist();
-	hist& Cut(double a,double b);
-
 	hist&operator=(const hist& source);
-	double HowClose(const hist&B)const;
+
 	hist CloneEmptyBins()const;
 	double Entries()const;
 	point&operator[](int i)const;
 	size_t count()const;
+
 	typedef std::vector<point>::iterator iterator;
 	typedef std::vector<point>::const_iterator const_iterator;
 	iterator begin();
@@ -36,6 +35,7 @@ public:
 	const_iterator end() const;
 	const_iterator cend() const;
 	
+	hist& Cut(double a,double b);
 	hist &operator+=(const hist& second);
 	hist &operator+=(std::function<double(double)>);
 	hist &operator-=(const hist& second);

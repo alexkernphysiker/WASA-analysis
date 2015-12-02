@@ -231,23 +231,6 @@ hist& hist::operator>>(size_t c){
 	}
 	return *this;
 }
-double hist::HowClose(const hist& second_hist) const{
-	double res=0;
-	for(size_t i=1,n=count()-1;i<n;i++){
-		if(data[i].x==second_hist[i].x){
-			auto pnt=[i](const hist&H){
-				return make_pair(
-					H.data[i].y,
-					sqrt(pow(H.data[i].dy,2)+pow(H.data[i+1].y-H.data[i-1].y,2)/4.0)
-				);
-			};
-			auto Y1=pnt(*this),Y2=pnt(second_hist);
-			res+=pow(Y1.first-Y2.first,2)/(pow(Y1.second,2)+pow(Y2.second,2));
-		}else
-			throw math_h_error<hist>("Cannot calculate optimality of fit by another histogram. bins differ");
-	}
-	return res;
-}
 
 PlotHist::PlotHist():Plot<double>(){}
 PlotHist& PlotHist::Hist(string&&name,const hist&data){
