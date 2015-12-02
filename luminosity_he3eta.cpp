@@ -55,7 +55,7 @@ int main(int,char**){
 #define init make_pair(m_eta,0.01)<<make_pair(0.01,0.01)
 		fitMC.SetFilter(make_shared<Above>()<<0<<0<<0)
 			.Init(pop_size,make_shared<GenerateByGauss>()<<make_pair(100,100)<<init,engine);
-		while(!fitMC.RelativeParametersDispersionExitCondition(0.0001))
+		while(!fitMC.AbsoluteOptimalityExitCondition(0.0001))
 			fitMC.Iterate(engine);
 		PlotFit1D<decltype(fitMC)>()
 			.Fit("mc_fit_"+suffix,"mc_"+suffix,fitMC,0.0001)
@@ -70,7 +70,7 @@ int main(int,char**){
 		);
 		fitdata.SetFilter(make_shared<Above>()<<0<<0<<0<<0<<0)
 			.Init(pop_size,make_shared<GenerateByGauss>()<<make_pair(1,1)<<init<<make_pair(1,1)<<make_pair(1,1),engine);
-		while(!fitdata.RelativeParametersDispersionExitCondition(0.0001))
+		while(!fitdata.AbsoluteOptimalityExitCondition(0.0001))
 			fitdata.Iterate(engine);
 		PlotFit1D<decltype(fitdata)>()
 			.Fit("data_fit_"+suffix,"data_"+suffix,fitdata,0.0001)
