@@ -16,7 +16,7 @@
 using namespace std;
 using namespace Genetic;
 RANDOM engine;
-#define Q_range 15.0,30.0
+#define Q_range 18.0,28.0
 #define MissingMass_range 0.4,0.6
 const double MC_events_count=5000000.0;
 int main(int,char**){
