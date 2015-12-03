@@ -50,7 +50,7 @@ int main(int,char**){
 			.HistWLine(string("MCHe3 2pi0")+suffix,MC_He3pi0pi0)
 			.HistWLine(string("MCHe3 3pi0")+suffix,MC_He3pi0pi0pi0)
 			<<"set xlabel 'MM, GeV'"<<"set ylabel 'Counts'";
-		printf("%f MeV \n",qBin.x);
+		cout<<qBin.x<<"MeV"<<endl;
 		const size_t pop_size=200;
 		const size_t thr=8;
 		const double plot_step=0.0001;
@@ -68,7 +68,7 @@ int main(int,char**){
 			.Fit("mc_fit_"+suffix,"mc_"+suffix,fitMC,plot_step)
 			<<"set xlabel 'MM, GeV'"<<"set ylabel 'counts'";
 
-		Fit<DifferentialMutations<>,ChiSquareWithXError> fitdata(
+		Fit<DifferentialMutations<>,ChiSquare> fitdata(
 			make_shared<FitPoints>()<<DATAhist,
 			[&MC_He3pi0pi0,&MC_He3pi0pi0pi0](const ParamSet&X,const ParamSet&P){
 				static Peak peak;
@@ -84,9 +84,11 @@ int main(int,char**){
 			<<"set xlabel 'MM, GeV'"<<"set ylabel 'counts'";
 		
 		double yd=fitdata[0],ym=fitMC[0];
-		double dd=fitdata.GetParamParabolicError(0.01,0),dm=fitMC.GetParamParabolicError(0.01,0);
+		cout <<"Y = "<<yd<<" ; "<<ym<<endl;
+		double dd=fitdata.GetParamParabolicError(0.001,0),dm=fitMC.GetParamParabolicError(0.001,0);
+		cout <<"dY = "<<dd<<" ; "<<dm<<endl;
 		qBin.y=double(MC_events_count)*yd/ym;
-		qBin.dy=sqrt(pow(dd/ym,2)+pow(dm*yd/pow(ym,2),2));
+		qBin.dy=double(MC_events_count)*sqrt(pow(dd/ym,2)+pow(dm*yd/pow(ym,2),2));
 	}
 	PlotHist().Hist("He3eta true events in data",luminosity)
 		<<"set xlabel 'Q, MeV'"<<"set ylabel 'True events, counts'"<<"set nokey";
