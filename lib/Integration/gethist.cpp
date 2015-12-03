@@ -149,7 +149,7 @@ hist& hist::operator+=(const hist& second){
 	for(size_t i=0,n=count();i<n;i++){
 		if(data[i].x==second[i].x){
 			data[i].y+=second[i].y;
-			data[i].dy+=second[i].dy;
+			data[i].dy=sqrt(pow(data[i].dy,2)+pow(second[i].dy,2));
 		}else
 			throw math_h_error<hist>("Cannot add histogram. bins differ");
 	}
@@ -164,7 +164,7 @@ hist& hist::operator-=(const hist& second){
 	for(size_t i=0,n=count();i<n;i++){
 		if(data[i].x==second[i].x){
 			data[i].y-=second[i].y;
-			data[i].dy+=second[i].dy;
+			data[i].dy=sqrt(pow(data[i].dy,2)+pow(second[i].dy,2));
 		}else
 			throw math_h_error<hist>("Cannot substract histogram. bins differ");
 	}
@@ -181,7 +181,7 @@ hist& hist::operator*=(const hist& second_hist){
 			auto Y1=make_pair(data[i].y,data[i].dy);
 			auto Y2=make_pair(second_hist[i].y,second_hist[i].dy);
 			data[i].y=Y1.first*Y2.first;
-			data[i].dy=Y1.second*Y2.first+Y2.second*Y1.first;
+			data[i].dy=sqrt(pow(Y1.second*Y2.first,2)+pow(Y2.second*Y1.first,2));
 		}else
 			throw math_h_error<hist>("Cannot multiply by a histogram. bins differ");
 	}
@@ -210,7 +210,7 @@ hist& hist::operator/=(const hist& second_hist){
 			auto Y1=make_pair(data[i].y,data[i].dy);
 			auto Y2=make_pair(second_hist[i].y,second_hist[i].dy);
 			data[i].y=Y1.first/Y2.first;
-			data[i].dy=Y1.second/Y2.first+Y2.second*Y1.first/pow(Y2.first,2);
+			data[i].dy=sqrt(pow(Y1.second/Y2.first,2)+pow(Y2.second*Y1.first/pow(Y2.first,2),2));
 		}else
 			throw math_h_error<hist>("Cannot multiply by a histogram. bins differ");
 	}

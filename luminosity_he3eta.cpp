@@ -86,8 +86,7 @@ int main(int,char**){
 		double yd=fitdata[0],ym=fitMC[0];
 		double dd=fitdata.GetParamParabolicError(0.01,0),dm=fitMC.GetParamParabolicError(0.01,0);
 		qBin.y=double(MC_events_count)*yd/ym;
-		//ToDo: check all stages of error calculation and provide here the good formula
-		qBin.dy=dd/ym;
+		qBin.dy=sqrt(pow(dd/ym,2)+pow(dm*yd/pow(ym,2),2));
 	}
 	PlotHist().Hist("He3eta true events in data",luminosity)
 		<<"set xlabel 'Q, MeV'"<<"set ylabel 'True events, counts'"<<"set nokey";
