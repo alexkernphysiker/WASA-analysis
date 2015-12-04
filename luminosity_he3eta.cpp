@@ -16,8 +16,7 @@
 using namespace std;
 using namespace Genetic;
 RANDOM engine;
-#define Q_range 18.0,30.0
-#define MissingMass_range 0.5,0.6
+#define Q_range 18.0,28.0
 int main(int,char**){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta");
 	hist mc_norm(MC,"He3eta",{"Histograms","Reconstruction"},"Reference");
@@ -35,6 +34,7 @@ int main(int,char**){
 	hist luminosity=acceptance.CloneEmptyBins();
 	LinearInterpolation<double> ChiSqMCPeak,ChiSqData;
 	for(auto&qBin:luminosity){
+		#define mmr 0.535,0.560
 		int index=int(qBin.x*binning_coefficient);
 		hist
 			DATAhist(DATA,"He3",{"Histograms","MissingMass"},to_string(index)),
@@ -43,43 +43,44 @@ int main(int,char**){
 			MC_He3pi0pi0pi0(MC,"He3pi0pi0pi0",{"Histograms","MissingMass"},to_string(index));
 		string suffix=string("Q=")+to_string(qBin.x)+"MeV";
 		PlotHist()
-			.HistWLine(string("MCHe3eta")+suffix,MC_He3eta)
-			.HistWLine(string("MCHe3 2pi0")+suffix,MC_He3pi0pi0)
-			.HistWLine(string("MCHe3 3pi0")+suffix,MC_He3pi0pi0pi0)
+			.HistWLine(string("MCHe3eta")+suffix,MC_He3eta.Cut(mmr))
+			.HistWLine(string("MCHe3 2pi0")+suffix,MC_He3pi0pi0.Cut(mmr))
+			.HistWLine(string("MCHe3 3pi0")+suffix,MC_He3pi0pi0pi0.Cut(mmr))
 			<<"set xlabel 'MM, GeV'"<<"set ylabel 'Counts'";
 		cout<<qBin.x<<"MeV"<<endl;
-		const size_t pop_size=200;
-		const size_t thr=8;
-		const double plot_step=0.0001;
-		const double accu=0.0000001;
 		
 		typedef Mul<Par<0>,Func3<Gaussian,Arg<0>,Par<1>,Par<2>>> Peak;
 		#define init make_pair(m_eta,0.005)<<make_pair(0.0,0.01)<<make_pair(0.0,0.01)
 		#define filter make_shared<Above>()<<0<<0<<0
-		typedef PolynomFunc<0,3,6> BG;
+		const size_t ppower=4;
+		typedef PolynomFunc<0,3,ppower> BG;
+		const size_t popsize_peak=80;
+		const size_t popsize_data=popsize_peak+20*ppower;
+		const size_t thr=8;
+		const double plot_step=0.0001;
+		const double accu=0.0000001;
 		
-		FitFunction<DifferentialMutations<>,Peak,ChiSquare> 
+		FitFunction<DifferentialMutations<>,Peak,ChiSquareWithXError> 
 			fitMC(make_shared<FitPoints>()<<MC_He3eta.Cut(0.54,0.56));
 		fitMC.SetFilter(filter).SetThreadCount(thr)
-			.Init(pop_size,make_shared<GenerateByGauss>()<<make_pair(200,300)<<init,engine);
+			.Init(popsize_peak,make_shared<GenerateByGauss>()<<make_pair(200,300)<<init,engine);
 		while(!fitMC.AbsoluteOptimalityExitCondition(accu)){
 			fitMC.Iterate(engine);
 			cout<<"Peak: "<<fitMC.Optimality()
 				<<"<s<"<<fitMC.Optimality(fitMC.PopulationSize()-1)<<"    \r";
 		}
 		cout<<endl;
-		PlotFit1D<decltype(fitMC)>()
-			.Fit("mc_fit_"+suffix,"mc_"+suffix,fitMC,plot_step)
+		PlotFit1D<decltype(fitMC)>().Fit("mc_fit_"+suffix,"mc_"+suffix,fitMC,plot_step)
 			<<"set xlabel 'MM, GeV'"<<"set ylabel 'counts'";
 		ChiSqMCPeak<<make_pair(qBin.x,fitMC.Optimality());
 
-		FitFunction<DifferentialMutations<>,Add<Peak,BG>,ChiSquare> 
-			fitdata(make_shared<FitPoints>()<<DATAhist.Cut(MissingMass_range));
+		FitFunction<DifferentialMutations<>,Add<Peak,BG>,ChiSquareWithXError> 
+			fitdata(make_shared<FitPoints>()<<DATAhist.Cut(mmr));
 		fitdata.SetFilter(filter).SetThreadCount(thr);
 		auto Init=make_shared<GenerateByGauss>()<<make_pair(1,2)<<init;
-		Init<<make_pair(1000,1000)<<make_pair(0,1000)<<make_pair(0,10);
+		Init<<make_pair(1000,1000)<<make_pair(-1000,1000)<<make_pair(0,10);
 		while((Init<<make_pair(0,1))->Count()< Add<Peak,BG>::ParamCount){}
-		fitdata.Init(pop_size,Init,engine);
+		fitdata.Init(popsize_data,Init,engine);
 		while(!fitdata.AbsoluteOptimalityExitCondition(accu)){
 			fitdata.Iterate(engine);
 			cout<<"Data: "<<fitdata.Optimality()
@@ -99,12 +100,14 @@ int main(int,char**){
 		cout <<"dY = "<<dd<<" ; "<<dm<<endl;
 		qBin.y=double(MC_events_count)*yd/ym;
 		qBin.dy=double(MC_events_count)*sqrt(pow(dd/ym,2)+pow(dm*yd/pow(ym,2),2));
+		#undef mmr
 	}
 	PlotPoints<double,decltype(ChiSqData)>()
 		.LineOnly("Chi^2_data",ChiSqData).LineOnly("Chi^2_MC",ChiSqMCPeak);
 	PlotHist().Hist("He3eta true events in data",luminosity)
 		<<"set xlabel 'Q, MeV'"<<"set ylabel 'True events, counts'"<<"set nokey";
-	PlotHist().Hist("analysed",luminosity/=sigmaHe3eta)
-		.Hist("estimated",luminosity/=PresentRunsAmountRatio("He3"))
+	PlotHist lastplot;
+	lastplot.Hist("analysed",luminosity/=sigmaHe3eta);
+	lastplot.Hist("estimated",luminosity/=PresentRunsAmountRatio("He3"))
 		<<"set xlabel 'Q, MeV'"<<"set ylabel 'Integrated luminocity, 1/nb'";
 }
