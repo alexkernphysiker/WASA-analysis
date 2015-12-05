@@ -34,7 +34,7 @@ int main(int,char**){
 	hist luminosity=acceptance.CloneEmptyBins();
 	LinearInterpolation<double> ChiSqMCPeak,ChiSqData;
 	for(auto&qBin:luminosity){
-		#define mmr 0.535,0.560
+		#define mmr 0.535,0.555
 		int index=int(qBin.x*binning_coefficient);
 		hist
 			DATAhist(DATA,"He3",{"Histograms","MissingMass"},to_string(index)),
@@ -47,15 +47,17 @@ int main(int,char**){
 			.HistWLine(string("MCHe3 2pi0")+suffix,MC_He3pi0pi0.Cut(mmr))
 			.HistWLine(string("MCHe3 3pi0")+suffix,MC_He3pi0pi0pi0.Cut(mmr))
 			<<"set xlabel 'MM, GeV'"<<"set ylabel 'Counts'";
+		PlotHist()
+			.Hist(string("Data")+suffix,DATAhist.Cut(0.4,0.6))
+			<<"set xlabel 'MM, GeV'"<<"set ylabel 'Counts'";
 		cout<<qBin.x<<"MeV"<<endl;
 		
 		typedef Mul<Par<0>,Func3<Gaussian,Arg<0>,Par<1>,Par<2>>> Peak;
-		#define init make_pair(m_eta,0.005)<<make_pair(0.0,0.01)<<make_pair(0.0,0.01)
 		#define filter make_shared<Above>()<<0<<0<<0
 		const size_t ppower=4;
 		typedef PolynomFunc<0,3,ppower> BG;
-		const size_t popsize_peak=80;
-		const size_t popsize_data=popsize_peak+20*ppower;
+		const size_t popsize_peak=50;
+		const size_t popsize_data=popsize_peak+15*(ppower+1);
 		const size_t thr=8;
 		const double plot_step=0.0001;
 		const double accu=0.0000001;
@@ -63,12 +65,11 @@ int main(int,char**){
 		FitFunction<DifferentialMutations<>,Peak,ChiSquareWithXError> 
 			fitMC(make_shared<FitPoints>()<<MC_He3eta.Cut(0.54,0.56));
 		fitMC.SetFilter(filter).SetThreadCount(thr)
-			.Init(popsize_peak,make_shared<GenerateByGauss>()<<make_pair(200,300)<<init,engine);
-		while(!fitMC.AbsoluteOptimalityExitCondition(accu)){
+		.Init(popsize_peak,make_shared<GenerateByGauss>()<<make_pair(200,300)<<make_pair(m_eta,0.001)<<make_pair(0.0,0.01),engine);
+		while(!fitMC.AbsoluteOptimalityExitCondition(accu))
 			fitMC.Iterate(engine);
-			cout<<"Peak: "<<fitMC.Optimality()
-				<<"<s<"<<fitMC.Optimality(fitMC.PopulationSize()-1)<<"    \r";
-		}
+		cout<<"Peak. ChiSq = "<<fitMC.Optimality()<<endl;
+		for(double p:fitMC)cout<<p<<" ";
 		cout<<endl;
 		PlotFit1D<decltype(fitMC)>().Fit("mc_fit_"+suffix,"mc_"+suffix,fitMC,plot_step)
 			<<"set xlabel 'MM, GeV'"<<"set ylabel 'counts'";
@@ -77,15 +78,14 @@ int main(int,char**){
 		FitFunction<DifferentialMutations<>,Add<Peak,BG>,ChiSquareWithXError> 
 			fitdata(make_shared<FitPoints>()<<DATAhist.Cut(mmr));
 		fitdata.SetFilter(filter).SetThreadCount(thr);
-		auto Init=make_shared<GenerateByGauss>()<<make_pair(1,2)<<init;
-		Init<<make_pair(1000,1000)<<make_pair(-1000,1000)<<make_pair(0,10);
-		while((Init<<make_pair(0,1))->Count()< Add<Peak,BG>::ParamCount){}
+		auto Init=make_shared<GenerateByGauss>()<<make_pair(0,2)<<make_pair(m_eta,0.001)<<make_pair(fitMC[2],0.0);
+		Init<<make_pair(50000,50000)<<make_pair(-50000,50000)<<make_pair(0,50000);
+		while((Init<<make_pair(0,50000))->Count()< Add<Peak,BG>::ParamCount){}
 		fitdata.Init(popsize_data,Init,engine);
-		while(!fitdata.AbsoluteOptimalityExitCondition(accu)){
+		while(!fitdata.AbsoluteOptimalityExitCondition(accu))
 			fitdata.Iterate(engine);
-			cout<<"Data: "<<fitdata.Optimality()
-			<<"<s<"<<fitdata.Optimality(fitdata.PopulationSize()-1)<<"    \r";
-		}
+		cout<<"Data. ChiSq = "<<fitdata.Optimality()<<endl;
+		for(double p:fitdata)cout<<p<<" ";
 		cout<<endl;
 		PlotFit1D<decltype(fitdata)>()
 			.Fit("data_fit_"+suffix,"data_"+suffix,fitdata,plot_step)
