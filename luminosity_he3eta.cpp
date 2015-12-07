@@ -43,23 +43,19 @@ int main(int,char**){
 			MC_He3pi0pi0(MC,"He3pi0pi0",{"Histograms","MissingMass"},to_string(index)),
 			MC_He3pi0pi0pi0(MC,"He3pi0pi0pi0",{"Histograms","MissingMass"},to_string(index));
 		string suffix=string("Q=")+to_string(qBin.x)+"MeV";
-		PlotHist()
-			.HistWLine(string("MCHe3eta")+suffix,MC_He3eta.Cut(dmmr))
-			.HistWLine(string("MCHe3 2pi0")+suffix,MC_He3pi0pi0.Cut(dmmr))
-			.HistWLine(string("MCHe3 3pi0")+suffix,MC_He3pi0pi0pi0.Cut(dmmr))
-			<<"set xlabel 'MM, GeV'"<<"set ylabel 'Counts'";
-		PlotHist()
-			.Hist(string("Data")+suffix,DATAhist.Cut(dmmr))
-			<<"set xlabel 'MM, GeV'"<<"set ylabel 'Counts'";
+		PlotHist().HistWLine(string("MCHe3eta")+suffix,MC_He3eta.Cut(dmmr))<<"set xlabel 'MM, GeV'"<<"set ylabel 'Counts'";
+		PlotHist().HistWLine(string("MCHe3 2pi0")+suffix,MC_He3pi0pi0.Cut(dmmr))<<"set xlabel 'MM, GeV'"<<"set ylabel 'Counts'";
+		PlotHist().HistWLine(string("MCHe3 3pi0")+suffix,MC_He3pi0pi0pi0.Cut(dmmr))<<"set xlabel 'MM, GeV'"<<"set ylabel 'Counts'";
+		PlotHist().Hist(string("Data")+suffix,DATAhist.Cut(dmmr))<<"set xlabel 'MM, GeV'"<<"set ylabel 'Counts'";
 		cout<<qBin.x<<"MeV"<<endl;
-		
+
 		typedef Mul<Par<0>,Func3<Gaussian,Arg<0>,Par<1>,Par<2>>> Peak;
 		#define filter make_shared<Above>()<<0<<0<<0
 		typedef PolynomFunc<0,3,4> BG;
 		const size_t thr=8;
 		const double plot_step=0.0001;
 		const double accu=0.0000001;
-		
+
 		FitFunction<DifferentialMutations<>,Peak,ChiSquareWithXError> 
 			fitMC(make_shared<FitPoints>()<<MC_He3eta.Cut(0.54,0.56));
 		fitMC.SetFilter(filter).SetThreadCount(thr)
