@@ -97,7 +97,7 @@ int main(int,char**){
 		#undef mmr
 	}
 	PlotPoints<double,decltype(ChiSqData)>()
-		.LineOnly("Chi^2_data",ChiSqData).LineOnly("Chi^2_MC",ChiSqMCPeak);
+		.WithoutErrors("Chi^2_data",ChiSqData).WithoutErrors("Chi^2_MC",ChiSqMCPeak);
 	PlotHist().Hist("He3eta true events in data",luminosity)
 		<<"set xlabel 'Q, MeV'"<<"set ylabel 'True events, counts'"<<"set nokey";
 	PlotHist lastplot;
