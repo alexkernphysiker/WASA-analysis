@@ -13,9 +13,8 @@
 #include <gethist.h>
 #include <theory.h>
 #include "phys_constants.h"
+#include "kinematics.h"
 using namespace std;
-using namespace Genetic;
-RANDOM engine;
 #define Q_range 18.0,28.0
 int main(int,char**){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta");
@@ -34,6 +33,8 @@ int main(int,char**){
 	hist luminosity=acceptance.CloneEmptyBins();
 	LinearInterpolation<double> ChiSqMCPeak,ChiSqData;
 	for(auto&qBin:luminosity){
+		using namespace Genetic;
+		RANDOM engine;
 		#define dmmr 0.4,0.6
 		#define mmr 0.530,0.553
 		int index=int(qBin.x*binning_coefficient);
@@ -69,7 +70,8 @@ int main(int,char**){
 			<<"set xlabel 'MM, GeV'"<<"set ylabel 'counts'";
 		ChiSqMCPeak<<make_pair(qBin.x,fitMC.Optimality());
 
-		FitFunction<DifferentialMutations<>,Add<Peak,BG>,ChiSquareWithXError> 
+		typedef Genetic::Add<Peak,BG> TOTAL;//This is because of lovely ROOT headers :)
+		FitFunction<DifferentialMutations<>,TOTAL,ChiSquareWithXError> 
 			fitdata(make_shared<FitPoints>()<<DATAhist.Cut(mmr));
 		fitdata.SetFilter(filter).SetThreadCount(thr);
 		auto Init=make_shared<GenerateByGauss>()<<make_pair(0,2)<<make_pair(fitMC[1],0.001)<<make_pair(fitMC[2],0.0);
@@ -104,4 +106,5 @@ int main(int,char**){
 	lastplot.Hist("analysed",luminosity/=sigmaHe3eta);
 	lastplot.Hist("estimated",luminosity/=PresentRunsAmountRatio("He3"))
 		<<"set xlabel 'Q, MeV'"<<"set ylabel 'Integrated luminocity, 1/nb'";
+	cout<<"from "<<Q_He3eta(p_beam_low)<<" to "<<Q_He3eta(p_beam_hi)<<" MeV"<<endl;
 }
