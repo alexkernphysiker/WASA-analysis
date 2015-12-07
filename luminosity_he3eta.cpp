@@ -15,7 +15,7 @@
 #include "phys_constants.h"
 #include "kinematics.h"
 using namespace std;
-#define Q_range 18.0,28.0
+#define Q_range 18.0,30.0
 int main(int,char**){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta");
 	hist mc_norm(MC,"He3eta",{"Histograms","Reconstruction"},"Reference");
