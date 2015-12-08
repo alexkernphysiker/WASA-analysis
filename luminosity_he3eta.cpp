@@ -23,8 +23,9 @@ int main(int,char**){
 	{
 		hist mc_filtered1(MC,"He3eta",{"Histograms","Reconstruction"},"Theta_reconstruction_correct");
 		hist mc_filtered2(MC,"He3eta",{"Histograms","Reconstruction"},"Reconstructed");
-		PlotHist().Hist("All MC events",mc_norm).Hist("FPC",mc_filtered1)
-			.Hist("Reconstructed",mc_filtered2).Hist("Preselected",acceptance)
+		PlotHist().Hist("All MC events",mc_norm)
+			.Hist("FPC",mc_filtered1)
+			.Hist("Preselected",acceptance)
 			<<"set yrange [0:]"
 			<<"set xlabel 'Q, MeV'"<<"set ylabel 'Events count'";
 	}
