@@ -77,8 +77,8 @@ int main(int,char**){
 		fitdata.SetFilter(filter).SetThreadCount(thr);
 		auto Init=make_shared<GenerateByGauss>()<<make_pair(0,2)<<make_pair(fitMC[1],0.001)<<make_pair(fitMC[2],0.0);
 		Init<<make_pair(50000,50000)<<make_pair(-50000,50000)<<make_pair(0,50000);
-		while((Init<<make_pair(0,50000))->Count()< BG::ParamCount){}
-		fitdata.Init(15*BG::ParamCount,Init,engine);
+		while((Init<<make_pair(0,50000))->Count()< TOTAL::ParamCount){}
+		fitdata.Init(15*TOTAL::ParamCount,Init,engine);
 		while(!fitdata.AbsoluteOptimalityExitCondition(accu))
 			fitdata.Iterate(engine);
 		cout<<"Data. ChiSq = "<<fitdata.Optimality()<<endl;
@@ -93,7 +93,8 @@ int main(int,char**){
 		
 		double yd=fitdata[0],ym=fitMC[0];
 		cout <<"Y = "<<yd<<" ; "<<ym<<endl;
-		double dd=fitdata.GetParamParabolicError(0.001,0),dm=fitMC.GetParamParabolicError(0.001,0);
+		double dd=fitdata.GetParamParabolicError(0.001,0),
+			dm=fitMC.GetParamParabolicError(0.001,0);
 		cout <<"dY = "<<dd<<" ; "<<dm<<endl;
 		qBin.y=double(MC_events_count)*yd/ym;
 		qBin.dy=double(MC_events_count)*sqrt(pow(dd/ym,2)+pow(dm*yd/pow(ym,2),2));
