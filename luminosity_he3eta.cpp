@@ -30,7 +30,8 @@ int main(int,char**){
 			<<"set xlabel 'Q, MeV'"<<"set ylabel 'Events count'";
 	}
 	(acceptance/=mc_norm).Cut(Q_range);
-	PlotHist().Hist("Acceptance",acceptance)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Acceptance, n.d.'"<<"set nokey";
+	PlotHist().Hist("Acceptance",acceptance)
+		<<"set xlabel 'Q, MeV'"<<"set ylabel 'Acceptance, n.d.'"<<"set nokey";
 	hist luminosity=acceptance.CloneEmptyBins();
 	LinearInterpolation<double> ChiSqMCPeak,ChiSqData;
 	for(auto&qBin:luminosity){
@@ -101,9 +102,10 @@ int main(int,char**){
 		#undef mmr
 	}
 	PlotPoints<double,decltype(ChiSqData)>()
-		.WithoutErrors("Chi^2_data",ChiSqData).WithoutErrors("Chi^2_MC",ChiSqMCPeak);
+		.WithoutErrors("Chi^2_data",ChiSqData).WithoutErrors("Chi^2_MC",ChiSqMCPeak)
+		<<"set xlabel 'Q, MeV'"<<"set ylabel 'Chi^2, n.d.'";
 	PlotHist().Hist("He3eta true events in data",luminosity)
-		<<"set xlabel 'Q, MeV'"<<"set ylabel 'True events, counts'"<<"set nokey";
+		<<"set xlabel 'Q, MeV'"<<"set ylabel 'True events, counts'"<<"set key";
 	PlotHist lastplot;
 	lastplot.Hist("analysed",luminosity/=sigmaHe3eta);
 	lastplot.Hist("estimated",luminosity/=PresentRunsAmountRatio("He3"))
