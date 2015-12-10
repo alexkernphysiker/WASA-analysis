@@ -17,7 +17,6 @@ link_directories(${ROOT_LIBRARY_DIRS})
 #libraries
 add_subdirectory(lib/FitGen)
 include_directories(lib/FitGen/include/)
-include_directories(lib/FitGen/math_h/include)
 add_subdirectory(lib/Integration)
 include_directories(lib/Integration)
 add_subdirectory(lib/Reconstruction)

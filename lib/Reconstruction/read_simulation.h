@@ -2,10 +2,8 @@
 // MIT license
 #ifndef RLDdVIXV
 #define RLDdVIXV
-#include <memory>
 #include <string>
-#include <functional>
-#include <fit.h>
+#include <Genetic/fit.h>
 std::shared_ptr<Genetic::FitPoints> ReadWeightedFrom2D(
 	std::string name,
 	double fromX, double toX, unsigned int binsX,

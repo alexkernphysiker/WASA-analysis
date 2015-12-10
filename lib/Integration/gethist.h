@@ -5,7 +5,7 @@
 #include <string>
 #include <functional>
 #include <vector>
-#include <fit.h>
+#include <Genetic/fit.h>
 double PresentRunsAmountRatio(std::string&&reaction);
 enum histsource{MC,DATA};
 class hist{

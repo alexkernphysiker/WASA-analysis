@@ -4,11 +4,11 @@
 #include <string>
 #include <sstream>
 #include <memory>
-#include <functions.h>
-#include <fit.h>
-#include <paramfunc.h>
-#include <filter.h>
-#include <initialconditions.h>
+#include <math_h/functions.h>
+#include <Genetic/fit.h>
+#include <Genetic/paramfunc.h>
+#include <Genetic/filter.h>
+#include <Genetic/initialconditions.h>
 #include <str_get.h>
 #include <gethist.h>
 #include <theory.h>

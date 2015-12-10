@@ -5,9 +5,9 @@
 #include <sstream>
 #include <fstream>
 #include <memory>
-#include <paramfunc.h>
-#include <filter.h>
-#include <initialconditions.h>
+#include <Genetic/fit.h>
+#include <Genetic/filter.h>
+#include <Genetic/initialconditions.h>
 #include <str_get.h>
 #include "read_simulation.h"
 #include "reconstruct.h"

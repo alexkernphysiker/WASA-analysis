@@ -6,8 +6,8 @@
 #include <string>
 #include <functional>
 #include <fstream>
-#include "math_h/include/exception_math_h.h"
-#include "math_h/include/interpolate.h"
+#include "math_h/exception_math_h.h"
+#include "math_h/interpolate.h"
 #include "config.h"
 #include "analysis.h"
 #include "log.h"
