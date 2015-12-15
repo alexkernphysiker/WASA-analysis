@@ -37,7 +37,7 @@ int main(int,char**){
 	for(auto&qBin:luminosity){
 		using namespace Genetic;
 		RANDOM engine;
-		#define dmmr 0.4,0.6
+		#define dmmr 0.50,0.57
 		#define mmr 0.530,0.553
 		int index=int(qBin.x*binning_coefficient);
 		hist
