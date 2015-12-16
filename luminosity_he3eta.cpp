@@ -110,5 +110,6 @@ int main(int,char**){
 	lastplot.Hist("analysed",luminosity/=sigmaHe3eta);
 	lastplot.Hist("estimated",luminosity/=PresentRunsAmountRatio("He3"))
 		<<"set xlabel 'Q, MeV'"<<"set ylabel 'Integrated luminocity, 1/nb'";
+	PlotHist().Hist("estimated",luminosity)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Integrated luminocity, 1/nb'";
 	cout<<"from "<<Q_He3eta(p_beam_low)<<" to "<<Q_He3eta(p_beam_hi)<<" GeV"<<endl;
 }
