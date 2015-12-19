@@ -8,6 +8,7 @@
 #include <fstream>
 #include "math_h/exception_math_h.h"
 #include "math_h/interpolate.h"
+#include "Genetic/paramfunc.h"
 #include "config.h"
 #include "analysis.h"
 #include "log.h"
@@ -77,6 +78,68 @@ public:
 			out.push_back(make_pair(Experiment(args...),Theory(args...)));
 			return INFINITY;
 		}
+	}
+};
+
+template<class FitFunc,typename... Args>
+class FitBasedReconstruction:public virtual Logger{
+public:
+	typedef std::function<double(Args...)> FUNC;
+private:
+	enum Mode{learn,use};
+	Mode mode;
+	std::string m_name;
+	FUNC Theory;
+	vector<FUNC> Experiment;
+	FitFunc func;
+	Genetic::ParamSet P;
+	vector<Genetic::ParamSet> data;
+public:
+	FitBasedReconstruction(std::string name,vector<FUNC> measured,FUNC theory){
+		using namespace Genetic;
+		m_name=name;Experiment=measured;Theory=theory;
+		std::ifstream file;
+		file.open((DataFiles+name+".fit.txt").c_str());
+		mode=learn;
+		if(file){
+			if(file>>P)
+				learn=use;
+			file.close();
+		}
+	}
+	FitBasedReconstruction(
+		const FitBasedReconstruction&source
+	){
+		m_name=source.m_name;
+		Experiment=source.Experiment;
+		Theory=source.Theory;
+		P=source.P;
+		data=source.data;
+	}
+	virtual ~FitBasedReconstruction(){
+		using namespace Genetic;
+		if(use==mode){
+			std::ofstream file;
+			file.open((DataFiles+m_name+".simulation.txt").c_str());
+			if(file){
+				for(ParamSet*p:data)file<<p;
+				file.close();
+			}
+		}
+	}
+	double Reconstruct(Args... args){
+		using namespace Genetic;
+		ParamSet X;
+		for(FUNC f:Experiment)X<<f(args...);
+		switch(mode){
+			case learn:
+				X<<Theory(args...);
+				data.push_back(X);
+				break;
+			case use:
+				return func(X,P);
+				break;
+		};
 	}
 };
 #endif 
