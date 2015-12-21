@@ -118,7 +118,7 @@ public:
 	}
 	virtual ~FitBasedReconstruction(){
 		using namespace Genetic;
-		if(use==mode){
+		if(learn==mode){
 			std::ofstream file;
 			file.open((DataFiles+m_name+".simulation.txt").c_str());
 			if(file){
