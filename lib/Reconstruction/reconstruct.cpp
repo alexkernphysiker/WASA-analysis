@@ -36,7 +36,7 @@ void ProcessReconstruction(string&&name,double from,double to, size_t bins,funct
 	Plot<double>().File(name+".simulation.txt",name+" Points","using 1:2");
 	Plot<double>()
 	.File(name+".simulation.txt.cut.txt",name+" Points","using 1:2")
-	.Line(name+".calibration",[&fit](double x){return fit(ParamSet(x));},from,to,0.001);
+	.Line(name+".calibration",[&fit](double x){return fit({x});},from,to,0.001);
 	ofstream file;
 	file.open((name+".params.txt").c_str());
 	for(double p:fit)file<<p<<" ";
