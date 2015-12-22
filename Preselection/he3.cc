@@ -3,6 +3,7 @@
 #include <TCutG.h>
 #include "../phys_constants.h"
 #include "../kinematics.h"
+#include "../reconstruction_types.h"
 #include "he3.h"
 #include "detectors.h"
 using namespace std;
