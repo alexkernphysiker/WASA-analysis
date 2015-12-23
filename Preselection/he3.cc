@@ -1,7 +1,6 @@
 // this file is distributed under 
 // MIT license
 #include <TCutG.h>
-#include "../phys_constants.h"
 #include "../kinematics.h"
 #include "../reconstruction_types.h"
 #include "he3.h"
@@ -144,11 +143,4 @@ He3_Modification_for_eta::He3_Modification_for_eta():He3_in_forward(0.0,30.0,12)
 		double E=EDep(track,kFRH1);
 		return (E>0.08)&&(E<0.22);
 	});
-}
-
-MC_He3eta::MC_He3eta(){
-	AddParticleToFirstVertex(kEta,m_eta);
-}
-MC_He3pi0::MC_He3pi0(){
-	AddParticleToFirstVertex(kPi0,m_pi0);
 }

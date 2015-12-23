@@ -8,6 +8,7 @@
 #include "trackprocessing.h"
 #include "data.h"
 #include "montecarlo.h"
+#include "../phys_constants.h"
 class He3_in_forward:public virtual Analysis,public ForwardDetectors{
 public:
 	He3_in_forward(double Q_lo,double Q_hi,unsigned int bins);//Q is in MeV
@@ -31,14 +32,17 @@ class He3_Modification_for_eta:public He3_in_forward{
 public:
 	He3_Modification_for_eta();
 };
-typedef He3_Modification_for_eta He3Catcher_used_in_analysis;
-typedef CustomAnalysis<RealData,He3Catcher_used_in_analysis> Data_He3;
-class MC_He3eta:public CustomAnalysis<MonteCarlo,He3Catcher_used_in_analysis>{
-public:
-	MC_He3eta();
+template<class He3>class He3eta:public CustomAnalysis<MonteCarlo,He3>{
+	public:He3eta(){He3_in_forward::AddParticleToFirstVertex(kEta,m_eta);}
 };
-class MC_He3pi0:public CustomAnalysis<MonteCarlo,He3Catcher_used_in_analysis>{
-public:
-	MC_He3pi0();
+template<class He3>class He3pi0:public CustomAnalysis<MonteCarlo,He3>{
+	public:He3pi0(){He3_in_forward::AddParticleToFirstVertex(kPi0,m_pi0);}
 };
+
+
+typedef CustomAnalysis<MonteCarlo,He3eta<He3_Modification_for_reconstruction>> RE_He3eta;
+typedef CustomAnalysis<MonteCarlo,He3pi0<He3_Modification_for_reconstruction>> RE_He3pi0;
+typedef CustomAnalysis<MonteCarlo,He3eta<He3_Modification_for_eta>> MC_He3eta;
+typedef CustomAnalysis<MonteCarlo,He3pi0<He3_Modification_for_eta>> MC_He3pi0;
+typedef CustomAnalysis<RealData,He3_Modification_for_eta> Data_He3;
 #endif 

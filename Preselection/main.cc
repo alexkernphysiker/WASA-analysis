@@ -16,13 +16,12 @@ int main(int argc, char** argv) {
 		args[i]=argv[i+2];
 	gSorterConfig->ReadCmdLine(new_c,args);
 	if("rec"==mode){
-		//ToDo: provide reconstruction algorithms
+		if("MC_He3eta"==type)SetAnalysis(new MC_He3eta());
+		if(("MC_He3pi0"==type)||("MC_He3pi0pi0"==type)||("MC_He3pi0pi0pi0"==type))SetAnalysis(new MC_He3pi0());
 	}else if("ana"==mode){
-		IAnalysis *alg=nullptr;
-		if("MC_He3eta"==type)alg=new MC_He3eta();
-		if(("MC_He3pi0"==type)||("MC_He3pi0pi0"==type)||("MC_He3pi0pi0pi0"==type))alg=new MC_He3pi0();
-		if("Data_He3"==type)alg=new Data_He3();
-		SetAnalysis(alg);
+		if("MC_He3eta"==type)SetAnalysis(new MC_He3eta());
+		if(("MC_He3pi0"==type)||("MC_He3pi0pi0"==type)||("MC_He3pi0pi0pi0"==type))SetAnalysis(new MC_He3pi0());
+		if("Data_He3"==type)SetAnalysis(new Data_He3());
 	}else{
 		throw math_h_error<IAnalysis>("Unknown analysis mode");
 	}
