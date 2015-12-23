@@ -7,8 +7,6 @@
 #include "log.h"
 #include "analysis.h"
 using namespace std;
-string type="";
-void SetAnalysisType(string t){type=t;}
 Logger LOG;
 AbstractAnalysis::AbstractAnalysis(){
 	LOG.AddLogSubprefix("ANALYSIS APPLICATION");

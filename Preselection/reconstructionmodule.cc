@@ -2,7 +2,9 @@
 // MIT license
 #include "reconstructionmodule.hh"
 #include "he3.h"
-extern string type;
+#include "config.h"
+string type="";
+void SetReconstructionType(string t){type=t;}
 void*GetReconstruction(){
 	IAnalysis *alg=nullptr;
 	if(type=="MC_He3eta")alg=new MC_He3eta();

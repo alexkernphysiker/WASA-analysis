@@ -2,7 +2,9 @@
 // MIT license
 #include "analysismodule.hh"
 #include "he3.h"
-extern string type;
+#include "config.h"
+string type="";
+void SetAnalysisType(string t){type=t;}
 void*GetAnalysis(){
 	IAnalysis *alg=nullptr;
 	if(type=="MC_He3eta")alg=new MC_He3eta();
