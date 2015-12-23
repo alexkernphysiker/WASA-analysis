@@ -16,5 +16,7 @@ public:
 	virtual void UserCommand(CCommand * command);
 private:
 	void * m_data;
+protected:
+	ClassDef(AbstractAnalysis,0);
 };
 #endif

@@ -9,7 +9,7 @@ public:
 	explicit AnalysisModule(const char* name);
 	virtual ~AnalysisModule();
 protected:
-	ClassDef(AnalysisModule,0);
+	ClassDef(AnalysisModule,1);
 };
 
 #endif

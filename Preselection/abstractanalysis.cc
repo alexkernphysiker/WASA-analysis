@@ -8,6 +8,7 @@
 #include "analysis.h"
 using namespace std;
 Logger LOG;
+ClassImp(AbstractAnalysis);
 AbstractAnalysis::AbstractAnalysis(){
 	LOG.AddLogSubprefix("ANALYSIS APPLICATION");
 	LOG.Log(LogError)<<"AnalysisWrap empty constructor. Should not be called but it is";

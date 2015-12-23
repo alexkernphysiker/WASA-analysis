@@ -9,6 +9,6 @@ public:
 	explicit ReconstructionModule(const char* name);
 	virtual ~ReconstructionModule();
 protected:
-	ClassDef(ReconstructionModule,1);
+	ClassDef(ReconstructionModule,2);
 };
 #endif
