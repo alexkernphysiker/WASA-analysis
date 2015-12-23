@@ -2,7 +2,7 @@
 // MIT license
 #ifndef QYSGRPEP
 # define QYSGRPEP
-#include "analysiswrap.hh"
+#include "abstractanalysis.hh"
 class ReconstructionModule:public AbstractAnalysis{
 public:
 	ReconstructionModule();

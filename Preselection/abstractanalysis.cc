@@ -2,7 +2,7 @@
 // MIT license
 #include <string>
 #include <exception>
-#include "analysiswrap.hh"
+#include "abstractanalysis.hh"
 #include "config.h"
 #include "log.h"
 #include "analysis.h"

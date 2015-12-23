@@ -2,7 +2,7 @@
 // MIT license
 #ifndef MZQRVXYK
 # define MZQRVXYK
-#include "analysiswrap.hh"
+#include "abstractanalysis.hh"
 class AnalysisModule:public AbstractAnalysis{
 public:
 	AnalysisModule();
