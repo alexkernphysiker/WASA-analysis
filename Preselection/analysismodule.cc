@@ -1,18 +1,34 @@
 // this file is distributed under 
 // MIT license
 #include "analysismodule.hh"
-#include "he3.h"
 #include "config.h"
-string type="";
-void SetAnalysisType(string t){type=t;}
-void*GetAnalysis(){
-	IAnalysis *alg=nullptr;
-	if(type=="MC_He3eta")alg=new MC_He3eta();
-	if((type=="MC_He3pi0")||(type=="MC_He3pi0pi0")||(type=="MC_He3pi0pi0pi0"))alg=new MC_He3pi0();
-	if(type=="Data_He3")alg=new Data_He3();
-	return (void*)alg;
-}
+using namespace std;
+Logger LOG;
+IAnalysis*gAnalysis=nullptr;
+void SetAnalysis(IAnalysis*analysis){gAnalysis=analysis;}
 ClassImp(AnalysisModule);
-AnalysisModule::AnalysisModule(){}
-AnalysisModule::AnalysisModule(const char* name): AbstractAnalysis(name,GetAnalysis()){}
-AnalysisModule::~AnalysisModule(){}
+AnalysisModule::AnalysisModule(){
+	LOG.AddLogSubprefix("ANALYSIS APPLICATION");
+	LOG.Log(LogError)<<"AnalysisWrap empty constructor. Should not be called but it is";
+}
+AnalysisModule::AnalysisModule(const char* name):CAnalysisModule(name){
+	Logger::SubLog log=LOG.Log(NoLog);
+	if(gAnalysis)
+		m_data=(void*)gAnalysis;
+	else{
+		LOG.Log(LogError)<<"Unknown analysis type";
+		throw exception();
+	}
+}
+AnalysisModule::~AnalysisModule(){
+	if(m_data)
+		delete (IAnalysis*)m_data;
+}
+void AnalysisModule::ProcessEvent(){
+	if (fProcessed) return;
+	fProcessed = kTRUE;
+	((IAnalysis*)m_data)->ProcessEvent();
+}
+void AnalysisModule::Clear(Option_t *option){fProcessed=kFALSE;}
+void AnalysisModule::Print(Option_t *option){}
+void AnalysisModule::UserCommand(CCommand * command){}

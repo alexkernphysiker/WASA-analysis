@@ -3,6 +3,7 @@
 #include <Wasa.hh>
 #include <SorterConfig.hh>
 #include "config.h"
+#include "he3.h"
 using namespace std;
 int main(int argc, char** argv) {
 	InitLog(LogWarning,argv[1]);
@@ -10,19 +11,23 @@ int main(int argc, char** argv) {
 	char *args[new_c+1];
 	args[0]=argv[0];
 	string mode=argv[1];
+	string type=argv[2];
 	for(int i=2;i<=new_c;i++)
 		args[i]=argv[i+2];
 	gSorterConfig->ReadCmdLine(new_c,args);
 	if("rec"==mode){
-		SetReconstructionType(argv[2]);
-		Wasa::Initialize("ReconstructionModule","","RootSorter.log");
-		gWasa->AddAnalysis("ReconstructionModule","Raw");
+		//ToDo: provide reconstruction algorithms
+	}else if("ana"==mode){
+		IAnalysis *alg=nullptr;
+		if("MC_He3eta"==type)alg=new MC_He3eta();
+		if(("MC_He3pi0"==type)||("MC_He3pi0pi0"==type)||("MC_He3pi0pi0pi0"==type))alg=new MC_He3pi0();
+		if("Data_He3"==type)alg=new Data_He3();
+		SetAnalysis(alg);
+	}else{
+		throw math_h_error<IAnalysis>("Unknown analysis mode");
 	}
-	if("ana"==mode){
-		SetAnalysisType(argv[2]);
-		Wasa::Initialize("AnalysisModule","","RootSorter.log");
-		gWasa->AddAnalysis("AnalysisModule","Raw");
-	}
+	Wasa::Initialize("AnalysisModule","","RootSorter.log");
+	gWasa->AddAnalysis("AnalysisModule","Raw");
 	gWasa->Run();
 	delete gWasa;
 }
