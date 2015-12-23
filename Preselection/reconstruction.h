@@ -61,7 +61,7 @@ public:
 			file.open((DataFiles+m_name+".simulation.txt").c_str(),ios_base::app);
 			if(file){
 				for(auto&p:out)
-					file<<p.first<<" "<<p.second<<"\n";
+					file<<p.first<<" "<<p.second<<std::endl;
 				file.close();
 			}
 		}
@@ -120,9 +120,9 @@ public:
 		using namespace Genetic;
 		if(learn==mode){
 			std::ofstream file;
-			file.open((DataFiles+m_name+".simulation.txt").c_str());
+			file.open((DataFiles+m_name+".simulation.txt").c_str(),ios_base::app);
 			if(file){
-				for(ParamSet*p:data)file<<p;
+				for(ParamSet*p:data)file<<p<<std::endl;
 				file.close();
 			}
 		}

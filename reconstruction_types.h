@@ -5,5 +5,6 @@
 #include <Genetic/paramfunc.h>
 namespace Reconstruction{
 	using namespace Genetic;
+	//ToDo: declare fit function used for energy reconstruction
 };
 #endif

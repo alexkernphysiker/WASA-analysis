@@ -12,34 +12,55 @@ void SetAnalysisType(string t){
 	type=t;
 }
 Logger LOG;
-ClassImp(AnalysisWrap);
-AnalysisWrap::AnalysisWrap(){
+AbstractAnalysis::AbstractAnalysis(){
 	LOG.AddLogSubprefix("ANALYSIS APPLICATION");
 	LOG.Log(LogError)<<"AnalysisWrap empty constructor. Should not be called but it is";
 }
-AnalysisWrap::AnalysisWrap(const char* name): CAnalysisModule(name){
+AbstractAnalysis::AbstractAnalysis(const char* name,const void*data): CAnalysisModule(name){
 	Logger::SubLog log=LOG.Log(NoLog);
-	IAnalysis *alg=nullptr;
-	log<<"Analysis type:"<<type;
-	if(type=="MC_He3eta")alg=new MC_He3eta();
-	if((type=="MC_He3pi0")||(type=="MC_He3pi0pi0")||(type=="MC_He3pi0pi0pi0"))alg=new MC_He3pi0();
-	if(type=="Data_He3")alg=new Data_He3();
-	if(alg)
-		m_data=(void*)alg;
+	if(data)
+		m_data=(void*)data;
 	else{
 		LOG.Log(LogError)<<"Unknown analysis type";
 		throw exception();
 	}
 }
-AnalysisWrap::~AnalysisWrap(){
+AbstractAnalysis::~AbstractAnalysis(){
 	if(m_data)
 		delete (IAnalysis*)m_data;
 }
-void AnalysisWrap::ProcessEvent(){
+void AbstractAnalysis::ProcessEvent(){
 	if (fProcessed) return;
 	fProcessed = kTRUE;
 	((IAnalysis*)m_data)->ProcessEvent();
 }
-void AnalysisWrap::Clear(Option_t *option){fProcessed=kFALSE;}
-void AnalysisWrap::Print(Option_t *option){}
-void AnalysisWrap::UserCommand(CCommand * command){}
+void AbstractAnalysis::Clear(Option_t *option){fProcessed=kFALSE;}
+void AbstractAnalysis::Print(Option_t *option){}
+void AbstractAnalysis::UserCommand(CCommand * command){}
+
+void*GetAnalysis(){
+	IAnalysis *alg=nullptr;
+	if(type=="MC_He3eta")alg=new MC_He3eta();
+	if((type=="MC_He3pi0")||(type=="MC_He3pi0pi0")||(type=="MC_He3pi0pi0pi0"))alg=new MC_He3pi0();
+	if(type=="Data_He3")alg=new Data_He3();
+	return (void*)alg;
+}
+void*GetReconstruction(){
+	IAnalysis *alg=nullptr;
+	if(type=="MC_He3eta")alg=new MC_He3eta();
+	if((type=="MC_He3pi0")||(type=="MC_He3pi0pi0")||(type=="MC_He3pi0pi0pi0"))alg=new MC_He3pi0();
+	if(type=="Data_He3")alg=new Data_He3();
+	return (void*)alg;
+}
+
+ClassImp(AnalysisModule);
+AnalysisModule::AnalysisModule(){}
+AnalysisModule::AnalysisModule(const char* name): AbstractAnalysis(name,GetAnalysis()){}
+AnalysisModule::~AnalysisModule(){}
+ClassImp(ReconstructionModule);
+ReconstructionModule::ReconstructionModule(const char* name):AbstractAnalysis(name,GetReconstruction()){}
+ReconstructionModule::ReconstructionModule(){}
+ReconstructionModule::~ReconstructionModule(){}
+
+
+
