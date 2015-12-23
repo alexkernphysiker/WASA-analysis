@@ -17,20 +17,4 @@ public:
 private:
 	void * m_data;
 };
-class AnalysisModule:public AbstractAnalysis{
-public:
-	AnalysisModule();
-	explicit AnalysisModule(const char* name);
-	virtual ~AnalysisModule();
-protected:
-	ClassDef(AnalysisModule,0);
-};
-class ReconstructionModule:public AbstractAnalysis{
-public:
-	ReconstructionModule();
-	explicit ReconstructionModule(const char* name);
-	virtual ~ReconstructionModule();
-protected:
-	ClassDef(ReconstructionModule,1);
-};
 #endif

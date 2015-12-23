@@ -2,7 +2,8 @@
 // MIT license
 #include <string>
 #include <exception>
-#include "analysiswrap.hh"
+#include "analysismodule.hh"
+#include "reconstructionmodule.hh"
 #include "config.h"
 #include "log.h"
 #include "he3.h"
