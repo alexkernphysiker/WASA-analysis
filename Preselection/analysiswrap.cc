@@ -2,22 +2,19 @@
 // MIT license
 #include <string>
 #include <exception>
-#include "analysismodule.hh"
-#include "reconstructionmodule.hh"
+#include "analysiswrap.hh"
 #include "config.h"
 #include "log.h"
-#include "he3.h"
+#include "analysis.h"
 using namespace std;
 string type="";
-void SetAnalysisType(string t){
-	type=t;
-}
+void SetAnalysisType(string t){type=t;}
 Logger LOG;
 AbstractAnalysis::AbstractAnalysis(){
 	LOG.AddLogSubprefix("ANALYSIS APPLICATION");
 	LOG.Log(LogError)<<"AnalysisWrap empty constructor. Should not be called but it is";
 }
-AbstractAnalysis::AbstractAnalysis(const char* name,const void*data): CAnalysisModule(name){
+AbstractAnalysis::AbstractAnalysis(const char* name,const void*data):CAnalysisModule(name){
 	Logger::SubLog log=LOG.Log(NoLog);
 	if(data)
 		m_data=(void*)data;
