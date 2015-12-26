@@ -1,11 +1,12 @@
 // this file is distributed under 
 // MIT license
+#include <functional>
 #include "analysismodule.hh"
 #include "config.h"
 using namespace std;
 Logger LOG;
-IAnalysis*gAnalysis=nullptr;
-void SetAnalysis(IAnalysis*analysis){gAnalysis=analysis;}
+std::function<IAnalysis*()> AnalysisFunc=[](){return nullptr;};
+void SetAnalysis(std::function<IAnalysis*()>analysis){AnalysisFunc=analysis;}
 ClassImp(AnalysisModule);
 AnalysisModule::AnalysisModule(){
 	LOG.AddLogSubprefix("ANALYSIS APPLICATION");
@@ -13,9 +14,8 @@ AnalysisModule::AnalysisModule(){
 }
 AnalysisModule::AnalysisModule(const char* name):CAnalysisModule(name){
 	Logger::SubLog log=LOG.Log(NoLog);
-	if(gAnalysis)
-		m_data=(void*)gAnalysis;
-	else{
+	m_data=(void*)AnalysisFunc();
+	if(nullptr==m_data){
 		LOG.Log(LogError)<<"Unknown analysis type";
 		throw exception();
 	}
