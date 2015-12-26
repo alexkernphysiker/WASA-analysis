@@ -10,12 +10,10 @@ int main(int argc, char** argv) {
 	int new_c=argc-2;
 	char *args[new_c+1];
 	args[0]=argv[0];
-	string mode=argv[1];
-	string type=argv[2];
+	SetAnalysisType(argv[1],argv[2]);
 	for(int i=2;i<=new_c;i++)
 		args[i]=argv[i+2];
 	gSorterConfig->ReadCmdLine(new_c,args);
-	SetAnalysisType(mode,type);
 	Wasa::Initialize("AnalysisModule","","RootSorter.log");
 	gWasa->AddAnalysis("AnalysisModule","Raw");
 	gWasa->Run();
