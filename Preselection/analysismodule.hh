@@ -4,6 +4,11 @@
 # define MZQRVXYK
 #include <Wasa.hh>
 #include <CAnalysisModule.hh>
+class IAnalysis{
+public:
+	virtual ~IAnalysis();
+	virtual void ProcessEvent()=0;
+};
 class AnalysisModule:public CAnalysisModule{
 public:
 	AnalysisModule();
@@ -14,7 +19,7 @@ public:
 	virtual void Print(Option_t *option = "");
 	virtual void UserCommand(CCommand * command);
 private:
-	void * m_data;
+	IAnalysis*m_data;
 protected:
 	ClassDef(AnalysisModule,0);
 };
