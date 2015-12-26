@@ -5,7 +5,7 @@
 #include "config.h"
 using namespace std;
 Logger LOG;
-std::function<IAnalysis*()> AnalysisFunc=[](){return nullptr;};
+std::function<IAnalysis*()> AnalysisFunc=[](){return (IAnalysis*)nullptr;};
 void SetAnalysis(std::function<IAnalysis*()>analysis){AnalysisFunc=analysis;}
 ClassImp(AnalysisModule);
 AnalysisModule::AnalysisModule(){
