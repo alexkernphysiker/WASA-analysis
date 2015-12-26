@@ -43,11 +43,11 @@ He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analys
 			return cut->IsInside(EDep(track,kFRH1),EDep(track,kFTH1));
 		}).AddParameter("E",[this](WTrack&track){
 			ForwardDetectorTrackMarker(2,track);
-			//ToDo: replace reconstruction
 			//Achtung - static
-			static InterpolationBasedReconstruction<WTrack&> energy("He3.E.FRH1"
-				,[this](WTrack&track){return EDep(track,kFRH1);}
-				,[this](WTrack&){return FromFirstVertex(kHe3).E;}
+			static FitBasedReconstruction<Reconstruction::He3EnergyFRH1,WTrack&> energy(
+				"He3.E.FRH1",
+				{[this](WTrack&track){return EDep(track,kFRH1);},[this](WTrack&track){return track.Theta();}},
+				[this](WTrack&){return FromFirstVertex(kHe3).E;}
 			);
 			return energy.Reconstruct(track);
 		})
@@ -62,11 +62,14 @@ He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analys
 				&&(Ed[1]<0.22);
 		}).AddParameter("E",[this](WTrack&track){
 			ForwardDetectorTrackMarker(3,track);
-			//ToDo: replace reconstruction
 			//Achtung - static
-			static InterpolationBasedReconstruction<WTrack&> energy("He3.E.FRH2"
-				,[this](WTrack&track){return EDep(track,kFRH1)+EDep(track,kFRH2);}
-				,[this](WTrack&){return FromFirstVertex(kHe3).E;}
+			static FitBasedReconstruction<Reconstruction::He3EnergyFRH2,WTrack&> energy(
+				"He3.E.FRH2",
+				{
+					[this](WTrack&track){return EDep(track,kFRH1)+EDep(track,kFRH2);},
+					[this](WTrack&track){return track.Theta();}
+				},
+				[this](WTrack&){return FromFirstVertex(kHe3).E;}
 			);
 			return energy.Reconstruct(track);
 		})

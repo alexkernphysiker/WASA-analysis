@@ -5,6 +5,14 @@
 #include <Genetic/paramfunc.h>
 namespace Reconstruction{
 	using namespace Genetic;
-	//ToDo: declare fit function used for energy reconstruction
+	//Lovely ROOT headers :)
+	typedef Genetic::Add<
+		Mul<Arg<0>,Genetic::Add<Mul<Arg<1>,Par<0>>,Par<1>>>,
+		Genetic::Add<Mul<Arg<1>,Par<2>>,Par<3>>
+	> He3EnergyFRH1;
+	typedef Genetic::Add<
+		Mul<Arg<0>,Genetic::Add<Mul<Arg<1>,Par<0>>,Par<1>>>,
+		Genetic::Add<Mul<Arg<1>,Par<2>>,Par<3>>
+	> He3EnergyFRH2;
 };
 #endif

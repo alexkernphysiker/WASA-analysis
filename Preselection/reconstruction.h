@@ -90,20 +90,20 @@ private:
 	Mode mode;
 	std::string m_name;
 	FUNC Theory;
-	vector<FUNC> Experiment;
+	std::vector<FUNC> Experiment;
 	FitFunc func;
 	Genetic::ParamSet P;
 	vector<Genetic::ParamSet> data;
 public:
-	FitBasedReconstruction(std::string name,vector<FUNC> measured,FUNC theory){
+	FitBasedReconstruction(std::string name,std::vector<FUNC> measured,FUNC theory){
 		using namespace Genetic;
 		m_name=name;Experiment=measured;Theory=theory;
 		std::ifstream file;
 		file.open((DataFiles+name+".fit.txt").c_str());
 		mode=learn;
 		if(file){
-			if(file>>P)
-				learn=use;
+			file>>P;
+			mode=use;
 			file.close();
 		}
 	}
@@ -122,7 +122,7 @@ public:
 			std::ofstream file;
 			file.open((DataFiles+m_name+".simulation.txt").c_str(),ios_base::app);
 			if(file){
-				for(ParamSet*p:data)file<<p<<std::endl;
+				for(ParamSet&p:data)file<<p<<std::endl;
 				file.close();
 			}
 		}
@@ -140,6 +140,7 @@ public:
 				return func(X,P);
 				break;
 		};
+		return INFINITY;
 	}
 };
 #endif 
