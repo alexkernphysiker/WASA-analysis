@@ -20,6 +20,7 @@ void ProcessFit(
 	ifstream file;
 	file.open(SimulationDataPath()+reconstructionname+".simulation.txt");
 	if(file){
+		cout<<"reading...";
 		string line;
 		while(getline(file,line)){
 			istringstream str(line);
@@ -30,9 +31,12 @@ void ProcessFit(
 			points<<Point(X,y,1);
 		}
 		file.close();
+		cout<<"done."<<endl;
 	}
+	cout<<"Init"<<endl;
 	FitFunction<DifferentialMutations<>,FITFUNC,SumWeightedSquareDiff> fit(points);
 	fit.SetFilter(filter).Init(20*FITFUNC::ParamCount,init,R);
+	cout<<"Fitting"<<endl;
 	while(!fit.AbsoluteOptimalityExitCondition(0.000001)){
 		fit.Iterate(R);
 		cout<<fit.Optimality()<<"<S<"<<fit.Optimality(fit.PopulationSize()-1)<<"     \r";
