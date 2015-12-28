@@ -6,7 +6,12 @@
 #include <string>
 #include <sstream>
 #include <Genetic/fit.h>
-#include "read_simulation.h"
+std::string SimulationDataPath();
+std::shared_ptr<Genetic::FitPoints> WeightPoints(
+	std::shared_ptr<Genetic::FitPoints>src,
+	Genetic::ParamSet&&pos={},Genetic::ParamSet&&delta={},
+	size_t index=0
+);
 template<class FITFUNC>
 void ProcessFit(
 	std::string reconstructionname,
@@ -33,8 +38,9 @@ void ProcessFit(
 		file.close();
 		cout<<"done."<<endl;
 	}
-	cout<<"Init"<<endl;
-	FitFunction<DifferentialMutations<>,FITFUNC,SumWeightedSquareDiff> fit(points);
+	cout<<"Init1"<<endl;
+	FitFunction<DifferentialMutations<>,FITFUNC,SumWeightedSquareDiff> fit(WeightPoints(points));
+	cout<<"Init2"<<endl;
 	fit.SetFilter(filter).Init(20*FITFUNC::ParamCount,init,R);
 	cout<<"Fitting"<<endl;
 	while(!fit.AbsoluteOptimalityExitCondition(0.000001)){

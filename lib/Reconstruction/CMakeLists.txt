@@ -1,1 +1,1 @@
-add_library(reconstruction SHARED read_simulation.cpp)
+add_library(reconstruction SHARED reconstruction_fit.cpp)
