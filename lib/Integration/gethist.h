@@ -60,10 +60,7 @@ public:
 	PlotHist& HistWLine(std::string&&name,const hist&data);
 };
 inline std::shared_ptr<Genetic::FitPoints> operator<<(std::shared_ptr<Genetic::FitPoints>dest,const hist::point&source){
-	Genetic::FitPoints::Point p;
-	p.X<<source.x;p.WX<<source.dx;
-	p.y=source.y;p.wy=source.dy;
-	return dest<<p;
+	return dest<<Genetic::Point({source.x},{source.dx},source.y,source.dy);
 }
 inline std::shared_ptr<Genetic::FitPoints> operator<<(std::shared_ptr<Genetic::FitPoints>dest,const hist&source){
 	for(auto&P:source)
