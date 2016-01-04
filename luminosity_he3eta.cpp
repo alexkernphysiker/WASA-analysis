@@ -15,6 +15,7 @@
 #include "phys_constants.h"
 #include "kinematics.h"
 using namespace std;
+using namespace ROOT_data;
 #define Q_range 18.0,30.0
 int main(int,char**){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta");
