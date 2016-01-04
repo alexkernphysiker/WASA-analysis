@@ -11,8 +11,7 @@ using namespace Genetic;
 using namespace Reconstruction;
 RANDOM engine;
 int main(int,char**){
-	SimulationDataProcess::ProcessFit<He3EnergyFRH1>(
-		"He3.E.FRH1",
+	SimulationDataProcess::ProcessFit<He3EnergyFRH1>("He3.E.FRH1",
 		make_shared<GenerateByGauss>()<<make_pair(0,100)<<make_pair(0,100)<<make_pair(0,100)<<make_pair(0,100),
 		make_shared<Filter>([](const ParamSet&){return true;}),
 		engine
