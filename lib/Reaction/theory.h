@@ -2,5 +2,7 @@
 // MIT license
 #ifndef xylgjnjy
 #define xylgjnjy
-double sigmaHe3eta(double p_beam);//nb
+namespace Reactions{
+	double sigmaHe3eta(double p_beam);//nb
+};
 #endif 

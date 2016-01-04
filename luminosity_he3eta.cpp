@@ -108,7 +108,7 @@ int main(int,char**){
 	PlotHist().Hist("He3eta true events in data",luminosity)
 		<<"set xlabel 'Q, MeV'"<<"set ylabel 'True events, counts'"<<"set key";
 	PlotHist lastplot;
-	lastplot.Hist("analysed",luminosity/=sigmaHe3eta);
+	lastplot.Hist("analysed",luminosity/=Reactions::sigmaHe3eta);
 	lastplot.Hist("estimated",luminosity/=PresentRunsAmountRatio("He3"))
 		<<"set xlabel 'Q, MeV'"<<"set ylabel 'Integrated luminocity, 1/nb'";
 	PlotHist().Hist("estimated",luminosity)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Integrated luminocity, 1/nb'";
