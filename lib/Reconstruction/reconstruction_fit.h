@@ -41,7 +41,7 @@ void ProcessFit(
 	cout<<"Init1"<<endl;
 	FitFunction<DifferentialMutations<>,FITFUNC,SumWeightedSquareDiff> fit(WeightPoints(points));
 	cout<<"Init2"<<endl;
-	fit.SetFilter(filter).Init(20*FITFUNC::ParamCount,init,R);
+	fit.SetFilter(filter).Init(30*FITFUNC::ParamCount,init,R);
 	cout<<"Fitting"<<endl;
 	while(!fit.AbsoluteOptimalityExitCondition(0.000001)){
 		fit.Iterate(R);

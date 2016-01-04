@@ -1,2 +1,2 @@
-add_library(integration SHARED gethist.cpp str_get.cpp)
+add_library(integration SHARED gethist.cpp str_get.cpp plotstream.cpp)
 target_link_libraries(integration FitGen)
