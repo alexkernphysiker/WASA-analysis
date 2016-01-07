@@ -6,6 +6,7 @@ set(CMAKE_CXX_FLAGS "-std=gnu++11")
 if(NOT $ENV{ROOTSYS} STREQUAL "")
 	include_directories($ENV{ROOTSYS}/include/)
 	link_directories($ENV{ROOTSYS}/lib/)
+	set(ROOT_LIBRARIES Core Gui Gpad Graf Hist RIO Physics Tree)
 	#libraries
 	add_subdirectory(lib/FitGen)
 	include_directories(lib/FitGen/include/)
