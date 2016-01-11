@@ -52,9 +52,9 @@ namespace PlotStream{
 		Binner(string&& name,const binparam& binning);
 		Binner(string&& name,binparam&&binning);
 		virtual ~Binner();
-		typedef function<shared_ptr<AbstractPlotStream>(size_t i)>Creator1;
-		typedef function<shared_ptr<AbstractPlotStream>(size_t i,string&&)>Creator2;
-		typedef function<shared_ptr<AbstractPlotStream>(size_t i,string&&,shared_ptr<PlotEngine>)>Creator3;
+		typedef function<shared_ptr<AbstractPlotStream>(size_t)>Creator1;
+		typedef function<shared_ptr<AbstractPlotStream>(size_t,string&&)>Creator2;
+		typedef function<shared_ptr<AbstractPlotStream>(size_t,string&&,shared_ptr<PlotEngine>)>Creator3;
 		void Fill(Creator1 func);
 		void Fill(Creator2 func);
 		void Fill(Creator3 func);
