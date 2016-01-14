@@ -14,7 +14,7 @@ namespace SimulationDataProcess{
 	string SimulationDataPath();
 	shared_ptr<FitPoints> WeightPoints(shared_ptr<FitPoints>src,ParamSet&&pos={},ParamSet&&delta={},size_t index=0);
 	template<class FITFUNC>
-	void ProcessFit(
+	void ProcessEnergyThetaFit(
 		string&&reconstructionname,
 		shared_ptr<IInitialConditions>init,
 		shared_ptr<IParamCheck>filter,
