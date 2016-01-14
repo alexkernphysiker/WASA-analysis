@@ -34,11 +34,15 @@ namespace PlotStream{
 		SimplePlotStream(string&& name,pair<size_t,size_t>&&indexes);
 		SimplePlotStream(string&& name,pair<size_t,size_t>&&indexes,shared_ptr<PlotEngine> plot);
 		virtual ~SimplePlotStream();
+		typedef function<double(double)> func;
+		SimplePlotStream&AddFunc(func f);
 	protected:
 		virtual void ProcessPoint(const ParamSet& P)override;
 	private:
 		pair<size_t,size_t> m_indexes;
 		vector<pair<double,double>> m_data;
+		pair<double,double> m_xrange;
+		vector<func> m_funcs;
 	};
 	class Binner:public AbstractPlotStream{
 	public:
@@ -52,12 +56,14 @@ namespace PlotStream{
 		Binner(string&& name,const binparam& binning);
 		Binner(string&& name,binparam&&binning);
 		virtual ~Binner();
-		typedef function<shared_ptr<AbstractPlotStream>(size_t)>Creator1;
-		typedef function<shared_ptr<AbstractPlotStream>(size_t,string&&)>Creator2;
-		typedef function<shared_ptr<AbstractPlotStream>(size_t,string&&,shared_ptr<PlotEngine>)>Creator3;
-		void Fill(Creator1 func);
-		void Fill(Creator2 func);
-		void Fill(Creator3 func);
+		typedef function<shared_ptr<SimplePlotStream>(size_t)>Creator1;
+		typedef function<shared_ptr<SimplePlotStream>(size_t,string&&)>Creator2;
+		typedef function<shared_ptr<SimplePlotStream>(size_t,string&&,shared_ptr<PlotEngine>)>Creator3;
+		Binner&Fill(Creator1 func);
+		Binner&Fill(Creator2 func);
+		Binner&Fill(Creator3 func);
+		typedef function<double(double b,double x)> func;
+		Binner&AddFunc(func f);
 	protected:
 		virtual void ProcessPoint(const ParamSet& P)override;
 		bool FindBinIndex(const ParamSet& P,size_t&res)const;
@@ -67,7 +73,7 @@ namespace PlotStream{
 	private:
 		void CheckCorrectness()const;
 		binparam m_binning;
-		vector<shared_ptr<AbstractPlotStream>> m_streams;
+		vector<shared_ptr<SimplePlotStream>> m_streams;
 	};
 };
 #endif

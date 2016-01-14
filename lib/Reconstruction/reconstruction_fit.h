@@ -38,18 +38,11 @@ namespace SimulationDataProcess{
 			cout<<"done."<<endl;
 		}
 		cout<<"Init1"<<endl;
-		auto weighted=WeightPoints(points);
-		Binner weightedpic(
-			reconstructionname+"_weighted",
-			Binner::binparam(1,0,0.3,10)
-		);
-		weightedpic.Fill([](size_t i,string&&name){
-			return make_shared<SimplePlotStream>(name+"_"+to_string(i),make_pair(0,2));
-		});
-		for(Point&P:*weighted)
-			if(P.wy()>=1)
-				weightedpic<<P;
-		/*FitFunction<DifferentialMutations<>,FITFUNC,SumWeightedSquareDiff> fit(weighted);
+		auto showed_params=make_pair(0,2);
+		SimplePlotStream total_pic(reconstructionname+"_total",showed_params);
+		Plotter::Instance()<<"set xrange [0:0.4]"<<"set yrange [0:0.6]";
+
+		FitFunction<DifferentialMutations<>,FITFUNC,SumWeightedSquareDiff> fit(points);
 		cout<<"Init2"<<endl;
 		fit.SetFilter(filter).Init(30*FITFUNC::ParamCount,init,R);
 		cout<<"Fitting"<<endl;
@@ -65,7 +58,19 @@ namespace SimulationDataProcess{
 		if(out){
 			out<<fit;
 			out.close();
-		}*/
+		}
+
+		Binner bined_pic(
+			reconstructionname+"_bined",
+			Binner::binparam(1,0.1,0.16,32)
+		);
+		bined_pic.Fill([&showed_params](size_t i,string&&name){
+			return make_shared<SimplePlotStream>(name+"_"+to_string(i),showed_params);})
+		.AddFunc([&fit](double theta,double E){return fit({E,theta});});
+		for(Point&P:*points){
+			bined_pic<<P;
+			total_pic<<P;
+		}
 	}
 };
 #endif

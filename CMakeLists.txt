@@ -1,7 +1,11 @@
 cmake_minimum_required(VERSION 2.6)
-option(test "Build all tests." OFF) 
+option(test "Build all tests." OFF)
 project(WASAatCOSY_etamesic_3He_search)
 set(CMAKE_CXX_FLAGS "-std=gnu++11")
+option(debug "Compile in debug mode" OFF)
+if(debug)
+  set(CMAKE_BUILD_TYPE Debug)
+endif()
 #root
 if(NOT $ENV{ROOTSYS} STREQUAL "")
 	include_directories($ENV{ROOTSYS}/include/)

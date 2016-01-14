@@ -27,15 +27,29 @@ AbstractPlotStream& AbstractPlotStream::operator<<(ParamSet&& P){return operator
 AbstractPlotStream& AbstractPlotStream::operator<<(const Point& P){return operator<<(GM(P));}
 AbstractPlotStream& AbstractPlotStream::operator<<(Point&& P){return operator<<(GM(P));}
 SimplePlotStream::SimplePlotStream(string&&name, pair<size_t,size_t>&&indexes,shared_ptr<PlotEngine>plot)
-	:AbstractPlotStream(static_cast<string&&>(name), plot){m_indexes=indexes;}
+	:AbstractPlotStream(static_cast<string&&>(name), plot){m_indexes=indexes;m_xrange=make_pair(+INFINITY,-INFINITY);}
 
 SimplePlotStream::SimplePlotStream(std::string&& name,pair<size_t,size_t>&& indexes)
-	:AbstractPlotStream(static_cast<string&&>(name)){m_indexes=indexes;}
+	:AbstractPlotStream(static_cast<string&&>(name)){m_indexes=indexes;m_xrange=make_pair(+INFINITY,-INFINITY);}
+SimplePlotStream& SimplePlotStream::AddFunc(SimplePlotStream::func f){
+	m_funcs.push_back(f);
+	return *this;
+}
+
 SimplePlotStream::~SimplePlotStream(){
-	Plot()->WithoutErrors(Name(),m_data);
+	if(m_data.size()>0)
+	    Plot()->WithoutErrors(Name(),m_data);
+	size_t cnt=1;
+	for(func F:m_funcs){
+	    Plot()->Line(Name()+" Line "+to_string(cnt),F,m_xrange.first,m_xrange.second,(m_xrange.second-m_xrange.first)/100.0);
+	    cnt++;
+	}
 }
 void SimplePlotStream::ProcessPoint(const ParamSet& P){
-	m_data.push_back(make_pair(P[m_indexes.first],P[m_indexes.first]));
+	auto p=make_pair(P[m_indexes.first],P[m_indexes.second]);
+	m_data.push_back(p);
+	if(m_xrange.first>p.first)m_xrange.first=p.first;
+	if(m_xrange.second<p.second)m_xrange.second=p.second;
 }
 
 Binner::binparam::binparam(size_t ind, double a, double b, size_t cnt)
@@ -62,45 +76,56 @@ void Binner::CheckCorrectness()const{
 Binner::~Binner(){}
 size_t Binner::BinCount()const{return m_binning.bin_count;}
 double Binner::BinHW() const{
+	if(0==m_binning.bin_count)throw math_h_error<decltype(*this)>("bin_count==0");
 	return (m_binning.to-m_binning.from)/double(m_binning.bin_count*2);
 }
 double Binner::BinCenter(size_t i) const{
-	if(i>=m_binning.bin_count)
-		throw math_h_error<decltype(*this)>("bin range check error");
+	if(i>=m_binning.bin_count)throw math_h_error<decltype(*this)>("bin range check error");
 	return m_binning.from+BinHW()*double(1+2*i);
 }
 bool Binner::FindBinIndex(const ParamSet& P, size_t& res) const{
 	double x=P[m_binning.param_index],delta=BinHW();
-	for(size_t i=0,n=BinCount();i<n;i++)
-		if(
-			(x>=(BinCenter(i)-delta))&&
-			(x<(BinCenter(i)+delta))
-		){
+	if(delta<=0)throw math_h_error<decltype(*this)>("delta<=0");
+	for(size_t i=0,n=BinCount();i<n;i++){
+		double pos=BinCenter(i);
+		if((x>=(pos-delta))&&(x<(pos+delta))){
 			res=i;
 			return true;
 		}
+	}
 	return false;
 }
-void Binner::Fill(Binner::Creator1 func){
+Binner& Binner::Fill(Binner::Creator1 func){
 	m_streams.clear();
 	for(size_t i=0,n=BinCount();i<n;i++)
 		m_streams.push_back(func(i));
+	return *this;
 }
-void Binner::Fill(Binner::Creator2 func){
+Binner& Binner::Fill(Binner::Creator2 func){
 	m_streams.clear();
 	for(size_t i=0,n=BinCount();i<n;i++)
 		m_streams.push_back(func(i,Name()));
+	return *this;
 }
-void Binner::Fill(Binner::Creator3 func){
+Binner& Binner::Fill(Binner::Creator3 func){
 	m_streams.clear();
 	for(size_t i=0,n=BinCount();i<n;i++)
 		m_streams.push_back(func(i,Name(),Plot()));
+	return *this;
 }
 void Binner::ProcessPoint(const ParamSet& P){
-	if(m_streams.size()==0)
-		throw math_h_error<decltype(*this)>("Attempt to use not filled binner");
+	if(m_streams.size()==0)throw math_h_error<decltype(*this)>("Attempt to use not filled binner");
 	size_t index=0;
 	if(FindBinIndex(P,index))
 		m_streams[index]->operator<<(P);
 }
+Binner& Binner::AddFunc(Binner::func f){
+	if(m_streams.size()==0)throw math_h_error<decltype(*this)>("Attempt to use not filled binner");
+	for(size_t i=0,n=BinCount();i<n;i++){
+		double pos=BinCenter(i);
+		m_streams[i]->AddFunc([pos,f](double x){return f(pos,x);});
+	}
+	return *this;
+}
+
 }
