@@ -13,10 +13,21 @@ using namespace Reconstruction;
 RANDOM engine;
 int main(int,char**){
   	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS)+"/../Reconstruction","He3Ekin");
-	SimulationDataProcess::ProcessEnergyThetaFit<He3EnergyFRH1>("He3.E.FRH1",
+	Plotter::Instance()<<"set xrange [0:0.4]"<<"set yrange [0:0.6]";
+	SimulationDataProcess::ProcessEnergyThetaFit<He3EnergyFRH1>("He3.E.FRH1",make_pair(0,0.6),
 		make_shared<GenerateByGauss>()
-			<<make_pair(0,100)<<make_pair(0,100)<<make_pair(0,100)
-			<<make_pair(0,100)<<make_pair(0,100)<<make_pair(0,100)
+			<<make_pair(0,100)<<make_pair(0,100)<<make_pair(0,100)<<make_pair(0,100)
+			<<make_pair(0,100)<<make_pair(0,100)<<make_pair(0,100)<<make_pair(0,100)
+			<<make_pair(0,100)<<make_pair(0,100)<<make_pair(0,100)<<make_pair(0,100)
+		,make_shared<Filter>([](const ParamSet&){return true;}),
+		engine
+	);
+	Plotter::Instance()<<"set xrange [0.3:0.8]"<<"set yrange [0.3:0.8]";
+	SimulationDataProcess::ProcessEnergyThetaFit<He3EnergyFRH2>("He3.E.FRH2",make_pair(0.3,0.8),
+		make_shared<GenerateByGauss>()
+			<<make_pair(0,100)<<make_pair(0,100)<<make_pair(0,100)<<make_pair(0,100)
+			<<make_pair(0,100)<<make_pair(0,100)<<make_pair(0,100)<<make_pair(0,100)
+			<<make_pair(0,100)<<make_pair(0,100)<<make_pair(0,100)<<make_pair(0,100)
 		,make_shared<Filter>([](const ParamSet&){return true;}),
 		engine
 	);

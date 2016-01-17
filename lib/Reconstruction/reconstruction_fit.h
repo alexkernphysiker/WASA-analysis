@@ -12,19 +12,29 @@ namespace SimulationDataProcess{
 	using namespace Genetic;
 	using namespace PlotStream;
 	string SimulationDataPath();
-	shared_ptr<FitPoints> WeightPoints(shared_ptr<FitPoints>src,ParamSet&&pos={},ParamSet&&delta={},size_t index=0);
 	template<class FITFUNC>
 	void ProcessEnergyThetaFit(
-		string&&reconstructionname,
+		string&&reconstructionname,pair<double,double> E_range,
 		shared_ptr<IInitialConditions>init,
 		shared_ptr<IParamCheck>filter,
 		RANDOM&R
 	){
+		auto params_shown=make_pair(0,2);
+		auto theta_binning=Binner::binparam(1,0.1,0.16,10);
+		auto substream=[&params_shown](size_t i,string&&name){
+			return make_shared<SimplePlotStream>(name+"_"+to_string(i),params_shown);
+		};
+		auto AllData=make_shared<FitPoints>();
 		auto points=make_shared<FitPoints>();
+		double de=0.005,dth=0.005,dek=0.005;
+		for(double e=E_range.first;e<E_range.second;e+=(de*2.0))
+		  for(double th=0.1;th<0.16;th+=(dth*2.0))
+		    for(double ek=E_range.first;ek<E_range.second;ek+=(dek*2.0))
+		      points<<Point({e,th},ek,0);
 		ifstream file;
 		file.open(SimulationDataPath()+reconstructionname+".simulation.txt");
 		if(file){
-			cout<<"reading...";
+			cout<<"reading..."<<endl;
 			string line;
 			while(getline(file,line)){
 				istringstream str(line);
@@ -32,16 +42,16 @@ namespace SimulationDataProcess{
 				str>>X;
 				double y;
 				X>>y;
-				points<<Point(X,y,1);
+				AllData<<Point(X,y);
+				for(Point&P:*points){
+				  if((abs(P.y()-y)<dek)&&(abs(P.X()[0]-X[0])<de)&&(abs(P.X()[1]-X[1])<dth))
+				    P.WY()+=1;
+				}  
 			}
 			file.close();
 			cout<<"done."<<endl;
 		}
 		cout<<"Init1"<<endl;
-		auto showed_params=make_pair(0,2);
-		SimplePlotStream total_pic(reconstructionname+"_total",showed_params);
-		Plotter::Instance()<<"set xrange [0:0.4]"<<"set yrange [0:0.6]";
-
 		FitFunction<DifferentialMutations<>,FITFUNC,SumWeightedSquareDiff> fit(points);
 		cout<<"Init2"<<endl;
 		fit.SetFilter(filter).Init(30*FITFUNC::ParamCount,init,R);
@@ -60,16 +70,17 @@ namespace SimulationDataProcess{
 			out.close();
 		}
 
-		Binner bined_pic(
-			reconstructionname+"_bined",
-			Binner::binparam(1,0.1,0.16,32)
-		);
-		bined_pic.Fill([&showed_params](size_t i,string&&name){
-			return make_shared<SimplePlotStream>(name+"_"+to_string(i),showed_params);})
-		.AddFunc([&fit](double theta,double E){return fit({E,theta});});
-		for(Point&P:*points){
-			bined_pic<<P;
-			total_pic<<P;
+		auto plotfunc=[&fit](double theta,double E){return fit({E,theta});};
+		Binner bined_pic(reconstructionname+"_bined",theta_binning);
+		bined_pic.Fill(substream).AddFunc(plotfunc);
+		for(Point&P:*points)if(P.wy()>2)bined_pic<<P;
+
+		SimplePlotStream total_pic(reconstructionname+"_total",params_shown);
+		Binner bined_data(reconstructionname+"_data",theta_binning);
+		bined_data.Fill(substream).AddFunc(plotfunc);
+		for(Point&P:*AllData){
+		  bined_data<<P;
+		  total_pic<<P;
 		}
 	}
 };
