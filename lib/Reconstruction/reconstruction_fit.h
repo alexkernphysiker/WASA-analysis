@@ -28,11 +28,11 @@ namespace SimulationDataProcess{
 		auto points=make_shared<FitPoints>();
 		double de=0.005,dth=0.005,dek=0.005;
 		for(double e=E_range.first;e<E_range.second;e+=(de*2.0))
-		  for(double th=0.1;th<0.16;th+=(dth*2.0))
-		    for(double ek=E_range.first;ek<E_range.second;ek+=(dek*2.0))
-		      points<<Point({e,th},ek,0);
-		ifstream file;
-		file.open(SimulationDataPath()+reconstructionname+".simulation.txt");
+			for(double th=0.1;th<0.16;th+=(dth*2.0))
+				for(double ek=E_range.first;ek<E_range.second;ek+=(dek*2.0))
+					points<<Point({e,th},ek,0);
+				ifstream file;
+			file.open(SimulationDataPath()+reconstructionname+".simulation.txt");
 		if(file){
 			cout<<"reading..."<<endl;
 			string line;
@@ -44,8 +44,8 @@ namespace SimulationDataProcess{
 				X>>y;
 				AllData<<Point(X,y);
 				for(Point&P:*points){
-				  if((abs(P.y()-y)<dek)&&(abs(P.X()[0]-X[0])<de)&&(abs(P.X()[1]-X[1])<dth))
-				    P.WY()+=1;
+					if((abs(P.y()-y)<dek)&&(abs(P.X()[0]-X[0])<de)&&(abs(P.X()[1]-X[1])<dth))
+						P.WY()+=1;
 				}  
 			}
 			file.close();
@@ -56,31 +56,35 @@ namespace SimulationDataProcess{
 		cout<<"Init2"<<endl;
 		fit.SetFilter(filter).Init(30*FITFUNC::ParamCount,init,R);
 		cout<<"Fitting"<<endl;
-		while(!fit.AbsoluteOptimalityExitCondition(0.000001)){
+		while(
+			(!fit.AbsoluteOptimalityExitCondition(0.000001))&&
+			(!fit.RelativeOptimalityExitCondition(0.001))
+		){
 			fit.Iterate(R);
 			cout<<fit.Optimality()<<"<S<"<<fit.Optimality(fit.PopulationSize()-1)<<"     \r";
 		}
 		cout<<endl;
 		cout<<"Fit parameters:"<<endl<<fit.Parameters()<<endl;
 		cout<<"Errors:"<<endl<<fit.GetParamParabolicErrors(parEq(fit.ParamCount(),0.001))<<endl;
-		ofstream out;
-		out.open(reconstructionname+".fit.txt");
-		if(out){
-			out<<fit;
-			out.close();
+		{
+			ofstream out;
+			out.open(reconstructionname+".fit.txt");
+			if(out){
+				out<<fit;
+				out.close();
+			}
 		}
-
 		auto plotfunc=[&fit](double theta,double E){return fit({E,theta});};
 		Binner bined_pic(reconstructionname+"_bined",theta_binning);
 		bined_pic.Fill(substream).AddFunc(plotfunc);
 		for(Point&P:*points)if(P.wy()>2)bined_pic<<P;
-
+		
 		SimplePlotStream total_pic(reconstructionname+"_total",params_shown);
 		Binner bined_data(reconstructionname+"_data",theta_binning);
 		bined_data.Fill(substream).AddFunc(plotfunc);
 		for(Point&P:*AllData){
-		  bined_data<<P;
-		  total_pic<<P;
+			bined_data<<P;
+			total_pic<<P;
 		}
 	}
 };
