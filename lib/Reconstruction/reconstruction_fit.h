@@ -20,13 +20,13 @@ namespace SimulationDataProcess{
 		RANDOM&R
 	){
 		auto params_shown=make_pair(0,2);
+		double de=0.005,dth=0.001,dek=0.005;
 		auto theta_binning=Binner::binparam(1,0.1,0.16,10);
 		auto substream=[&params_shown](size_t i,string&&name){
 			return make_shared<SimplePlotStream>(name+"_"+to_string(i),params_shown);
 		};
 		auto AllData=make_shared<FitPoints>();
 		auto points=make_shared<FitPoints>();
-		double de=0.005,dth=0.005,dek=0.005;
 		for(double e=E_range.first;e<E_range.second;e+=(de*2.0))
 			for(double th=0.1;th<0.16;th+=(dth*2.0))
 				for(double ek=E_range.first;ek<E_range.second;ek+=(dek*2.0))
