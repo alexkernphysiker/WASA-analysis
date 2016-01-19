@@ -65,7 +65,6 @@ namespace SimulationDataProcess{
 		}
 		cout<<endl;
 		cout<<"Fit parameters:"<<endl<<fit.Parameters()<<endl;
-		cout<<"Errors:"<<endl<<fit.GetParamParabolicErrors(parEq(fit.ParamCount(),0.001))<<endl;
 		{
 			ofstream out;
 			out.open(reconstructionname+".fit.txt");
