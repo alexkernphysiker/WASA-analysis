@@ -45,7 +45,7 @@ namespace SimulationDataProcess{
 				AllData<<Point(X,y);
 				for(Point&P:*points){
 					if((abs(P.y()-y)<dek)&&(abs(P.X()[0]-X[0])<de)&&(abs(P.X()[1]-X[1])<dth))
-						P.WY()+=1;
+						P.wy_modify()+=1;
 				}  
 			}
 			file.close();
