@@ -5,11 +5,13 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <math_h/error.h>
 #include <Genetic/fit.h>
 #include <Genetic/paramsort.h>
 namespace SimulationDataProcess{
 	using namespace std;
 	using namespace Genetic;
+	using namespace MathTemplates;
 	string SimulationDataPath();
 	template<class FITFUNC>
 	void ProcessEnergyThetaFit(
@@ -19,34 +21,37 @@ namespace SimulationDataProcess{
 		RANDOM&R
 	){
 		auto params_shown=make_pair(0,2);
-		auto theta_binning=BinningParam(1,make_pair(0.1,0.16),10);
-		auto Edep_binning=BinningParam(0,E_range,100);
-		auto Ek_binning=BinningParam(2,E_range,100);
+		auto theta_binning=BinningParam(1,make_pair(0.1,0.16),20);
+		auto Edep_binning=BinningParam(0,E_range,50);
+		auto Ek_binning=BinningParam(2,E_range,50);
+		
 		ParamsPerBinsCounter<3> Binner({theta_binning,Edep_binning,Ek_binning});
-		auto AllData=make_shared<FitPoints>();
-		ifstream file;
-		file.open(SimulationDataPath()+reconstructionname+".simulation.txt");
-		if(file){
-			cout<<"reading..."<<endl;
-			string line;
-			while(getline(file,line)){
-				istringstream str(line);
-				ParamSet X;
-				str>>X;
-				double y;
-				X>>y;
-				Binner<<X;
-				AllData<<Point(X,y);
-			}
-			file.close();
-			cout<<"done."<<endl;
+		auto AllData=make_shared<FitPoints>();{
+			ifstream file;
+			file.open(SimulationDataPath()+reconstructionname+".simulation.txt");
+			if(file){
+				cout<<"reading..."<<endl;
+				string line;
+				while(getline(file,line)){
+					istringstream str(line);
+					ParamSet X;
+					str>>X;
+					double y;
+					X>>y;
+					Binner<<X;
+					AllData<<Point(X,y);
+				}
+				file.close();
+				cout<<"done."<<endl;
+			}else
+				throw Exception<ifstream>("No input data");
 		}
 		cout<<"Init1"<<endl;
 		auto points=make_shared<FitPoints>();
-		Binner.FullCycle([&points](ParamSet&P,unsigned long cnt){
+		Binner.FullCycle([&points](const ParamSet&center_pos,const unsigned long events_count){
 			double y;
-			ParamSet X=P;X>>y;
-			points<<Point(X,y,cnt);
+			ParamSet X=center_pos;X>>y;
+			points<<Point(X,y,events_count);
 		});
 		FitFunction<DifferentialMutations<>,FITFUNC,SumWeightedSquareDiff> fit(points);
 		cout<<"Init2"<<endl;
