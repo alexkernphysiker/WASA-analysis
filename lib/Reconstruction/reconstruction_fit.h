@@ -21,10 +21,11 @@ namespace SimulationDataProcess{
 		RANDOM&R
 	){
 		auto params_shown=make_pair(0,2);
-		auto theta_binning=BinningParam(1,make_pair(0.1,0.16),20);
-		auto Edep_binning=BinningParam(0,E_range,50);
-		auto Ek_binning=BinningParam(2,E_range,50);
+		auto theta_binning=BinningParam(1,make_pair(0.1,0.16),12);
+		auto Edep_binning=BinningParam(0,E_range,25);
+		auto Ek_binning=BinningParam(2,E_range,25);
 		
+		ParamsPerBins forplots(theta_binning);
 		ParamsPerBinsCounter<3> Binner({theta_binning,Edep_binning,Ek_binning});
 		auto AllData=make_shared<FitPoints>();{
 			ifstream file;
@@ -36,9 +37,10 @@ namespace SimulationDataProcess{
 					istringstream str(line);
 					ParamSet X;
 					str>>X;
+					Binner<<X;
+					forplots<<X;
 					double y;
 					X>>y;
-					Binner<<X;
 					AllData<<Point(X,y);
 				}
 				file.close();
@@ -64,19 +66,25 @@ namespace SimulationDataProcess{
 			fit.Iterate(R);
 			cout<<fit.Optimality()<<"<S<"<<fit.Optimality(fit.PopulationSize()-1)<<"     \r";
 		}
-		cout<<endl;
-		cout<<"Fit parameters:"<<endl<<fit.Parameters()<<endl;
+		cout<<"done.                                                                            "<<endl;
 		{
 			ofstream out;
 			out.open(reconstructionname+".fit.txt");
 			if(out){
 				out<<fit;
 				out.close();
-			}
+			}else
+				throw Exception<ofstream>("Cannot write output");
 		}
-		SimplePlotStream total_pic(reconstructionname+"_total",params_shown);
+		SimplePlotStream total_pic(reconstructionname+" total",params_shown);
 		for(Point&P:*AllData){
 			total_pic<<(ParamSet(P.X())<<P.y());
+		}
+		for(size_t i=0;i<forplots.count();i++){
+			double theta=forplots.bin_center(i);
+			SimplePlotStream plot(reconstructionname+" theta="+to_string(theta),params_shown);
+			for(ParamSet&P:forplots[i])plot<<P;
+			plot.AddFunc([theta,&fit](double Edep){return fit({Edep,theta});});
 		}
 	}
 };
