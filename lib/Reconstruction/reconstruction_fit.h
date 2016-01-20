@@ -69,7 +69,6 @@ namespace SimulationDataProcess{
 				out.close();
 			}
 		}
-		auto plotfunc=[&fit](double theta,double E){return fit({E,theta});};
 		SimplePlotStream total_pic(reconstructionname+"_total",params_shown);
 		for(Point&P:*AllData){
 			total_pic<<(ParamSet(P.X())<<P.y());

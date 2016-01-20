@@ -10,6 +10,7 @@
 using namespace std;
 using namespace Genetic;
 using namespace Reconstruction;
+using namespace GnuplotWrap;
 RANDOM engine;
 int main(int,char**){
   	Plotter::Instance().SetOutput(SimulationDataProcess::SimulationDataPath(),"He3Ekin");

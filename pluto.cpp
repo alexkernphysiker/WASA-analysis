@@ -11,6 +11,7 @@
 #include "phys_constants.h"
 #include "config.h"
 using namespace std;
+using namespace GnuplotWrap;
 int main(int argc, char **arg){
 	if(argc<3){
 		printf("reaction expected\n");
