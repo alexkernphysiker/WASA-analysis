@@ -143,7 +143,7 @@ namespace ROOT_data{
 				data[i].dy=sqrt(data[i].y);
 				if(data[i].dy<1)data[i].dy=1;
 			}else
-				throw math_h_error<hist>("Cannot imbibe histogram. bins differ");
+				throw Error<hist>("Cannot imbibe histogram. bins differ");
 		}
 	}
 	hist& hist::operator+=(const hist& second){
@@ -152,7 +152,7 @@ namespace ROOT_data{
 				data[i].y+=second[i].y;
 				data[i].dy=sqrt(pow(data[i].dy,2)+pow(second[i].dy,2));
 			}else
-				throw math_h_error<hist>("Cannot add histogram. bins differ");
+				throw Error<hist>("Cannot add histogram. bins differ");
 		}
 		return *this;
 	}
@@ -167,7 +167,7 @@ namespace ROOT_data{
 				data[i].y-=second[i].y;
 				data[i].dy=sqrt(pow(data[i].dy,2)+pow(second[i].dy,2));
 			}else
-				throw math_h_error<hist>("Cannot substract histogram. bins differ");
+				throw Error<hist>("Cannot substract histogram. bins differ");
 		}
 		return *this;
 	}
@@ -184,7 +184,7 @@ namespace ROOT_data{
 				data[i].y=Y1.first*Y2.first;
 				data[i].dy=sqrt(pow(Y1.second*Y2.first,2)+pow(Y2.second*Y1.first,2));
 			}else
-				throw math_h_error<hist>("Cannot multiply by a histogram. bins differ");
+				throw Error<hist>("Cannot multiply by a histogram. bins differ");
 		}
 		return *this;
 	}
@@ -213,7 +213,7 @@ namespace ROOT_data{
 				data[i].y=Y1.first/Y2.first;
 				data[i].dy=sqrt(pow(Y1.second/Y2.first,2)+pow(Y2.second*Y1.first/pow(Y2.first,2),2));
 			}else
-				throw math_h_error<hist>("Cannot multiply by a histogram. bins differ");
+				throw Error<hist>("Cannot multiply by a histogram. bins differ");
 		}
 		return *this;
 	}

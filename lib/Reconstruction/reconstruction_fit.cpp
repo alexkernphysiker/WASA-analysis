@@ -1,7 +1,6 @@
 // this file is distributed under 
 // MIT license
 #include <fstream>
-#include <math_h/exception_math_h.h>
 #include <str_get.h>
 #include "reconstruction_fit.h"
 namespace SimulationDataProcess{
