@@ -6,7 +6,7 @@
 #include <string>
 #include <functional>
 #include <fstream>
-#include "math_h/exception_math_h.h"
+#include "math_h/error.h"
 #include "math_h/interpolate.h"
 #include "Genetic/paramfunc.h"
 #include "config.h"
@@ -19,7 +19,7 @@ public:
 private:
 	std::string m_name;
 	bool data_present;
-	LinearInterpolation<double> data;
+	MathTemplates::LinearInterpolation<double> data;
 	std::vector<std::pair<double,double>> out;
 	FUNC Experiment,Theory;
 public:
@@ -93,7 +93,7 @@ private:
 	std::vector<FUNC> Experiment;
 	FitFunc func;
 	Genetic::ParamSet P;
-	vector<Genetic::ParamSet> data;
+	std::vector<Genetic::ParamSet> data;
 public:
 	FitBasedReconstruction(std::string name,std::vector<FUNC> measured,FUNC theory){
 		using namespace Genetic;
