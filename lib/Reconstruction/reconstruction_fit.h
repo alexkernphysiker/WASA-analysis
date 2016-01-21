@@ -21,13 +21,13 @@ namespace SimulationDataProcess{
 		RANDOM&R
 	){
 		auto params_shown=make_pair(0,2);
-		auto theta_binning=BinningParam(1,make_pair(0.1,0.16),12);
-		auto Edep_binning=BinningParam(0,E_range,25);
-		auto Ek_binning=BinningParam(2,E_range,25);
+		auto Edep_binning=BinningParam(0,E_range,100);
+		auto theta_binning=BinningParam(1,make_pair(0.1,0.16),30);
+		auto Ek_binning=BinningParam(2,E_range,100);
 		
-		ParamsPerBins forplots(theta_binning);
-		ParamsPerBinsCounter<3> Binner({theta_binning,Edep_binning,Ek_binning});
-		auto AllData=make_shared<FitPoints>();{
+		ParamsPerBinsCounter<3> Binner({Edep_binning,theta_binning,Ek_binning});
+		auto AllData=vector<ParamSet>();
+		{
 			ifstream file;
 			file.open(SimulationDataPath()+reconstructionname+".simulation.txt");
 			if(file){
@@ -38,10 +38,7 @@ namespace SimulationDataProcess{
 					ParamSet X;
 					str>>X;
 					Binner<<X;
-					forplots<<X;
-					double y;
-					X>>y;
-					AllData<<Point(X,y);
+					AllData.push_back(X);
 				}
 				file.close();
 				cout<<"done."<<endl;
@@ -76,14 +73,23 @@ namespace SimulationDataProcess{
 			}else
 				throw Exception<ofstream>("Cannot write output");
 		}
-		SimplePlotStream total_pic(reconstructionname+" total",params_shown);
-		for(Point&P:*AllData){
-			total_pic<<(ParamSet(P.X())<<P.y());
+		ParamsPerBins binned_plots(theta_binning);
+		{
+			SimplePlotStream total_pic(reconstructionname+" weights",params_shown);
+			for(const Point&P:*points)if(P.wy()>5){
+				total_pic<<(ParamSet(P.X())<<P.y());
+				//binned_plots<<(ParamSet(P.X())<<P.y());
+			}
+			SimplePlotStream total_points(reconstructionname+" points",params_shown);
+			for(const ParamSet&P:AllData){
+				total_points<<P;
+				binned_plots<<P;
+			}
 		}
-		for(size_t i=0;i<forplots.count();i++){
-			double theta=forplots.bin_center(i);
+		for(size_t i=0;i<binned_plots.count();i++){
+			double theta=binned_plots.bin_center(i);
 			SimplePlotStream plot(reconstructionname+" theta="+to_string(theta),params_shown);
-			for(ParamSet&P:forplots[i])plot<<P;
+			for(ParamSet&P:binned_plots[i])plot<<P;
 			plot.AddFunc([theta,&fit](double Edep){return fit({Edep,theta});});
 		}
 	}
