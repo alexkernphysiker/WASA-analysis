@@ -16,10 +16,14 @@
 #include "kinematics.h"
 using namespace std;
 using namespace ROOT_data;
+using namespace GnuplotWrap;
 #define Q_range 18.0,30.0
 int main(int,char**){
-	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta");
+	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta forward");
 	hist mc_norm(MC,"He3eta",{"Histograms","Reconstruction"},"Reference");
+	double MC_events_count=0;
+	for(const hist::point&P: mc_norm)MC_events_count+=P.y;
+	cout<<"Montecarlo evens count of "<<MC_events_count<<" detected."<<endl;
 	hist acceptance(MC,"He3eta",{"Histograms","Reconstruction"},"Additional");
 	{
 		hist mc_filtered1(MC,"He3eta",{"Histograms","Reconstruction"},"Theta_reconstruction_correct");
