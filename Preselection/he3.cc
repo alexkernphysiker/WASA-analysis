@@ -146,9 +146,9 @@ He3_forward_Modification_for_eta::He3_forward_Modification_for_eta():He3_in_forw
 	});
 }
 He3_forward_rec_check::He3_forward_rec_check():He3_forward_Modification_for_eta(),kin_hist("He3KinForward"){
-	Axis He3E([](const vector<double>&P){return P[0];},0.15,0.6,100);
+	Axis He3Ek([](const vector<double>&P){return P[0];},0.15,0.60,100);
 	Axis He3Th([](const vector<double>&P){return P[1];},0.10,0.16,100);
-	kin_hist.Add("CheckThetaEkin",He3E,He3Th);
+	kin_hist.Add("CheckThetaEkin",He3Ek,He3Th);
 	AddCondition([this](WTrack&T,const vector<double>&P){
 		kin_hist.CatchState(T,P);
 		return true;
