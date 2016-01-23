@@ -139,8 +139,7 @@ He3_forward_Modification_for_reconstruction::He3_forward_Modification_for_recons
 	:He3_in_forward(-70.0,40.0,1){}
 He3_forward_Modification_for_eta::He3_forward_Modification_for_eta():He3_in_forward(0.0,30.0,12){
 	AddCondition([this](WTrack&track,const vector<double>&){
-		if(StopPlane(track)!=kFRH1)
-			return false;
+		if(StopPlane(track)!=kFRH1)return false;
 		double E=EDep(track,kFRH1);
 		return (E>0.08)&&(E<0.22);
 	});
