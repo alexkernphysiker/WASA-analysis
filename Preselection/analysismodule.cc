@@ -19,23 +19,23 @@ AnalysisModule::AnalysisModule(){
 AnalysisModule::AnalysisModule(const char* name):CAnalysisModule(name){
 	Logger::SubLog log=LOG.Log(NoLog);
 	if("RE_He3eta"==type)
-		m_data= new RE_He3eta();
+		m_data= new RE_He3eta_forward();
 	if(
 		("RE_He3pi0"==type)||
 		("RE_He3pi0pi0"==type)||
 		("RE_He3pi0pi0pi0"==type)
 	)
-		m_data=new RE_He3pi0();
+		m_data=new RE_He3pi0_forward();
 	if("MC_He3eta"==type)
-		m_data=new MC_He3eta();
+		m_data=new MC_He3eta_forward();
 	if(
 		("MC_He3pi0"==type)||
 		("MC_He3pi0pi0"==type)||
 		("MC_He3pi0pi0pi0"==type)
 	)
-		m_data=new MC_He3pi0();
+		m_data=new MC_He3pi0_forward();
 	if("Data_He3"==type)
-		m_data=new Data_He3();
+		m_data=new Data_He3_forward();
 }
 AnalysisModule::~AnalysisModule(){
 	if(m_data)

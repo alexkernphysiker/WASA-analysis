@@ -21,7 +21,7 @@ TrackConditionSet::ParamCalc::~ParamCalc(){}
 double TrackConditionSet::ParamCalc::Get(WTrack&track){
 	return m_delegate(track);
 }
-TrackConditionSet::TrackCondition::TrackCondition(const string&n,TrackConditionSet::Condition delegate, TrackConditionSet* master):
+TrackConditionSet::TrackCondition::TrackCondition(const string&n,InternalCondition delegate, TrackConditionSet* master):
 	TrackCalc(n){
 	condition=delegate;
 	output=new TH1F(n.c_str(),"",master->m_bins,master->m_from,master->m_to);
@@ -38,11 +38,27 @@ TrackConditionSet& TrackConditionSet::AddParameter(std::string&&n,ValueTrackDepe
 	calc_procs.push_back(make_shared<ParamCalc>(n,parameter));
 	return *this;
 }
-TrackConditionSet& TrackConditionSet::AddCondition(string&&n, TrackConditionSet::Condition condition){
-	calc_procs.push_back(make_shared<TrackCondition>(n,condition,this));
+TrackConditionSet& TrackConditionSet::AddCondition(string&&n,ConditionTrackParamDependent condition){
+	calc_procs.push_back(make_shared<TrackCondition>(n,[condition](WTrack&T,vector<double>&P){return condition(T,P);},this));
 	return *this;
 }
-
+TrackConditionSet& TrackConditionSet::AddCondition(string&& name, ConditionParamDependent condition){
+	return AddCondition(static_cast<string&&>(name),[condition](WTrack&,const vector<double>&P){return condition(P);});
+}
+TrackConditionSet& TrackConditionSet::AddCondition(string&& name, ConditionTrackDependent condition){
+	return AddCondition(static_cast<string&&>(name),[condition](WTrack&T,const vector<double>&){return condition(T);});
+}
+TrackConditionSet& TrackConditionSet::AddCondition(string&& name, ConditionIndependent condition){
+	return AddCondition(static_cast<string&&>(name),[condition](WTrack&,const vector<double>&){return condition();});
+}
+TrackConditionSet& TrackConditionSet::AddConditions(string&& name,vector< TrackConditionSet >& set){
+	calc_procs.push_back(make_shared<TrackCondition>(name,[&set](WTrack&T,vector<double>&P){
+		bool res=false;
+		for(TrackConditionSet&cond:set)res|=cond.Check(T,P);
+		return res;
+	},this));
+	return *this;
+}
 void TrackConditionSet::ReferenceEvent(){
 	double M=m_distr();
 	reference->Fill(M);
@@ -83,7 +99,7 @@ void Analyser2D::Setup(ValueParamDependent B, int binsB, double fromB, double to
 	}
 }
 Analyser2D::~Analyser2D(){}
-void Analyser2D::AcceptEvent(vector<double>&Parameters){
+void Analyser2D::AcceptEvent(const vector<double>&Parameters){
 	double B=m_B(Parameters);
 	double A=m_distr();
 	ForAllA->Fill(B);

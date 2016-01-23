@@ -6,22 +6,30 @@
 #include <vector>
 #include <string>
 #include "analysis.h"
+//WTrack cannot be transfered as const because
+//it does not contain const methods 
+//(even those ones that really should be)
 typedef std::function<double()> ValueIndependent;
 typedef std::function<double(WTrack&)> ValueTrackDependent;
-typedef std::function<double(std::vector<double>&)> ValueParamDependent;
+typedef std::function<double(const std::vector<double>&)> ValueParamDependent;
 typedef std::function<bool()> ConditionIndependent;
 typedef std::function<bool(WTrack&)> ConditionTrackDependent;
-typedef std::function<bool(std::vector<double>&)> ConditionParamDependent;
+typedef std::function<bool(const std::vector<double>&)> ConditionParamDependent;
+typedef std::function<bool(WTrack&,const std::vector<double>&)> ConditionTrackParamDependent;
 class Analyser2D;
 class TrackConditionSet{
 	friend class Analyser2D;
 public:
-	typedef std::function<bool(WTrack&,std::vector<double>&)> Condition;
+	typedef std::function<bool(WTrack&,std::vector<double>&)> InternalCondition;
 	TrackConditionSet(std::string&&name,ValueIndependent distr,int bins,double from,double to);
 	TrackConditionSet(std::string&&name,const TrackConditionSet&master);
 	virtual ~TrackConditionSet();
 	TrackConditionSet&AddParameter(std::string&&name,ValueTrackDependent parameter);
-	TrackConditionSet&AddCondition(std::string&&name,Condition condition);
+	TrackConditionSet&AddConditions(string&& name,std::vector<TrackConditionSet>&set);
+	TrackConditionSet&AddCondition(std::string&&name,ConditionTrackParamDependent condition);
+	TrackConditionSet&AddCondition(std::string&&name,ConditionTrackDependent condition);
+	TrackConditionSet&AddCondition(std::string&&name,ConditionParamDependent condition);
+	TrackConditionSet&AddCondition(std::string&&name,ConditionIndependent condition);
 	void ReferenceEvent();
 	bool Check(WTrack&track,std::vector<double>&parameters);
 protected:
@@ -46,11 +54,11 @@ private:
 	};
 	class TrackCondition:public TrackCalc{
 	public:
-		TrackCondition(const std::string&n,Condition delegate,TrackConditionSet*master);
+		TrackCondition(const std::string&n,InternalCondition delegate,TrackConditionSet*master);
         virtual ~TrackCondition();
 		bool Check(WTrack&,std::vector<double>&,double magnitude);
 	private:
-		Condition condition;
+		InternalCondition condition;
 		TH1F* output;
 	};
 	std::vector<std::shared_ptr<TrackCalc>> calc_procs;
@@ -63,7 +71,7 @@ public:
 	Analyser2D(std::string&&name,const TrackConditionSet&);
 	void Setup(ValueParamDependent B,int binsB,double fromB,double toB);
 	virtual ~Analyser2D();
-	void AcceptEvent(std::vector<double>&);
+	void AcceptEvent(const std::vector<double>&);
 private:
 	std::string m_name;
 	ValueParamDependent m_B;

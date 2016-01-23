@@ -15,9 +15,9 @@ He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analys
 	SubLog log=Log(LogDebug);
 	AddParticleToFirstVertex(kHe3,m_3He);
 	ForwardLayerCuts.push_back(
-		TrackConditionSet("FRH1",Reconstruction).AddCondition("Stopping",[this](WTrack&track,vector<double>&){
+		TrackConditionSet("FRH1",Reconstruction).AddCondition("Stopping",[this](WTrack&track){
 			return (StopPlane(track)==kFRH1);
-		}).AddCondition("He3Locus",[this](WTrack&track,vector<double>&){
+		}).AddCondition("He3Locus",[this](WTrack&track){
 			//Achtung - static
 			static TCutG *cut=nullptr;
 			if(cut==nullptr){
@@ -53,9 +53,9 @@ He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analys
 		})
 	);
 	ForwardLayerCuts.push_back(
-		TrackConditionSet("FRH2",Reconstruction).AddCondition("Stopping",[this](WTrack&track,vector<double>&){
+		TrackConditionSet("FRH2",Reconstruction).AddCondition("Stopping",[this](WTrack&track){
 			return (StopPlane(track)==kFRH2);
-		}).AddCondition("He3Locus",[this](WTrack&track,vector<double>&){
+		}).AddCondition("He3Locus",[this](WTrack&track){
 			vector<double> Ed={EDep(track,kFRH1),EDep(track,kFRH2)};
 			return 
 				(Ed[0]>(0.25-0.417*Ed[1]))&&(Ed[0]<(0.35-0.417*Ed[1]))
@@ -74,31 +74,28 @@ He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analys
 			return energy.Reconstruct(track);
 		})
 	);
-	Reconstruction.AddCondition("Theta_reconstruction_correct",[this](WTrack&track,vector<double>&P){
+	Reconstruction.AddCondition("Theta_reconstruction_correct",[this](WTrack&track){
 		ForwardDetectorTrackMarker(0,track);
 		//ToDo: replace by more reasonable condition
-		return 0.125!=track.Theta();//Magic number taken from framework
-	}).AddCondition("Edep_cuts",[this](WTrack&track,vector<double>&P){
-		ForwardDetectorTrackMarker(1,track);
-		bool res=false;
-		for(auto&layer:ForwardLayerCuts)res|=layer.Check(track,P);
-		return res;
-	}).AddParameter("Theta",[this](WTrack&track){
+		bool condition=(0.125!=track.Theta());//Magic number taken from framework
+		if(condition)ForwardDetectorTrackMarker(1,track);
+		return condition;
+	}).AddConditions("Edep_cuts",ForwardLayerCuts).AddParameter("Theta",[this](WTrack&track){
 		ForwardDetectorTrackMarker(4,track);
 		return track.Theta();
 	}).AddParameter("Phi",[this](WTrack&track){
 		return NormPhi(track.Phi());
-	}).AddCondition("Reconstructed",[this](WTrack&track,vector<double>&P){
+	}).AddCondition("Reconstructed",[this](const vector<double>&P){
 		return isfinite(P[0])&&isfinite(P[1])&&isfinite(P[2]);
-	}).AddCondition("Additional",[this](WTrack&track,vector<double>&P){
+	}).AddCondition("Additional",[this](WTrack&track,const vector<double>&P){
 		ForwardDetectorTrackMarker(5,track);
 		for(auto condition:this->AdditionalConditions)
-			if(condition(track)==false)
+			if(condition(track,P)==false)
 				return false;
 		ForwardDetectorTrackMarker(6,track);
 		return true;
 	});
-	MissingMass.Setup([this](vector<double>&He3){
+	MissingMass.Setup([this](const vector<double>&He3){
 		double p=sqrt(He3[0]*(He3[0]+2*m_3He));
 		TVector3 p_He3;
 		p_He3.SetMagThetaPhi(p,He3[1],He3[2]);
@@ -117,7 +114,7 @@ He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analys
 		}
 		TLorentzVector P_Missing=P_Total-P_He3;
 		return P_Missing.M();
-	},300,m_pi0-0.05,m_eta+0.05);
+	},200,m_pi0-0.05,m_eta+0.05);
 	AddTrackProcessing(kFDC,[this](WTrack&track){
 		vector<double> He3params;
 		if(Reconstruction.Check(track,He3params))
@@ -125,7 +122,7 @@ He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analys
 	});
 }
 He3_in_forward::~He3_in_forward(){}
-void He3_in_forward::AddCondition(ConditionTrackDependent condition){
+void He3_in_forward::AddCondition(ConditionTrackParamDependent condition){
 	AdditionalConditions.push_back(condition);
 }
 bool He3_in_forward::EventPreProcessing(){
@@ -137,10 +134,10 @@ bool He3_in_forward::TrackCountTrigger(int CinC,int NinC,int CinF,int NinF){
 }
 void He3_in_forward::EventPostProcessing(){}
 
-He3_Modification_for_reconstruction::He3_Modification_for_reconstruction()
+He3_forward_Modification_for_reconstruction::He3_forward_Modification_for_reconstruction()
 	:He3_in_forward(-70.0,40.0,1){}
-He3_Modification_for_eta::He3_Modification_for_eta():He3_in_forward(0.0,30.0,12){
-	AddCondition([this](WTrack&track){
+He3_forward_Modification_for_eta::He3_forward_Modification_for_eta():He3_in_forward(0.0,30.0,12){
+	AddCondition([this](WTrack&track,const vector<double>&){
 		if(StopPlane(track)!=kFRH1)
 			return false;
 		double E=EDep(track,kFRH1);
