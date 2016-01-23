@@ -83,6 +83,9 @@ private:
 };
 struct Axis{
 	Axis(ValueTrackParamDependent v,double f, double t,unsigned int b);
+	Axis(ValueTrackDependent v,double f, double t,unsigned int b);
+	Axis(ValueParamDependent v,double f, double t,unsigned int b);
+	Axis(ValueIndependent v,double f, double t,unsigned int b);
 	ValueTrackParamDependent value;
 	double from;
 	double to;
@@ -97,6 +100,7 @@ public:
 	typedef std::function<point(WTrack&,const vector<double>&)> Process;
 	typedef std::pair<TH2F*,Process> Item;
 	void Add(string&&name,const Axis&X,const Axis&Y);
+	void Add(string&&name,Axis&&X,Axis&&Y);
 private:
 	std::string m_name;
 	std::vector<Item> jobs;

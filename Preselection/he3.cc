@@ -80,7 +80,8 @@ He3_in_forward::He3_in_forward(double Q_lo,double Q_hi,unsigned int bins):Analys
 		bool condition=(0.125!=track.Theta());//Magic number taken from framework
 		if(condition)ForwardDetectorTrackMarker(1,track);
 		return condition;
-	}).AddConditions("Edep_cuts",ForwardLayerCuts).AddParameter("Theta",[this](WTrack&track){
+	}).AddConditions("Edep_cuts",ForwardLayerCuts)
+	.AddParameter("Theta",[this](WTrack&track){
 		ForwardDetectorTrackMarker(4,track);
 		return track.Theta();
 	}).AddParameter("Phi",[this](WTrack&track){
@@ -142,5 +143,14 @@ He3_forward_Modification_for_eta::He3_forward_Modification_for_eta():He3_in_forw
 			return false;
 		double E=EDep(track,kFRH1);
 		return (E>0.08)&&(E<0.22);
+	});
+}
+He3_forward_rec_check::He3_forward_rec_check():He3_forward_Modification_for_eta(),kin_hist("He3KinForward"){
+	Axis He3E([](const vector<double>&P){return P[0];},0.15,0.6,100);
+	Axis He3Th([](const vector<double>&P){return P[1];},0.10,0.16,100);
+	kin_hist.Add("CheckThetaEkin",He3E,He3Th);
+	AddCondition([this](WTrack&T,const vector<double>&P){
+		kin_hist.CatchState(T,P);
+		return true;
 	});
 }

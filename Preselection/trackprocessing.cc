@@ -112,12 +112,17 @@ void Analyser2D::AcceptEvent(const vector<double>&Parameters){
 		A_bin[index]->Fill(B);
 	}
 }
+
 Axis::Axis(ValueTrackParamDependent v, double f, double t, unsigned int b){
-	value=v;
-	from=f;
-	to=t;
-	bins=b;
+	value=v;from=f;to=t;bins=b;
 }
+Axis::Axis(ValueTrackDependent v, double f, double t, unsigned int b)
+	:Axis([v](WTrack&track,const vector<double>&){return v(track);},f,t,b){}
+Axis::Axis(ValueParamDependent v, double f, double t, unsigned int b)
+	:Axis([v](WTrack&,const vector<double>&param){return v(param);},f,t,b){}
+Axis::Axis(ValueIndependent v, double f, double t, unsigned int b)
+	:Axis([v](WTrack&,const vector<double>&){return v();},f,t,b){}
+
 
 Debug2DSpectraSet::Debug2DSpectraSet(string&&name):m_name(name){}
 Debug2DSpectraSet::~Debug2DSpectraSet(){}
@@ -134,4 +139,7 @@ void Debug2DSpectraSet::Add(string&&name,const Axis& X, const Axis& Y){
 	TH2F* hist=new TH2F(name.c_str(),"",X.bins,X.from,X.to,Y.bins,Y.from,Y.to);
 	gHistoManager->Add(hist,m_name.c_str());
 	jobs.push_back(make_pair(hist,Create(X.value,Y.value)));
+}
+void Debug2DSpectraSet::Add(string&& name, Axis&& X, Axis&& Y){
+	Add(static_cast<string&&>(name),X,Y);
 }

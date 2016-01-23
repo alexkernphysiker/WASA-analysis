@@ -32,6 +32,12 @@ class He3_forward_Modification_for_eta:public He3_in_forward{
 public:
 	He3_forward_Modification_for_eta();
 };
+class He3_forward_rec_check:public He3_forward_Modification_for_eta{
+public:
+	He3_forward_rec_check();
+private:
+	Debug2DSpectraSet kin_hist;
+};
 template<class He3>class He3eta:public CustomAnalysis<MonteCarlo,He3>{
 	public:He3eta(){He3_in_forward::AddParticleToFirstVertex(kEta,m_eta);}
 };
@@ -42,7 +48,7 @@ template<class He3>class He3pi0:public CustomAnalysis<MonteCarlo,He3>{
 
 typedef CustomAnalysis<MonteCarlo,He3eta<He3_forward_Modification_for_reconstruction>> RE_He3eta_forward;
 typedef CustomAnalysis<MonteCarlo,He3pi0<He3_forward_Modification_for_reconstruction>> RE_He3pi0_forward;
-typedef CustomAnalysis<MonteCarlo,He3eta<He3_forward_Modification_for_eta>> MC_He3eta_forward;
+typedef CustomAnalysis<MonteCarlo,He3eta<He3_forward_rec_check>> MC_He3eta_forward;
 typedef CustomAnalysis<MonteCarlo,He3pi0<He3_forward_Modification_for_eta>> MC_He3pi0_forward;
 typedef CustomAnalysis<RealData,He3_forward_Modification_for_eta> Data_He3_forward;
 #endif 
