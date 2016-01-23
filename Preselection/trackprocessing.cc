@@ -112,15 +112,21 @@ void Analyser2D::AcceptEvent(const vector<double>&Parameters){
 		A_bin[index]->Fill(B);
 	}
 }
+Axis::Axis(ValueTrackParamDependent v, double f, double t, unsigned int b){
+	value=v;
+	from=f;
+	to=t;
+	bins=b;
+}
 
 Debug2DSpectraSet::Debug2DSpectraSet(string&&name):m_name(name){}
 Debug2DSpectraSet::~Debug2DSpectraSet(){}
-Debug2DSpectraSet::Process Debug2DSpectraSet::Create(ValueTrackDependent x, ValueTrackDependent y){
-	return [this,x,y](WTrack&track){return make_pair(x(track),y(track));};
+Debug2DSpectraSet::Process Debug2DSpectraSet::Create(ValueTrackParamDependent x, ValueTrackParamDependent y){
+	return [this,x,y](WTrack&track,const vector<double>&P){return make_pair(x(track,P),y(track,P));};
 }
-void Debug2DSpectraSet::CatchState(WTrack& track){
+void Debug2DSpectraSet::CatchState(WTrack& track,const vector<double>&params){
 	for(Item&item:jobs){
-		point P=item.second(track);
+		point P=item.second(track,params);
 		item.first->Fill(P.first,P.second);
 	}
 }

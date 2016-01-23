@@ -12,6 +12,7 @@
 typedef std::function<double()> ValueIndependent;
 typedef std::function<double(WTrack&)> ValueTrackDependent;
 typedef std::function<double(const std::vector<double>&)> ValueParamDependent;
+typedef std::function<double(WTrack&,const std::vector<double>&)> ValueTrackParamDependent;
 typedef std::function<bool()> ConditionIndependent;
 typedef std::function<bool(WTrack&)> ConditionTrackDependent;
 typedef std::function<bool(const std::vector<double>&)> ConditionParamDependent;
@@ -81,23 +82,24 @@ private:
 	ValueIndependent m_distr;
 };
 struct Axis{
-	ValueTrackDependent value;
+	Axis(ValueTrackParamDependent v,double f, double t,unsigned int b);
+	ValueTrackParamDependent value;
 	double from;
 	double to;
-	int bins;
+	unsigned int bins;
 };
 class Debug2DSpectraSet{
 public:
 	Debug2DSpectraSet(string&&name);
 	virtual ~Debug2DSpectraSet();
-	void CatchState(WTrack&track);
+	void CatchState(WTrack&track,const vector<double>&P);
 	typedef std::pair<double,double> point;
-	typedef std::function<point(WTrack&)> Process;
+	typedef std::function<point(WTrack&,const vector<double>&)> Process;
 	typedef std::pair<TH2F*,Process> Item;
 	void Add(string&&name,const Axis&X,const Axis&Y);
 private:
 	std::string m_name;
 	std::vector<Item> jobs;
-	Process Create(ValueTrackDependent x,ValueTrackDependent y);
+	Process Create(ValueTrackParamDependent x,ValueTrackParamDependent y);
 };
 #endif 
