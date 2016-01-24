@@ -40,7 +40,7 @@ int main(int argc, char **arg){
 		const_cast<char*>(react.c_str()),
 		const_cast<char*>(ReplaceAll(ReplaceAll(ReplaceAll(react," ",""),"[","_"),"]","_").c_str())
 		,1,0,0,0);
-	my_reaction.Loop(5000000);
+	my_reaction.Loop(3000000);
 	POPD();
 	return 0;
 }
