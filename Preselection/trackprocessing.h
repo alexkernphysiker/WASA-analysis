@@ -31,7 +31,7 @@ namespace TrackAnalyse{
 		double left()const;
 		double right()const;
 		unsigned int count()const;
-		double getvalue(WTrack&T,const std::vector<double>&P)const;
+		double getvalue(WTrack&T,const vector<double>&P)const;
 		ValueTrackParamDependent valuegetter()const;
 		double bin_width()const;
 		double bin_center(size_t i)const;
@@ -58,7 +58,7 @@ namespace TrackAnalyse{
 	
 	class Hist1D:public ITrackParamAnalyse{
 	public:
-		Hist1D(string&&name,const Axis&x);
+		Hist1D(string&&dir,string&&name,const Axis&x);
 		virtual ~Hist1D();
 	protected:
 		virtual void Analyse(WTrack&,const vector<double>&)const override;
@@ -68,7 +68,7 @@ namespace TrackAnalyse{
 	};
 	class SetOfHists1D:public ITrackParamAnalyse{
 	public:
-		SetOfHists1D(string&&name,const Axis&binning,const Axis&x);
+		SetOfHists1D(string&&dir,string&&name,const Axis&binning,const Axis&x);
 		virtual ~SetOfHists1D();
 	protected:
 		virtual void Analyse(WTrack&,const vector<double>&)const override;
@@ -80,7 +80,7 @@ namespace TrackAnalyse{
 
 	class Hist2D:public ITrackParamAnalyse{
 	public:
-		Hist2D(string&&name,const Axis&x,const Axis&y);
+		Hist2D(string&&dir,string&&name,const Axis&x,const Axis&y);
 		virtual ~Hist2D();
 	protected:
 		virtual void Analyse(WTrack&,const vector<double>&)const override;
@@ -90,7 +90,7 @@ namespace TrackAnalyse{
 	};
 	class SetOfHists2D:public ITrackParamAnalyse{
 	public:
-		SetOfHists2D(string&&name,const Axis&binning,const Axis&x,const Axis&y);
+		SetOfHists2D(string&&dir,string&&name,const Axis&binning,const Axis&x,const Axis&y);
 		virtual ~SetOfHists2D();
 	protected:
 		virtual void Analyse(WTrack&,const vector<double>&)const override;
@@ -99,7 +99,6 @@ namespace TrackAnalyse{
 		TH2F *All,*OutOfBorder;
 		vector<TH2F*> Bins;
 	};
-	
 	class Condition:public ITrackParamProcess{
 	public:
 		Condition(ConditionTrackParamDependent func);
@@ -161,6 +160,12 @@ namespace TrackAnalyse{
 	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,ConditionIndependent f){
 		return ch<<make_shared<Condition>(f);
 	}
+	class Chain:public AbstractChain{
+	public:
+		Chain(){}
+		virtual ~Chain(){}
+		virtual bool Process(WTrack&,vector<double>&)const override;
+	};
 	class ChainAnd:public AbstractChain{
 	public:
 		ChainAnd(){}

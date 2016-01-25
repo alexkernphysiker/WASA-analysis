@@ -4,7 +4,7 @@
 #define GXMEYPWAEFAIYNHM
 #include "analysis.h"
 #include "reconstruction.h"
-class RealData:public virtual Analysis{
+class RealData:public Analysis{
 public:
 	RealData();
 	virtual ~RealData();

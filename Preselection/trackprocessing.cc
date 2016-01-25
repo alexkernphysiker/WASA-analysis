@@ -75,20 +75,20 @@ namespace TrackAnalyse{
 		return true;
 	}
 	
-	Hist1D::Hist1D(string&& name, const Axis& x):X(x){
+	Hist1D::Hist1D(string&&dir,string&& name, const Axis& x):X(x){
 		hist=new TH1F(name.c_str(),"",X.count(),X.left(),X.right());
-		gHistoManager->Add(hist,"GeneralHistograms");
+		gHistoManager->Add(hist,dir.c_str());
 	}
 	Hist1D::~Hist1D(){}
 	void Hist1D::Analyse(WTrack&T, const vector<double>&P)const{hist->Fill(X.getvalue(T,P));}
-	SetOfHists1D::SetOfHists1D(string&& name, const Axis& binning, const Axis& x):Z(binning),X(x){
-		All=new TH1F("ForAllBins","",X.count(),X.left(),X.right());
-		gHistoManager->Add(All,name.c_str());
-		OutOfBorder=new TH1F("OutOfBins","",X.count(),X.left(),X.right());
-		gHistoManager->Add(OutOfBorder,name.c_str());
+	SetOfHists1D::SetOfHists1D(string&&dir,string&& name, const Axis& binning, const Axis& x):Z(binning),X(x){
+		All=new TH1F((name+"-AllBins").c_str(),"",X.count(),X.left(),X.right());
+		gHistoManager->Add(All,dir.c_str());
+		OutOfBorder=new TH1F((name+"-OutOfBins").c_str(),"",X.count(),X.left(),X.right());
+		gHistoManager->Add(OutOfBorder,dir.c_str());
 		for(unsigned int i=0;i<Z.count();i++){
-			TH1F*hist=new TH1F(to_string(i).c_str(),"",X.count(),X.left(),X.right());
-			gHistoManager->Add(hist,name.c_str());
+			TH1F*hist=new TH1F((name+"-Bin-"+to_string(i)).c_str(),"",X.count(),X.left(),X.right());
+			gHistoManager->Add(hist,dir.c_str());
 			Bins.push_back(hist);
 		}
 	}
@@ -103,20 +103,20 @@ namespace TrackAnalyse{
 			OutOfBorder->Fill(x);
 		}
 	}
-	Hist2D::Hist2D(string&& name, const Axis& x, const Axis& y):X(x),Y(y){
+	Hist2D::Hist2D(string&&dir,string&& name, const Axis& x, const Axis& y):X(x),Y(y){
 		hist=new TH2F(name.c_str(),"",X.count(),X.left(),X.right(),Y.count(),Y.left(),Y.right());
-		gHistoManager->Add(hist,"GeneralHistograms");
+		gHistoManager->Add(hist,dir.c_str());
 	}
 	Hist2D::~Hist2D(){}
 	void Hist2D::Analyse(WTrack&T, const vector<double>&P)const{hist->Fill(X.getvalue(T,P),Y.getvalue(T,P));}
-	SetOfHists2D::SetOfHists2D(string&& name, const Axis& binning, const Axis& x, const Axis& y):Z(binning),X(x),Y(y){
-		All=new TH2F("ForAllBins","",X.count(),X.left(),X.right(),Y.count(),Y.left(),Y.right());
-		gHistoManager->Add(All,name.c_str());
-		OutOfBorder=new TH2F("OutOfBins","",X.count(),X.left(),X.right(),Y.count(),Y.left(),Y.right());
-		gHistoManager->Add(OutOfBorder,name.c_str());
+	SetOfHists2D::SetOfHists2D(string&&dir,string&& name, const Axis& binning, const Axis& x, const Axis& y):Z(binning),X(x),Y(y){
+		All=new TH2F((name+"-AllBins").c_str(),"",X.count(),X.left(),X.right(),Y.count(),Y.left(),Y.right());
+		gHistoManager->Add(All,dir.c_str());
+		OutOfBorder=new TH2F((name+"-OutOfBins").c_str(),"",X.count(),X.left(),X.right(),Y.count(),Y.left(),Y.right());
+		gHistoManager->Add(OutOfBorder,dir.c_str());
 		for(unsigned int i=0;i<Z.count();i++){
-			TH2F*hist=new TH2F(to_string(i).c_str(),"",X.count(),X.left(),X.right(),Y.count(),Y.left(),Y.right());
-			gHistoManager->Add(hist,name.c_str());
+			TH2F*hist=new TH2F((name+"-Bin-"+to_string(i)).c_str(),"",X.count(),X.left(),X.right(),Y.count(),Y.left(),Y.right());
+			gHistoManager->Add(hist,dir.c_str());
 			Bins.push_back(hist);
 		}
 	}
@@ -132,7 +132,6 @@ namespace TrackAnalyse{
 			OutOfBorder->Fill(x,y);
 		}
 	}
-	
 	Condition::Condition(ConditionTrackParamDependent func){
 		condition=func;
 	}
@@ -165,6 +164,10 @@ namespace TrackAnalyse{
 	void AbstractChain::Cycle(function<void(bool)>func,WTrack&T,vector<double>&P) const{
 		for(auto element:m_chain)
 			func(element->Process(T,P));
+	}
+	bool Chain::Process(WTrack&T, vector< double >&P) const{
+		Cycle([](bool){},T,P);
+		return true;
 	}
 	bool ChainAnd::Process(WTrack&T, vector< double >&P) const{
 		bool res=true;

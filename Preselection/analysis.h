@@ -32,7 +32,6 @@ protected:
 public:
 	virtual ~Analysis();
 	virtual void ProcessEvent()final;
-protected:
 	class TriggerProcess{
 	public:
 		TriggerProcess(int n);
@@ -52,6 +51,7 @@ protected:
 		TrackTypeRecs m_chain;
 	};
 	TriggerProcess&Trigger(int n);
+protected:
 	virtual bool DataTypeSpecificEventAnalysis()=0;
 	virtual bool DataSpecificTriggerCheck(int n)=0;
 	//Beam momenta calculation
@@ -76,18 +76,5 @@ private:
 	vector<particle_info> first_vertex;
 	double p_beam_cache;
 	unsigned long m_count;
-};
-template <class datatype,class reaction>
-class CustomAnalysis:public virtual datatype,public virtual reaction{
-public:
-	CustomAnalysis():Analysis(),datatype(),reaction(){}
-	virtual ~CustomAnalysis(){}
-protected:
-	virtual bool DataTypeSpecificEventAnalysis()override{
-		return datatype::DataTypeSpecificEventAnalysis();
-	}
-	virtual bool DataSpecificTriggerCheck(int n)override{
-		return datatype::DataSpecificTriggerCheck(n);
-	}
 };
 #endif
