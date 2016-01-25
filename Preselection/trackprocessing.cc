@@ -1,8 +1,10 @@
 // this file is distributed under 
 // MIT license
+#include "math_h/error.h"
 #include "trackprocessing.h"
 #include "../config.h"
 using namespace std;
+using namespace MathTemplates;
 TrackConditionSet::TrackConditionSet(string&&name, ValueIndependent distr,int bins,double from,double to){
 	m_name=name;m_distr=distr;m_bins=bins;m_from=from;m_to=to;
 	reference=new TH1F("Reference","",m_bins,m_from,m_to);
@@ -115,6 +117,7 @@ void Analyser2D::AcceptEvent(const vector<double>&Parameters){
 
 Axis::Axis(ValueTrackParamDependent v, double f, double t, unsigned int b){
 	value=v;from=f;to=t;bins=b;
+	CheckCorrectness();
 }
 Axis::Axis(ValueTrackDependent v, double f, double t, unsigned int b)
 	:Axis([v](WTrack&track,const vector<double>&){return v(track);},f,t,b){}
@@ -122,7 +125,44 @@ Axis::Axis(ValueParamDependent v, double f, double t, unsigned int b)
 	:Axis([v](WTrack&,const vector<double>&param){return v(param);},f,t,b){}
 Axis::Axis(ValueIndependent v, double f, double t, unsigned int b)
 	:Axis([v](WTrack&,const vector<double>&){return v();},f,t,b){}
-
+Axis::Axis(const Axis& source):Axis(source.value,source.from,source.to,source.bins){}
+Axis::~Axis(){}
+void Axis::CheckCorrectness() const{
+	if(to<=from)
+		throw Exception<Axis>("wrong binning ranges");
+	if(0==bins)
+		throw Exception<Axis>("there cannot be zero bins");
+}
+unsigned int Axis::count() const{return bins;}
+double Axis::left() const{return from;}
+double Axis::right() const{return to;}
+double Axis::bin_width() const{
+	if(0==bins)throw Exception<Axis>("count==0");
+	return (to-from)/double(bins);
+}
+double Axis::bin_center(size_t i) const{
+	if(i>=bins)throw Exception<Axis>("bin range check error");
+	return from+bin_width()*(double(i)+0.5);
+}
+double Axis::getvalue(WTrack& T, const vector< double >& P) const{
+	return value(T,P);
+}
+ValueTrackParamDependent Axis::valuegetter() const{
+	return value;
+}
+bool Axis::FindBinIndex(unsigned int& output, WTrack& T, const vector< double >& P) const{
+	double x=getvalue(T,P),delta=bin_width()/2.0;
+	if(delta<=0)throw Exception<Axis>("delta<=0");
+	for(size_t i=0,n=count();i<n;i++){
+		double pos=bin_center(i);
+		if((x>=(pos-delta))&&(x<(pos+delta))){
+			output=i;
+			return true;
+		}
+	}
+	return false;
+	
+}
 
 Debug2DSpectraSet::Debug2DSpectraSet(string&&name):m_name(name){}
 Debug2DSpectraSet::~Debug2DSpectraSet(){}
@@ -136,10 +176,25 @@ void Debug2DSpectraSet::CatchState(WTrack& track,const vector<double>&params){
 	}
 }
 void Debug2DSpectraSet::Add(string&&name,const Axis& X, const Axis& Y){
-	TH2F* hist=new TH2F(name.c_str(),"",X.bins,X.from,X.to,Y.bins,Y.from,Y.to);
+	TH2F* hist=new TH2F(name.c_str(),"",X.count(),X.left(),X.right(),Y.count(),Y.left(),Y.right());
 	gHistoManager->Add(hist,m_name.c_str());
-	jobs.push_back(make_pair(hist,Create(X.value,Y.value)));
+	jobs.push_back(make_pair(hist,Create(X.valuegetter(),Y.valuegetter())));
 }
 void Debug2DSpectraSet::Add(string&& name, Axis&& X, Axis&& Y){
 	Add(static_cast<string&&>(name),X,Y);
+}
+
+Debug2DSpectraBined::Debug2DSpectraBined(string&& name, const Axis& x, const Axis& y, const Axis& z):X(x),Y(y),Z(z){
+	for(unsigned int i=0; i<Z.count();i++){
+		TH2F* hist=new TH2F(to_string(Z.bin_center(i)).c_str(),"",X.count(),X.left(),X.right(),Y.count(),Y.left(),Y.right());
+		gHistoManager->Add(hist,name.c_str());
+		sp2.push_back(hist);
+	}
+}
+Debug2DSpectraBined::Debug2DSpectraBined(string&& name, Axis&& x, Axis&& y, Axis&& z):Debug2DSpectraBined(static_cast<string&&>(name),x,y,z){}
+Debug2DSpectraBined::~Debug2DSpectraBined(){}
+void Debug2DSpectraBined::CatchState(WTrack& T, const vector< double >& P){
+	unsigned int i=0;
+	if(Z.FindBinIndex(i,T,P))
+		sp2[i]->Fill(X.getvalue(T,P),Y.getvalue(T,P));
 }

@@ -81,11 +81,24 @@ private:
 	TH1F* reference;
 	ValueIndependent m_distr;
 };
-struct Axis{
+class Axis{
+public:
 	Axis(ValueTrackParamDependent v,double f, double t,unsigned int b);
 	Axis(ValueTrackDependent v,double f, double t,unsigned int b);
 	Axis(ValueParamDependent v,double f, double t,unsigned int b);
 	Axis(ValueIndependent v,double f, double t,unsigned int b);
+	Axis(const Axis&source);
+	~Axis();
+	double left()const;
+	double right()const;
+	unsigned int count()const;
+	double getvalue(WTrack&T,const std::vector<double>&P)const;
+	ValueTrackParamDependent valuegetter()const;
+	double bin_width()const;
+	double bin_center(size_t i)const;
+	bool FindBinIndex(unsigned int&output,WTrack&T,const std::vector<double>&P)const;
+private:
+	void CheckCorrectness()const;
 	ValueTrackParamDependent value;
 	double from;
 	double to;
@@ -105,5 +118,15 @@ private:
 	std::string m_name;
 	std::vector<Item> jobs;
 	Process Create(ValueTrackParamDependent x,ValueTrackParamDependent y);
+};
+class Debug2DSpectraBined{
+public:
+	Debug2DSpectraBined(string&&name,const Axis&x,const Axis&y,const Axis&z);
+	Debug2DSpectraBined(string&&name,Axis&&x,Axis&&y,Axis&&z);
+	virtual ~Debug2DSpectraBined();
+	void CatchState(WTrack&track,const vector<double>&P);
+private:
+	std::vector<TH2F*> sp2;
+	Axis X,Y,Z;
 };
 #endif 
