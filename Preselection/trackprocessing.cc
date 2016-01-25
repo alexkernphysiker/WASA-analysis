@@ -1,5 +1,20 @@
 // this file is distributed under 
 // MIT license
+#include "TH1F.h"
+#include "TH2F.h"
+#include <TLorentzVector.h>
+#include <CAnalysisModule.hh>
+#include <CDataManager.hh>
+#include <FDEdep2Ekin.hh>
+#include <CCardWDET.hh>
+#include <Wasa.hh>
+#include <CAnalysisModule.hh>
+#include <REventWmcHeader.hh>
+#include <REventHeader.hh>
+#include <WTrackBank.hh>
+#include <WVertexBank.hh>
+#include <FDFTHTracks.hh>
+#include <CDTracksSimple.hh>
 #include "math_h/error.h"
 #include "trackprocessing.h"
 #include "../config.h"
@@ -166,9 +181,8 @@ namespace TrackAnalyse{
 		return *this;
 	}
 	void TrackProcess::Process(WTrack& T) const{
-		for(auto proc:m_proc){
-			vector<double> P;
+		vector<double> P;
+		for(auto proc:m_proc)
 			proc->Process(T,P);
-		}
 	}
 }

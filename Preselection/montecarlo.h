@@ -8,11 +8,12 @@ public:
 	MonteCarlo();
 	virtual ~MonteCarlo();
 protected:
-	virtual void PrepairForEventAnalysis()override;
-	virtual bool EventProcessingCondition()override;
+	virtual bool DataTypeSpecificEventAnalysis()override;
+	virtual bool DataSpecificTriggerCheck(int n)override;
 private:
+	REventHeader *fHeader;
+	REventWmcHeader *fEventHeader;
 	WTrackBank *fMCTrackBank;
 	WVertexBank *fMCVertexBank;
-	REventWmcHeader *fEventHeader;
 };
 #endif

@@ -6,7 +6,7 @@
 #include <vector>
 #include <memory>
 #include <string>
-#include "analysis.h"
+#include <WTrack.hh>
 namespace TrackAnalyse{
 	using namespace std;
 	//WTrack cannot be transfered as const because
@@ -182,5 +182,33 @@ namespace TrackAnalyse{
 	private:
 		vector<shared_ptr<ITrackParamProcess>> m_proc;
 	};
+	inline shared_ptr<TrackProcess>operator<<(shared_ptr<TrackProcess>ch,shared_ptr<ITrackParamProcess>v){
+		ch->operator<<(v);
+		return ch;
+	}
+	inline TrackProcess&operator<<(TrackProcess&ch,ValueTrackParamDependent f){
+		return ch<<make_shared<Parameter>(f);
+	}
+	inline TrackProcess&operator<<(TrackProcess&ch,ValueParamDependent f){
+		return ch<<make_shared<Parameter>(f);
+	}
+	inline TrackProcess&operator<<(TrackProcess&ch,ValueTrackDependent f){
+		return ch<<make_shared<Parameter>(f);
+	}
+	inline TrackProcess&operator<<(TrackProcess&ch,ValueIndependent f){
+		return ch<<make_shared<Parameter>(f);
+	}
+	inline TrackProcess&operator<<(TrackProcess&ch,ConditionTrackParamDependent f){
+		return ch<<make_shared<Condition>(f);
+	}
+	inline TrackProcess&operator<<(TrackProcess&ch,ConditionTrackDependent f){
+		return ch<<make_shared<Condition>(f);
+	}
+	inline TrackProcess&operator<<(TrackProcess&ch,ConditionParamDependent f){
+		return ch<<make_shared<Condition>(f);
+	}
+	inline TrackProcess&operator<<(TrackProcess&ch,ConditionIndependent f){
+		return ch<<make_shared<Condition>(f);
+	}
 }
 #endif 

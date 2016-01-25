@@ -13,9 +13,10 @@ RealData::RealData():BeamMomenta("Time.2.PBeam",[this](){
 	fHeader = dynamic_cast<REventHeader*>(gDataManager->GetDataObject("REventHeader","Header"));
 }
 RealData::~RealData(){}
-bool RealData::EventProcessingCondition(){
+bool RealData::DataTypeSpecificEventAnalysis(){
+	CachePBeam(BeamMomenta.Reconstruct()/1000.0);
 	return true;
 }
-void RealData::PrepairForEventAnalysis(){
-	CachePBeam(BeamMomenta.Reconstruct()/1000.0);
+bool RealData::DataSpecificTriggerCheck(int n){
+	return fHeader->TriggerNumSet(n);
 }

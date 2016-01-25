@@ -1,15 +1,11 @@
 // this file is distributed under 
 // MIT license
 #include <functional>
+#include "math_h/error.h"
 #include "analysis.h"
 #define static_right(A) (static_cast<decltype(A)&&>(A))
 using namespace std;
 IAnalysis::~IAnalysis(){}
-TH1F* Hist(string&&name){
-	TH1F* hist=new TH1F(name.c_str(),"",32,-0.5,31.5);
-	gHistoManager->Add(hist,"DebugData");
-	return hist;
-}
 Analysis::Analysis(){
 	m_count=0;
 	AddLogSubprefix("Analysis");
@@ -19,37 +15,48 @@ Analysis::Analysis(){
 	if (CDTrackFinder!=0) fTrackBankCD = CDTrackFinder->GetTrackBank();
 	fDetectorTable = dynamic_cast<CCardWDET*>(gParameterManager->GetParameterObject("CCardWDET","default")); 
 	p_beam_cache=INFINITY;
-	type_hist=Hist("Particle code type");
 }
 Analysis::~Analysis(){}
-Analysis::Kinematic::Kinematic(){
-	E=INFINITY;Th=INFINITY;Phi=INFINITY;
+//Triggers
+Analysis::TriggerProcess::TriggerProcess(int n):N(n){}
+Analysis::TriggerProcess::~TriggerProcess(){}
+Analysis::TriggerProcess::const_iterator Analysis::TriggerProcess::begin()const{
+	return m_chain.begin();
 }
-Analysis::particle_info::particle_info(ParticleType t, double m){
-	type=t;mass=m;
+Analysis::TriggerProcess::const_iterator Analysis::TriggerProcess::cbegin() const{
+	return m_chain.cbegin();
 }
-void Analysis::AddParticleToFirstVertex(ParticleType type, double mass){
-	first_vertex.push_back(particle_info(type,mass));
+Analysis::TriggerProcess::const_iterator Analysis::TriggerProcess::end() const{
+	return m_chain.end();
 }
-double Analysis::PBeam(){return p_beam_cache;}
-void Analysis::CachePBeam(double value){
-	if(value>0)
-		p_beam_cache=value;
-	else
-		throw exception();
+Analysis::TriggerProcess::const_iterator Analysis::TriggerProcess::cend() const{
+	return m_chain.cend();
 }
-Analysis::Kinematic& Analysis::FromFirstVertex(ParticleType type){
-	for(particle_info&info:first_vertex)
-		if(info.type==type)
-			return info.cache;
-	throw exception();
+size_t Analysis::TriggerProcess::size() const{
+	return m_chain.size();
 }
-void Analysis::ForFirstVertex(function<void(ParticleType,double,Kinematic&)> cyclebody){
-	for(particle_info&info:first_vertex)
-		cyclebody(info.type,info.mass,info.cache);
+int Analysis::TriggerProcess::number() const{
+	return N;
 }
-void Analysis::AddTrackProcessing(TrackType ttype,function<void(WTrack&)> func){
-	m_processing.push_back(make_pair(make_pair(ttype,func),Hist(to_string(ttype))));
+TrackAnalyse::TrackProcess& Analysis::TriggerProcess::TrackTypeProcess(TrackType type){
+	for(TrackTypeRec& rec:m_chain)
+		if(type==rec.first)
+			return rec.second;
+	m_chain.push_back(make_pair(type,TrackAnalyse::TrackProcess()));
+	for(TrackTypeRec& rec:m_chain)
+		if(type==rec.first)
+			return rec.second;
+	throw MathTemplates::Exception<TriggerProcess>("Cannot add track type");
+}
+Analysis::TriggerProcess& Analysis::Trigger(int n){
+	for(TriggerProcess& trigger:m_triggers)
+		if(trigger.number()==n)
+			return trigger;
+	m_triggers.push_back(TriggerProcess(n));
+	for(TriggerProcess& trigger:m_triggers)
+		if(trigger.number()==n)
+			return trigger;
+	throw MathTemplates::Exception<Analysis>("Cannot add trigger");
 }
 
 void Analysis::ProcessEvent(){
@@ -57,39 +64,44 @@ void Analysis::ProcessEvent(){
 	if(m_count%1000==0)
 		Log(NoLog)<<to_string(m_count)+" events";
 	SubLog log=Log(LogDebug);
-	log<<"event preparing started";
-	PrepairForEventAnalysis();
-	log<<"event preparing finished";
-	if (EventProcessingCondition()){
-		log<<"event passed the condition";
-		if(p_beam_cache>0){
-			log<<"p_beam>0";
-			if(EventPreProcessing()){
-				log<<"preprocessing returned true. go further";
-				int ChargedCountInCentral = fTrackBankCD->GetEntries(kCDC);
-				int NeutralCountInCentral = fTrackBankCD->GetEntries(kCDN);
-				int ChargedCountinForward = fTrackBankFD->GetEntries(kFDC);
-				int NeutralCountinForward = fTrackBankFD->GetEntries(kFDN);
-				if(TrackCountTrigger(ChargedCountInCentral,NeutralCountInCentral,ChargedCountinForward,NeutralCountinForward)){
-					log<<"Track enumerating";
-					vector<WTrackBank*> BANK;
-					BANK.push_back(fTrackBankCD);
-					BANK.push_back(fTrackBankFD);
-					for(WTrackBank*bank:BANK){
-						WTrackIter iterator(bank);
-						while(WTrack* track = dynamic_cast<WTrack*> (iterator.Next())){
-							type_hist->Fill(track->Type());
-							for(auto&process:m_processing)
-								if(track->Type()==process.first.first){
-									process.second->Fill(track->Type());
-									process.first.second(*track);
-								}
+	if(DataTypeSpecificEventAnalysis()){
+		for(const TriggerProcess& trigger:m_triggers)
+			if(DataSpecificTriggerCheck(trigger.number())){
+				vector<WTrackBank*> BANK;
+				BANK.push_back(fTrackBankCD);
+				BANK.push_back(fTrackBankFD);
+				for(WTrackBank*bank:BANK){
+					WTrackIter iterator(bank);
+					while(WTrack* track = dynamic_cast<WTrack*> (iterator.Next())){
+						for(const TriggerProcess::TrackTypeRec&TT:trigger){
+							if(track->Type()==TT.first)
+								TT.second.Process(*track);
 						}
 					}
-					log<<"Event postprocessing";
-					EventPostProcessing();
-				}log<<"Track count conditions NOT passed";
-			}log<<"preprocessing returned false.";
-		}else Log(LogError)<<"p_beam <= 0";
-	}else log<<"event did not pass the processing condition";
+				}
+			}
+	}
+}
+
+///BEAM MOMENTUM
+double Analysis::PBeam()const{return p_beam_cache;}
+void Analysis::CachePBeam(double value){
+	if(value>0)p_beam_cache=value;
+	else throw MathTemplates::Exception<Analysis>("Wrong beam momentum value");
+}
+///KINEMATICS
+Analysis::Kinematic::Kinematic(){E=INFINITY;Th=INFINITY;Phi=INFINITY;}
+Analysis::particle_info::particle_info(ParticleType t, double m){type=t;mass=m;}
+void Analysis::AddParticleToFirstVertex(ParticleType type, double mass){
+	first_vertex.push_back(particle_info(type,mass));
+}
+Analysis::Kinematic& Analysis::FromFirstVertex(ParticleType type){
+	for(particle_info&info:first_vertex)
+		if(info.type==type)
+			return info.cache;
+	throw MathTemplates::Exception<Analysis>("Particle not found in the vertex");
+}
+void Analysis::ForFirstVertex(function<void(ParticleType,double,Kinematic&)> cyclebody){
+	for(particle_info&info:first_vertex)
+		cyclebody(info.type,info.mass,info.cache);
 }
