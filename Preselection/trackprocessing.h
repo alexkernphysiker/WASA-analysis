@@ -4,129 +4,183 @@
 #define xoyoyptv
 #include <functional>
 #include <vector>
+#include <memory>
 #include <string>
 #include "analysis.h"
-//WTrack cannot be transfered as const because
-//it does not contain const methods 
-//(even those ones that really should be)
-typedef std::function<double()> ValueIndependent;
-typedef std::function<double(WTrack&)> ValueTrackDependent;
-typedef std::function<double(const std::vector<double>&)> ValueParamDependent;
-typedef std::function<double(WTrack&,const std::vector<double>&)> ValueTrackParamDependent;
-typedef std::function<bool()> ConditionIndependent;
-typedef std::function<bool(WTrack&)> ConditionTrackDependent;
-typedef std::function<bool(const std::vector<double>&)> ConditionParamDependent;
-typedef std::function<bool(WTrack&,const std::vector<double>&)> ConditionTrackParamDependent;
-class Analyser2D;
-class TrackConditionSet{
-	friend class Analyser2D;
-public:
-	typedef std::function<bool(WTrack&,std::vector<double>&)> InternalCondition;
-	TrackConditionSet(std::string&&name,ValueIndependent distr,int bins,double from,double to);
-	TrackConditionSet(std::string&&name,const TrackConditionSet&master);
-	virtual ~TrackConditionSet();
-	TrackConditionSet&AddParameter(std::string&&name,ValueTrackDependent parameter);
-	TrackConditionSet&AddConditions(string&& name,std::vector<TrackConditionSet>&set);
-	TrackConditionSet&AddCondition(std::string&&name,ConditionTrackParamDependent condition);
-	TrackConditionSet&AddCondition(std::string&&name,ConditionTrackDependent condition);
-	TrackConditionSet&AddCondition(std::string&&name,ConditionParamDependent condition);
-	TrackConditionSet&AddCondition(std::string&&name,ConditionIndependent condition);
-	void ReferenceEvent();
-	bool Check(WTrack&track,std::vector<double>&parameters);
-protected:
-	TH1F* reference;
-	ValueIndependent m_distr;
-private:
-	class TrackCalc{
+namespace TrackAnalyse{
+	using namespace std;
+	//WTrack cannot be transfered as const because
+	//it does not contain const methods 
+	//(even those ones that really should be)
+	typedef function<double()> ValueIndependent;
+	typedef function<double(WTrack&)> ValueTrackDependent;
+	typedef function<double(const vector<double>&)> ValueParamDependent;
+	typedef function<double(WTrack&,const vector<double>&)> ValueTrackParamDependent;
+	typedef function<bool()> ConditionIndependent;
+	typedef function<bool(WTrack&)> ConditionTrackDependent;
+	typedef function<bool(const vector<double>&)> ConditionParamDependent;
+	typedef function<bool(WTrack&,const vector<double>&)> ConditionTrackParamDependent;
+	class Axis{
 	public:
-		TrackCalc(const std::string&n);
-		virtual ~TrackCalc();
-		std::string&&Name();
+		Axis(ValueTrackParamDependent v,double f, double t,unsigned int b);
+		Axis(ValueTrackDependent v,double f, double t,unsigned int b);
+		Axis(ValueParamDependent v,double f, double t,unsigned int b);
+		Axis(ValueIndependent v,double f, double t,unsigned int b);
+		Axis(const Axis&source);
+		~Axis();
+		double left()const;
+		double right()const;
+		unsigned int count()const;
+		double getvalue(WTrack&T,const std::vector<double>&P)const;
+		ValueTrackParamDependent valuegetter()const;
+		double bin_width()const;
+		double bin_center(size_t i)const;
+		bool FindBinIndex(unsigned int&output,WTrack&T,const std::vector<double>&P)const;
 	private:
-		std::string name;
+		void CheckCorrectness()const;
+		ValueTrackParamDependent value;
+		double from;
+		double to;
+		unsigned int bins;
 	};
-	class ParamCalc:public TrackCalc{
+	class ITrackParamProcess{
 	public:
-		ParamCalc(const std::string&n,ValueTrackDependent);
-		virtual ~ParamCalc();
-		double Get(WTrack&);
-	private:
-		ValueTrackDependent m_delegate;
+		virtual bool Process(WTrack&,vector<double>&)const=0;
+		virtual ~ITrackParamProcess(){}
 	};
-	class TrackCondition:public TrackCalc{
+	class ITrackParamAnalyse:public ITrackParamProcess{
 	public:
-		TrackCondition(const std::string&n,InternalCondition delegate,TrackConditionSet*master);
-        virtual ~TrackCondition();
-		bool Check(WTrack&,std::vector<double>&,double magnitude);
-	private:
-		InternalCondition condition;
-		TH1F* output;
+		virtual bool Process(WTrack&,vector<double>&)const final;
+		virtual ~ITrackParamAnalyse(){}
+	protected:
+		virtual void Analyse(WTrack&,const vector<double>&)const =0;
 	};
-	std::vector<std::shared_ptr<TrackCalc>> calc_procs;
-	std::string m_name;
-	double m_from,m_to; int m_bins;
-	TH1F *beforecut;
-};
-class Analyser2D{
-public:
-	Analyser2D(std::string&&name,const TrackConditionSet&);
-	void Setup(ValueParamDependent B,int binsB,double fromB,double toB);
-	virtual ~Analyser2D();
-	void AcceptEvent(const std::vector<double>&);
-private:
-	std::string m_name;
-	ValueParamDependent m_B;
-	TH1F *ForAllA;
-	std::vector<TH1F*> A_bin;
-	TH1F* reference;
-	ValueIndependent m_distr;
-};
-class Axis{
-public:
-	Axis(ValueTrackParamDependent v,double f, double t,unsigned int b);
-	Axis(ValueTrackDependent v,double f, double t,unsigned int b);
-	Axis(ValueParamDependent v,double f, double t,unsigned int b);
-	Axis(ValueIndependent v,double f, double t,unsigned int b);
-	Axis(const Axis&source);
-	~Axis();
-	double left()const;
-	double right()const;
-	unsigned int count()const;
-	double getvalue(WTrack&T,const std::vector<double>&P)const;
-	ValueTrackParamDependent valuegetter()const;
-	double bin_width()const;
-	double bin_center(size_t i)const;
-	bool FindBinIndex(unsigned int&output,WTrack&T,const std::vector<double>&P)const;
-private:
-	void CheckCorrectness()const;
-	ValueTrackParamDependent value;
-	double from;
-	double to;
-	unsigned int bins;
-};
-class Debug2DSpectraSet{
-public:
-	Debug2DSpectraSet(string&&name);
-	virtual ~Debug2DSpectraSet();
-	void CatchState(WTrack&track,const vector<double>&P);
-	typedef std::pair<double,double> point;
-	typedef std::function<point(WTrack&,const vector<double>&)> Process;
-	typedef std::pair<TH2F*,Process> Item;
-	void Add(string&&name,const Axis&X,const Axis&Y);
-	void Add(string&&name,Axis&&X,Axis&&Y);
-private:
-	std::string m_name;
-	std::vector<Item> jobs;
-	Process Create(ValueTrackParamDependent x,ValueTrackParamDependent y);
-};
-class Debug2DSpectraBined{
-public:
-	Debug2DSpectraBined(string&&name,const Axis&x,const Axis&y,const Axis&z);
-	Debug2DSpectraBined(string&&name,Axis&&x,Axis&&y,Axis&&z);
-	virtual ~Debug2DSpectraBined();
-	void CatchState(WTrack&track,const vector<double>&P);
-private:
-	std::vector<TH2F*> sp2;
-	Axis X,Y,Z;
-};
+	
+	class Hist1D:public ITrackParamAnalyse{
+	public:
+		Hist1D(string&&name,const Axis&x);
+		virtual ~Hist1D();
+	protected:
+		virtual void Analyse(WTrack&,const vector<double>&)const override;
+	private:
+		TH1F *hist;
+		Axis X;
+	};
+	class SetOfHists1D:public ITrackParamAnalyse{
+	public:
+		SetOfHists1D(string&&name,const Axis&binning,const Axis&x);
+		virtual ~SetOfHists1D();
+	protected:
+		virtual void Analyse(WTrack&,const vector<double>&)const override;
+	private:
+		Axis Z,X;
+		TH1F *All,*OutOfBorder;
+		vector<TH1F*> Bins;
+	};
+
+	class Hist2D:public ITrackParamAnalyse{
+	public:
+		Hist2D(string&&name,const Axis&x,const Axis&y);
+		virtual ~Hist2D();
+	protected:
+		virtual void Analyse(WTrack&,const vector<double>&)const override;
+	private:
+		TH2F *hist;
+		Axis X,Y;
+	};
+	class SetOfHists2D:public ITrackParamAnalyse{
+	public:
+		SetOfHists2D(string&&name,const Axis&binning,const Axis&x,const Axis&y);
+		virtual ~SetOfHists2D();
+	protected:
+		virtual void Analyse(WTrack&,const vector<double>&)const override;
+	private:
+		Axis Z,X,Y;
+		TH2F *All,*OutOfBorder;
+		vector<TH2F*> Bins;
+	};
+	
+	class Condition:public ITrackParamProcess{
+	public:
+		Condition(ConditionTrackParamDependent func);
+		Condition(ConditionTrackDependent func);
+		Condition(ConditionParamDependent func);
+		Condition(ConditionIndependent func);
+		virtual ~Condition();
+		virtual bool Process(WTrack&,vector<double>&)const override;
+	private:
+		ConditionTrackParamDependent condition;
+	};
+	class Parameter:public ITrackParamProcess{
+	public:
+		Parameter(ValueTrackParamDependent f);
+		Parameter(ValueParamDependent f);
+		Parameter(ValueTrackDependent f);
+		Parameter(ValueIndependent f);
+		virtual ~Parameter();
+		virtual bool Process(WTrack&,vector<double>&)const override;
+	private:
+		ValueTrackParamDependent func;
+	};
+	class AbstractChain:public ITrackParamProcess{
+	protected:
+		AbstractChain();
+	public:
+		virtual ~AbstractChain();
+		AbstractChain&operator<<(shared_ptr<ITrackParamProcess>element);
+	protected:
+		void Cycle(function<void(bool)>,WTrack&,vector<double>&)const;
+	private:
+		vector<shared_ptr<ITrackParamProcess>> m_chain;
+	};
+	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,shared_ptr<ITrackParamProcess>v){
+		ch->operator<<(v);
+		return ch;
+	}
+	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,ValueTrackParamDependent f){
+		return ch<<make_shared<Parameter>(f);
+	}
+	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,ValueParamDependent f){
+		return ch<<make_shared<Parameter>(f);
+	}
+	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,ValueTrackDependent f){
+		return ch<<make_shared<Parameter>(f);
+	}
+	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,ValueIndependent f){
+		return ch<<make_shared<Parameter>(f);
+	}
+	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,ConditionTrackParamDependent f){
+		return ch<<make_shared<Condition>(f);
+	}
+	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,ConditionTrackDependent f){
+		return ch<<make_shared<Condition>(f);
+	}
+	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,ConditionParamDependent f){
+		return ch<<make_shared<Condition>(f);
+	}
+	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,ConditionIndependent f){
+		return ch<<make_shared<Condition>(f);
+	}
+	class ChainAnd:public AbstractChain{
+	public:
+		ChainAnd(){}
+		virtual ~ChainAnd(){}
+		virtual bool Process(WTrack&,vector<double>&)const override;
+	};
+	class ChainOr:public AbstractChain{
+	public:
+		ChainOr(){}
+		virtual ~ChainOr(){}
+		virtual bool Process(WTrack&,vector<double>&)const override;
+	};
+	class TrackProcess{
+	public:
+		TrackProcess(){}
+		~TrackProcess(){}
+		TrackProcess&operator<<(shared_ptr<ITrackParamProcess>element);
+		void Process(WTrack&T)const;
+	private:
+		vector<shared_ptr<ITrackParamProcess>> m_proc;
+	};
+}
 #endif 
