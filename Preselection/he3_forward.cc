@@ -165,7 +165,7 @@ namespace ReactionSetup{
 		};
 	}
 	shared_ptr<AbstractChain> KinematicTest(const Analysis&data,He3Modification mode){
-		Axis Bkin([&data]()->double{return data.PBeam();},p_he3_eta_threshold,p_beam_hi,50);
+		Axis Bkin([&data]()->double{return data.PBeam();},1.59,1.64,25);
 		Axis Ek([](const vector<double>&P)->double{return P[0];},0.1,0.6,100);
 		Axis Ev([&data]()->double{return data.FromFirstVertex(kHe3).E;},0.1,0.6,100);
 		Axis Th([](const vector<double>&P)->double{return P[1];},0.10,0.16,120);
