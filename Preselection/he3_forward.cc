@@ -27,7 +27,7 @@ namespace ReactionSetup{
 	using namespace std;
 	using namespace TrackAnalyse;
 	string dirname(){return "He3Forward_Reconstruction";};
-	Analysis* Prepare(He3ForwardModification mode){
+	Analysis* Prepare(He3Modification mode){
 		Analysis* res=nullptr;
 		switch(mode){
 			case forData:
@@ -156,31 +156,40 @@ namespace ReactionSetup{
 		})
 		<<make_shared<SetOfHists1D>(dirname(),"MissingMass",Q,M);
 	}
-	shared_ptr<AbstractChain> He3Eta_cut(const Axis&Q){
-		Axis Ek([](const vector<double>&P)->double{return P[0];},0.1,0.6,100);
-		Axis Th([](const vector<double>&P)->double{return P[1];},0.10,0.16,120);
+	shared_ptr<AbstractChain> He3Eta_cut(){
 		return make_shared<ChainCheck>()
 		<<[](WTrack&track)->bool{
 			if(Forward::Get().StoppingLayer(track)!=kFRH1)return false;
 			double E=Forward::Get()[kFRH1].Edep(track);
 			return (E>0.08)&&(E<0.22);
-		}
-		<<make_shared<SetOfHists2D>(dirname(),"Kinematic-test",Q,Ek,Th);
+		};
 	}
-	Analysis* He3_forward_analyse(He3ForwardModification mode){
+	shared_ptr<AbstractChain> KinematicTest(const Analysis&data,He3Modification mode){
+		Axis Bkin([&data]()->double{return data.PBeam();},p_he3_eta_threshold,p_beam_hi,50);
+		Axis Ek([](const vector<double>&P)->double{return P[0];},0.1,0.6,100);
+		Axis Ev([&data]()->double{return data.FromFirstVertex(kHe3).E;},0.1,0.6,100);
+		Axis Th([](const vector<double>&P)->double{return P[1];},0.10,0.16,120);
+		Axis Tv([&data]()->double{return data.FromFirstVertex(kHe3).Th;},0.10,0.16,120);
+		auto res=make_shared<Chain>()<<make_shared<SetOfHists2D>(dirname(),"Kinematic-reconstructed",Bkin,Ek,Th);
+		if(mode==forEta)res<<make_shared<SetOfHists2D>(dirname(),"Kinematic-vertex",Bkin,Ev,Tv);
+		return res;
+	}
+	
+	///Reaction analysis types visible from reactions.h
+	Analysis* He3_forward_analyse(He3Modification mode){
 		auto res=Prepare(mode);
-		Axis Q([res](WTrack&)->double{return 1000.0*Q_He3eta(res->PBeam());},0.0,30.0,12);
+		Axis Q([res]()->double{return 1000.0*Q_He3eta(res->PBeam());},0.0,30.0,12);
 		res->Trigger(0).TrackTypeProcess(kFDC)<<(make_shared<ChainCheck>()
-			<<ReconstructionProcess(*res,Q)
-			<<He3Eta_cut(Q)
-			<<MissingMass(*res,Q)
+			<<ReconstructionProcess(*res,Q)<<He3Eta_cut()<<KinematicTest(*res,mode)<<MissingMass(*res,Q)
 		);
 		return res;
 	}
-	Analysis* He3_forward_reconstruction(He3ForwardModification mode){
+	Analysis* He3_forward_reconstruction(He3Modification mode){
 		auto res=Prepare(mode);
 		Axis Q([res]()->double{return 1000.0*Q_He3eta(res->PBeam());},0.0,30.0,12);
-		res->Trigger(0).TrackTypeProcess(kFDC)<<ReconstructionProcess(*res,Q);
+		res->Trigger(0).TrackTypeProcess(kFDC)<<(make_shared<ChainCheck>()
+			<<ReconstructionProcess(*res,Q)<<KinematicTest(*res,mode)
+		);
 		return res;
 	}
 }
