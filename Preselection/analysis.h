@@ -51,16 +51,16 @@ public:
 		TrackTypeRecs m_chain;
 	};
 	TriggerProcess&Trigger(int n);
+	struct Kinematic{Kinematic();double E,Th,Phi;};
+	Kinematic&FromFirstVertex(ParticleType type)const;
+	double PBeam()const;
+	void AddParticleToFirstVertex(ParticleType type,double mass);
 protected:
 	virtual bool DataTypeSpecificEventAnalysis()=0;
 	virtual bool DataSpecificTriggerCheck(int n)=0;
 	//Beam momenta calculation
-	double PBeam()const;
 	void CachePBeam(double value);
 	//Kinematics calculations
-	void AddParticleToFirstVertex(ParticleType type,double mass);
-	struct Kinematic{Kinematic();double E,Th,Phi;};
-	Kinematic&FromFirstVertex(ParticleType type);
 	void ForFirstVertex(std::function<void(ParticleType,double,Kinematic&)>);
 private:
 	FDFTHTracks* TrackFinderFD;

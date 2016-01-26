@@ -66,7 +66,7 @@ void Analysis::ProcessEvent(){
 	SubLog log=Log(LogDebug);
 	if(DataTypeSpecificEventAnalysis()){
 		for(const TriggerProcess& trigger:m_triggers)
-			if(DataSpecificTriggerCheck(trigger.number())){
+			if((trigger.number()==0)||(DataSpecificTriggerCheck(trigger.number()))){
 				vector<WTrackBank*> BANK;
 				BANK.push_back(fTrackBankCD);
 				BANK.push_back(fTrackBankFD);
@@ -95,10 +95,10 @@ Analysis::particle_info::particle_info(ParticleType t, double m){type=t;mass=m;}
 void Analysis::AddParticleToFirstVertex(ParticleType type, double mass){
 	first_vertex.push_back(particle_info(type,mass));
 }
-Analysis::Kinematic& Analysis::FromFirstVertex(ParticleType type){
-	for(particle_info&info:first_vertex)
+Analysis::Kinematic& Analysis::FromFirstVertex(ParticleType type)const{
+	for(const particle_info&info:first_vertex)
 		if(info.type==type)
-			return info.cache;
+			return const_cast<Kinematic&>(info.cache);
 	throw MathTemplates::Exception<Analysis>("Particle not found in the vertex");
 }
 void Analysis::ForFirstVertex(function<void(ParticleType,double,Kinematic&)> cyclebody){

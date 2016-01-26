@@ -129,24 +129,13 @@ namespace TrackAnalyse{
 		AbstractChain&operator<<(shared_ptr<ITrackParamProcess>element);
 	protected:
 		void Cycle(function<void(bool)>,WTrack&,vector<double>&)const;
+		void CycleCheck(function<void(bool)>,WTrack&,vector<double>&)const;
 	private:
 		vector<shared_ptr<ITrackParamProcess>> m_chain;
 	};
 	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,shared_ptr<ITrackParamProcess>v){
 		ch->operator<<(v);
 		return ch;
-	}
-	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,ValueTrackParamDependent f){
-		return ch<<make_shared<Parameter>(f);
-	}
-	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,ValueParamDependent f){
-		return ch<<make_shared<Parameter>(f);
-	}
-	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,ValueTrackDependent f){
-		return ch<<make_shared<Parameter>(f);
-	}
-	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,ValueIndependent f){
-		return ch<<make_shared<Parameter>(f);
 	}
 	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,ConditionTrackParamDependent f){
 		return ch<<make_shared<Condition>(f);
@@ -164,6 +153,12 @@ namespace TrackAnalyse{
 	public:
 		Chain(){}
 		virtual ~Chain(){}
+		virtual bool Process(WTrack&,vector<double>&)const override;
+	};
+	class ChainCheck:public AbstractChain{
+	public:
+		ChainCheck(){}
+		virtual ~ChainCheck(){}
 		virtual bool Process(WTrack&,vector<double>&)const override;
 	};
 	class ChainAnd:public AbstractChain{
@@ -190,18 +185,6 @@ namespace TrackAnalyse{
 	inline shared_ptr<TrackProcess>operator<<(shared_ptr<TrackProcess>ch,shared_ptr<ITrackParamProcess>v){
 		ch->operator<<(v);
 		return ch;
-	}
-	inline TrackProcess&operator<<(TrackProcess&ch,ValueTrackParamDependent f){
-		return ch<<make_shared<Parameter>(f);
-	}
-	inline TrackProcess&operator<<(TrackProcess&ch,ValueParamDependent f){
-		return ch<<make_shared<Parameter>(f);
-	}
-	inline TrackProcess&operator<<(TrackProcess&ch,ValueTrackDependent f){
-		return ch<<make_shared<Parameter>(f);
-	}
-	inline TrackProcess&operator<<(TrackProcess&ch,ValueIndependent f){
-		return ch<<make_shared<Parameter>(f);
 	}
 	inline TrackProcess&operator<<(TrackProcess&ch,ConditionTrackParamDependent f){
 		return ch<<make_shared<Condition>(f);

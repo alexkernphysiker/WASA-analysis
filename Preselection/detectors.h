@@ -14,14 +14,14 @@ enum ForwardDetectorPlane{
 };
 namespace TrackAnalyse{
 	using namespace std;
-	class ForwardDetectors{
+	class Forward{
 	protected:
-		ForwardDetectors();
+		Forward();
 	public:
-		static const ForwardDetectors&Instance();
-		virtual ~ForwardDetectors();
+		static const Forward&Get();
+		virtual ~Forward();
 		class plane_data{
-			friend class ForwardDetectors;
+			friend class Forward;
 		public:
 			plane_data(ForwardDetectorPlane p,string&&n,double thr,double upper);
 			~plane_data();

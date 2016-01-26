@@ -26,11 +26,11 @@ namespace TrackAnalyse{
 		CheckCorrectness();
 	}
 	Axis::Axis(ValueTrackDependent v, double f, double t, unsigned int b)
-	:Axis([v](WTrack&track,const vector<double>&){return v(track);},f,t,b){}
+		:Axis([v](WTrack&track,const vector<double>&){return v(track);},f,t,b){}
 	Axis::Axis(ValueParamDependent v, double f, double t, unsigned int b)
-	:Axis([v](WTrack&,const vector<double>&param){return v(param);},f,t,b){}
+		:Axis([v](WTrack&,const vector<double>&param){return v(param);},f,t,b){}
 	Axis::Axis(ValueIndependent v, double f, double t, unsigned int b)
-	:Axis([v](WTrack&,const vector<double>&){return v();},f,t,b){}
+		:Axis([v](WTrack&,const vector<double>&){return v();},f,t,b){}
 	Axis::Axis(const Axis& source):Axis(source.value,source.from,source.to,source.bins){}
 	Axis::~Axis(){}
 	void Axis::CheckCorrectness() const{
@@ -165,9 +165,22 @@ namespace TrackAnalyse{
 		for(auto element:m_chain)
 			func(element->Process(T,P));
 	}
+	void AbstractChain::CycleCheck(function<void(bool)>func, WTrack&T,vector<double>&P) const{
+		for(auto element:m_chain){
+			bool b=element->Process(T,P);
+			func(b);
+			if(!b)return;
+		}
+		
+	}
 	bool Chain::Process(WTrack&T, vector< double >&P) const{
 		Cycle([](bool){},T,P);
 		return true;
+	}
+	bool ChainCheck::Process(WTrack&T,vector<double>&P) const{
+		bool res=true;
+		CycleCheck([&res](bool v){res&=v;},T,P);
+		return res;
 	}
 	bool ChainAnd::Process(WTrack&T, vector< double >&P) const{
 		bool res=true;
