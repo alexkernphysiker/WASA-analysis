@@ -156,20 +156,23 @@ namespace ReactionSetup{
 		})
 		<<make_shared<SetOfHists1D>(dirname(),"MissingMass",Q,M);
 	}
-	shared_ptr<AbstractChain> He3Eta_cut(){
+	shared_ptr<AbstractChain> He3Eta_cut(const Axis&Q){
+		Axis Ek([](const vector<double>&P)->double{return P[0];},0.1,0.6,100);
+		Axis Th([](const vector<double>&P)->double{return P[1];},0.10,0.16,120);
 		return make_shared<ChainCheck>()
 		<<[](WTrack&track)->bool{
 			if(Forward::Get().StoppingLayer(track)!=kFRH1)return false;
 			double E=Forward::Get()[kFRH1].Edep(track);
 			return (E>0.08)&&(E<0.22);
-		};
+		}
+		<<make_shared<SetOfHists2D>(dirname(),"Kinematic-test",Q,Ek,Th);
 	}
 	Analysis* He3_forward_analyse(He3ForwardModification mode){
 		auto res=Prepare(mode);
 		Axis Q([res](WTrack&)->double{return 1000.0*Q_He3eta(res->PBeam());},0.0,30.0,12);
 		res->Trigger(0).TrackTypeProcess(kFDC)<<(make_shared<ChainCheck>()
 			<<ReconstructionProcess(*res,Q)
-			<<He3Eta_cut()
+			<<He3Eta_cut(Q)
 			<<MissingMass(*res,Q)
 		);
 		return res;
