@@ -32,32 +32,21 @@ protected:
 public:
 	virtual ~Analysis();
 	virtual void ProcessEvent()final;
-	class TriggerProcess{
-	public:
-		TriggerProcess(int n);
-		~TriggerProcess();
-		int number()const;
-		size_t size()const;
-		TrackAnalyse::TrackProcess&TrackTypeProcess(TrackType);
-		typedef std::pair<TrackType,TrackAnalyse::TrackProcess> TrackTypeRec;
-		typedef std::vector<TrackTypeRec> TrackTypeRecs;
-		typedef TrackTypeRecs::const_iterator const_iterator;
-		const_iterator begin()const;
-		const_iterator cbegin()const;
-		const_iterator end() const;
-		const_iterator cend() const;
-	private:
-		int N;
-		TrackTypeRecs m_chain;
-	};
-	TriggerProcess&Trigger(int n);
+
+	TrackAnalyse::TrackProcess&TrackTypeProcess(TrackType);
+	bool Trigger(int n)const;
+private:
+	typedef std::pair<TrackType,TrackAnalyse::TrackProcess> TrackTypeRec;
+	typedef std::vector<TrackTypeRec> TrackTypeRecs;
+	TrackTypeRecs m_chain;
+public:
 	struct Kinematic{Kinematic();double E,Th,Phi;};
 	Kinematic&FromFirstVertex(ParticleType type)const;
 	double PBeam()const;
 	void AddParticleToFirstVertex(ParticleType type,double mass);
 protected:
 	virtual bool DataTypeSpecificEventAnalysis()=0;
-	virtual bool DataSpecificTriggerCheck(int n)=0;
+	virtual bool DataSpecificTriggerCheck(int n)const=0;
 	//Beam momenta calculation
 	void CachePBeam(double value);
 	//Kinematics calculations
@@ -67,7 +56,6 @@ private:
 	CDTracksSimple* CDTrackFinder;
 	WTrackBank *fTrackBankFD,*fTrackBankCD;
 	CCardWDET *fDetectorTable;
-	std::vector<TriggerProcess> m_triggers;
 	struct particle_info{
 		particle_info(ParticleType type,double mass);
 		ParticleType type;double mass;

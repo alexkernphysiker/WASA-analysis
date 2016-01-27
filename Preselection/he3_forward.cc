@@ -164,12 +164,12 @@ namespace ReactionSetup{
 			return (E>0.08)&&(E<0.22);
 		};
 	}
-	shared_ptr<AbstractChain> KinematicTest(const Analysis&data,He3Modification mode){
-		Axis Bkin([&data]()->double{return data.PBeam();},1.59,1.64,25);
-		Axis Ek([](const vector<double>&P)->double{return P[0];},0.1,0.6,100);
-		Axis Ev([&data]()->double{return data.FromFirstVertex(kHe3).E;},0.1,0.6,100);
-		Axis Th([](const vector<double>&P)->double{return P[1];},0.10,0.16,120);
-		Axis Tv([&data]()->double{return data.FromFirstVertex(kHe3).Th;},0.10,0.16,120);
+	shared_ptr<AbstractChain> KinematicHe3Test(const Analysis&data,He3Modification mode){
+		Axis Bkin([&data]()->double{return 1000.0*Q_He3eta(data.PBeam());},0.0,30.0,12);
+		Axis Ek([](const vector<double>&P)->double{return P[0];},0.1,0.6,50);
+		Axis Ev([&data]()->double{return data.FromFirstVertex(kHe3).E;},0.1,0.6,50);
+		Axis Th([](const vector<double>&P)->double{return P[1];},0.10,0.16,50);
+		Axis Tv([&data]()->double{return data.FromFirstVertex(kHe3).Th;},0.10,0.16,50);
 		auto res=make_shared<Chain>()<<make_shared<SetOfHists2D>(dirname(),"Kinematic-reconstructed",Bkin,Ek,Th);
 		if(mode==forEta)res<<make_shared<SetOfHists2D>(dirname(),"Kinematic-vertex",Bkin,Ev,Tv);
 		return res;
@@ -179,16 +179,20 @@ namespace ReactionSetup{
 	Analysis* He3_forward_analyse(He3Modification mode){
 		auto res=Prepare(mode);
 		Axis Q([res]()->double{return 1000.0*Q_He3eta(res->PBeam());},0.0,30.0,12);
-		res->Trigger(0).TrackTypeProcess(kFDC)<<(make_shared<ChainCheck>()
-			<<ReconstructionProcess(*res,Q)<<He3Eta_cut()<<KinematicTest(*res,mode)<<MissingMass(*res,Q)
+		res->TrackTypeProcess(kFDC)<<(make_shared<ChainCheck>()
+			<<ReconstructionProcess(*res,Q)
+			<<He3Eta_cut()
+			<<KinematicHe3Test(*res,mode)
+			<<MissingMass(*res,Q)
 		);
 		return res;
 	}
 	Analysis* He3_forward_reconstruction(He3Modification mode){
 		auto res=Prepare(mode);
 		Axis Q([res]()->double{return 1000.0*Q_He3eta(res->PBeam());},0.0,30.0,12);
-		res->Trigger(0).TrackTypeProcess(kFDC)<<(make_shared<ChainCheck>()
-			<<ReconstructionProcess(*res,Q)<<KinematicTest(*res,mode)
+		res->TrackTypeProcess(kFDC)<<(make_shared<ChainCheck>()
+			<<ReconstructionProcess(*res,Q)
+			<<KinematicHe3Test(*res,mode)
 		);
 		return res;
 	}

@@ -17,6 +17,6 @@ bool RealData::DataTypeSpecificEventAnalysis(){
 	CachePBeam(BeamMomenta.Reconstruct()/1000.0);
 	return true;
 }
-bool RealData::DataSpecificTriggerCheck(int n){
+bool RealData::DataSpecificTriggerCheck(int n)const{
 	return fHeader->TriggerNumSet(n);
 }

@@ -39,6 +39,6 @@ bool MonteCarlo::DataTypeSpecificEventAnalysis(){
 	}
 	return false;
 }
-bool MonteCarlo::DataSpecificTriggerCheck(int n){
-	return fHeader->TriggerNumSet(n);
+bool MonteCarlo::DataSpecificTriggerCheck(int n)const{
+	return false;
 }

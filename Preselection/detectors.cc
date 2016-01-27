@@ -23,8 +23,8 @@ namespace TrackAnalyse {
 		PlaneData.push_back(plane_data(kFWC2,"FWC2",0.002 ,0.03));
 		//PlaneData.push_back(plane_data(kFPC,"FPC",0.002 ,0.03));
 		PlaneData.push_back(plane_data(kFTH1,"FTH1",0.0015,0.05));
-		PlaneData.push_back(plane_data(kFRH1,"FRH1",0.001, 0.05));
-		PlaneData.push_back(plane_data(kFRH2,"FRH2",0.001, 0.05));
+		PlaneData.push_back(plane_data(kFRH1,"FRH1",0.001, 0.5));
+		PlaneData.push_back(plane_data(kFRH2,"FRH2",0.001, 0.5));
 	}
 	Forward::~Forward(){}
 	const Forward& Forward::Get(){

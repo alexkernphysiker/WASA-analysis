@@ -10,7 +10,7 @@ public:
 	virtual ~RealData();
 protected:
 	virtual bool DataTypeSpecificEventAnalysis()override;
-	virtual bool DataSpecificTriggerCheck(int n)override;
+	virtual bool DataSpecificTriggerCheck(int n)const override;
 private:
 	REventHeader *fHeader;
 	InterpolationBasedReconstruction<> BeamMomenta;

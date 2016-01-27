@@ -15,72 +15,38 @@ Analysis::Analysis(){
 	if (CDTrackFinder!=0) fTrackBankCD = CDTrackFinder->GetTrackBank();
 	fDetectorTable = dynamic_cast<CCardWDET*>(gParameterManager->GetParameterObject("CCardWDET","default")); 
 	p_beam_cache=INFINITY;
+	m_chain.push_back(make_pair(kFDC,TrackAnalyse::TrackProcess()));
+	m_chain.push_back(make_pair(kFDN,TrackAnalyse::TrackProcess()));
+	m_chain.push_back(make_pair(kCDC,TrackAnalyse::TrackProcess()));
+	m_chain.push_back(make_pair(kCDN,TrackAnalyse::TrackProcess()));
 }
 Analysis::~Analysis(){}
 //Triggers
-Analysis::TriggerProcess::TriggerProcess(int n):N(n){}
-Analysis::TriggerProcess::~TriggerProcess(){}
-Analysis::TriggerProcess::const_iterator Analysis::TriggerProcess::begin()const{
-	return m_chain.begin();
-}
-Analysis::TriggerProcess::const_iterator Analysis::TriggerProcess::cbegin() const{
-	return m_chain.cbegin();
-}
-Analysis::TriggerProcess::const_iterator Analysis::TriggerProcess::end() const{
-	return m_chain.end();
-}
-Analysis::TriggerProcess::const_iterator Analysis::TriggerProcess::cend() const{
-	return m_chain.cend();
-}
-size_t Analysis::TriggerProcess::size() const{
-	return m_chain.size();
-}
-int Analysis::TriggerProcess::number() const{
-	return N;
-}
-TrackAnalyse::TrackProcess& Analysis::TriggerProcess::TrackTypeProcess(TrackType type){
+TrackAnalyse::TrackProcess& Analysis::TrackTypeProcess(TrackType type){
 	for(TrackTypeRec& rec:m_chain)
 		if(type==rec.first)
 			return rec.second;
-	m_chain.push_back(make_pair(type,TrackAnalyse::TrackProcess()));
-	for(TrackTypeRec& rec:m_chain)
-		if(type==rec.first)
-			return rec.second;
-	throw MathTemplates::Exception<TriggerProcess>("Cannot add track type");
+	throw MathTemplates::Exception<Analysis>("Cannot find track type");
 }
-Analysis::TriggerProcess& Analysis::Trigger(int n){
-	for(TriggerProcess& trigger:m_triggers)
-		if(trigger.number()==n)
-			return trigger;
-	m_triggers.push_back(TriggerProcess(n));
-	for(TriggerProcess& trigger:m_triggers)
-		if(trigger.number()==n)
-			return trigger;
-	throw MathTemplates::Exception<Analysis>("Cannot add trigger");
+bool Analysis::Trigger(int n)const{
+	return DataSpecificTriggerCheck(n);
 }
-
 void Analysis::ProcessEvent(){
 	m_count++;
 	if(m_count%1000==0)
 		Log(NoLog)<<to_string(m_count)+" events";
 	SubLog log=Log(LogDebug);
-	if(DataTypeSpecificEventAnalysis()){
-		for(const TriggerProcess& trigger:m_triggers)
-			if((trigger.number()==0)||(DataSpecificTriggerCheck(trigger.number()))){
-				vector<WTrackBank*> BANK;
-				BANK.push_back(fTrackBankCD);
-				BANK.push_back(fTrackBankFD);
-				for(WTrackBank*bank:BANK){
-					WTrackIter iterator(bank);
-					while(WTrack* track = dynamic_cast<WTrack*> (iterator.Next())){
-						for(const TriggerProcess::TrackTypeRec&TT:trigger){
-							if(track->Type()==TT.first)
-								TT.second.Process(*track);
-						}
-					}
-				}
+	if(DataTypeSpecificEventAnalysis())
+		for(const TrackTypeRec& tt:m_chain){
+			vector<WTrackBank*> BANK;
+			BANK.push_back(fTrackBankCD);
+			BANK.push_back(fTrackBankFD);
+			for(WTrackBank*bank:BANK){
+				WTrackIter iterator(bank);
+				while(WTrack* track = dynamic_cast<WTrack*> (iterator.Next()))
+					if(track->Type()==tt.first)tt.second.Process(*track);
 			}
-	}
+		}
 }
 
 ///BEAM MOMENTUM
