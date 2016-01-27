@@ -33,10 +33,10 @@ public:
 	virtual ~Analysis();
 	virtual void ProcessEvent()final;
 
-	TrackAnalyse::TrackProcess&TrackTypeProcess(TrackType);
+	TrackAnalyse::TrackProcesses&TrackTypeProcess(TrackType);
 	bool Trigger(int n)const;
 private:
-	typedef std::pair<TrackType,TrackAnalyse::TrackProcess> TrackTypeRec;
+	typedef std::pair<TrackType,TrackAnalyse::TrackProcesses> TrackTypeRec;
 	typedef std::vector<TrackTypeRec> TrackTypeRecs;
 	TrackTypeRecs m_chain;
 public:

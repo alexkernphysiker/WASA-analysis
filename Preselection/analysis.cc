@@ -15,14 +15,14 @@ Analysis::Analysis(){
 	if (CDTrackFinder!=0) fTrackBankCD = CDTrackFinder->GetTrackBank();
 	fDetectorTable = dynamic_cast<CCardWDET*>(gParameterManager->GetParameterObject("CCardWDET","default")); 
 	p_beam_cache=INFINITY;
-	m_chain.push_back(make_pair(kFDC,TrackAnalyse::TrackProcess()));
-	m_chain.push_back(make_pair(kFDN,TrackAnalyse::TrackProcess()));
-	m_chain.push_back(make_pair(kCDC,TrackAnalyse::TrackProcess()));
-	m_chain.push_back(make_pair(kCDN,TrackAnalyse::TrackProcess()));
+	m_chain.push_back(make_pair(kFDC,TrackAnalyse::TrackProcesses()));
+	m_chain.push_back(make_pair(kFDN,TrackAnalyse::TrackProcesses()));
+	m_chain.push_back(make_pair(kCDC,TrackAnalyse::TrackProcesses()));
+	m_chain.push_back(make_pair(kCDN,TrackAnalyse::TrackProcesses()));
 }
 Analysis::~Analysis(){}
 //Triggers
-TrackAnalyse::TrackProcess& Analysis::TrackTypeProcess(TrackType type){
+TrackAnalyse::TrackProcesses& Analysis::TrackTypeProcess(TrackType type){
 	for(TrackTypeRec& rec:m_chain)
 		if(type==rec.first)
 			return rec.second;

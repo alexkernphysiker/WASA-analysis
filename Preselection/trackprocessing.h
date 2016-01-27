@@ -4,199 +4,281 @@
 #define xoyoyptv
 #include <functional>
 #include <vector>
+#include <map>
 #include <memory>
 #include <string>
+#include <TH1F.h>
+#include <TH2F.h>
 #include <WTrack.hh>
 namespace TrackAnalyse{
 	using namespace std;
-	//WTrack cannot be transfered as const because
-	//it does not contain const methods 
-	//(even those ones that really should be)
-	typedef function<double()> ValueIndependent;
-	typedef function<double(WTrack&)> ValueTrackDependent;
-	typedef function<double(const vector<double>&)> ValueParamDependent;
-	typedef function<double(WTrack&,const vector<double>&)> ValueTrackParamDependent;
-	typedef function<bool()> ConditionIndependent;
-	typedef function<bool(WTrack&)> ConditionTrackDependent;
-	typedef function<bool(const vector<double>&)> ConditionParamDependent;
-	typedef function<bool(WTrack&,const vector<double>&)> ConditionTrackParamDependent;
-	class Axis{
+	class Binner{
 	public:
-		Axis(ValueTrackParamDependent v,double f, double t,unsigned int b);
-		Axis(ValueTrackDependent v,double f, double t,unsigned int b);
-		Axis(ValueParamDependent v,double f, double t,unsigned int b);
-		Axis(ValueIndependent v,double f, double t,unsigned int b);
-		Axis(const Axis&source);
-		~Axis();
+		Binner(double f, double t,unsigned int b);
+		virtual ~Binner();
 		double left()const;
 		double right()const;
-		unsigned int count()const;
-		double getvalue(WTrack&T,const vector<double>&P)const;
-		ValueTrackParamDependent valuegetter()const;
-		double bin_width()const;
-		double bin_center(size_t i)const;
-		bool FindBinIndex(unsigned int&output,WTrack&T,const std::vector<double>&P)const;
+		size_t count()const;
+		double bin_width() const;
+		double bin_center(size_t i) const;
+		bool FindBinIndex(size_t&output,double x)const;
 	private:
-		void CheckCorrectness()const;
-		ValueTrackParamDependent value;
 		double from;
 		double to;
-		unsigned int bins;
+		size_t bins;
+		void CheckCorrectness()const;
 	};
-	class ITrackParamProcess{
+	class AHist1D{
 	public:
-		virtual bool Process(WTrack&,vector<double>&)const=0;
-		virtual ~ITrackParamProcess(){}
-	};
-	class ITrackParamAnalyse:public ITrackParamProcess{
-	public:
-		virtual bool Process(WTrack&,vector<double>&)const final;
-		virtual ~ITrackParamAnalyse(){}
-	protected:
-		virtual void Analyse(WTrack&,const vector<double>&)const =0;
-	};
-	
-	class Hist1D:public ITrackParamAnalyse{
-	public:
-		Hist1D(string&&dir,string&&name,const Axis&x);
-		virtual ~Hist1D();
-	protected:
-		virtual void Analyse(WTrack&,const vector<double>&)const override;
+		AHist1D(const string&dir,const string&name,const Binner&x);
+		virtual ~AHist1D();
+		void Accept(double x);
 	private:
 		TH1F *hist;
-		Axis X;
 	};
-	class SetOfHists1D:public ITrackParamAnalyse{
+	class ASetOfHists1D{
 	public:
-		SetOfHists1D(string&&dir,string&&name,const Axis&binning,const Axis&x);
-		virtual ~SetOfHists1D();
-	protected:
-		virtual void Analyse(WTrack&,const vector<double>&)const override;
+		ASetOfHists1D(const string&dir,const string&name,const Binner&z,const Binner&x);
+		virtual ~ASetOfHists1D();
+		void Accept(double z, double x)const;
 	private:
-		Axis Z,X;
+		Binner Z;
 		TH1F *All,*OutOfBorder;
 		vector<TH1F*> Bins;
 	};
-
-	class Hist2D:public ITrackParamAnalyse{
+	class AHist2D{
 	public:
-		Hist2D(string&&dir,string&&name,const Axis&x,const Axis&y);
-		virtual ~Hist2D();
-	protected:
-		virtual void Analyse(WTrack&,const vector<double>&)const override;
+		AHist2D(const string&dir,const string&name,const Binner&x,const Binner&y);
+		virtual ~AHist2D();
+		void Accept(double x,double y)const;
 	private:
 		TH2F *hist;
-		Axis X,Y;
 	};
-	class SetOfHists2D:public ITrackParamAnalyse{
+	class ASetOfHists2D{
 	public:
-		SetOfHists2D(string&&dir,string&&name,const Axis&binning,const Axis&x,const Axis&y);
-		virtual ~SetOfHists2D();
-	protected:
-		virtual void Analyse(WTrack&,const vector<double>&)const override;
+		ASetOfHists2D(const string&dir,const string&name,const Binner&binning,const Binner&x,const Binner&y);
+		virtual ~ASetOfHists2D();
+		void Accept(double z,double x, double y)const;
 	private:
-		Axis Z,X,Y;
+		Binner Z;
 		TH2F *All,*OutOfBorder;
 		vector<TH2F*> Bins;
 	};
-	class Condition:public ITrackParamProcess{
-	public:
-		Condition(ConditionTrackParamDependent func);
-		Condition(ConditionTrackDependent func);
-		Condition(ConditionParamDependent func);
-		Condition(ConditionIndependent func);
-		virtual ~Condition();
-		virtual bool Process(WTrack&,vector<double>&)const override;
+
+
+	template<typename... Args>
+	class Axis:public Binner{
 	private:
-		ConditionTrackParamDependent condition;
-	};
-	class Parameter:public ITrackParamProcess{
+		function<double(Args...)> func;
 	public:
-		Parameter(ValueTrackParamDependent f);
-		Parameter(ValueParamDependent f);
-		Parameter(ValueTrackDependent f);
-		Parameter(ValueIndependent f);
-		virtual ~Parameter();
-		virtual bool Process(WTrack&,vector<double>&)const override;
-	private:
-		ValueTrackParamDependent func;
+		Axis(function<double(Args...)> v,double f, double t,size_t b):Binner(f,t,b){func=v;}
+		Axis(const Axis&source):Axis(source.func,source.left(),source.right(),source.count()){}
+		~Axis(){}
+		function<double(Args...)> FUNC()const{return func;}
+		double operator()(Args... args)const{return func(args...);}
+		bool FindBinNumber(size_t&out,Args... args)const{return FindBinIndex(out,value(args...));}
 	};
-	class AbstractChain:public ITrackParamProcess{
+
+	template<typename... Args>
+	class IProcess{
+	public:
+		virtual bool Process(Args...)const=0;
+		virtual ~IProcess(){}
+	};
+
+	template<typename... Args>
+	class Hist1D:public IProcess<Args...>,protected AHist1D{
+	private:
+		function<double(Args...)> X;
+	public:
+		Hist1D(string&&dir,string&&name,const Axis<Args...>&x):AHist1D(dir,name,x){
+			X=x.FUNC();
+		}
+		virtual ~Hist1D(){}
+		virtual bool Process(Args...args)const override{
+			Accept(X(args...));
+			return true;
+		};
+	};
+
+	template<typename... Args>
+	class Hist2D:public IProcess<Args...>,protected AHist2D{
+	private:
+		function<double(Args...)> X,Y;
+	public:
+		Hist2D(string&&dir,string&&name,const Axis<Args...>&x,const Axis<Args...>&y):AHist2D(dir,name,x,y){
+			X=x.FUNC();Y=y.FUNC();
+		}
+		virtual ~Hist2D(){}
+		virtual bool Process(Args...args)const override{
+			Accept(X(args...),Y(args...));
+			return true;
+		};
+	};
+
+	template<typename... Args>
+	class SetOfHists1D:public IProcess<Args...>,protected ASetOfHists1D{
+	private:
+		function<double(Args...)> Z,X;
+	public:
+		SetOfHists1D(string&&dir,string&&name,const Axis<Args...>&z,const Axis<Args...>&x):SetOfHists1D(dir,name,z,x){
+			Z=z.FUNC();X=x.FUNC();
+		}
+		virtual ~SetOfHists1D(){}
+		virtual bool Process(Args...args)const override{
+			Accept(Z(args...),X(args...));
+			return true;
+		};
+	};
+
+	template<typename... Args>
+	class SetOfHists2D:public IProcess<Args...>,protected ASetOfHists2D{
+	private:
+		function<double(Args...)> Z,X,Y;
+	public:
+		SetOfHists2D(string&&dir,string&&name,const Axis<Args...>&z,const Axis<Args...>&x,const Axis<Args...>&y):ASetOfHists2D(dir,name,z,x,y){
+			Z=z.FUNC();X=x.FUNC();Y=y.FUNC();
+		}
+		virtual ~SetOfHists2D(){}
+		virtual bool Process(Args...args)const override{
+			Accept(Z(args...),X(args...),Y(args...));
+			return true;
+		};
+	};
+
+	template<typename... Args>
+	class Function:public IProcess<Args...>{
+	private:
+		function<bool(Args...)> func;
+	public:
+		Function(function<bool(Args...)> f){func=f;}
+		virtual ~Function(){}
+		virtual bool Process(Args...args)const override{return func(args...);}
+	};
+
+	template<typename... Args>
+	class AbstractSet{
+	private:
+		vector<shared_ptr<IProcess<Args...>>> m_chain;
 	protected:
-		AbstractChain();
+		AbstractSet(){}
 	public:
-		virtual ~AbstractChain();
-		AbstractChain&operator<<(shared_ptr<ITrackParamProcess>element);
+		virtual ~AbstractSet(){}
+		void Add(shared_ptr<IProcess<Args...>>element){
+			m_chain.push_back(element);
+		}
+		void Add(function<bool(Args...)>f){
+			Add(make_shared<Function<Args...>>(f));
+		}
 	protected:
-		void Cycle(function<void(bool)>,WTrack&,vector<double>&)const;
-		void CycleCheck(function<void(bool)>,WTrack&,vector<double>&)const;
-	private:
-		vector<shared_ptr<ITrackParamProcess>> m_chain;
+		vector<shared_ptr<IProcess<Args...>>>&allset()const{
+			return const_cast<vector<shared_ptr<IProcess<Args...>>>&>(m_chain);
+		};
 	};
-	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,shared_ptr<ITrackParamProcess>v){
-		ch->operator<<(v);
-		return ch;
+	template<class source,typename element>
+	shared_ptr<source> operator<<(shared_ptr<source> S,element e){
+		S->Add(e);
+		return S;
 	}
-	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,ConditionTrackParamDependent f){
-		return ch<<make_shared<Condition>(f);
-	}
-	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,ConditionTrackDependent f){
-		return ch<<make_shared<Condition>(f);
-	}
-	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,ConditionParamDependent f){
-		return ch<<make_shared<Condition>(f);
-	}
-	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,ConditionIndependent f){
-		return ch<<make_shared<Condition>(f);
-	}
-	class Chain:public AbstractChain{
+	
+	template<class Container,typename... Args>
+	class ProcessAll:public Container{
+	public:
+		ProcessAll(){}
+		virtual ~ProcessAll(){}
+	protected:
+		bool Cycle(Args...args)const{
+			for(auto p:AbstractSet<Args...>::allset())
+				p->Process(args...);
+			return true;
+		}
+	};
+	
+	template<class Container,typename... Args>
+	class Chain:public Container{
 	public:
 		Chain(){}
 		virtual ~Chain(){}
-		virtual bool Process(WTrack&,vector<double>&)const override;
+	protected:
+		bool Cycle(Args...args)const{
+			for(auto p:AbstractSet<Args...>::allset())
+				if(!p->Process(args...))return false;
+			return true;
+		}
 	};
-	class ChainCheck:public AbstractChain{
+	
+	template<class Container,typename... Args>
+	class LAnd:public Container{
 	public:
-		ChainCheck(){}
-		virtual ~ChainCheck(){}
-		virtual bool Process(WTrack&,vector<double>&)const override;
+		LAnd(){}
+		virtual ~LAnd(){}
+	protected:
+		bool Cycle(Args...args)const{
+			bool res=true;
+			for(auto p:AbstractSet<Args...>::allset())
+				res&=p->Process(args...);
+			return res;
+		}
 	};
-	class ChainAnd:public AbstractChain{
+	
+	template<class Container,typename... Args>
+	class LOr:public Container{
 	public:
-		ChainAnd(){}
-		virtual ~ChainAnd(){}
-		virtual bool Process(WTrack&,vector<double>&)const override;
+		LOr(){}
+		virtual ~LOr(){}
+	protected:
+		bool Cycle(Args...args)const{
+			bool res=false;
+			for(auto p:AbstractSet<Args...>::allset())
+				res|=p->Process(args...);
+			return res;
+		}
 	};
-	class ChainOr:public AbstractChain{
+	
+	//WTrack cannot be transfered as const
+	//Because all it's methods are not const
+	//I have to deal with it
+	typedef IProcess<> ParamlessProcess;
+	typedef IProcess<WTrack&> ITrackProcess;
+	class TrackProcesses:public ITrackProcess,public ProcessAll<AbstractSet<WTrack&>,WTrack&>{
 	public:
-		ChainOr(){}
-		virtual ~ChainOr(){}
-		virtual bool Process(WTrack&,vector<double>&)const override;
+		virtual bool Process(WTrack&T)const override{return Cycle(T);}
 	};
-	class TrackProcess{
+	typedef map<string,double> Results;
+	typedef IProcess<const Results&> IAnalysis;
+	class AnalysisSet:public IAnalysis,public ProcessAll<AbstractSet<const Results&>,const Results&>{
 	public:
-		TrackProcess(){}
-		~TrackProcess(){}
-		TrackProcess&operator<<(shared_ptr<ITrackParamProcess>element);
-		void Process(WTrack&T)const;
-	private:
-		vector<shared_ptr<ITrackParamProcess>> m_proc;
+		virtual bool Process(const Results&P)const override{return Cycle(P);}
 	};
-	inline shared_ptr<TrackProcess>operator<<(shared_ptr<TrackProcess>ch,shared_ptr<ITrackParamProcess>v){
-		ch->operator<<(v);
-		return ch;
-	}
-	inline TrackProcess&operator<<(TrackProcess&ch,ConditionTrackParamDependent f){
-		return ch<<make_shared<Condition>(f);
-	}
-	inline TrackProcess&operator<<(TrackProcess&ch,ConditionTrackDependent f){
-		return ch<<make_shared<Condition>(f);
-	}
-	inline TrackProcess&operator<<(TrackProcess&ch,ConditionParamDependent f){
-		return ch<<make_shared<Condition>(f);
-	}
-	inline TrackProcess&operator<<(TrackProcess&ch,ConditionIndependent f){
-		return ch<<make_shared<Condition>(f);
-	}
+	typedef IProcess<WTrack&,Results&> ICalculation;
+	class CalculationSet:public AbstractSet<WTrack&,Results&>{
+	public:
+		void Add(shared_ptr<ITrackProcess>);
+		void Add(shared_ptr<IAnalysis>);
+	};
+	class TrackCalculations:public ITrackProcess,public ProcessAll<CalculationSet,WTrack&,Results&>{
+	public:
+		virtual bool Process(WTrack&T)const override;
+	};
+	class TrackCalcChain:public ITrackProcess,public Chain<CalculationSet,WTrack&,Results&>{
+	public:
+		virtual bool Process(WTrack&T)const override;
+	};
+	class Calculations:public ICalculation,public ProcessAll<CalculationSet,WTrack&,Results&>{
+	public:
+		virtual bool Process(WTrack&T,Results&P)const override{return Cycle(T,P);}
+	};
+	class CalcChain:public ICalculation,public Chain<CalculationSet,WTrack&,Results&>{
+	public:
+		virtual bool Process(WTrack&T,Results&P)const override{return Cycle(T,P);}
+	};
+	class CalcAnd:public ICalculation,public LAnd<CalculationSet,WTrack&,Results&>{
+	public:
+		virtual bool Process(WTrack&T,Results&P)const override{return Cycle(T,P);}
+	};
+	class CalcOr:public ICalculation,public LOr<CalculationSet,WTrack&,Results&>{
+	public:
+		virtual bool Process(WTrack&T,Results&P)const override{return Cycle(T,P);}
+	};
 }
 #endif 
