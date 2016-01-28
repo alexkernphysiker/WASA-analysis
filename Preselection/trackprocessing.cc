@@ -201,4 +201,14 @@ namespace TrackAnalyse{
 		for(auto proc:m_proc)
 			proc->Process(T,P);
 	}
+	EventProcess& EventProcess::operator<<(shared_ptr< ITrackParamProcess > element){
+		m_proc.push_back(element);
+		return *this;
+	}
+	void EventProcess::Process() const{
+		WTrack T;
+		vector<double> P;
+		for(auto proc:m_proc)
+			proc->Process(T,P);
+	}
 }

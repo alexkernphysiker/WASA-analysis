@@ -198,5 +198,30 @@ namespace TrackAnalyse{
 	inline TrackProcess&operator<<(TrackProcess&ch,ConditionIndependent f){
 		return ch<<make_shared<Condition>(f);
 	}
+	class EventProcess{
+	public:
+		EventProcess(){}
+		~EventProcess(){}
+		EventProcess&operator<<(shared_ptr<ITrackParamProcess>element);
+		void Process()const;
+	private:
+		vector<shared_ptr<ITrackParamProcess>> m_proc;
+	};
+	inline shared_ptr<EventProcess>operator<<(shared_ptr<EventProcess>ch,shared_ptr<ITrackParamProcess>v){
+		ch->operator<<(v);
+		return ch;
+	}
+	inline EventProcess&operator<<(EventProcess&ch,ConditionTrackParamDependent f){
+		return ch<<make_shared<Condition>(f);
+	}
+	inline EventProcess&operator<<(EventProcess&ch,ConditionTrackDependent f){
+		return ch<<make_shared<Condition>(f);
+	}
+	inline EventProcess&operator<<(EventProcess&ch,ConditionParamDependent f){
+		return ch<<make_shared<Condition>(f);
+	}
+	inline EventProcess&operator<<(EventProcess&ch,ConditionIndependent f){
+		return ch<<make_shared<Condition>(f);
+	}
 }
 #endif 
