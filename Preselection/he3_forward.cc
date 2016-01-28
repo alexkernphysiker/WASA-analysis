@@ -46,7 +46,7 @@ namespace ReactionSetup{
 		};
 		return res;
 	}
-	shared_ptr<ICalculation> FRH1_cut(const Analysis*data){
+	shared_ptr<ICalculation> FRH1_cut(const Analysis&data){
 		auto res=make_shared<CalcChain>();
 		res<<[](WTrack&T,Results&)->bool{
 			return Forward::Get().StoppingLayer(T)==kFRH1;
@@ -79,7 +79,7 @@ namespace ReactionSetup{
 			return cut->IsInside(x,y);
 		};
 		res<<Forward::Get().CreateMarker(dirname(),"2.5-FRH1");
-		res<<[data](WTrack&track,Results&P)->bool{
+		res<<[&data](WTrack&track,Results&P)->bool{
 			//Achtung - static
 			static FitBasedReconstruction<Reconstruction::He3EnergyFRH1,WTrack&> energy(
 				"He3.E.FRH1",
@@ -87,14 +87,14 @@ namespace ReactionSetup{
 					[](WTrack&track){return Forward::Get()[kFRH1].Edep(track);},
 					[](WTrack&track){return track.Theta();}
 				},
-				[&data](WTrack&){return data->FromFirstVertex(kHe3).E;}
+				[&data](WTrack&){return data.FromFirstVertex(kHe3).E;}
 			);
 			P.push_back(energy.Reconstruct(track));
 			return true;
 		};
 		return res;
 	}
-	shared_ptr<ICalculation> FRH2_cut(const Analysis*data){
+	shared_ptr<ICalculation> FRH2_cut(const Analysis&data){
 		auto res=make_shared<CalcChain>();
 		res<<[](WTrack&T,Results&)->bool{
 			return Forward::Get().StoppingLayer(T)==kFRH2;
@@ -107,7 +107,7 @@ namespace ReactionSetup{
 			return (Ed[0]>(0.25-0.417*Ed[1]))&&(Ed[0]<(0.35-0.417*Ed[1]))&&(Ed[1]<0.22);
 		};
 		res<<Forward::Get().CreateMarker(dirname(),"2.5-FRH2");
-		res<<[data](WTrack&track,Results&P)->bool{
+		res<<[&data](WTrack&track,Results&P)->bool{
 			//Achtung - static
 			static FitBasedReconstruction<Reconstruction::He3EnergyFRH2,WTrack&> energy(
 				"He3.E.FRH2",
@@ -115,14 +115,14 @@ namespace ReactionSetup{
 					[](WTrack&T){return Forward::Get()[kFRH1].Edep(T)+Forward::Get()[kFRH2].Edep(T);},
 					[](WTrack&T){return T.Theta();}
 				},
-				[&data](WTrack&){return data->FromFirstVertex(kHe3).E;}
+				[&data](WTrack&){return data.FromFirstVertex(kHe3).E;}
 			);
 			P.push_back(energy.Reconstruct(track));
 			return true;
 		};
 		return res;
 	}
-	shared_ptr<ICalculation> ReconstructionProcess(const Analysis*data,const Axis<>&Q){
+	shared_ptr<ICalculation> ReconstructionProcess(const Analysis&data,const Axis<>&Q){
 		auto res=make_shared<CalcChain>();
 		res<<Forward::Get().CreateMarker(dirname(),"1-AllTracks");
 		res<<make_shared<Hist1D<>>(dirname(),"1-AllTracks",Q);
@@ -158,11 +158,11 @@ namespace ReactionSetup{
 		res<<make_shared<Hist1D<>>(dirname(),"4-Reconstructed",Q);
 		return res;
 	}
-	shared_ptr<ICalculation> MissingMass(const Analysis*data,const Axis<>&Q){
+	shared_ptr<ICalculation> MissingMass(const Analysis&data,const Axis<>&Q){
 		Axis<WTrack&,Results&> Q_([Q](WTrack&,Results&){return Q();},Q);
 		Axis<WTrack&,Results&> M([](WTrack&,Results&P)->double{return P[3];},m_pi0-0.5,m_eta+0.5,100);
 		auto res=make_shared<CalcChain>();
-		res<<[data](WTrack&,Results&P)->bool{
+		res<<[&data](WTrack&,Results&P)->bool{
 			double Ekin=P[0];
 			double theta=P[1];
 			double phi=P[2];
@@ -173,7 +173,7 @@ namespace ReactionSetup{
 			P_He3.SetVectM(p_He3,m_3He);
 			TLorentzVector P_Total;{
 				TVector3 p_beam;
-				p_beam.SetMagThetaPhi(data->PBeam(),0,0);
+				p_beam.SetMagThetaPhi(data.PBeam(),0,0);
 				TLorentzVector P_Beam;
 				TLorentzVector P_Target;
 				P_Beam.SetVectM(p_beam,m_p);
@@ -198,10 +198,10 @@ namespace ReactionSetup{
 		};
 		return res;
 	}
-	shared_ptr<IResAnalysis> KinematicHe3Test(const Analysis*data,He3Modification mode){
-		Axis<const Results&> Bkin([data](const Results&)->double{return data->PBeam();},1.580,1.635,11);
-		Axis<const Results&> Ev([data](const Results&)->double{return data->FromFirstVertex(kHe3).E;},0.1,0.6,50);
-		Axis<const Results&> Tv([data](const Results&)->double{return data->FromFirstVertex(kHe3).Th;},0.10,0.16,50);
+	shared_ptr<IResAnalysis> KinematicHe3Test(const Analysis&data,He3Modification mode){
+		Axis<const Results&> Bkin([&data](const Results&)->double{return data.PBeam();},1.580,1.635,11);
+		Axis<const Results&> Ev([&data](const Results&)->double{return data.FromFirstVertex(kHe3).E;},0.1,0.6,50);
+		Axis<const Results&> Tv([&data](const Results&)->double{return data.FromFirstVertex(kHe3).Th;},0.10,0.16,50);
 		Axis<const Results&> Ek([](const Results&P)->double{return P[0];},Ev);
 		Axis<const Results&> Th([](const Results&P)->double{return P[1];},Tv);
 		auto res=make_shared<AnalysisSet>();
@@ -216,8 +216,8 @@ namespace ReactionSetup{
 		auto res=Prepare(mode);
 		Axis<> Q([res]()->double{return 1000.0*Q_He3eta(res->PBeam());},0.0,30.0,12);
 		auto chain=make_shared<TrackCalcChain>();
-		chain<<ReconstructionProcess(res,Q)<<He3Eta_cut();
-		chain<<KinematicHe3Test(res,mode)<<MissingMass(res,Q);
+		chain<<ReconstructionProcess(*res,Q)<<He3Eta_cut();
+		chain<<KinematicHe3Test(*res,mode)<<MissingMass(*res,Q);
 		res->TrackTypeProcess(kFDC).Add(chain);
 		return res;
 	}
@@ -225,7 +225,7 @@ namespace ReactionSetup{
 		auto res=Prepare(mode);
 		Axis<> Q([res]()->double{return 1000.0*Q_He3eta(res->PBeam());},0.0,30.0,12);
 		auto chain=make_shared<TrackCalcChain>();
-		chain<<ReconstructionProcess(res,Q)<<KinematicHe3Test(res,mode);
+		chain<<ReconstructionProcess(*res,Q)<<KinematicHe3Test(*res,mode);
 		res->TrackTypeProcess(kFDC).Add(chain);
 		return res;
 	}
