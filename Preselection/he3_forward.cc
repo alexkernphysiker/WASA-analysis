@@ -199,7 +199,7 @@ namespace ReactionSetup{
 		return res;
 	}
 	shared_ptr<IResAnalysis> KinematicHe3Test(const Analysis&data,He3Modification mode){
-		Axis<const Results&> Bkin([&data](const Results&)->double{return 1000.0*Q_He3eta(data.PBeam());},Bkin);
+		Axis<const Results&> Bkin([&data](const Results&)->double{return 1000.0*Q_He3eta(data.PBeam());},1.580,1.635,11);
 		Axis<const Results&> Ev([&data](const Results&)->double{return data.FromFirstVertex(kHe3).E;},0.1,0.6,50);
 		Axis<const Results&> Tv([&data](const Results&)->double{return data.FromFirstVertex(kHe3).Th;},0.10,0.16,50);
 		Axis<const Results&> Ek([](const Results&P)->double{return P[0];},Ev);
