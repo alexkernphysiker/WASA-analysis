@@ -179,6 +179,7 @@ namespace ReactionSetup{
 	Analysis* He3_forward_analyse(He3Modification mode){
 		auto res=Prepare(mode);
 		Axis Q([res]()->double{return 1000.0*Q_He3eta(res->PBeam());},0.0,30.0,12);
+		res->EventProcessing()<<make_shared<Hist1D>(dirname(),"0-Reference",Q);
 		res->TrackTypeProcess(kFDC)<<(make_shared<ChainCheck>()
 			<<ReconstructionProcess(*res,Q)
 			<<He3Eta_cut()
@@ -190,6 +191,7 @@ namespace ReactionSetup{
 	Analysis* He3_forward_reconstruction(He3Modification mode){
 		auto res=Prepare(mode);
 		Axis Q([res]()->double{return 1000.0*Q_He3eta(res->PBeam());},0.0,30.0,12);
+		res->EventProcessing()<<make_shared<Hist1D>(dirname(),"0-Reference",Q);
 		res->TrackTypeProcess(kFDC)<<(make_shared<ChainCheck>()
 			<<ReconstructionProcess(*res,Q)
 			<<KinematicHe3Test(*res,mode)
