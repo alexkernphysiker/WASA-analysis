@@ -27,6 +27,10 @@ namespace TrackAnalyse{
 		Axis(ValueParamDependent v,double f, double t,unsigned int b);
 		Axis(ValueIndependent v,double f, double t,unsigned int b);
 		Axis(const Axis&source);
+		Axis(ValueTrackParamDependent v,const Axis&source);
+		Axis(ValueTrackDependent v,const Axis&source);
+		Axis(ValueParamDependent v,const Axis&source);
+		Axis(ValueIndependent v,const Axis&source);
 		~Axis();
 		double left()const;
 		double right()const;

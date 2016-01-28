@@ -32,6 +32,10 @@ namespace TrackAnalyse{
 	Axis::Axis(ValueIndependent v, double f, double t, unsigned int b)
 		:Axis([v](WTrack&,const vector<double>&){return v();},f,t,b){}
 	Axis::Axis(const Axis& source):Axis(source.value,source.from,source.to,source.bins){}
+	Axis::Axis(ValueTrackParamDependent v, const Axis& source):Axis(v,source.from,source.to,source.bins){}
+	Axis::Axis(ValueTrackDependent v, const Axis& source):Axis(v,source.from,source.to,source.bins){}
+	Axis::Axis(ValueParamDependent v, const Axis& source):Axis(v,source.from,source.to,source.bins){}
+	Axis::Axis(ValueIndependent v, const Axis& source):Axis(v,source.from,source.to,source.bins){}
 	Axis::~Axis(){}
 	void Axis::CheckCorrectness() const{
 		if(to<=from)

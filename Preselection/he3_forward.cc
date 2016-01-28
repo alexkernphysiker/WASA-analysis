@@ -165,12 +165,14 @@ namespace ReactionSetup{
 	}
 	shared_ptr<AbstractChain> KinematicHe3Test(const Analysis&data,He3Modification mode){
 		Axis Bkin([&data]()->double{return 1000.0*Q_He3eta(data.PBeam());},0.0,30.0,12);
-		Axis Ek([](const vector<double>&P)->double{return P[0];},0.1,0.6,50);
-		Axis Ev([&data]()->double{return data.FromFirstVertex(kHe3).E;},0.1,0.6,50);
-		Axis Th([](const vector<double>&P)->double{return P[1];},0.10,0.16,50);
-		Axis Tv([&data]()->double{return data.FromFirstVertex(kHe3).Th;},0.10,0.16,50);
-		auto res=make_shared<Chain>()<<make_shared<SetOfHists2D>(dirname(),"Kinematic-reconstructed",Bkin,Ek,Th);
-		if(mode==forEta)res<<make_shared<SetOfHists2D>(dirname(),"Kinematic-vertex",Bkin,Ev,Tv);
+		Axis Ek([](const vector<double>&P)->double{return P[0];},0.1,0.6,100);
+		Axis Th([](const vector<double>&P)->double{return P[1];},0.06,0.16,100);
+		Axis Ev([&data]()->double{return data.FromFirstVertex(kHe3).E;},Ek);
+		Axis Tv([&data]()->double{return data.FromFirstVertex(kHe3).Th;},Th);
+		auto res=make_shared<Chain>()
+			<<make_shared<SetOfHists2D>(dirname(),"Kinematic-reconstructed",Bkin,Ek,Th);
+		if(mode==forEta)
+			res<<make_shared<SetOfHists2D>(dirname(),"Kinematic-vertex",Bkin,Ev,Tv);
 		return res;
 	}
 	
