@@ -1,5 +1,7 @@
 // this file is distributed under 
 // MIT license
+#include "TH1F.h"
+#include "TH2F.h"
 #include <TLorentzVector.h>
 #include <CAnalysisModule.hh>
 #include <CDataManager.hh>
@@ -19,25 +21,44 @@
 namespace TrackAnalyse{
 	using namespace std;
 	using namespace MathTemplates;
-	size_t Binner::count() const{return bins;}
-	double Binner::left() const{return from;}
-	double Binner::right() const{return to;}
-	double Binner::bin_width() const{
-		if(0==bins)throw Exception<Binner>("count==0");
+	Axis::Axis(ValueTrackParamDependent v, double f, double t, unsigned int b){
+		value=v;from=f;to=t;bins=b;
+		CheckCorrectness();
+	}
+	Axis::Axis(ValueTrackDependent v, double f, double t, unsigned int b)
+		:Axis([v](WTrack&track,const vector<double>&){return v(track);},f,t,b){}
+	Axis::Axis(ValueParamDependent v, double f, double t, unsigned int b)
+		:Axis([v](WTrack&,const vector<double>&param){return v(param);},f,t,b){}
+	Axis::Axis(ValueIndependent v, double f, double t, unsigned int b)
+		:Axis([v](WTrack&,const vector<double>&){return v();},f,t,b){}
+	Axis::Axis(const Axis& source):Axis(source.value,source.from,source.to,source.bins){}
+	Axis::~Axis(){}
+	void Axis::CheckCorrectness() const{
+		if(to<=from)
+			throw Exception<Axis>("wrong binning ranges");
+		if(0==bins)
+			throw Exception<Axis>("there cannot be zero bins");
+	}
+	unsigned int Axis::count() const{return bins;}
+	double Axis::left() const{return from;}
+	double Axis::right() const{return to;}
+	double Axis::bin_width() const{
+		if(0==bins)throw Exception<Axis>("count==0");
 		return (to-from)/double(bins);
 	}
-	double Binner::bin_center(size_t i) const{
-		if(i>=bins)throw Exception<Binner>("bin range check error");
+	double Axis::bin_center(size_t i) const{
+		if(i>=bins)throw Exception<Axis>("bin range check error");
 		return from+bin_width()*(double(i)+0.5);
 	}
-	void Binner::CheckCorrectness() const{
-		if(to<=from)throw Exception<Binner>("wrong binning ranges");
-		if(0==bins)throw Exception<Binner>("there cannot be zero bins");
+	double Axis::getvalue(WTrack& T, const vector< double >& P) const{
+		return value(T,P);
 	}
-
-	bool Binner::FindBinIndex(size_t& output, double x) const{
-		double delta=bin_width()/2.0;
-		if(delta<=0)throw Exception<Binner>("delta<=0");
+	ValueTrackParamDependent Axis::valuegetter() const{
+		return value;
+	}
+	bool Axis::FindBinIndex(unsigned int& output, WTrack& T, const vector< double >& P) const{
+		double x=getvalue(T,P),delta=bin_width()/2.0;
+		if(delta<=0)throw Exception<Axis>("delta<=0");
 		for(size_t i=0,n=count();i<n;i++){
 			double pos=bin_center(i);
 			if((x>=(pos-delta))&&(x<(pos+delta))){
@@ -46,103 +67,138 @@ namespace TrackAnalyse{
 			}
 		}
 		return false;
+		
 	}
 	
-	AHist1D::AHist1D(const string& dir, const string& name, const Binner& x){
-		hist=new TH1F(name.c_str(),"",x.count(),x.left(),x.right());
+	bool ITrackParamAnalyse::Process(WTrack&T, vector<double>&P)const{
+		Analyse(T,P);
+		return true;
+	}
+	
+	Hist1D::Hist1D(string&&dir,string&& name, const Axis& x):X(x){
+		hist=new TH1F(name.c_str(),"",X.count(),X.left(),X.right());
 		gHistoManager->Add(hist,dir.c_str());
 	}
-	AHist1D::~AHist1D(){}
-	void AHist1D::Accept(double x){
-		hist->Fill(x);
-	}
-	ASetOfHists1D::ASetOfHists1D(const string& dir, const string& name, const Binner& z, const Binner& x):Z(z){
-		All=new TH1F((name+"-AllBins").c_str(),"",x.count(),x.left(),x.right());
+	Hist1D::~Hist1D(){}
+	void Hist1D::Analyse(WTrack&T, const vector<double>&P)const{hist->Fill(X.getvalue(T,P));}
+	SetOfHists1D::SetOfHists1D(string&&dir,string&& name, const Axis& binning, const Axis& x):Z(binning),X(x){
+		All=new TH1F((name+"-AllBins").c_str(),"",X.count(),X.left(),X.right());
 		gHistoManager->Add(All,dir.c_str());
-		OutOfBorder=new TH1F((name+"-OutOfBins").c_str(),"",x.count(),x.left(),x.right());
+		OutOfBorder=new TH1F((name+"-OutOfBins").c_str(),"",X.count(),X.left(),X.right());
 		gHistoManager->Add(OutOfBorder,dir.c_str());
 		for(unsigned int i=0;i<Z.count();i++){
-			TH1F*hist=new TH1F((name+"-Bin-"+to_string(i)).c_str(),"",x.count(),x.left(),x.right());
+			TH1F*hist=new TH1F((name+"-Bin-"+to_string(i)).c_str(),"",X.count(),X.left(),X.right());
 			gHistoManager->Add(hist,dir.c_str());
 			Bins.push_back(hist);
 		}
 	}
-	ASetOfHists1D::~ASetOfHists1D(){}
-	void ASetOfHists1D::Accept(double z, double x) const{
-		size_t i=0;
-		if(Z.FindBinIndex(i,z)){
+	SetOfHists1D::~SetOfHists1D(){}
+	void SetOfHists1D::Analyse(WTrack&T, const vector<double>&P)const{
+		double x=X.getvalue(T,P);
+		unsigned int i=0;
+		if(Z.FindBinIndex(i,T,P)){
 			All->Fill(x);
 			Bins[i]->Fill(x);
 		}else{
 			OutOfBorder->Fill(x);
 		}
 	}
-	AHist2D::AHist2D(const string&dir,const string& name, const Binner& x, const Binner& y){
-		hist=new TH2F(name.c_str(),"",x.count(),x.left(),x.right(),y.count(),y.left(),y.right());
+	Hist2D::Hist2D(string&&dir,string&& name, const Axis& x, const Axis& y):X(x),Y(y){
+		hist=new TH2F(name.c_str(),"",X.count(),X.left(),X.right(),Y.count(),Y.left(),Y.right());
 		gHistoManager->Add(hist,dir.c_str());
 	}
-	AHist2D::~AHist2D(){}
-	void AHist2D::Accept(double x, double y) const{
-		hist->Fill(x,y);
-	}
-	ASetOfHists2D::ASetOfHists2D(const string&dir,const string& name, const Binner& z, const Binner& x, const Binner& y):Z(z){
-		All=new TH2F((name+"-AllBins").c_str(),"",x.count(),x.left(),x.right(),y.count(),y.left(),y.right());
+	Hist2D::~Hist2D(){}
+	void Hist2D::Analyse(WTrack&T, const vector<double>&P)const{hist->Fill(X.getvalue(T,P),Y.getvalue(T,P));}
+	SetOfHists2D::SetOfHists2D(string&&dir,string&& name, const Axis& binning, const Axis& x, const Axis& y):Z(binning),X(x),Y(y){
+		All=new TH2F((name+"-AllBins").c_str(),"",X.count(),X.left(),X.right(),Y.count(),Y.left(),Y.right());
 		gHistoManager->Add(All,dir.c_str());
-		OutOfBorder=new TH2F((name+"-OutOfBins").c_str(),"",x.count(),x.left(),x.right(),y.count(),y.left(),y.right());
+		OutOfBorder=new TH2F((name+"-OutOfBins").c_str(),"",X.count(),X.left(),X.right(),Y.count(),Y.left(),Y.right());
 		gHistoManager->Add(OutOfBorder,dir.c_str());
 		for(unsigned int i=0;i<Z.count();i++){
-			TH2F*hist=new TH2F((name+"-Bin-"+to_string(i)).c_str(),"",x.count(),x.left(),x.right(),y.count(),y.left(),y.right());
+			TH2F*hist=new TH2F((name+"-Bin-"+to_string(i)).c_str(),"",X.count(),X.left(),X.right(),Y.count(),Y.left(),Y.right());
 			gHistoManager->Add(hist,dir.c_str());
 			Bins.push_back(hist);
 		}
 	}
-	ASetOfHists2D::~ASetOfHists2D(){}
-	void ASetOfHists2D::Accept(double z, double x, double y) const{
-		size_t i=0;
-		if(Z.FindBinIndex(i,z)){
+	SetOfHists2D::~SetOfHists2D(){}
+	void SetOfHists2D::Analyse(WTrack&T, const vector<double>&P)const{
+		double x=X.getvalue(T,P);
+		double y=Y.getvalue(T,P);
+		unsigned int i=0;
+		if(Z.FindBinIndex(i,T,P)){
 			All->Fill(x,y);
 			Bins[i]->Fill(x,y);
 		}else{
 			OutOfBorder->Fill(x,y);
 		}
 	}
-
-	class AnalysisConverter:public ICalculation{
-	private:
-		shared_ptr<IAnalysis> func;
-	public:
-		AnalysisConverter(shared_ptr<IAnalysis> f){func=f;}
-		virtual ~AnalysisConverter(){}
-		virtual bool Process(WTrack&,Results&P)const override{
-			return func->Process(P);
-		}
-	};
-	class TrackConverter:public ICalculation{
-	private:
-		shared_ptr<ITrackProcess> func;
-	public:
-		TrackConverter(shared_ptr<ITrackProcess> f){func=f;}
-		virtual ~TrackConverter(){}
-		virtual bool Process(WTrack&T,Results&)const override{
-			return func->Process(T);
-		}
-	};
-	void CalculationSet::Add(shared_ptr<IAnalysis> s){
-		AbstractSet<WTrack&,Results&>::Add(make_shared<AnalysisConverter>(s));
+	Condition::Condition(ConditionTrackParamDependent func){
+		condition=func;
 	}
-	void CalculationSet::Add(shared_ptr<ITrackProcess>s){
-		AbstractSet<WTrack&,Results&>::Add(make_shared<TrackConverter>(s));
-	}
-	bool TrackCalculations::Process(WTrack& T) const{
-		Results P;
-		for(auto p:allset())p->Process(T,P);
+	Condition::Condition(ConditionIndependent func)
+		:Condition([func](WTrack&,const vector<double>&){return func();}){}
+	Condition::Condition(ConditionParamDependent func)
+		:Condition([func](WTrack&,const vector<double>&P){return func(P);}){}
+	Condition::Condition(ConditionTrackDependent func)
+		:Condition([func](WTrack&T,const vector<double>&){return func(T);}){}
+	Condition::~Condition(){}
+	bool Condition::Process(WTrack&T, vector<double>&P)const{return condition(T,P);}
+	
+	Parameter::Parameter(ValueTrackParamDependent f){func=f;}
+	Parameter::Parameter(ValueTrackDependent f):Parameter([f](WTrack&T,const vector<double>&){return f(T);}){}
+	Parameter::Parameter(ValueParamDependent f):Parameter([f](WTrack&,const vector<double>&P){return f(P);}){}
+	Parameter::Parameter(ValueIndependent f):Parameter([f](WTrack&,const vector<double>&){return f();}){}
+	Parameter::~Parameter(){}
+	bool Parameter::Process(WTrack&T, vector< double >&P)const{
+		double x=func(T,P);
+		P.push_back(x);
 		return true;
 	}
-	bool TrackCalcChain::Process(WTrack& T) const{
-		Results P;
-		for(auto p:allset())p->Process(T,P);
+	
+	AbstractChain::AbstractChain(){}
+	AbstractChain::~AbstractChain(){}
+	AbstractChain& AbstractChain::operator<<(shared_ptr< ITrackParamProcess > element){
+		m_chain.push_back(element);
+		return *this;
+	}
+	void AbstractChain::Cycle(function<void(bool)>func,WTrack&T,vector<double>&P) const{
+		for(auto element:m_chain)
+			func(element->Process(T,P));
+	}
+	void AbstractChain::CycleCheck(function<void(bool)>func, WTrack&T,vector<double>&P) const{
+		for(auto element:m_chain){
+			bool b=element->Process(T,P);
+			func(b);
+			if(!b)return;
+		}
+		
+	}
+	bool Chain::Process(WTrack&T, vector< double >&P) const{
+		Cycle([](bool){},T,P);
 		return true;
 	}
-
-
+	bool ChainCheck::Process(WTrack&T,vector<double>&P) const{
+		bool res=true;
+		CycleCheck([&res](bool v){res&=v;},T,P);
+		return res;
+	}
+	bool ChainAnd::Process(WTrack&T, vector< double >&P) const{
+		bool res=true;
+		Cycle([&res](bool v){res&=v;},T,P);
+		return res;
+	}
+	bool ChainOr::Process(WTrack&T, vector< double >&P) const{
+		bool res=false;
+		Cycle([&res](bool v){res|=v;},T,P);
+		return res;
+	}
+	TrackProcess& TrackProcess::operator<<(shared_ptr< ITrackParamProcess > element){
+		m_proc.push_back(element);
+		return *this;
+	}
+	void TrackProcess::Process(WTrack& T) const{
+		vector<double> P;
+		for(auto proc:m_proc)
+			proc->Process(T,P);
+	}
 }

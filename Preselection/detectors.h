@@ -29,13 +29,13 @@ namespace TrackAnalyse{
 		protected:
 			ForwardDetectorPlane plane()const;
 			string&name()const;
-			Axis<WTrack&>&axis()const;
+			Axis&axis()const;
 			double threshold()const;
 		private:
 			ForwardDetectorPlane m_plane;
 			string m_name;
 			double m_thr;
-			Axis<WTrack&> m_axis;
+			Axis m_axis;
 		};
 		typedef vector<plane_data>::const_iterator const_iterator;
 		const_iterator begin()const;
@@ -45,7 +45,7 @@ namespace TrackAnalyse{
 		size_t count()const;
 		plane_data&operator[](ForwardDetectorPlane)const;
 		ForwardDetectorPlane StoppingLayer(WTrack&)const;
-		shared_ptr<ITrackProcess> CreateMarker(string&&dir,string&&name)const;
+		shared_ptr<Chain> CreateMarker(string&&dir,string&&name)const;
 	private:
 		vector<plane_data> PlaneData;
 	};
