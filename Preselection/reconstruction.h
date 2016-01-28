@@ -23,7 +23,7 @@ private:
 	std::vector<std::pair<double,double>> out;
 	FUNC Experiment,Theory;
 public:
-	InterpolationBasedReconstruction(std::string name,FUNC measured,FUNC theory){
+	InterpolationBasedReconstruction(std::string&&name,FUNC measured,FUNC theory){
 		AddLogSubprefix("InterpolationBasedReconstruction");
 		m_name=name;
 		AddLogSubprefix(m_name);
@@ -95,7 +95,7 @@ private:
 	Genetic::ParamSet P;
 	std::vector<Genetic::ParamSet> data;
 public:
-	FitBasedReconstruction(std::string name,std::vector<FUNC> measured,FUNC theory){
+	FitBasedReconstruction(std::string&&name,std::vector<FUNC> measured,FUNC theory){
 		using namespace Genetic;
 		m_name=name;Experiment=measured;Theory=theory;
 		std::ifstream file;
@@ -106,6 +106,11 @@ public:
 			mode=use;
 			file.close();
 		}
+		AddLogSubprefix(name);
+		if(use==mode)
+			Log(NoLog)<<"reconstruction mode";
+		else
+			Log(NoLog)<<"data generating mode";
 	}
 	FitBasedReconstruction(
 		const FitBasedReconstruction&source
@@ -115,10 +120,17 @@ public:
 		Theory=source.Theory;
 		P=source.P;
 		data=source.data;
+		AddLogSubprefix(m_name);
+		Log(NoLog)<<"Copying Fit reconstruction";
+		if(use==mode)
+			Log(NoLog)<<"reconstruction mode";
+		else
+			Log(NoLog)<<"data generating mode";
 	}
 	virtual ~FitBasedReconstruction(){
 		using namespace Genetic;
 		if(learn==mode){
+			Log(NoLog)<<"Saving data";
 			std::ofstream file;
 			file.open((DataFiles+m_name+".simulation.txt").c_str(),ios_base::app);
 			if(file){
