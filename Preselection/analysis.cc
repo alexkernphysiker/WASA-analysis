@@ -28,6 +28,10 @@ TrackAnalyse::TrackProcess& Analysis::TrackTypeProcess(TrackType type){
 			return rec.second;
 	throw MathTemplates::Exception<Analysis>("Cannot find track type");
 }
+TrackAnalyse::EventProcess& Analysis::EventProcessing(){
+	return m_eventproc;
+}
+
 bool Analysis::Trigger(int n)const{
 	return DataSpecificTriggerCheck(n);
 }
@@ -37,6 +41,7 @@ void Analysis::ProcessEvent(){
 		Log(NoLog)<<to_string(m_count)+" events";
 	SubLog log=Log(LogDebug);
 	if(DataTypeSpecificEventAnalysis())
+		m_eventproc.Process();
 		for(const TrackTypeRec& tt:m_chain){
 			vector<WTrackBank*> BANK;
 			BANK.push_back(fTrackBankCD);

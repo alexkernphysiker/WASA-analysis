@@ -34,11 +34,13 @@ public:
 	virtual void ProcessEvent()final;
 
 	TrackAnalyse::TrackProcess&TrackTypeProcess(TrackType);
+	TrackAnalyse::EventProcess&EventProcessing();
 	bool Trigger(int n)const;
 private:
 	typedef std::pair<TrackType,TrackAnalyse::TrackProcess> TrackTypeRec;
 	typedef std::vector<TrackTypeRec> TrackTypeRecs;
 	TrackTypeRecs m_chain;
+	TrackAnalyse::EventProcess m_eventproc;
 public:
 	struct Kinematic{Kinematic();double E,Th,Phi;};
 	Kinematic&FromFirstVertex(ParticleType type)const;
