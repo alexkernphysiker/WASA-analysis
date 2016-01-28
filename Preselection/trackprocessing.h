@@ -73,6 +73,7 @@ namespace TrackAnalyse{
 	private:
 		function<double(Args...)> func;
 	public:
+		Axis():Binner(0,1,1){func=[](Args...){};}
 		Axis(function<double(Args...)> v,const Binner&B)
 			:Binner(B){func=v;}
 		Axis(function<double(Args...)> v,double f, double t,size_t b)
