@@ -62,10 +62,10 @@ namespace TrackAnalyse {
 	shared_ptr<ITrackProcess> Forward::CreateMarker(string&& dir, string&& name)const{
 		auto res=make_shared<TrackProcesses>();
 		for(size_t i=1;i<PlaneData.size();i++)
-			res->Add(make_shared<Hist2D<WTrack&>>(
+			res << make_shared<Hist2D<WTrack&>>(
 				static_cast<string&&>(dir),name+"-"+PlaneData[i-1].name()+"-vs-"+PlaneData[i].name(),
 				PlaneData[i].axis(),PlaneData[i-1].axis()
-			));
+			);
 		return res;
 	}
 }

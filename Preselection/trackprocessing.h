@@ -15,8 +15,6 @@ namespace TrackAnalyse{
 	class Binner{
 	public:
 		Binner(double f, double t,unsigned int b);
-		Binner(const Binner&source);
-		Binner&operator=(const Binner&source);
 		virtual ~Binner();
 		double left()const;
 		double right()const;
@@ -34,7 +32,7 @@ namespace TrackAnalyse{
 	public:
 		AHist1D(const string&dir,const string&name,const Binner&x);
 		virtual ~AHist1D();
-		void Accept(double x)const;
+		void Accept(double x);
 	private:
 		TH1F *hist;
 	};
@@ -73,21 +71,12 @@ namespace TrackAnalyse{
 	private:
 		function<double(Args...)> func;
 	public:
-		Axis():Binner(0,1,1){func=[](Args...){};}
-		Axis(function<double(Args...)> v,const Binner&B)
-			:Binner(B){func=v;}
-		Axis(function<double(Args...)> v,double f, double t,size_t b)
-			:Binner(f,t,b){func=v;}
-		Axis(const Axis&source):Binner(source){func=source.func;}
-		Axis&operator=(const Axis&source){
-			Binner::operator=(source);
-			func=source.func;
-			return *this;
-		}
+		Axis(function<double(Args...)> v,double f, double t,size_t b):Binner(f,t,b){func=v;}
+		Axis(const Axis&source):Axis(source.func,source.left(),source.right(),source.count()){}
 		~Axis(){}
 		function<double(Args...)> FUNC()const{return func;}
 		double operator()(Args... args)const{return func(args...);}
-		bool FindBinNumber(size_t&out,Args... args)const{return FindBinIndex(out,func(args...));}
+		bool FindBinNumber(size_t&out,Args... args)const{return FindBinIndex(out,value(args...));}
 	};
 
 	template<typename... Args>
@@ -102,7 +91,9 @@ namespace TrackAnalyse{
 	private:
 		function<double(Args...)> X;
 	public:
-		Hist1D(string&&dir,string&&name,const Axis<Args...>&x):AHist1D(dir,name,x){X=x.FUNC();}
+		Hist1D(string&&dir,string&&name,const Axis<Args...>&x):AHist1D(dir,name,x){
+			X=x.FUNC();
+		}
 		virtual ~Hist1D(){}
 		virtual bool Process(Args...args)const override{
 			Accept(X(args...));
@@ -115,7 +106,9 @@ namespace TrackAnalyse{
 	private:
 		function<double(Args...)> X,Y;
 	public:
-		Hist2D(string&&dir,string&&name,const Axis<Args...>&x,const Axis<Args...>&y):AHist2D(dir,name,x,y){X=x.FUNC();Y=y.FUNC();}
+		Hist2D(string&&dir,string&&name,const Axis<Args...>&x,const Axis<Args...>&y):AHist2D(dir,name,x,y){
+			X=x.FUNC();Y=y.FUNC();
+		}
 		virtual ~Hist2D(){}
 		virtual bool Process(Args...args)const override{
 			Accept(X(args...),Y(args...));
@@ -128,7 +121,9 @@ namespace TrackAnalyse{
 	private:
 		function<double(Args...)> Z,X;
 	public:
-		SetOfHists1D(string&&dir,string&&name,const Axis<Args...>&z,const Axis<Args...>&x):ASetOfHists1D(dir,name,z,x){Z=z.FUNC();X=x.FUNC();}
+		SetOfHists1D(string&&dir,string&&name,const Axis<Args...>&z,const Axis<Args...>&x):SetOfHists1D(dir,name,z,x){
+			Z=z.FUNC();X=x.FUNC();
+		}
 		virtual ~SetOfHists1D(){}
 		virtual bool Process(Args...args)const override{
 			Accept(Z(args...),X(args...));
@@ -141,7 +136,9 @@ namespace TrackAnalyse{
 	private:
 		function<double(Args...)> Z,X,Y;
 	public:
-		SetOfHists2D(string&&dir,string&&name,const Axis<Args...>&z,const Axis<Args...>&x,const Axis<Args...>&y):ASetOfHists2D(dir,name,z,x,y){Z=z.FUNC();X=x.FUNC();Y=y.FUNC();}
+		SetOfHists2D(string&&dir,string&&name,const Axis<Args...>&z,const Axis<Args...>&x,const Axis<Args...>&y):ASetOfHists2D(dir,name,z,x,y){
+			Z=z.FUNC();X=x.FUNC();Y=y.FUNC();
+		}
 		virtual ~SetOfHists2D(){}
 		virtual bool Process(Args...args)const override{
 			Accept(Z(args...),X(args...),Y(args...));
@@ -156,9 +153,7 @@ namespace TrackAnalyse{
 	public:
 		Function(function<bool(Args...)> f){func=f;}
 		virtual ~Function(){}
-		virtual bool Process(Args...args)const override{
-			return func(args...);
-		}
+		virtual bool Process(Args...args)const override{return func(args...);}
 	};
 
 	template<typename... Args>
@@ -180,6 +175,12 @@ namespace TrackAnalyse{
 			return const_cast<vector<shared_ptr<IProcess<Args...>>>&>(m_chain);
 		};
 	};
+	template<class source,typename element>
+	shared_ptr<source> operator<<(shared_ptr<source> S,element e){
+		S->Add(e);
+		return S;
+	}
+	
 	template<class Container,typename... Args>
 	class ProcessAll:public Container{
 	public:
@@ -243,36 +244,18 @@ namespace TrackAnalyse{
 	public:
 		virtual bool Process(WTrack&T)const override{return Cycle(T);}
 	};
-	template<typename element>
-	inline shared_ptr<TrackProcesses> operator<<(shared_ptr<TrackProcesses> S,element e){
-		dynamic_pointer_cast<AbstractSet<WTrack&>>(S)->Add(e);
-		return S;
-	}
-	typedef vector<double> Results;
-	typedef IProcess<const Results&> IResAnalysis;
-	class AnalysisSet:public IResAnalysis,public ProcessAll<AbstractSet<const Results&>,const Results&>{
+	typedef map<string,double> Results;
+	typedef IProcess<const Results&> IAnalysis;
+	class AnalysisSet:public IAnalysis,public ProcessAll<AbstractSet<const Results&>,const Results&>{
 	public:
 		virtual bool Process(const Results&P)const override{return Cycle(P);}
 	};
-	template<typename element>
-	inline shared_ptr<AnalysisSet> operator<<(shared_ptr<AnalysisSet> S,element e){
-		dynamic_pointer_cast<AbstractSet<const Results&>>(S)->Add(e);
-		return S;
-	}
 	typedef IProcess<WTrack&,Results&> ICalculation;
 	class CalculationSet:public AbstractSet<WTrack&,Results&>{
 	public:
-		void AddC(shared_ptr<ICalculation>element){Add(element);}
-		void AddC(function<bool(WTrack&,Results&)>f){Add(f);}
-		void AddC(shared_ptr<ParamlessProcess>);
-		void AddC(shared_ptr<ITrackProcess>);
-		void AddC(shared_ptr<IResAnalysis>);
+		void Add(shared_ptr<ITrackProcess>);
+		void Add(shared_ptr<IAnalysis>);
 	};
-	template<typename element>
-	inline shared_ptr<CalculationSet> operator<<(shared_ptr<CalculationSet> S,element e){
-		S->AddC(e);
-		return S;
-	}
 	class TrackCalculations:public ITrackProcess,public ProcessAll<CalculationSet,WTrack&,Results&>{
 	public:
 		virtual bool Process(WTrack&T)const override;
