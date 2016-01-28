@@ -46,74 +46,6 @@ namespace ReactionSetup{
 		};
 		return res;
 	}
-	shared_ptr<AbstractChain> FRH1_cut(const Analysis&data){
-		return make_shared<ChainAnd>()
-		<<[](WTrack&T)->bool{return Forward::Get().StoppingLayer(T)==kFRH1;}
-		<<[](WTrack&T)->bool{
-			//Achtung - static
-			static TCutG *cut=nullptr;
-			if(cut==nullptr){
-				cut=new TCutG("FRH1_cut",15);
-				cut->SetVarX("FRH1");
-				cut->SetVarY("FTH1");
-				cut->SetPoint(15,0.019,0.025);
-				cut->SetPoint(14,0.069,0.019);
-				cut->SetPoint(13,0.121,0.016);
-				cut->SetPoint(12,0.162,0.014);
-				cut->SetPoint(11,0.206,0.013);
-				cut->SetPoint(10,0.304,0.012);
-				cut->SetPoint(9,0.4,0.012);
-				cut->SetPoint(8,0.4,0.008);
-				cut->SetPoint(7,0.298,0.008);
-				cut->SetPoint(6,0.201,0.010);
-				cut->SetPoint(5,0.141,0.012);
-				cut->SetPoint(4,0.105,0.013);
-				cut->SetPoint(3,0.061,0.017);
-				cut->SetPoint(2,0.027,0.021);
-				cut->SetPoint(1,0.019,0.025);
-			}
-			double x=Forward::Get()[kFRH1].Edep(T);
-			double y=Forward::Get()[kFTH1].Edep(T);
-			return cut->IsInside(x,y);
-		}
-		<<Forward::Get().CreateMarker(dirname(),"2.5-FRH1")
-		<<make_shared<Parameter>([&data](WTrack&track)->double{
-			//Achtung - static
-			static FitBasedReconstruction<Reconstruction::He3EnergyFRH1,WTrack&> energy(
-				"He3.E.FRH1",
-				{
-					[](WTrack&track){return Forward::Get()[kFRH1].Edep(track);},
-					[](WTrack&track){return track.Theta();}
-				},
-				[&data](WTrack&){return data.FromFirstVertex(kHe3).E;}
-			);
-			return energy.Reconstruct(track);
-		});
-	}
-	shared_ptr<AbstractChain> FRH2_cut(const Analysis&data){
-		return make_shared<ChainAnd>()
-		<<[](WTrack&T)->bool{return Forward::Get().StoppingLayer(T)==kFRH2;}
-		<<[](WTrack&T)->bool{
-			vector<double> Ed={
-				Forward::Get()[kFRH1].Edep(T),
-				Forward::Get()[kFRH2].Edep(T)
-			};
-			return (Ed[0]>(0.25-0.417*Ed[1]))&&(Ed[0]<(0.35-0.417*Ed[1]))&&(Ed[1]<0.22);
-		}
-		<<Forward::Get().CreateMarker(dirname(),"2.5-FRH2")
-		<<make_shared<Parameter>([&data](WTrack&track)->double{
-			//Achtung - static
-			static FitBasedReconstruction<Reconstruction::He3EnergyFRH2,WTrack&> energy(
-				"He3.E.FRH2",
-				{
-					[](WTrack&T){return Forward::Get()[kFRH1].Edep(T)+Forward::Get()[kFRH2].Edep(T);},
-					[](WTrack&T){return T.Theta();}
-				},
-				[&data](WTrack&){return data.FromFirstVertex(kHe3).E;}
-			);
-			return energy.Reconstruct(track);
-		});
-	}
 	shared_ptr<AbstractChain> ReconstructionProcess(const Analysis&data,const Axis&Q){
 		return make_shared<ChainCheck>()
 		<<Forward::Get().CreateMarker(dirname(),"1-AllTracks")
@@ -123,7 +55,74 @@ namespace ReactionSetup{
 			return (T.Theta()!=0.125);
 		}
 		<<Forward::Get().CreateMarker(dirname(),"2-FPC")<<make_shared<Hist1D>(dirname(),"2-FPC",Q)
-		<<(make_shared<ChainOr>()<<FRH1_cut(data)<<FRH2_cut(data))
+		<<(make_shared<ChainOr>()//E_dep cuts
+			<<(make_shared<ChainAnd>()
+				<<[](WTrack&T)->bool{return Forward::Get().StoppingLayer(T)==kFRH1;}
+				<<[](WTrack&T)->bool{
+					//Achtung - static
+					static TCutG *cut=nullptr;
+					if(cut==nullptr){
+						cut=new TCutG("FRH1_cut",15);
+						cut->SetVarX("FRH1");
+						cut->SetVarY("FTH1");
+						cut->SetPoint(15,0.019,0.025);
+						cut->SetPoint(14,0.069,0.019);
+						cut->SetPoint(13,0.121,0.016);
+						cut->SetPoint(12,0.162,0.014);
+						cut->SetPoint(11,0.206,0.013);
+						cut->SetPoint(10,0.304,0.012);
+						cut->SetPoint(9,0.4,0.012);
+						cut->SetPoint(8,0.4,0.008);
+						cut->SetPoint(7,0.298,0.008);
+						cut->SetPoint(6,0.201,0.010);
+						cut->SetPoint(5,0.141,0.012);
+						cut->SetPoint(4,0.105,0.013);
+						cut->SetPoint(3,0.061,0.017);
+						cut->SetPoint(2,0.027,0.021);
+						cut->SetPoint(1,0.019,0.025);
+					}
+					double x=Forward::Get()[kFRH1].Edep(T);
+					double y=Forward::Get()[kFTH1].Edep(T);
+					return cut->IsInside(x,y);
+				}
+				<<Forward::Get().CreateMarker(dirname(),"2.5-FRH1")
+				<<make_shared<Parameter>([&data](WTrack&track)->double{
+					//Achtung - static
+					static FitBasedReconstruction<Reconstruction::He3EnergyFRH1,WTrack&> energy(
+						"He3.E.FRH1",
+						{
+							[](WTrack&track){return Forward::Get()[kFRH1].Edep(track);},
+							[](WTrack&track){return track.Theta();}
+						},
+						[&data](WTrack&){return data.FromFirstVertex(kHe3).E;}
+					);
+					return energy.Reconstruct(track);
+				})
+			)
+			<<(make_shared<ChainAnd>()
+				<<[](WTrack&T)->bool{return Forward::Get().StoppingLayer(T)==kFRH2;}
+				<<[](WTrack&T)->bool{
+					vector<double> Ed={
+						Forward::Get()[kFRH1].Edep(T),
+						Forward::Get()[kFRH2].Edep(T)
+					};
+					return (Ed[0]>(0.25-0.417*Ed[1]))&&(Ed[0]<(0.35-0.417*Ed[1]))&&(Ed[1]<0.22);
+				}
+				<<Forward::Get().CreateMarker(dirname(),"2.5-FRH2")
+				<<make_shared<Parameter>([&data](WTrack&track)->double{
+					//Achtung - static
+					static FitBasedReconstruction<Reconstruction::He3EnergyFRH2,WTrack&> energy(
+						"He3.E.FRH2",
+						{
+							[](WTrack&T){return Forward::Get()[kFRH1].Edep(T)+Forward::Get()[kFRH2].Edep(T);},
+														    [](WTrack&T){return T.Theta();}
+						},
+						[&data](WTrack&){return data.FromFirstVertex(kHe3).E;}
+					);
+					return energy.Reconstruct(track);
+				})	
+			)
+		)//end E_dep cuts
 		<<Forward::Get().CreateMarker(dirname(),"3-AllCuts")<<make_shared<Hist1D>(dirname(),"3-AllCuts",Q)
 		<<make_shared<Parameter>([](WTrack&T)->double{return T.Theta();})
 		<<make_shared<Parameter>([](WTrack&T)->double{return T.Phi();})
