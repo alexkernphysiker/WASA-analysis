@@ -22,7 +22,7 @@ namespace SimulationDataProcess{
 	){
 		auto params_shown=make_pair(0,2);
 		auto Edep_binning=BinningParam(0,E_range,30);
-		auto theta_binning=BinningParam(1,make_pair(0.1,0.16),12);
+		auto theta_binning=BinningParam(1,make_pair(0.10,0.16),12);
 		auto Ek_binning=BinningParam(2,E_range,30);
 		
 		ParamsPerBinsCounter<3> Binner({Edep_binning,theta_binning,Ek_binning});
