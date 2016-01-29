@@ -56,7 +56,7 @@ namespace ReactionSetup{
 		}
 		<<Forward::Get().CreateMarker(dirname(),"2-FPC")<<make_shared<Hist1D>(dirname(),"2-FPC",Q)
 		<<(make_shared<ChainOr>()//E_dep cuts
-			<<(make_shared<ChainAnd>()
+			<<(make_shared<ChainCheck>()
 				<<[](WTrack&T)->bool{return Forward::Get().StoppingLayer(T)==kFRH1;}
 				<<[](WTrack&T)->bool{
 					//Achtung - static
@@ -99,7 +99,7 @@ namespace ReactionSetup{
 					return energy.Reconstruct(track);
 				})
 			)
-			<<(make_shared<ChainAnd>()
+			<<(make_shared<ChainCheck>()
 				<<[](WTrack&T)->bool{return Forward::Get().StoppingLayer(T)==kFRH2;}
 				<<[](WTrack&T)->bool{
 					vector<double> Ed={
