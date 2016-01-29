@@ -54,7 +54,7 @@ namespace SimulationDataProcess{
 		});
 		FitFunction<DifferentialMutations<>,FITFUNC,SumWeightedSquareDiff> fit(points);
 		cout<<"Init2"<<endl;
-		fit.SetFilter(filter).Init(40*FITFUNC::ParamCount,init,R);
+		fit.SetFilter(filter).Init(25*FITFUNC::ParamCount,init,R);
 		cout<<"Fitting"<<endl;
 		while(
 			(!fit.AbsoluteOptimalityExitCondition(0.000001))&&
