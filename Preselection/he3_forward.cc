@@ -131,7 +131,7 @@ namespace ReactionSetup{
 		<<make_shared<Hist1D>(dirname(),"4-Reconstructed",Q);
 	}
 	shared_ptr<AbstractChain> MissingMass(const Analysis&data,const Axis&Q){
-		Axis M([](const vector<double>&P)->double{return P[3];},m_pi0-0.5,m_eta+0.5,100);
+		Axis M([](const vector<double>&P)->double{return P[3];},m_pi0-0.5,m_eta+0.5,200);
 		return make_shared<Chain>()
 		<<make_shared<Parameter>([&data](const vector<double>&He3)->double{
 			double p=sqrt(He3[0]*(He3[0]+2*m_3He));
