@@ -161,7 +161,7 @@ namespace TrackAnalyse{
 	
 	AbstractChain::AbstractChain(){}
 	AbstractChain::~AbstractChain(){}
-	AbstractChain& AbstractChain::operator<<(shared_ptr< ITrackParamProcess > element){
+	IProcessContainer& AbstractChain::operator<<(shared_ptr< ITrackParamProcess > element){
 		m_chain.push_back(element);
 		return *this;
 	}
@@ -195,6 +195,20 @@ namespace TrackAnalyse{
 		bool res=false;
 		Cycle([&res](bool v){res|=v;},T,P);
 		return res;
+	}
+	ChainBinner::ChainBinner(const Axis& source):m_axis(source){}
+	ChainBinner::ChainBinner(Axis&& source):m_axis(source){}
+	ChainBinner::~ChainBinner(){}
+	IProcessContainer& ChainBinner::operator<<(shared_ptr< ITrackParamProcess > element){
+		m_chain.push_back(element);
+		return *this;
+	}
+	bool ChainBinner::Process(WTrack&T, vector<double>&P) const{
+		unsigned int i=0;
+		if(m_axis.FindBinIndex(i,T,P))
+			if(i<m_chain.size())
+				return m_chain[i]->Process(T,P);
+		return false;
 	}
 	TrackProcess& TrackProcess::operator<<(shared_ptr< ITrackParamProcess > element){
 		m_proc.push_back(element);

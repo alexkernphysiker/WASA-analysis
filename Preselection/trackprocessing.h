@@ -125,34 +125,38 @@ namespace TrackAnalyse{
 	private:
 		ValueTrackParamDependent func;
 	};
-	class AbstractChain:public ITrackParamProcess{
+	class IProcessContainer:public ITrackParamProcess{
+	public:
+		virtual IProcessContainer&operator<<(shared_ptr<ITrackParamProcess>element)=0;
+	};
+	inline shared_ptr<IProcessContainer>operator<<(shared_ptr<IProcessContainer>ch,shared_ptr<ITrackParamProcess>v){
+		ch->operator<<(v);
+		return ch;
+	}
+	inline shared_ptr<IProcessContainer>operator<<(shared_ptr<IProcessContainer>ch,ConditionTrackParamDependent f){
+		return ch<<dynamic_pointer_cast<ITrackParamProcess>(make_shared<Condition>(f));
+	}
+	inline shared_ptr<IProcessContainer>operator<<(shared_ptr<IProcessContainer>ch,ConditionTrackDependent f){
+		return ch<<dynamic_pointer_cast<ITrackParamProcess>(make_shared<Condition>(f));
+	}
+	inline shared_ptr<IProcessContainer>operator<<(shared_ptr<IProcessContainer>ch,ConditionParamDependent f){
+		return ch<<dynamic_pointer_cast<ITrackParamProcess>(make_shared<Condition>(f));
+	}
+	inline shared_ptr<IProcessContainer>operator<<(shared_ptr<IProcessContainer>ch,ConditionIndependent f){
+		return ch<<dynamic_pointer_cast<ITrackParamProcess>(make_shared<Condition>(f));
+	}
+	class AbstractChain:public IProcessContainer{
 	protected:
 		AbstractChain();
 	public:
 		virtual ~AbstractChain();
-		AbstractChain&operator<<(shared_ptr<ITrackParamProcess>element);
+		virtual IProcessContainer&operator<<(shared_ptr<ITrackParamProcess>element)override;
 	protected:
 		void Cycle(function<void(bool)>,WTrack&,vector<double>&)const;
 		void CycleCheck(function<void(bool)>,WTrack&,vector<double>&)const;
 	private:
 		vector<shared_ptr<ITrackParamProcess>> m_chain;
 	};
-	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,shared_ptr<ITrackParamProcess>v){
-		ch->operator<<(v);
-		return ch;
-	}
-	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,ConditionTrackParamDependent f){
-		return ch<<make_shared<Condition>(f);
-	}
-	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,ConditionTrackDependent f){
-		return ch<<make_shared<Condition>(f);
-	}
-	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,ConditionParamDependent f){
-		return ch<<make_shared<Condition>(f);
-	}
-	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,ConditionIndependent f){
-		return ch<<make_shared<Condition>(f);
-	}
 	class Chain:public AbstractChain{
 	public:
 		Chain(){}
@@ -176,6 +180,17 @@ namespace TrackAnalyse{
 		ChainOr(){}
 		virtual ~ChainOr(){}
 		virtual bool Process(WTrack&,vector<double>&)const override;
+	};
+	class ChainBinner:public IProcessContainer{
+	public:
+		ChainBinner(const Axis&source);
+		ChainBinner(Axis&&source);
+		virtual ~ChainBinner();
+		virtual IProcessContainer&operator<<(shared_ptr<ITrackParamProcess>element)override;
+		virtual bool Process(WTrack&,vector<double>&)const override;
+	private:
+		Axis m_axis;
+		vector<shared_ptr<ITrackParamProcess>> m_chain;
 	};
 	class TrackProcess{
 	public:

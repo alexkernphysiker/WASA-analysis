@@ -46,7 +46,7 @@ namespace ReactionSetup{
 		};
 		return res;
 	}
-	shared_ptr<AbstractChain> ReconstructionProcess(const Analysis&data,const Axis&Q){
+	shared_ptr<ITrackParamProcess> ReconstructionProcess(const Analysis&data,const Axis&Q){
 		return make_shared<ChainCheck>()
 		<<Forward::Get().CreateMarker(dirname(),"1-AllTracks")
 		<<make_shared<Hist1D>(dirname(),"1-AllTracks",Q)
@@ -130,7 +130,7 @@ namespace ReactionSetup{
 		<<Forward::Get().CreateMarker(dirname(),"4-Reconstructed")
 		<<make_shared<Hist1D>(dirname(),"4-Reconstructed",Q);
 	}
-	shared_ptr<AbstractChain> MissingMass(const Analysis&data,const Axis&Q){
+	shared_ptr<ITrackParamProcess> MissingMass(const Analysis&data,const Axis&Q){
 		Axis M([](const vector<double>&P)->double{return P[3];},m_pi0-0.5,m_eta+0.5,200);
 		return make_shared<Chain>()
 		<<make_shared<Parameter>([&data](const vector<double>&He3)->double{
@@ -155,7 +155,7 @@ namespace ReactionSetup{
 		})
 		<<make_shared<SetOfHists1D>(dirname(),"MissingMass",Q,M);
 	}
-	shared_ptr<AbstractChain> He3Eta_cut(){
+	shared_ptr<ITrackParamProcess> He3Eta_cut(){
 		return make_shared<ChainCheck>()
 		<<[](WTrack&track)->bool{
 			if(Forward::Get().StoppingLayer(track)!=kFRH1)return false;
@@ -163,7 +163,7 @@ namespace ReactionSetup{
 			return (E>0.08)&&(E<0.22);
 		};
 	}
-	shared_ptr<AbstractChain> KinematicHe3Test(const Analysis&data,const Axis&Q,He3Modification mode){
+	shared_ptr<ITrackParamProcess> KinematicHe3Test(const Analysis&data,const Axis&Q,He3Modification mode){
 		Axis Ek([](const vector<double>&P)->double{return P[0];},0.1,0.6,100);
 		Axis Th([](const vector<double>&P)->double{return P[1];},0.06,0.16,100);
 		Axis Ev([&data]()->double{return data.FromFirstVertex(kHe3).E;},Ek);
