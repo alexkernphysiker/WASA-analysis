@@ -1,5 +1,6 @@
 #ifndef AXWBNBYL
 #define AXWBNBYL
+#include <utility>
 // Physical constants
 const double m_p=0.938272;   //[GeV]
 const double m_n=0.93956;    //[GeV]
@@ -23,5 +24,8 @@ inline double NormPhi(double p){
 	while(phi<0)phi+=twopi;
 	while(phi>=twopi)phi-=twopi;
 	return phi;
+}
+inline bool IsIn(double value,std::pair<double,double>&&border){
+	return (value>=border.first)&&(value<=border.second);
 }
 #endif
