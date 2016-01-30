@@ -159,8 +159,7 @@ namespace ReactionSetup{
 	Axis Th([](const vector<double>&P)->double{return P[1];},0.06,0.16,100);
 	Axis Phi([](const vector<double>&P)->double{return P[2];},0.0,6.28,360);
 	shared_ptr<ITrackParamProcess> He3Eta_cut(const Analysis&data){
-		return make_shared<ChainCheck>()
-			<<(make_shared<ChainBinner>(Axis([&data]()->double{return 1000.0*Q_He3eta(data.PBeam());},0.0,30.0,12))
+		return make_shared<ChainBinner>(Axis([&data]()->double{return 1000.0*Q_He3eta(data.PBeam());},0.0,30.0,12))
 				<<[](){return false;}//0
 				<<[](){return false;}
 				<<[](){return false;}//2
@@ -286,12 +285,7 @@ namespace ReactionSetup{
 					}
 					return cut->IsInside(Ek(T,P),Th(T,P));
 				}
-			)
-			<<[](WTrack&track)->bool{
-				if(Forward::Get().StoppingLayer(track)!=kFRH1)return false;
-				double E=Forward::Get()[kFRH1].Edep(track);
-				return (E>0.08)&&(E<0.22);
-			};
+			;
 	}
 	shared_ptr<ITrackParamProcess> KinematicHe3Test(const Analysis&data,const Axis&Q,He3Modification mode){
 		auto res=make_shared<Chain>()<<make_shared<SetOfHists2D>(dirname(),"Kinematic-reconstructed",Q,Ek,Th);
@@ -302,7 +296,6 @@ namespace ReactionSetup{
 		}
 		return res;
 	}
-	
 	///Reaction analysis types visible from reactions.h
 	Analysis* He3_forward_analyse(He3Modification mode){
 		auto res=Prepare(mode);
