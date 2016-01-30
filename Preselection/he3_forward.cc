@@ -160,12 +160,12 @@ namespace ReactionSetup{
 	Axis Phi([](const vector<double>&P)->double{return P[2];},0.0,6.28,360);
 	shared_ptr<ITrackParamProcess> He3Eta_cut(const Analysis&data){
 		return make_shared<ChainBinner>(Axis([&data]()->double{return 1000.0*Q_He3eta(data.PBeam());},0.0,30.0,12))
-				<<[](){return false;}//0
-				<<[](){return false;}
-				<<[](){return false;}//2
-				<<[](){return false;}
-				<<[](){return false;}//4
-				<<[](WTrack&T,const vector<double>&P){
+				<<[]()->bool{return false;}//0
+				<<[]()->bool{return false;}
+				<<[]()->bool{return false;}//2
+				<<[]()->bool{return false;}
+				<<[]()->bool{return false;}//4
+				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
 					if(cut==nullptr){
 						cut=new TCutG("kincut5",5);
@@ -179,7 +179,7 @@ namespace ReactionSetup{
 					}
 					return cut->IsInside(Ek(T,P),Th(T,P));
 				}
-				<<[](WTrack&T,const vector<double>&P){
+				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
 					if(cut==nullptr){
 						cut=new TCutG("kincut6",5);
@@ -193,7 +193,7 @@ namespace ReactionSetup{
 					}
 					return cut->IsInside(Ek(T,P),Th(T,P));
 				}//6
-				<<[](WTrack&T,const vector<double>&P){
+				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
 					if(cut==nullptr){
 						cut=new TCutG("kincut7",7);
@@ -209,7 +209,7 @@ namespace ReactionSetup{
 					}
 					return cut->IsInside(Ek(T,P),Th(T,P));
 				}
-				<<[](WTrack&T,const vector<double>&P){
+				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
 					if(cut==nullptr){
 						cut=new TCutG("kincut8",10);
@@ -228,7 +228,7 @@ namespace ReactionSetup{
 					}
 					return cut->IsInside(Ek(T,P),Th(T,P));
 				}//8
-				<<[](WTrack&T,const vector<double>&P){
+				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
 					if(cut==nullptr){
 						cut=new TCutG("kincut9",10);
@@ -247,7 +247,7 @@ namespace ReactionSetup{
 					}
 					return cut->IsInside(Ek(T,P),Th(T,P));
 				}
-				<<[](WTrack&T,const vector<double>&P){
+				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
 					if(cut==nullptr){
 						cut=new TCutG("kincut10",10);
@@ -266,7 +266,7 @@ namespace ReactionSetup{
 					}
 					return cut->IsInside(Ek(T,P),Th(T,P));
 				}//10
-				<<[](WTrack&T,const vector<double>&P){
+				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
 					if(cut==nullptr){
 						cut=new TCutG("kincut11",11);

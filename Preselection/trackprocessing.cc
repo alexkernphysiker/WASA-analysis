@@ -161,53 +161,44 @@ namespace TrackAnalyse{
 	
 	AbstractChain::AbstractChain(){}
 	AbstractChain::~AbstractChain(){}
-	IProcessContainer& AbstractChain::operator<<(shared_ptr< ITrackParamProcess > element){
+	AbstractChain& AbstractChain::operator<<(shared_ptr<ITrackParamProcess> element){
 		m_chain.push_back(element);
 		return *this;
 	}
-	void AbstractChain::Cycle(function<void(bool)>func,WTrack&T,vector<double>&P) const{
-		for(auto element:m_chain)
-			func(element->Process(T,P));
-	}
-	void AbstractChain::CycleCheck(function<void(bool)>func, WTrack&T,vector<double>&P) const{
-		for(auto element:m_chain){
-			bool b=element->Process(T,P);
-			func(b);
-			if(!b)return;
-		}
-		
+	vector<shared_ptr<ITrackParamProcess>>&AbstractChain::chain() const{
+		return const_cast<vector<shared_ptr<ITrackParamProcess>>&>(m_chain);
 	}
 	bool Chain::Process(WTrack&T, vector< double >&P) const{
-		Cycle([](bool){},T,P);
+		for(auto element:chain())
+			element->Process(T,P);
 		return true;
 	}
 	bool ChainCheck::Process(WTrack&T,vector<double>&P) const{
-		bool res=true;
-		CycleCheck([&res](bool v){res&=v;},T,P);
-		return res;
+		for(auto element:chain())
+			if(!element->Process(T,P))
+				return false;
+		return true;
 	}
 	bool ChainAnd::Process(WTrack&T, vector< double >&P) const{
 		bool res=true;
-		Cycle([&res](bool v){res&=v;},T,P);
+		for(auto element:chain())
+			res&=element->Process(T,P);
 		return res;
 	}
 	bool ChainOr::Process(WTrack&T, vector< double >&P) const{
 		bool res=false;
-		Cycle([&res](bool v){res|=v;},T,P);
+		for(auto element:chain())
+			res|=element->Process(T,P);
 		return res;
 	}
 	ChainBinner::ChainBinner(const Axis& source):m_axis(source){}
 	ChainBinner::ChainBinner(Axis&& source):m_axis(source){}
 	ChainBinner::~ChainBinner(){}
-	IProcessContainer& ChainBinner::operator<<(shared_ptr< ITrackParamProcess > element){
-		m_chain.push_back(element);
-		return *this;
-	}
 	bool ChainBinner::Process(WTrack&T, vector<double>&P) const{
 		unsigned int i=0;
 		if(m_axis.FindBinIndex(i,T,P))
-			if(i<m_chain.size())
-				return m_chain[i]->Process(T,P);
+			if(i<chain().size())
+				return chain()[i]->Process(T,P);
 		return false;
 	}
 	TrackProcess& TrackProcess::operator<<(shared_ptr< ITrackParamProcess > element){
