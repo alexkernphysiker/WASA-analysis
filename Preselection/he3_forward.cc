@@ -155,16 +155,17 @@ namespace ReactionSetup{
 		})
 		<<make_shared<SetOfHists1D>(dirname(),"MissingMass",Q,M);
 	}
+	Axis Ek([](const vector<double>&P)->double{return P[0];},0.1,0.6,100);
+	Axis Th([](const vector<double>&P)->double{return P[1];},0.06,0.16,100);
+	Axis Phi([](const vector<double>&P)->double{return P[1];},0.00,6.28,360);
 	shared_ptr<AbstractChain> He3Eta_cut(const Analysis&data){
-		Axis Ek([](const vector<double>&P)->double{return P[0];},0.1,0.6,100);
-		Axis Th([](const vector<double>&P)->double{return P[1];},0.06,0.16,100);
 		return make_shared<ChainBinner>(Axis([&data]()->double{return 1000.0*Q_He3eta(data.PBeam());},0.0,30.0,12))
 				<<[]()->bool{return false;}//0
 				<<[]()->bool{return false;}
 				<<[]()->bool{return false;}//2
 				<<[]()->bool{return false;}
 				<<[]()->bool{return false;}//4
-				<<[&Ek,&Th](WTrack&T,const vector<double>&P)->bool{
+				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
 					if(cut==nullptr){
 						cut=new TCutG("kincut5",5);
@@ -178,7 +179,7 @@ namespace ReactionSetup{
 					}
 					return cut->IsInside(Ek(T,P),Th(T,P));
 				}
-				<<[&Ek,&Th](WTrack&T,const vector<double>&P)->bool{
+				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
 					if(cut==nullptr){
 						cut=new TCutG("kincut6",5);
@@ -192,7 +193,7 @@ namespace ReactionSetup{
 					}
 					return cut->IsInside(Ek(T,P),Th(T,P));
 				}//6
-				<<[&Ek,&Th](WTrack&T,const vector<double>&P)->bool{
+				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
 					if(cut==nullptr){
 						cut=new TCutG("kincut7",7);
@@ -208,7 +209,7 @@ namespace ReactionSetup{
 					}
 					return cut->IsInside(Ek(T,P),Th(T,P));
 				}
-				<<[&Ek,&Th](WTrack&T,const vector<double>&P)->bool{
+				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
 					if(cut==nullptr){
 						cut=new TCutG("kincut8",10);
@@ -227,7 +228,7 @@ namespace ReactionSetup{
 					}
 					return cut->IsInside(Ek(T,P),Th(T,P));
 				}//8
-				<<[&Ek,&Th](WTrack&T,const vector<double>&P)->bool{
+				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
 					if(cut==nullptr){
 						cut=new TCutG("kincut9",10);
@@ -246,7 +247,7 @@ namespace ReactionSetup{
 					}
 					return cut->IsInside(Ek(T,P),Th(T,P));
 				}
-				<<[&Ek,&Th](WTrack&T,const vector<double>&P)->bool{
+				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
 					if(cut==nullptr){
 						cut=new TCutG("kincut10",10);
@@ -265,7 +266,7 @@ namespace ReactionSetup{
 					}
 					return cut->IsInside(Ek(T,P),Th(T,P));
 				}//10
-				<<[&Ek,&Th](WTrack&T,const vector<double>&P)->bool{
+				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
 					if(cut==nullptr){
 						cut=new TCutG("kincut11",11);
@@ -287,8 +288,6 @@ namespace ReactionSetup{
 			;
 	}
 	shared_ptr<AbstractChain> KinematicHe3Test(const Analysis&data,const Axis&Q,He3Modification mode){
-		Axis Ek([](const vector<double>&P)->double{return P[0];},0.1,0.6,100);
-		Axis Th([](const vector<double>&P)->double{return P[1];},0.06,0.16,100);
 		auto res=make_shared<Chain>()<<make_shared<SetOfHists2D>(dirname(),"Kinematic-reconstructed",Q,Ek,Th);
 		if(mode==forEta){
 			Axis Ev([&data]()->double{return data.FromFirstVertex(kHe3).E;},Ek);
