@@ -168,6 +168,13 @@ namespace TrackAnalyse{
 	vector<shared_ptr<ITrackParamProcess>>&AbstractChain::chain() const{
 		return const_cast<vector<shared_ptr<ITrackParamProcess>>&>(m_chain);
 	}
+	shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,shared_ptr<ITrackParamProcess>v){
+		if(v)
+			ch->operator<<(v);
+		else
+			throw Exception<AbstractChain>("Cannot add process to container");
+		return ch;
+	}
 	bool Chain::Process(WTrack&T, vector< double >&P) const{
 		for(auto element:chain())
 			element->Process(T,P);
@@ -205,6 +212,13 @@ namespace TrackAnalyse{
 		m_proc.push_back(element);
 		return *this;
 	}
+	shared_ptr<TrackProcess>operator<<(shared_ptr<TrackProcess>ch,shared_ptr<ITrackParamProcess>v){
+		if(v)
+			ch->operator<<(v);
+		else
+			throw Exception<TrackProcess>("Cannot add process to container");
+		return ch;
+	}
 	void TrackProcess::Process(WTrack& T) const{
 		vector<double> P;
 		for(auto proc:m_proc)
@@ -213,6 +227,13 @@ namespace TrackAnalyse{
 	EventProcess& EventProcess::operator<<(shared_ptr< ITrackParamProcess > element){
 		m_proc.push_back(element);
 		return *this;
+	}
+	shared_ptr<EventProcess>operator<<(shared_ptr<EventProcess>ch,shared_ptr<ITrackParamProcess>v){
+		if(v)
+			ch->operator<<(v);
+		else
+			throw Exception<EventProcess>("Cannot add process to container");
+		return ch;
 	}
 	void EventProcess::Process() const{
 		WTrack T;
