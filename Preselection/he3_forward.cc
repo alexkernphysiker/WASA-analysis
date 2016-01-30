@@ -157,8 +157,9 @@ namespace ReactionSetup{
 	}
 	Axis Ek([](const vector<double>&P)->double{return P[0];},0.1,0.6,100);
 	Axis Th([](const vector<double>&P)->double{return P[1];},0.06,0.16,100);
-	Axis Phi([](const vector<double>&P)->double{return P[1];},0.00,6.28,360);
+	Axis Phi([](const vector<double>&P)->double{return P[2];},0.00,6.28,360);
 	shared_ptr<AbstractChain> He3Eta_cut(const Analysis&data){
+		//The axis is duplicated because cuts are strongly connected with it
 		return make_shared<ChainBinner>(Axis([&data]()->double{return 1000.0*Q_He3eta(data.PBeam());},0.0,30.0,12))
 				<<[]()->bool{return false;}//0
 				<<[]()->bool{return false;}
@@ -287,9 +288,9 @@ namespace ReactionSetup{
 				}
 			;
 	}
-	shared_ptr<AbstractChain> KinematicHe3Test(const Analysis&data,const Axis&Q,He3Modification mode){
+	shared_ptr<AbstractChain> KinematicHe3Test(const Analysis&data,const Axis&Q,bool MC){
 		auto res=make_shared<Chain>()<<make_shared<SetOfHists2D>(dirname(),"Kinematic-reconstructed",Q,Ek,Th);
-		if(mode==forEta){
+		if(MC){
 			Axis Ev([&data]()->double{return data.FromFirstVertex(kHe3).E;},Ek);
 			Axis Tv([&data]()->double{return data.FromFirstVertex(kHe3).Th;},Th);
 			res<<make_shared<SetOfHists2D>(dirname(),"Kinematic-vertex",Q,Ev,Tv);
@@ -305,7 +306,7 @@ namespace ReactionSetup{
 		res->TrackTypeProcess(kFDC)<<(make_shared<ChainCheck>()
 			<<ReconstructionProcess(*res,Q)
 			<<He3Eta_cut(*res)<<MissingMass(*res,Q)
-			<<KinematicHe3Test(*res,Q,mode)
+			<<KinematicHe3Test(*res,Q,mode==forEta)
 		);
 		return res;
 	}
