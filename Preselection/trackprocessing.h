@@ -7,8 +7,10 @@
 #include <memory>
 #include <string>
 #include <WTrack.hh>
+#include <math_h/error.h>
 namespace TrackAnalyse{
 	using namespace std;
+	using namespace MathTemplates;
 	//WTrack cannot be transfered as const because
 	//it does not contain const methods 
 	//(even those ones that really should be)
@@ -137,7 +139,10 @@ namespace TrackAnalyse{
 		vector<shared_ptr<ITrackParamProcess>> m_chain;
 	};
 	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,shared_ptr<ITrackParamProcess>v){
-		ch->operator<<(v);
+		if(v)
+			ch->operator<<(v);
+		else
+			throw Exception<AbstractChain>("Cannot add process to container");
 		return ch;
 	}
 	inline shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,ConditionTrackParamDependent f){
