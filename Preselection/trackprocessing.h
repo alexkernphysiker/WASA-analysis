@@ -35,7 +35,7 @@ namespace TrackAnalyse{
 		double left()const;
 		double right()const;
 		unsigned int count()const;
-		double getvalue(WTrack&T,const vector<double>&P)const;
+		double operator()(WTrack&T,const vector<double>&P)const;
 		ValueTrackParamDependent valuegetter()const;
 		double bin_width()const;
 		double bin_center(size_t i)const;

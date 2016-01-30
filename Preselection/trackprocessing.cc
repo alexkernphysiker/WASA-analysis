@@ -54,14 +54,14 @@ namespace TrackAnalyse{
 		if(i>=bins)throw Exception<Axis>("bin range check error");
 		return from+bin_width()*(double(i)+0.5);
 	}
-	double Axis::getvalue(WTrack& T, const vector< double >& P) const{
+	double Axis::operator()(WTrack& T, const vector< double >& P) const{
 		return value(T,P);
 	}
 	ValueTrackParamDependent Axis::valuegetter() const{
 		return value;
 	}
 	bool Axis::FindBinIndex(unsigned int& output, WTrack& T, const vector< double >& P) const{
-		double x=getvalue(T,P),delta=bin_width()/2.0;
+		double x=operator()(T,P),delta=bin_width()/2.0;
 		if(delta<=0)throw Exception<Axis>("delta<=0");
 		for(size_t i=0,n=count();i<n;i++){
 			double pos=bin_center(i);
@@ -84,7 +84,7 @@ namespace TrackAnalyse{
 		gHistoManager->Add(hist,dir.c_str());
 	}
 	Hist1D::~Hist1D(){}
-	void Hist1D::Analyse(WTrack&T, const vector<double>&P)const{hist->Fill(X.getvalue(T,P));}
+	void Hist1D::Analyse(WTrack&T, const vector<double>&P)const{hist->Fill(X(T,P));}
 	SetOfHists1D::SetOfHists1D(string&&dir,string&& name, const Axis& binning, const Axis& x):Z(binning),X(x){
 		All=new TH1F((name+"-AllBins").c_str(),"",X.count(),X.left(),X.right());
 		gHistoManager->Add(All,dir.c_str());
@@ -98,7 +98,7 @@ namespace TrackAnalyse{
 	}
 	SetOfHists1D::~SetOfHists1D(){}
 	void SetOfHists1D::Analyse(WTrack&T, const vector<double>&P)const{
-		double x=X.getvalue(T,P);
+		double x=X(T,P);
 		unsigned int i=0;
 		if(Z.FindBinIndex(i,T,P)){
 			All->Fill(x);
@@ -112,7 +112,7 @@ namespace TrackAnalyse{
 		gHistoManager->Add(hist,dir.c_str());
 	}
 	Hist2D::~Hist2D(){}
-	void Hist2D::Analyse(WTrack&T, const vector<double>&P)const{hist->Fill(X.getvalue(T,P),Y.getvalue(T,P));}
+	void Hist2D::Analyse(WTrack&T, const vector<double>&P)const{hist->Fill(X(T,P),Y(T,P));}
 	SetOfHists2D::SetOfHists2D(string&&dir,string&& name, const Axis& binning, const Axis& x, const Axis& y):Z(binning),X(x),Y(y){
 		All=new TH2F((name+"-AllBins").c_str(),"",X.count(),X.left(),X.right(),Y.count(),Y.left(),Y.right());
 		gHistoManager->Add(All,dir.c_str());
@@ -126,8 +126,8 @@ namespace TrackAnalyse{
 	}
 	SetOfHists2D::~SetOfHists2D(){}
 	void SetOfHists2D::Analyse(WTrack&T, const vector<double>&P)const{
-		double x=X.getvalue(T,P);
-		double y=Y.getvalue(T,P);
+		double x=X(T,P);
+		double y=Y(T,P);
 		unsigned int i=0;
 		if(Z.FindBinIndex(i,T,P)){
 			All->Fill(x,y);
