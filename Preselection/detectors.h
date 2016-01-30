@@ -45,7 +45,7 @@ namespace TrackAnalyse{
 		size_t count()const;
 		plane_data&operator[](ForwardDetectorPlane)const;
 		ForwardDetectorPlane StoppingLayer(WTrack&)const;
-		shared_ptr<ITrackParamAnalyse> CreateMarker(string&&dir,string&&name)const;
+		shared_ptr<Chain> CreateMarker(string&&dir,string&&name)const;
 	private:
 		vector<plane_data> PlaneData;
 	};

@@ -61,13 +61,13 @@ namespace TrackAnalyse {
 			return PlaneData[res].plane();
 		return kForwardError;
 	}
-	shared_ptr<ITrackParamAnalyse> Forward::CreateMarker(string&& dir, string&& name)const{
+	shared_ptr<Chain> Forward::CreateMarker(string&& dir, string&& name)const{
 		auto res=make_shared<Chain>();
 		for(size_t i=1;i<PlaneData.size();i++)
 			res << make_shared<Hist2D>(
 				static_cast<string&&>(dir),name+"-"+PlaneData[i-1].name()+"-vs-"+PlaneData[i].name(),
 				PlaneData[i].axis(),PlaneData[i-1].axis()
 			);
-		return dynamic_pointer_cast<ITrackParamAnalyse>(res);
+		return res;
 	}
 }
