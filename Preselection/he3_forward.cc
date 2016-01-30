@@ -102,11 +102,9 @@ namespace ReactionSetup{
 			<<(make_shared<ChainCheck>()
 				<<[](WTrack&T)->bool{return Forward::Get().StoppingLayer(T)==kFRH2;}
 				<<[](WTrack&T)->bool{
-					vector<double> Ed={
-						Forward::Get()[kFRH1].Edep(T),
-						Forward::Get()[kFRH2].Edep(T)
-					};
-					return (Ed[0]>(0.25-0.417*Ed[1]))&&(Ed[0]<(0.35-0.417*Ed[1]))&&(Ed[1]<0.22);
+					if(Forward::Get()[kFRH2].Edep(T)>0.22)return false;
+					double locusline=0.3-0.417*Forward::Get()[kFRH2].Edep(T);
+					return IsIn(Forward::Get()[kFRH1].Edep(T),make_pair(locusline-0.05,locusline+0.05));
 				}
 				<<Forward::Get().CreateMarker(dirname(),"2.5-FRH2")
 				<<make_shared<Parameter>([&data](WTrack&track)->double{
