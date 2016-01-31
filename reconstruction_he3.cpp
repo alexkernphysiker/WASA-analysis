@@ -15,7 +15,7 @@ RANDOM engine;
 int main(int,char**){
   	Plotter::Instance().SetOutput(SimulationDataProcess::SimulationDataPath(),"He3Ekin");
 	Plotter::Instance()<<"set xrange [0:0.4]"<<"set yrange [0:0.6]";
-	SimulationDataProcess::ProcessEnergyThetaFit<He3EnergyFRH1>("He3.E.FRH1",make_pair(0,0.6),
+	SimulationDataProcess::He3ForEtaFit<He3EnergyFRH1>("He3.E.FRH1",make_pair(0,0.6),
 		make_shared<GenerateByGauss>()
 			<<make_pair(0,0.1)<<make_pair(0,0.1)<<make_pair(0,0.1)<<make_pair(0,0.01)
 			<<make_pair(1,0.5)<<make_pair(0,0.1)<<make_pair(0,0.1)<<make_pair(0,0.01)
@@ -25,7 +25,7 @@ int main(int,char**){
 		engine
 	);
 	Plotter::Instance()<<"set xrange [0.2:0.6]"<<"set yrange [0.2:0.6]";
-	SimulationDataProcess::ProcessEnergyThetaFit<He3EnergyFRH2>("He3.E.FRH2",make_pair(0.25,0.6),
+	SimulationDataProcess::He3ForEtaFit<He3EnergyFRH2>("He3.E.FRH2",make_pair(0.25,0.6),
 		make_shared<GenerateByGauss>()
 			<<make_pair(0,0.1)<<make_pair(0,0.1)<<make_pair(0,0.1)<<make_pair(0,0.01)
 			<<make_pair(1,0.5)<<make_pair(0,0.1)<<make_pair(0,0.1)<<make_pair(0,0.01)

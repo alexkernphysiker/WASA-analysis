@@ -55,6 +55,9 @@ namespace ReactionSetup{
 			return (T.Theta()!=0.125);
 		}
 		<<Forward::Get().CreateMarker(dirname(),"2-FPC")<<make_shared<Hist1D>(dirname(),"2-FPC",Q)
+		<<[](WTrack&T)->bool{// Due to Kinematical predictions
+			return (T.Theta()<0.13);
+		}
 		<<(make_shared<ChainOr>()//E_dep cuts
 			<<(make_shared<ChainCheck>()
 				<<[](WTrack&T)->bool{return Forward::Get().StoppingLayer(T)==kFRH1;}

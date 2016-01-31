@@ -14,7 +14,7 @@ namespace SimulationDataProcess{
 	using namespace MathTemplates;
 	string SimulationDataPath();
 	template<class FITFUNC>
-	void ProcessEnergyThetaFit(
+	void He3ForEtaFit(
 		string&&reconstructionname,pair<double,double> E_range,
 		shared_ptr<IInitialConditions>init,
 		shared_ptr<IParamCheck>filter,
@@ -22,7 +22,7 @@ namespace SimulationDataProcess{
 	){
 		auto params_shown=make_pair(0,2);
 		auto Edep_binning=BinningParam(0,E_range,30);
-		auto theta_binning=BinningParam(1,make_pair(0.10,0.16),12);
+		auto theta_binning=BinningParam(1,make_pair(0.10,0.13),15);
 		auto Ek_binning=BinningParam(2,E_range,30);
 		
 		ParamsPerBinsCounter<3> Binner({Edep_binning,theta_binning,Ek_binning});
