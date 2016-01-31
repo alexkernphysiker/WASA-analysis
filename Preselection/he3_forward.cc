@@ -131,7 +131,7 @@ namespace ReactionSetup{
 	Axis Ek_he([](const vector<double>&P)->double{return P[0];},0.1,0.6,100);
 	Axis Th_he([](const vector<double>&P)->double{return P[1];},0.06,0.16,100);
 	Axis Phi_he([](const vector<double>&P)->double{return P[2];},0.00,6.28,360);
-	Axis MM_he([](const vector<double>&P)->double{return P[3];},m_pi0-0.5,m_eta+0.5,200);
+	Axis MM_he([](const vector<double>&P)->double{return P[3];},m_eta-0.5,m_eta+0.5,50);
 	shared_ptr<AbstractChain> MissingMass(const Analysis&data,const Axis&Q){
 		return make_shared<Chain>()
 		<<make_shared<Parameter>([&data](WTrack&T,const vector<double>&P)->double{
