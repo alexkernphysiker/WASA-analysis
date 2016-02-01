@@ -17,7 +17,6 @@ RootSorter - framework for data preselection (both WMC-generated and obtained fr
 
 gnuplot - software for plotting. Is used by some applications performing final analysis.
 
-FitGen and math_h - my repositories that provide usefull calculational routines and are added here as submodules.
 
 
 Needed environment variables
@@ -75,6 +74,12 @@ cd Preselection
 make
 
 cd ../wasa_scripts
+
+cd config
+
+./config.sh
+
+cd ..
 
 Here you can run scripts for WMC and preselection
 
