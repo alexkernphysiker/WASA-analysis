@@ -64,10 +64,9 @@ namespace ReactionSetup{
 			return (T.Theta()<0.13);
 		}
 		<<(make_shared<ChainOr>()//E_dep cuts
-			<<(make_shared<ChainCheck>()
+			<<(make_shared<ChainCheck>()//for particles stopped in FRH1
 				<<[](WTrack&T)->bool{return Forward::Get().StoppingLayer(T)==kFRH1;}
 				<<[](WTrack&T)->bool{
-					//Achtung - static
 					static TCutG *cut=nullptr;
 					if(cut==nullptr){
 						cut=new TCutG("FRH1_cut",15);
@@ -94,20 +93,15 @@ namespace ReactionSetup{
 					return cut->IsInside(x,y);
 				}
 				<<Forward::Get().CreateMarker(dirname(),"2.5-FRH1")
-				<<make_shared<Parameter>([&data](WTrack&track)->double{
-					//Achtung - static
+				<<make_shared<Parameter>([&data](WTrack&track)->double{//Reconstructing kinetic energy
 					static FitBasedReconstruction<Reconstruction::He3EnergyFRH1,WTrack&> energy(
-						"He3.E.FRH1",
-						{
-							[](WTrack&track){return Forward::Get()[kFRH1].Edep(track);},
-							[](WTrack&track){return track.Theta();}
-						},
+						"He3.E.FRH1",{[](WTrack&track){return Forward::Get()[kFRH1].Edep(track);},[](WTrack&track){return track.Theta();}},
 						[&data](WTrack&){return data.FromFirstVertex(kHe3).E;}
 					);
 					return energy.Reconstruct(track);
 				})
 			)
-			<<(make_shared<ChainCheck>()
+			<<(make_shared<ChainCheck>()//for particles stopped in FRH2
 				<<[](WTrack&T)->bool{return Forward::Get().StoppingLayer(T)==kFRH2;}
 				<<[](WTrack&T)->bool{
 					if(Forward::Get()[kFRH2].Edep(T)>0.22)return false;
@@ -115,14 +109,9 @@ namespace ReactionSetup{
 					return IsIn(Forward::Get()[kFRH1].Edep(T),make_pair(locusline-0.05,locusline+0.05));
 				}
 				<<Forward::Get().CreateMarker(dirname(),"2.5-FRH2")
-				<<make_shared<Parameter>([&data](WTrack&track)->double{
-					//Achtung - static
+				<<make_shared<Parameter>([&data](WTrack&track)->double{//Reconstructing kinetic energy
 					static FitBasedReconstruction<Reconstruction::He3EnergyFRH2,WTrack&> energy(
-						"He3.E.FRH2",
-						{
-							[](WTrack&T){return Forward::Get()[kFRH1].Edep(T)+Forward::Get()[kFRH2].Edep(T);},
-														    [](WTrack&T){return T.Theta();}
-						},
+						"He3.E.FRH2",{[](WTrack&T){return Forward::Get()[kFRH1].Edep(T)+Forward::Get()[kFRH2].Edep(T);},[](WTrack&T){return T.Theta();}},
 						[&data](WTrack&){return data.FromFirstVertex(kHe3).E;}
 					);
 					return energy.Reconstruct(track);
@@ -164,9 +153,9 @@ namespace ReactionSetup{
 		return make_shared<Chain>()
 			<<(make_shared<ChainBinner>(Q)
 				<<[]()->bool{return false;}//0
-				<<[]()->bool{return false;}
+				<<[]()->bool{return false;}//1
 				<<[]()->bool{return false;}//2
-				<<[]()->bool{return false;}
+				<<[]()->bool{return false;}//3
 				<<[]()->bool{return false;}//4
 				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
@@ -181,7 +170,7 @@ namespace ReactionSetup{
 						cut->SetPoint(5,0.279,0.095);
 					}
 					return cut->IsInside(Ek_he(T,P),Th_he(T,P));
-				}
+				}//5
 				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
 					if(cut==nullptr){
@@ -211,7 +200,7 @@ namespace ReactionSetup{
 						cut->SetPoint(7,0.263,0.091);
 					}
 					return cut->IsInside(Ek_he(T,P),Th_he(T,P));
-				}
+				}//7
 				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
 					if(cut==nullptr){
@@ -249,7 +238,7 @@ namespace ReactionSetup{
 						cut->SetPoint(10,0.252,0.091);
 					}
 					return cut->IsInside(Ek_he(T,P),Th_he(T,P));
-				}
+				}//9
 				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
 					if(cut==nullptr){
@@ -287,7 +276,7 @@ namespace ReactionSetup{
 						cut->SetPoint(10,0.248,0.091);
 					}
 					return cut->IsInside(Ek_he(T,P),Th_he(T,P));
-				}
+				}//11
 			)
 			<<Forward::Get().CreateMarker(dirname(),"5-Kinematic cut")
 			<<make_shared<Hist1D>(dirname(),"5-Kinematic cut",Q);
@@ -305,8 +294,7 @@ namespace ReactionSetup{
 	///Reaction analysis types visible from reactions.h
 	Analysis* He3_forward_analyse(He3Modification mode){
 		auto res=Prepare(mode);auto Q=Q_axis(res);
-		if(forData!=mode)
-			res->EventProcessing()<<make_shared<Hist1D>(dirname(),"0-Reference",Q);
+		res->EventProcessing()<<make_shared<Hist1D>(dirname(),"0-Reference",Q);
 		res->TrackTypeProcess(kFDC)<<(make_shared<ChainCheck>()
 			<<ReconstructionProcess(*res,Q)
 			<<He3Eta_kin_cut(*res,Q)<<MissingMass(*res,Q)
@@ -316,8 +304,7 @@ namespace ReactionSetup{
 	}
 	Analysis* He3_forward_reconstruction(He3Modification mode){
 		auto res=Prepare(mode);auto Q=Q_axis(res);
-		if(forData!=mode)
-			res->EventProcessing()<<make_shared<Hist1D>(dirname(),"0-Reference",Q);
+		res->EventProcessing()<<make_shared<Hist1D>(dirname(),"0-Reference",Q);
 		res->TrackTypeProcess(kFDC)<<(make_shared<ChainCheck>()
 			<<ReconstructionProcess(*res,Q)
 			<<KinematicHe3Test(*res,Q,mode==forEta)
