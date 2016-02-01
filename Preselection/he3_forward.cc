@@ -131,6 +131,7 @@ namespace ReactionSetup{
 		<<Forward::Get().CreateMarker(dirname(),"4-Reconstructed")
 		<<make_shared<Hist1D>(dirname(),"4-Reconstructed",Q);
 	}
+	Axis Q_axis(Analysis*res){return Axis([res]()->double{return 1000.0*Q_He3eta(res->PBeam());},0.0,30.0,12);}
 	Axis Ek_he([](const vector<double>&P)->double{return P[0];},0.1,0.6,100);
 	Axis Th_he([](const vector<double>&P)->double{return P[1];},0.06,0.16,100);
 	Axis Phi_he([](const vector<double>&P)->double{return P[2];},0.00,6.28,360);
@@ -159,9 +160,9 @@ namespace ReactionSetup{
 		})
 		<<make_shared<SetOfHists1D>(dirname(),"MissingMass",Q,MM_he);
 	}
-	shared_ptr<AbstractChain> He3Eta_kin_cut(const Analysis&data){
-		//The axis is duplicated because cuts are strongly connected with it
-		return make_shared<ChainBinner>(Axis([&data]()->double{return 1000.0*Q_He3eta(data.PBeam());},0.0,30.0,12))
+	shared_ptr<AbstractChain> He3Eta_kin_cut(const Analysis&data,const Axis&Q){
+		return make_shared<Chain>()
+			<<(make_shared<ChainBinner>(Q)
 				<<[]()->bool{return false;}//0
 				<<[]()->bool{return false;}
 				<<[]()->bool{return false;}//2
@@ -287,6 +288,9 @@ namespace ReactionSetup{
 					}
 					return cut->IsInside(Ek_he(T,P),Th_he(T,P));
 				}
+			)
+			<<Forward::Get().CreateMarker(dirname(),"5-Kinematic cut")
+			<<make_shared<Hist1D>(dirname(),"5-Kinematic cut",Q);
 			;
 	}
 	shared_ptr<AbstractChain> KinematicHe3Test(const Analysis&data,const Axis&Q,bool MC){
@@ -300,20 +304,18 @@ namespace ReactionSetup{
 	}
 	///Reaction analysis types visible from reactions.h
 	Analysis* He3_forward_analyse(He3Modification mode){
-		auto res=Prepare(mode);
-		Axis Q([res]()->double{return 1000.0*Q_He3eta(res->PBeam());},0.0,30.0,12);
+		auto res=Prepare(mode);auto Q=Q_axis(res);
 		if(forData!=mode)
 			res->EventProcessing()<<make_shared<Hist1D>(dirname(),"0-Reference",Q);
 		res->TrackTypeProcess(kFDC)<<(make_shared<ChainCheck>()
 			<<ReconstructionProcess(*res,Q)
-			<<He3Eta_kin_cut(*res)<<MissingMass(*res,Q)
+			<<He3Eta_kin_cut(*res,Q)<<MissingMass(*res,Q)
 			<<KinematicHe3Test(*res,Q,mode==forEta)
 		);
 		return res;
 	}
 	Analysis* He3_forward_reconstruction(He3Modification mode){
-		auto res=Prepare(mode);
-		Axis Q([res]()->double{return 1000.0*Q_He3eta(res->PBeam());},0.0,30.0,12);
+		auto res=Prepare(mode);auto Q=Q_axis(res);
 		if(forData!=mode)
 			res->EventProcessing()<<make_shared<Hist1D>(dirname(),"0-Reference",Q);
 		res->TrackTypeProcess(kFDC)<<(make_shared<ChainCheck>()
