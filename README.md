@@ -69,20 +69,17 @@ cd WASA-analysis
 
 git submodule update --init --recursive
 
-cd Preselection
+cd wasa_scripts/config
 
-make
+./config.sh #configure WMC and rootsorter for current experimental setup
+
+cd ../../Preselection
+
+make # compile preselection software
 
 cd ../wasa_scripts
 
-cd config
-
-./config.sh
-
-cd ..
-
-Here you can run scripts for WMC and preselection
-
+Here you can run scripts for starting either WMC or data preselection
 
 
 
