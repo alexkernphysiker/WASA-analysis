@@ -280,7 +280,6 @@ namespace ReactionSetup{
 			)
 			<<Forward::Get().CreateMarker(dirname(),"5-Kinematic cut")
 			<<make_shared<Hist1D>(dirname(),"5-Kinematic cut",Q);
-			;
 	}
 	shared_ptr<AbstractChain> KinematicHe3Test(const Analysis&data,const Axis&Q,bool MC){
 		auto res=make_shared<Chain>()<<make_shared<SetOfHists2D>(dirname(),"Kinematic-reconstructed",Q,Ek_he,Th_he);
