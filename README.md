@@ -9,9 +9,9 @@ Required software
 
 ROOT - framework for calulations
 
-Pluto - library for Monte Carlo simulation of reaction products
+Pluto - library for Monte Carlo simulation of reaction products. Uses ROOT.
 
-WMC - software for Monte Carlo simulation of registration of previously simulated particles by WASA detector
+WMC - software for Monte Carlo simulation of registration of previously simulated particles by WASA detector. Uses ROOT and Pluto.
 
 RootSorter - framework for data preselection (both WMC-generated and obtained from the measurements). Uses ROOT.
 
