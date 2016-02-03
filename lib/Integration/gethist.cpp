@@ -251,6 +251,12 @@ namespace ROOT_data{
 		return *this;
 	}
 	
+	double ChiSq(const hist&a,const hist&b){
+		double res=0;
+		
+		return res;
+	}
+	
 	PlotHist::PlotHist():Plot<double>(){}
 	PlotHist& PlotHist::Hist(string&&name,const hist&data){
 		Plot<double>::OutputPlot(static_cast<string&&>(name),[&data](std::ofstream&str){

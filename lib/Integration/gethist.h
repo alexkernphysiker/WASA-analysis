@@ -57,6 +57,41 @@ namespace ROOT_data{
 		void imbibe(const hist& second);
 		vector<point> data;
 	};
+	inline hist operator+(const hist&a,const hist&b){hist res=a;res+=b;return res;}
+	inline hist operator+(hist&&a,const hist&b){hist res=a;res+=b;return res;}
+	inline hist operator+(const hist&a,hist&&b){hist res=a;res+=b;return res;}
+	inline hist operator+(hist&&a,hist&&b){hist res=a;res+=b;return res;}
+	inline hist operator+(const hist&a,function<double(double)>b){hist res=a;res+=b;return res;}
+	inline hist operator+(hist&&a,function<double(double)>b){hist res=a;res+=b;return res;}
+	
+	inline hist operator-(const hist&a,const hist&b){hist res=a;res-=b;return res;}
+	inline hist operator-(hist&&a,const hist&b){hist res=a;res-=b;return res;}
+	inline hist operator-(const hist&a,hist&&b){hist res=a;res-=b;return res;}
+	inline hist operator-(hist&&a,hist&&b){hist res=a;res-=b;return res;}
+	inline hist operator-(const hist&a,function<double(double)>b){hist res=a;res-=b;return res;}
+	inline hist operator-(hist&&a,function<double(double)>b){hist res=a;res-=b;return res;}
+
+	inline hist operator*(const hist&a,const hist&b){hist res=a;res*=b;return res;}
+	inline hist operator*(hist&&a,const hist&b){hist res=a;res*=b;return res;}
+	inline hist operator*(const hist&a,hist&&b){hist res=a;res*=b;return res;}
+	inline hist operator*(hist&&a,hist&&b){hist res=a;res*=b;return res;}
+	inline hist operator*(const hist&a,function<double(double)>b){hist res=a;res*=b;return res;}
+	inline hist operator*(hist&&a,function<double(double)>b){hist res=a;res*=b;return res;}
+	inline hist operator*(const hist&a,double b){hist res=a;res*=b;return res;}
+	inline hist operator*(hist&&a,double b){hist res=a;res*=b;return res;}
+
+	inline hist operator/(const hist&a,const hist&b){hist res=a;res/=b;return res;}
+	inline hist operator/(hist&&a,const hist&b){hist res=a;res/=b;return res;}
+	inline hist operator/(const hist&a,hist&&b){hist res=a;res/=b;return res;}
+	inline hist operator/(hist&&a,hist&&b){hist res=a;res/=b;return res;}
+	inline hist operator/(const hist&a,function<double(double)>b){hist res=a;res/=b;return res;}
+	inline hist operator/(hist&&a,function<double(double)>b){hist res=a;res/=b;return res;}
+	inline hist operator/(const hist&a,double b){hist res=a;res/=b;return res;}
+	inline hist operator/(hist&&a,double b){hist res=a;res/=b;return res;}
+	
+	double ChiSq(const hist&a,const hist&b);
+	inline double ChiSq(hist&&a,hist&&b){return ChiSq(a,b);}
+	
 	class PlotHist:public Plot<double>{
 	public:
 		PlotHist();
