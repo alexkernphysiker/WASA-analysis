@@ -89,8 +89,12 @@ namespace ROOT_data{
 	inline hist operator/(const hist&a,double b){hist res=a;res/=b;return res;}
 	inline hist operator/(hist&&a,double b){hist res=a;res/=b;return res;}
 	
-	double ChiSq(const hist&a,const hist&b);
-	inline double ChiSq(hist&&a,hist&&b){return ChiSq(a,b);}
+	double ChiSq(const hist&a,function<double(double)>b,size_t paramcount);
+	inline double ChiSq(hist&&a,function<double(double)>b,size_t paramcount){return ChiSq(a,b,paramcount);}
+	double ChiSq(const hist&a,const hist&b,size_t paramcount);
+	inline double ChiSq(const hist&a,hist&&b,size_t paramcount){return ChiSq(a,b,paramcount);}
+	inline double ChiSq(hist&&a,const hist&b,size_t paramcount){return ChiSq(a,b,paramcount);}
+	inline double ChiSq(hist&&a,hist&&b,size_t paramcount){return ChiSq(a,b,paramcount);}
 	
 	class PlotHist:public Plot<double>{
 	public:

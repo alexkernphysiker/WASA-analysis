@@ -251,10 +251,23 @@ namespace ROOT_data{
 		return *this;
 	}
 	
-	double ChiSq(const hist&a,const hist&b){
-		double res=0;
-		
-		return res;
+	double ChiSq(const hist&a,function<double(double)>b,size_t paramcount){
+		double res=0,k=a.count()-paramcount;
+		if(k<=0)throw Exception<hist>("ChiSq error: too few points or too many parameters");
+		for(const hist::point&p:a)
+			res+=pow((p.y-b(p.x))/p.dy,2);
+		return res/k;
+	}
+	double ChiSq(const hist&a,const hist&b,size_t paramcount){
+		double res=0,k=a.count()-paramcount;
+		if(k<=0)throw Exception<hist>("ChiSq error: too few points or too many parameters");
+		if(a.count()!=b.count())throw Exception<hist>("ChiSq error: hists size mismatch");
+		for(size_t i=0,n=a.count();i<n;i++){
+			if(a[i].x!=b[i].x)throw Exception<hist>("ChiSq error: hists bins mismatch");
+			if(a[i].dx!=b[i].dx)throw Exception<hist>("ChiSq error: hists bins widths mismatch");
+			res+=pow(a[i].y-b[i].x,2)/(pow(a[i].dy,2)+pow(b[i].dy,2));
+		}
+		return res/k;
 	}
 	
 	PlotHist::PlotHist():Plot<double>(){}
