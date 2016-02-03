@@ -7,7 +7,7 @@
 #include <math_h/functions.h>
 #include <math_h/error.h>
 #include <Genetic/fit.h>
-#include <Genetic/paramfunc.h>
+#include <Genetic/equation.h>
 #include <Genetic/filter.h>
 #include <Genetic/initialconditions.h>
 #include <str_get.h>
@@ -18,7 +18,9 @@
 using namespace std;
 using namespace ROOT_data;
 using namespace GnuplotWrap;
+using namespace Genetic;
 int main(int,char**){
+	RANDOM engine;
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward");
 	vector<string> histpath_forward={"Histograms","He3Forward_Reconstruction"};
 	hist mc_norm_fg(MC,"He3eta",histpath_forward,"0-Reference");
@@ -47,5 +49,20 @@ int main(int,char**){
 		background2/=mc_norm_bg2[bin_num].Y();
 		double measured_events=0;for(auto&p:measured)measured_events+=p.y;
 		//ToDo:make fit
+		Equation<DifferentialMutations<Parabolic>> fit([&measured,&foreground,&background1,&background2](const ParamSet&P)->double{
+			return ChiSq(measured,(foreground*P[0])+(background1*P[1])+(background2*P[2]),3);
+		});
+		fit.SetFilter([](const ParamSet&P)->bool{return (P[0]>=0)&&(P[1]>=0)&&(P[2]>=0);});
+		fit.Init(100,make_shared<GenerateByGauss>()<<make_pair(measured_events,measured_events)<<make_pair(0,measured_events)<<make_pair(0,measured_events),engine);
+		cout<<"Population:"<<fit.PopulationSize()<<endl;
+		cout<<"Parameters:"<<fit.ParamCount()<<endl;
+		while(!fit.AbsoluteOptimalityExitCondition(0.0000001))
+			fit.Iterate(engine);
+		cout<<fit.iteration_count()<<" iterations"<<endl;
+		cout<<"Chi^2 = "<<fit.Optimality()<<endl;
+		cout<<"Parameters:"<<endl;
+		cout<<fit<<endl;
+		cout<<"Errors:"<<endl;
+		cout<<fit.GetParamParabolicErrors({1,1,1})<<endl;
 	}
 }
