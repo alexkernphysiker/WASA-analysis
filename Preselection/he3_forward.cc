@@ -150,7 +150,7 @@ namespace ReactionSetup{
 		<<make_shared<SetOfHists1D>(dirname(),"MissingMass",Q,MM_he);
 	}
 	shared_ptr<AbstractChain> He3Eta_kin_cut(const Analysis&data,const Axis&Q){
-		return make_shared<Chain>()
+		return make_shared<ChainCheck>()
 			<<(make_shared<ChainBinner>(Q)
 				<<[]()->bool{return false;}//0
 				<<[]()->bool{return false;}//1
