@@ -15,6 +15,8 @@ namespace ROOT_data{
 	public:
 		struct point{
 			double x,y,dx,dy;
+			pair<double,double> X()const;
+			pair<double,double> Y()const;
 		};
 		hist();
 		hist(string&&filename,const vector<string>&path,string&&histname);
@@ -47,9 +49,11 @@ namespace ROOT_data{
 		hist &operator-=(function<double(double)>);
 		hist &operator*=(const hist& second);
 		hist &operator*=(double c);
+		hist &operator*=(pair<double,double>&&c);
 		hist &operator*=(function<double(double)>);
 		hist &operator/=(const hist& second);
 		hist &operator/=(double c);
+		hist &operator/=(pair<double,double>&&c);
 		hist &operator/=(function<double(double)>);
 		hist &operator<<(size_t c);
 		hist &operator>>(size_t c);

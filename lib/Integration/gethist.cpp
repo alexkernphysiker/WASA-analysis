@@ -32,6 +32,8 @@ namespace ROOT_data{
 		}
 		return double(present_runs)/double(allruns);
 	}
+	pair< double, double > hist::point::X() const{return make_pair(x,dx);}
+	pair< double, double > hist::point::Y() const{return make_pair(y,dy);}
 	hist::hist(){}
 	hist::hist(string&&filename,const vector<string>&path,string&&histname){
 		TFile* file=TFile::Open(filename.c_str());
@@ -201,6 +203,13 @@ namespace ROOT_data{
 		}
 		return *this;
 	}
+	hist& hist::operator*=(pair<double,double>&& c){
+		for(size_t i=0,n=count();i<n;i++){
+			data[i].dy*=sqrt(pow(data[i].y*c.second,2)+pow(c.first*data[i].dy,2));
+			data[i].y*=c.first;
+		}
+		return *this;
+	}
 	hist& hist::operator*=(function<double(double)>f){
 		for(int i=0,n=count();i<n;i++){
 			double c=f(data[i].x);
@@ -224,6 +233,9 @@ namespace ROOT_data{
 	}
 	hist& hist::operator/=(double c){
 		return operator*=(1.0/c);
+	}
+	hist& hist::operator/=(pair< double, double >&& c){
+		return operator*=(make_pair(1.0/c.first,c.second/pow(c.first,2)));
 	}
 	hist& hist::operator/=(function<double(double)>f){
 		return operator*=([f](double x){return 1.0/f(x);});
