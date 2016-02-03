@@ -33,7 +33,7 @@ namespace ROOT_data{
 		return double(present_runs)/double(allruns);
 	}
 	hist::hist(){}
-	hist::hist(string&&filename,vector<string>&&path,string&&histname){
+	hist::hist(string&&filename,const vector<string>&path,string&&histname){
 		TFile* file=TFile::Open(filename.c_str());
 		if(file){
 			TDirectoryFile* dir1=file;
@@ -60,7 +60,8 @@ namespace ROOT_data{
 			delete file;
 		}
 	}
-	hist::hist(histsource src,string&&reaction,vector<string>&&path,string&&histname){
+	hist::hist(string&& filename, vector< string >&& path, string&& histname):hist(static_cast<string&&>(filename),path,static_cast<string&&>(histname)){}
+	hist::hist(histsource src, string&& reaction, const vector< string >& path, string&& histname){
 		switch(src){
 			case MC:{
 				hist tmp(inputpath+"/MC"+reaction+".root",static_cast<decltype(path)&&>(path),static_cast<string&&>(histname));
@@ -80,6 +81,7 @@ namespace ROOT_data{
 			}break;
 		};
 	}
+	hist::hist(histsource src,string&&reaction,vector<string>&&path,string&&histname):hist(src,static_cast<string&&>(reaction),path,static_cast<string&&>(histname)){}
 	hist::hist(const hist& source){
 		for(point p: source.data)
 			data.push_back(p);

@@ -17,7 +17,9 @@ namespace ROOT_data{
 			double x,y,dx,dy;
 		};
 		hist();
+		hist(string&&filename,const vector<string>&path,string&&histname);
 		hist(string&&filename,vector<string>&&path,string&&histname);
+		hist(histsource src,string&&reaction,const vector<string>&path,string&&histname);
 		hist(histsource src,string&&reaction,vector<string>&&path,string&&histname);
 		hist(const hist& source);
 		virtual ~hist();
