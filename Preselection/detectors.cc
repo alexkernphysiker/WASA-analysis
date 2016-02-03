@@ -7,7 +7,7 @@
 namespace TrackAnalyse {
 	using namespace std;
 	Forward::plane_data::plane_data(ForwardDetectorPlane p, string&& n, double thr,double upper)
-		:m_plane(p),m_name(n),m_thr(thr),m_axis([p](WTrack&T){return T.Edep(p);},0,upper,100){}
+		:m_plane(p),m_name(n),m_thr(thr),m_axis([p](WTrack&T){return T.Edep(p);},0,upper,500){}
 	Forward::plane_data::~plane_data(){}
 	ForwardDetectorPlane Forward::plane_data::plane() const{return m_plane;}
 	Axis& Forward::plane_data::axis() const{return const_cast<Axis&>(m_axis);}
@@ -19,9 +19,9 @@ namespace TrackAnalyse {
 	}
 	
 	Forward::Forward(){
-		PlaneData.push_back(plane_data(kFWC1,"FWC1",0.002 ,0.03));
-		PlaneData.push_back(plane_data(kFWC2,"FWC2",0.002 ,0.03));
-		//PlaneData.push_back(plane_data(kFPC,"FPC",0.002 ,0.03));
+		PlaneData.push_back(plane_data(kFWC1,"FWC1",0.002 ,0.05));
+		PlaneData.push_back(plane_data(kFWC2,"FWC2",0.002 ,0.05));
+		//PlaneData.push_back(plane_data(kFPC,"FPC",0.002 ,0.05));
 		PlaneData.push_back(plane_data(kFTH1,"FTH1",0.0015,0.05));
 		PlaneData.push_back(plane_data(kFRH1,"FRH1",0.001, 0.5));
 		PlaneData.push_back(plane_data(kFRH2,"FRH2",0.001, 0.5));
