@@ -295,9 +295,8 @@ namespace ReactionSetup{
 		auto res=Prepare(mode);auto Q=Q_axis(res);
 		res->EventProcessing()<<make_shared<Hist1D>(dirname(),"0-Reference",Q);
 		res->TrackTypeProcess(kFDC)<<(make_shared<ChainCheck>()
-			<<ReconstructionProcess(*res,Q)
-			<<He3Eta_kin_cut(*res,Q)<<MissingMass(*res,Q)
-			<<KinematicHe3Test(*res,Q,mode==forEta)
+			<<ReconstructionProcess(*res,Q)<<He3Eta_kin_cut(*res,Q)
+			<<MissingMass(*res,Q)<<KinematicHe3Test(*res,Q,mode==forEta)
 		);
 		return res;
 	}
