@@ -24,14 +24,12 @@ int main(int,char**){
 	hist mc_norm_fg(MC,"He3eta",histpath_forward,"0-Reference");
 	hist mc_norm_bg1(MC,"He3pi0pi0",histpath_forward,"0-Reference");
 	hist mc_norm_bg2(MC,"He3pi0pi0pi0",histpath_forward,"0-Reference");
-	{
-		double MC_events_count=0;for(auto&p: mc_norm_fg)MC_events_count+=p.y;
-		cout<<"Montecarlo evens count of "<<MC_events_count<<" detected."<<endl;
-	}
 	hist mc_accepted_fg(MC,"He3eta",histpath_forward,"5-Kinematic cut");
 	if(mc_accepted_fg.count()!=mc_norm_fg.count())
 		throw Exception<decltype(main)>("mc hists size mismatch");
-	{
+	{// debug messaging
+		double MC_events_count=0;for(auto&p: mc_norm_fg)MC_events_count+=p.y;
+		cout<<"Montecarlo evens count of "<<MC_events_count<<" detected."<<endl;
 		hist n1(MC,"He3eta",histpath_forward,"1-AllTracks");
 		hist n2(MC,"He3eta",histpath_forward,"2-FPC");
 		hist n3(MC,"He3eta",histpath_forward,"3-AllCuts");
