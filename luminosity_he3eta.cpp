@@ -48,7 +48,6 @@ int main(int,char**){
 		background1/=mc_norm_bg1[bin_num].Y();
 		background2/=mc_norm_bg2[bin_num].Y();
 		double measured_events=0;for(auto&p:measured)measured_events+=p.y;
-		//ToDo:make fit
 		Equation<DifferentialMutations<Parabolic>> fit([&measured,&foreground,&background1,&background2](const ParamSet&P)->double{
 			return ChiSq(measured,(foreground*P[0])+(background1*P[1])+(background2*P[2]),3);
 		});
@@ -65,4 +64,5 @@ int main(int,char**){
 		cout<<"Errors:"<<endl;
 		cout<<fit.GetParamParabolicErrors({1,1,1})<<endl;
 	}
+	
 }

@@ -151,6 +151,11 @@ namespace ReactionSetup{
 	}
 	shared_ptr<AbstractChain> He3Eta_kin_cut(const Analysis&data,const Axis&Q){
 		return make_shared<ChainCheck>()
+			<<[](WTrack&T,const vector<double>&P)->bool{
+				//there's mostly trash at small angles
+				//nevertheless this condition is removable
+				return Th_he(T,P)>0.1;
+			}
 			<<(make_shared<ChainBinner>(Q)
 				<<[]()->bool{return false;}//0
 				<<[]()->bool{return false;}//1
