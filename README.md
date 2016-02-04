@@ -48,7 +48,8 @@ Directories
 ===========
 
 Preselection - Makefile project of software that provides data preselection. 
-Is compiled and runs on wasa00 server. ATTENTION! Includes some headers from the root of this repository
+Is compiled and runs on wasa00 server. 
+ATTENTION! Includes config.h from upper directory and contains relative symlinks to other used files from this repo.
 
 DataFiles - additional information required for data preselection.
 
