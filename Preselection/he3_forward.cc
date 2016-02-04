@@ -286,7 +286,7 @@ namespace ReactionSetup{
 		auto res=make_shared<Chain>()<<make_shared<SetOfHists2D>(dirname(),"Kinematic-reconstructed",Q,Ek_GeV,Th_deg);
 		if(MC){
 			Axis Ev([&data]()->double{return data.FromFirstVertex(kHe3).E;},Ek_GeV);
-			Axis Tv([&data]()->double{return data.FromFirstVertex(kHe3).Th;},Th_deg);
+			Axis Tv([&data]()->double{return data.FromFirstVertex(kHe3).Th*180.0/3.1416;},Th_deg);
 			res<<make_shared<SetOfHists2D>(dirname(),"Kinematic-vertex",Q,Ev,Tv);
 		}
 		return res;
