@@ -47,10 +47,10 @@ namespace ReactionSetup{
 		return res;
 	}
 	Axis Q_axis(Analysis*res){return Axis([res]()->double{return 1000.0*Q_He3eta(res->PBeam());},0.0,30.0,12);}
-	Axis Th_he([](const vector<double>&P)->double{return P[0]*180.0/3.1415926;},3.5,9.0,550);
-	Axis Phi_he([](const vector<double>&P)->double{return P[1]*180.0/3.1415926;},0.0,360.0,360);
-	Axis Ek_he([](const vector<double>&P)->double{return P[2];},0.1,0.6,500);
-	Axis MM_he([](const vector<double>&P)->double{return P[3];},m_eta-0.02,m_eta+0.02,40);
+	Axis Th_deg([](const vector<double>&P)->double{return P[0];},3.5,9.0,550);
+	Axis Phi_deg([](const vector<double>&P)->double{return P[1];},0.0,360.0,360);
+	Axis Ek_GeV([](const vector<double>&P)->double{return P[2];},0.1,0.6,500);
+	Axis MM_GeV([](const vector<double>&P)->double{return P[3];},m_eta-0.02,m_eta+0.02,40);
 	shared_ptr<AbstractChain> ReconstructionProcess(const Analysis&data,const Axis&Q){
 		return make_shared<ChainCheck>()
 		<<Forward::Get().CreateMarker(dirname(),"1-AllTracks")
@@ -59,11 +59,11 @@ namespace ReactionSetup{
 			//ToDo: replace by more reasonable condition
 			return (T.Theta()!=0.125);
 		}
-		<<make_shared<Parameter>([](WTrack&T)->double{return T.Theta();})
-		<<make_shared<Parameter>([](WTrack&T)->double{return T.Phi();})
+		<<make_shared<Parameter>([](WTrack&T)->double{return T.Theta()*180.0/3.1416;})
+		<<make_shared<Parameter>([](WTrack&T)->double{return T.Phi()*180.0/3.1416;})
 		<<Forward::Get().CreateMarker(dirname(),"2-FPC")<<make_shared<Hist1D>(dirname(),"2-FPC",Q)
 		<<[](WTrack&T,const vector<double>&P)->bool{
-			return (Th_he(T,P)<7.5);// Due to Kinematical predictions
+			return (Th_deg(T,P)<7.5);// Due to Kinematical predictions
 		}
 		<<(make_shared<ChainOr>()//E_dep cuts
 			<<(make_shared<ChainCheck>()//for particles stopped in FRH1
@@ -128,9 +128,10 @@ namespace ReactionSetup{
 	shared_ptr<AbstractChain> MissingMass(const Analysis&data,const Axis&Q){
 		return make_shared<Chain>()
 		<<make_shared<Parameter>([&data](WTrack&T,const vector<double>&P)->double{
-			double p=sqrt(Ek_he(T,P)*(Ek_he(T,P)+2*m_3He));
+			double E=Ek_GeV(T,P);
+			double p=sqrt(E*(E+2*m_3He));
 			TVector3 p_He3;
-			p_He3.SetMagThetaPhi(p,Th_he(T,P),Phi_he(T,P));
+			p_He3.SetMagThetaPhi(p,T.Theta(),T.Phi());//requires values in radians
 			TLorentzVector P_He3;
 			P_He3.SetVectM(p_He3,m_3He);
 			TLorentzVector P_Total;{
@@ -147,7 +148,7 @@ namespace ReactionSetup{
 			TLorentzVector P_Missing=P_Total-P_He3;
 			return P_Missing.M();
 		})
-		<<make_shared<SetOfHists1D>(dirname(),"MissingMass",Q,MM_he);
+		<<make_shared<SetOfHists1D>(dirname(),"MissingMass",Q,MM_GeV);
 	}
 	shared_ptr<AbstractChain> He3Eta_kin_cut(const Analysis&data,const Axis&Q){
 		return make_shared<ChainCheck>()
@@ -169,7 +170,7 @@ namespace ReactionSetup{
 						cut->SetPoint(4,0.323,5.446);
 						cut->SetPoint(5,0.279,5.446);
 					}
-					return cut->IsInside(Ek_he(T,P),Th_he(T,P));
+					return cut->IsInside(Ek_GeV(T,P),Th_deg(T,P));
 				}//5
 				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
@@ -183,7 +184,7 @@ namespace ReactionSetup{
 						cut->SetPoint(4,0.290,5.962);
 						cut->SetPoint(5,0.264,5.217);
 					}
-					return cut->IsInside(Ek_he(T,P),Th_he(T,P));
+					return cut->IsInside(Ek_GeV(T,P),Th_deg(T,P));
 				}//6
 				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
@@ -199,7 +200,7 @@ namespace ReactionSetup{
 						cut->SetPoint(6,0.273,5.962);
 						cut->SetPoint(7,0.263,5.217);
 					}
-					return cut->IsInside(Ek_he(T,P),Th_he(T,P));
+					return cut->IsInside(Ek_GeV(T,P),Th_deg(T,P));
 				}//7
 				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
@@ -218,7 +219,7 @@ namespace ReactionSetup{
 						cut->SetPoint(9 ,0.267,6.134);
 						cut->SetPoint(10,0.259,5.217);
 					}
-					return cut->IsInside(Ek_he(T,P),Th_he(T,P));
+					return cut->IsInside(Ek_GeV(T,P),Th_deg(T,P));
 				}//8
 				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
@@ -237,7 +238,7 @@ namespace ReactionSetup{
 						cut->SetPoint(9 ,0.263,6.306);
 						cut->SetPoint(10,0.252,5.217);
 					}
-					return cut->IsInside(Ek_he(T,P),Th_he(T,P));
+					return cut->IsInside(Ek_GeV(T,P),Th_deg(T,P));
 				}//9
 				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
@@ -256,7 +257,7 @@ namespace ReactionSetup{
 						cut->SetPoint(9 ,0.263,6.535);
 						cut->SetPoint(10,0.249,5.217);
 					}
-					return cut->IsInside(Ek_he(T,P),Th_he(T,P));
+					return cut->IsInside(Ek_GeV(T,P),Th_deg(T,P));
 				}//10
 				<<[](WTrack&T,const vector<double>&P)->bool{
 					static TCutG *cut=nullptr;
@@ -275,17 +276,17 @@ namespace ReactionSetup{
 						cut->SetPoint(9 ,0.253,6.535);
 						cut->SetPoint(10,0.248,5.217);
 					}
-					return cut->IsInside(Ek_he(T,P),Th_he(T,P));
+					return cut->IsInside(Ek_GeV(T,P),Th_deg(T,P));
 				}//11
 			)
 			<<Forward::Get().CreateMarker(dirname(),"5-Kinematic cut")
 			<<make_shared<Hist1D>(dirname(),"5-Kinematic cut",Q);
 	}
 	shared_ptr<AbstractChain> KinematicHe3Test(const Analysis&data,const Axis&Q,bool MC){
-		auto res=make_shared<Chain>()<<make_shared<SetOfHists2D>(dirname(),"Kinematic-reconstructed",Q,Ek_he,Th_he);
+		auto res=make_shared<Chain>()<<make_shared<SetOfHists2D>(dirname(),"Kinematic-reconstructed",Q,Ek_GeV,Th_deg);
 		if(MC){
-			Axis Ev([&data]()->double{return data.FromFirstVertex(kHe3).E;},Ek_he);
-			Axis Tv([&data]()->double{return data.FromFirstVertex(kHe3).Th;},Th_he);
+			Axis Ev([&data]()->double{return data.FromFirstVertex(kHe3).E;},Ek_GeV);
+			Axis Tv([&data]()->double{return data.FromFirstVertex(kHe3).Th;},Th_deg);
 			res<<make_shared<SetOfHists2D>(dirname(),"Kinematic-vertex",Q,Ev,Tv);
 		}
 		return res;
