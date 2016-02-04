@@ -67,10 +67,11 @@ int main(int,char**){
 			auto errors=fit.GetParamParabolicErrors({1,1,1});
 			cout<<errors<<endl;
 			PlotHist().Hist(string("Data-")+to_string(bin_num),measured).Hist(string("He3eta-")+to_string(bin_num),foreground*fit[0])
-			.Hist(string("He3pi0pi0-")+to_string(bin_num),background1*fit[1]).Hist(string("He3pi0pi0pi0-")+to_string(bin_num),background2*fit[2]);
+			.Hist(string("He3pi0pi0-")+to_string(bin_num),background1*fit[1]).Hist(string("He3pi0pi0pi0-")+to_string(bin_num),background2*fit[2])
+			<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'Events count'";
 			events_fg[bin_num].varY()=value(fit[0],errors[0]);
 		}
 	}
-	PlotHist().Hist("Acceptance",acceptance_fg);
-	PlotHist().Hist("Events He3eta",events_fg);
+	PlotHist().Hist("Acceptance",acceptance_fg)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Acceptance, n.d.'";
+	PlotHist().Hist("Events He3eta",events_fg)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Events count'";
 }
