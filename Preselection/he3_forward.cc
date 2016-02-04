@@ -47,10 +47,10 @@ namespace ReactionSetup{
 		return res;
 	}
 	Axis Q_axis(Analysis*res){return Axis([res]()->double{return 1000.0*Q_He3eta(res->PBeam());},0.0,30.0,12);}
-	Axis Ek_he([](const vector<double>&P)->double{return P[0];},0.1,0.6,500);
-	Axis Th_he([](const vector<double>&P)->double{return P[1];},0.06,0.16,500);
-	Axis Phi_he([](const vector<double>&P)->double{return P[2];},0.00,6.28,720);
-	Axis MM_he([](const vector<double>&P)->double{return P[3];},m_eta-0.02,m_eta+0.02,50);
+	Axis Th_he([](const vector<double>&P)->double{return P[0]*180.0/3.1415926;},3.5,9.0,550);
+	Axis Phi_he([](const vector<double>&P)->double{return P[1]*180.0/3.1415926;},0.0,360.0,360);
+	Axis Ek_he([](const vector<double>&P)->double{return P[2];},0.1,0.6,500);
+	Axis MM_he([](const vector<double>&P)->double{return P[3];},m_eta-0.02,m_eta+0.02,40);
 	shared_ptr<AbstractChain> ReconstructionProcess(const Analysis&data,const Axis&Q){
 		return make_shared<ChainCheck>()
 		<<Forward::Get().CreateMarker(dirname(),"1-AllTracks")
@@ -59,9 +59,11 @@ namespace ReactionSetup{
 			//ToDo: replace by more reasonable condition
 			return (T.Theta()!=0.125);
 		}
+		<<make_shared<Parameter>([](WTrack&T)->double{return T.Theta();})
+		<<make_shared<Parameter>([](WTrack&T)->double{return T.Phi();})
 		<<Forward::Get().CreateMarker(dirname(),"2-FPC")<<make_shared<Hist1D>(dirname(),"2-FPC",Q)
-		<<[](WTrack&T)->bool{// Due to Kinematical predictions
-			return (T.Theta()<0.13);
+		<<[](WTrack&T,const vector<double>&P)->bool{
+			return (Th_he(T,P)<7.5);// Due to Kinematical predictions
 		}
 		<<(make_shared<ChainOr>()//E_dep cuts
 			<<(make_shared<ChainCheck>()//for particles stopped in FRH1
@@ -119,8 +121,6 @@ namespace ReactionSetup{
 			)
 		)//end E_dep cuts
 		<<Forward::Get().CreateMarker(dirname(),"3-AllCuts")<<make_shared<Hist1D>(dirname(),"3-AllCuts",Q)
-		<<make_shared<Parameter>([](WTrack&T)->double{return T.Theta();})
-		<<make_shared<Parameter>([](WTrack&T)->double{return T.Phi();})
 		<<[](const vector<double>&P)->bool{return isfinite(P[0])&&isfinite(P[1])&&isfinite(P[2]);}
 		<<Forward::Get().CreateMarker(dirname(),"4-Reconstructed")
 		<<make_shared<Hist1D>(dirname(),"4-Reconstructed",Q);
@@ -151,11 +151,6 @@ namespace ReactionSetup{
 	}
 	shared_ptr<AbstractChain> He3Eta_kin_cut(const Analysis&data,const Axis&Q){
 		return make_shared<ChainCheck>()
-			<<[](WTrack&T,const vector<double>&P)->bool{
-				//there's mostly trash at small angles
-				//nevertheless this condition is removable
-				return Th_he(T,P)>0.1;
-			}
 			<<(make_shared<ChainBinner>(Q)
 				<<[]()->bool{return false;}//0
 				<<[]()->bool{return false;}//1
@@ -168,11 +163,11 @@ namespace ReactionSetup{
 						cut=new TCutG("kincut5",5);
 						cut->SetVarX("Ek");
 						cut->SetVarY("Theta");
-						cut->SetPoint(1,0.279,0.095);
-						cut->SetPoint(2,0.279,0.091);
-						cut->SetPoint(3,0.323,0.091);
-						cut->SetPoint(4,0.323,0.095);
-						cut->SetPoint(5,0.279,0.095);
+						cut->SetPoint(1,0.279,5.446);
+						cut->SetPoint(2,0.279,5.217);
+						cut->SetPoint(3,0.323,5.217);
+						cut->SetPoint(4,0.323,5.446);
+						cut->SetPoint(5,0.279,5.446);
 					}
 					return cut->IsInside(Ek_he(T,P),Th_he(T,P));
 				}//5
@@ -182,11 +177,11 @@ namespace ReactionSetup{
 						cut=new TCutG("kincut6",5);
 						cut->SetVarX("Ek");
 						cut->SetVarY("Theta");
-						cut->SetPoint(1,0.264,0.091);
-						cut->SetPoint(2,0.336,0.091);
-						cut->SetPoint(3,0.310,0.104);
-						cut->SetPoint(4,0.290,0.104);
-						cut->SetPoint(5,0.264,0.091);
+						cut->SetPoint(1,0.264,5.217);
+						cut->SetPoint(2,0.336,5.217);
+						cut->SetPoint(3,0.310,5.962);
+						cut->SetPoint(4,0.290,5.962);
+						cut->SetPoint(5,0.264,5.217);
 					}
 					return cut->IsInside(Ek_he(T,P),Th_he(T,P));
 				}//6
@@ -196,13 +191,13 @@ namespace ReactionSetup{
 						cut=new TCutG("kincut7",7);
 						cut->SetVarX("Ek");
 						cut->SetVarY("Theta");
-						cut->SetPoint(1,0.263,0.091);
-						cut->SetPoint(2,0.342,0.091);
-						cut->SetPoint(3,0.332,0.104);
-						cut->SetPoint(4,0.311,0.112);
-						cut->SetPoint(5,0.286,0.112);
-						cut->SetPoint(6,0.273,0.104);
-						cut->SetPoint(7,0.263,0.091);
+						cut->SetPoint(1,0.263,5.217);
+						cut->SetPoint(2,0.342,5.217);
+						cut->SetPoint(3,0.332,5.962);
+						cut->SetPoint(4,0.311,6.420);
+						cut->SetPoint(5,0.286,6.420);
+						cut->SetPoint(6,0.273,5.962);
+						cut->SetPoint(7,0.263,5.217);
 					}
 					return cut->IsInside(Ek_he(T,P),Th_he(T,P));
 				}//7
@@ -212,16 +207,16 @@ namespace ReactionSetup{
 						cut=new TCutG("kincut8",10);
 						cut->SetVarX("Ek");
 						cut->SetVarY("Theta");
-						cut->SetPoint(1 ,0.259,0.091);
-						cut->SetPoint(2 ,0.282,0.091);
-						cut->SetPoint(3 ,0.303,0.098);
-						cut->SetPoint(4 ,0.322,0.091);
-						cut->SetPoint(5 ,0.354,0.091);
-						cut->SetPoint(6 ,0.338,0.107);
-						cut->SetPoint(7 ,0.317,0.115);
-						cut->SetPoint(8 ,0.291,0.115);
-						cut->SetPoint(9 ,0.267,0.107);
-						cut->SetPoint(10,0.259,0.091);
+						cut->SetPoint(1 ,0.259,5.217);
+						cut->SetPoint(2 ,0.282,5.217);
+						cut->SetPoint(3 ,0.303,5.618);
+						cut->SetPoint(4 ,0.322,5.217);
+						cut->SetPoint(5 ,0.354,5.217);
+						cut->SetPoint(6 ,0.338,6.134);
+						cut->SetPoint(7 ,0.317,6.592);
+						cut->SetPoint(8 ,0.291,6.592);
+						cut->SetPoint(9 ,0.267,6.134);
+						cut->SetPoint(10,0.259,5.217);
 					}
 					return cut->IsInside(Ek_he(T,P),Th_he(T,P));
 				}//8
@@ -231,16 +226,16 @@ namespace ReactionSetup{
 						cut=new TCutG("kincut9",10);
 						cut->SetVarX("Ek");
 						cut->SetVarY("Theta");
-						cut->SetPoint(1 ,0.252,0.091);
-						cut->SetPoint(2 ,0.278,0.091);
-						cut->SetPoint(3 ,0.302,0.101);
-						cut->SetPoint(4 ,0.329,0.091);
-						cut->SetPoint(5 ,0.362,0.091);
-						cut->SetPoint(6 ,0.349,0.110);
-						cut->SetPoint(7 ,0.320,0.120);
-						cut->SetPoint(8 ,0.286,0.120);
-						cut->SetPoint(9 ,0.263,0.110);
-						cut->SetPoint(10,0.252,0.091);
+						cut->SetPoint(1 ,0.252,5.217);
+						cut->SetPoint(2 ,0.278,5.217);
+						cut->SetPoint(3 ,0.302,5.790);
+						cut->SetPoint(4 ,0.329,5.217);
+						cut->SetPoint(5 ,0.362,5.217);
+						cut->SetPoint(6 ,0.349,6.306);
+						cut->SetPoint(7 ,0.320,6.879);
+						cut->SetPoint(8 ,0.286,6.879);
+						cut->SetPoint(9 ,0.263,6.306);
+						cut->SetPoint(10,0.252,5.217);
 					}
 					return cut->IsInside(Ek_he(T,P),Th_he(T,P));
 				}//9
@@ -250,16 +245,16 @@ namespace ReactionSetup{
 						cut=new TCutG("kincut10",10);
 						cut->SetVarX("Ek");
 						cut->SetVarY("Theta");
-						cut->SetPoint(1 ,0.249,0.091);
-						cut->SetPoint(2 ,0.270,0.091);
-						cut->SetPoint(3 ,0.304,0.108);
-						cut->SetPoint(4 ,0.339,0.091);
-						cut->SetPoint(5 ,0.368,0.091);
-						cut->SetPoint(6 ,0.353,0.114);
-						cut->SetPoint(7 ,0.318,0.125);
-						cut->SetPoint(8 ,0.293,0.125);
-						cut->SetPoint(9 ,0.263,0.114);
-						cut->SetPoint(10,0.249,0.091);
+						cut->SetPoint(1 ,0.249,5.217);
+						cut->SetPoint(2 ,0.270,5.217);
+						cut->SetPoint(3 ,0.304,6.191);
+						cut->SetPoint(4 ,0.339,5.217);
+						cut->SetPoint(5 ,0.368,5.217);
+						cut->SetPoint(6 ,0.353,6.535);
+						cut->SetPoint(7 ,0.318,7.166);
+						cut->SetPoint(8 ,0.293,7.166);
+						cut->SetPoint(9 ,0.263,6.535);
+						cut->SetPoint(10,0.249,5.217);
 					}
 					return cut->IsInside(Ek_he(T,P),Th_he(T,P));
 				}//10
@@ -269,16 +264,16 @@ namespace ReactionSetup{
 						cut=new TCutG("kincut11",11);
 						cut->SetVarX("Ek");
 						cut->SetVarY("Theta");
-						cut->SetPoint(1 ,0.248,0.091);
-						cut->SetPoint(2 ,0.268,0.091);
-						cut->SetPoint(3 ,0.304,0.110);
-						cut->SetPoint(4 ,0.343,0.091);
-						cut->SetPoint(5 ,0.379,0.091);
-						cut->SetPoint(6 ,0.365,0.114);
-						cut->SetPoint(7 ,0.320,0.130);
-						cut->SetPoint(8 ,0.292,0.130);
-						cut->SetPoint(9 ,0.253,0.114);
-						cut->SetPoint(10,0.248,0.091);
+						cut->SetPoint(1 ,0.248,5.217);
+						cut->SetPoint(2 ,0.268,5.217);
+						cut->SetPoint(3 ,0.304,6.306);
+						cut->SetPoint(4 ,0.343,5.217);
+						cut->SetPoint(5 ,0.379,5.217);
+						cut->SetPoint(6 ,0.365,6.535);
+						cut->SetPoint(7 ,0.320,7.452);
+						cut->SetPoint(8 ,0.292,7.452);
+						cut->SetPoint(9 ,0.253,6.535);
+						cut->SetPoint(10,0.248,5.217);
 					}
 					return cut->IsInside(Ek_he(T,P),Th_he(T,P));
 				}//11
