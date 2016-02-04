@@ -12,13 +12,12 @@
 #include <Genetic/initialconditions.h>
 #include <str_get.h>
 #include <gethist.h>
-#include <he3.h>
-#include "phys_constants.h"
+#include <particles.h>
+#include <reactions.h>
 using namespace std;
 using namespace ROOT_data;
 using namespace GnuplotWrap;
 using namespace Genetic;
-using namespace Theory;
 int main(int,char**){
 	RANDOM engine;
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward");

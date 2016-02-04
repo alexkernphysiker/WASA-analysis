@@ -14,9 +14,9 @@
 #include <FDFTHTracks.hh>
 #include <CDTracksSimple.hh>
 #include <TCutG.h>
-#include "../phys_constants.h"
-#include "../reconstruction_types.h"
-#include "Theory/he3.h"
+#include "reconstruction_types.h"
+#include "Theory/particles.h"
+#include "Theory/reactions.h"
 #include "trackprocessing.h"
 #include "detectors.h"
 #include "reconstruction.h"
@@ -26,7 +26,9 @@
 namespace ReactionSetup{
 	using namespace std;
 	using namespace TrackAnalyse;
-	using namespace Theory;
+	inline bool IsIn(double value,pair<double,double>&&border){
+		return (value>=border.first)&&(value<=border.second);
+	}
 	string dirname(){return "He3Forward_Reconstruction";};
 	Analysis* Prepare(He3Modification mode){
 		Analysis* res=nullptr;
@@ -36,13 +38,13 @@ namespace ReactionSetup{
 				break;
 			case forEta:
 				res=new MonteCarlo();
-				res->AddParticleToFirstVertex(kHe3,m_3He);
-				res->AddParticleToFirstVertex(kEta,m_eta);
+				res->AddParticleToFirstVertex(kHe3,Particle::he3().mass_GeV());
+				res->AddParticleToFirstVertex(kEta,Particle::eta().mass_GeV());
 				break;
 			case forPi0:
 				res=new MonteCarlo();
-				res->AddParticleToFirstVertex(kHe3,m_3He);
-				res->AddParticleToFirstVertex(kPi0,m_pi0);
+				res->AddParticleToFirstVertex(kHe3,Particle::he3().mass_GeV());
+				res->AddParticleToFirstVertex(kPi0,Particle::pi0().mass_GeV());
 				break;
 		};
 		return res;
@@ -51,7 +53,7 @@ namespace ReactionSetup{
 	Axis Th_deg([](const vector<double>&P)->double{return P[0];},3.5,9.0,550);
 	Axis Phi_deg([](const vector<double>&P)->double{return P[1];},0.0,360.0,360);
 	Axis Ek_GeV([](const vector<double>&P)->double{return P[2];},0.1,0.6,500);
-	Axis MM_GeV([](const vector<double>&P)->double{return P[3];},m_eta-0.02,m_eta+0.02,40);
+	Axis MM_GeV([](const vector<double>&P)->double{return P[3];},Particle::eta().mass_GeV()-0.02,Particle::eta().mass_GeV()+0.02,40);
 	shared_ptr<AbstractChain> ReconstructionProcess(const Analysis&data,const Axis&Q){
 		return make_shared<ChainCheck>()
 		<<Forward::Get().CreateMarker(dirname(),"1-AllTracks")
@@ -130,20 +132,20 @@ namespace ReactionSetup{
 		return make_shared<Chain>()
 		<<make_shared<Parameter>([&data](WTrack&T,const vector<double>&P)->double{
 			double E=Ek_GeV(T,P);
-			double p=sqrt(E*(E+2*m_3He));
+			double p=sqrt(E*(E+2*Particle::he3().mass_GeV()));
 			TVector3 p_He3;
 			p_He3.SetMagThetaPhi(p,T.Theta(),T.Phi());//requires values in radians
 			TLorentzVector P_He3;
-			P_He3.SetVectM(p_He3,m_3He);
+			P_He3.SetVectM(p_He3,Particle::he3().mass_GeV());
 			TLorentzVector P_Total;{
 				TVector3 p_beam;
 				p_beam.SetMagThetaPhi(data.PBeam(),0,0);
 				TLorentzVector P_Beam;
 				TLorentzVector P_Target;
-				P_Beam.SetVectM(p_beam,m_p);
+				P_Beam.SetVectM(p_beam,Particle::p().mass_GeV());
 				TVector3 ptarget;
 				ptarget.SetMagThetaPhi(0,0,0);
-				P_Target.SetVectM(ptarget,m_d);
+				P_Target.SetVectM(ptarget,Particle::d().mass_GeV());
 				P_Total=P_Beam+P_Target;
 			}
 			TLorentzVector P_Missing=P_Total-P_He3;

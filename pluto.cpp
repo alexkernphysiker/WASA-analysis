@@ -8,7 +8,8 @@
 #include <PReaction.h>
 #include <str_get.h>
 #include <gnuplot_wrap.h>
-#include "phys_constants.h"
+#include <experiment_conv.h>
+#include <reactions.h>
 #include "config.h"
 using namespace std;
 using namespace GnuplotWrap;

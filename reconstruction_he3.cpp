@@ -6,7 +6,7 @@
 #include <Genetic/initialconditions.h>
 #include <reconstruction_fit.h>
 #include <str_get.h>
-#include "reconstruction_types.h"
+#include <reconstruction_types.h>
 using namespace std;
 using namespace Genetic;
 using namespace Reconstruction;
