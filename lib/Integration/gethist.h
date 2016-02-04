@@ -104,6 +104,7 @@ namespace ROOT_data{
 	public:
 		PlotHist();
 		PlotHist&Hist(string&&name,const hist&data);
+		PlotHist&Hist(string&&name,hist&&data);
 		PlotHist&HistWLine(string&&name,const hist&data);
 	};
 	inline shared_ptr<FitPoints> operator<<(shared_ptr<FitPoints>dest,const hist::point&source){
