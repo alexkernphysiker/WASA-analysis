@@ -289,6 +289,9 @@ namespace ROOT_data{
 		},"using 1:2:($1-$3):($1+$3):($2-$4):($2+$4) with xyerrorbars");
 		return *this;
 	}
+	PlotHist& PlotHist::Hist(string&& name, hist&& data){
+		return Hist(static_cast<string&&>(name),data);
+	}
 	PlotHist& PlotHist::HistWLine(string&& name, const hist& data){
 		Plot<double>::OutputPlot(static_cast<string&&>(name),[&data](std::ofstream&str){
 			for(hist::point p:data)str<<p.x<<" "<<p.y<<" "<<p.dx<<" "<<p.dy<<"\n";

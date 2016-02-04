@@ -40,15 +40,20 @@ int main(int,char**){
 			<<"set yrange [0:]"<<"set xlabel 'Q, MeV'"<<"set ylabel 'Events count'";
 	}
 	PlotHist().Hist("Acceptance",mc_accepted_fg/mc_norm_fg);
+	
+	auto true_events_fg=mc_norm_fg.CloneEmptyBins();
 	for(size_t bin_num=0;bin_num<mc_norm_fg.count();bin_num++)if(mc_accepted_fg[bin_num].y>1){
+
 		hist foreground(MC,"He3eta",histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
 		hist background1(MC,"He3pi0pi0",histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
 		hist background2(MC,"He3pi0pi0pi0",histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
 		hist measured(DATA,"He3",histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
+
 		foreground/=mc_norm_fg[bin_num].Y();
 		background1/=mc_norm_bg1[bin_num].Y();
 		background2/=mc_norm_bg2[bin_num].Y();
 		double measured_events=0;for(auto&p:measured)measured_events+=p.y;
+		
 		Equation<DifferentialMutations<Parabolic>> fit([&measured,&foreground,&background1,&background2](const ParamSet&P)->double{
 			return ChiSq(measured,(foreground*P[0])+(background1*P[1])+(background2*P[2]),3);
 		});
@@ -63,8 +68,12 @@ int main(int,char**){
 		cout<<"Parameters:"<<endl;
 		cout<<fit<<endl;
 		cout<<"Errors:"<<endl;
-		cout<<fit.GetParamParabolicErrors({1,1,1})<<endl;
+		auto errors=fit.GetParamParabolicErrors({1,1,1});
+		cout<<errors<<endl;
 		PlotHist().Hist(string("Data-")+to_string(bin_num),measured).Hist(string("He3eta-")+to_string(bin_num),foreground*fit[0])
 			.Hist(string("He3pi0pi0-")+to_string(bin_num),background1*fit[1]).Hist(string("He3pi0pi0pi0-")+to_string(bin_num),background2*fit[2]);
+		true_events_fg[bin_num].y=fit[0];
+		true_events_fg[bin_num].dy=errors[0];
 	}
+	
 }
