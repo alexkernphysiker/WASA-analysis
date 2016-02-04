@@ -32,8 +32,45 @@ namespace ROOT_data{
 		}
 		return double(present_runs)/double(allruns);
 	}
-	pair< double, double > hist::point::X() const{return make_pair(x,dx);}
-	pair< double, double > hist::point::Y() const{return make_pair(y,dy);}
+	value::value(){Value=0;Error=1;}
+	value::value(double v){
+		Value=v;Error=sqrt(v);
+		if(Error<1)Error=1;
+	}
+	value::value(double v, double err){Value=v;Error=err;}
+	value::value(const value& source){Value=source.Value;Error=source.Error;}
+	double value::val() const{return Value;}
+	double value::delta() const{return Error;}
+	double value::epsilon() const{return Error/Value;}
+	double value::min() const{return Value-Error;}
+	double value::max() const{return Value+Error;}
+	value& value::operator+=(const value& other){
+		Error=sqrt(pow(Error,2)+pow(other.Error,2));
+		Value+=other.Value;
+	}
+	value& value::operator-=(const value& other){
+		Error=sqrt(pow(Error,2)+pow(other.Error,2));
+		Value-=other.Value;
+	}
+	value& value::operator*=(const value& other){
+		Error=sqrt(pow(Error*other.Value,2)+pow(other.Error*Value,2));
+		Value*=other.Value;
+	}
+	value& value::operator/=(const value& other){
+		Error=sqrt(pow(Error/other.Value,2)+pow(other.Error*Value/pow(other.Value,2),2));
+		Value/=other.Value;
+	}
+	
+	hist::point::point(const value& pos):x(pos){}
+	hist::point::point(value&& pos):x(pos){}
+	hist::point::point(const value& pos, const value& val):x(pos),y(val){}
+	hist::point::point(value&& pos, const value& val):x(pos),y(val){}
+	hist::point::point(const value& pos, value&& val):x(pos),y(val){}
+	hist::point::point(value&& pos, value&& val):x(pos),y(val){}
+	hist::point::point(const hist::point& source):x(source.x),y(source.y){}
+	value& hist::point::X() const{return const_cast<value&>(x);}
+	value& hist::point::Y() const{return const_cast<value&>(y);}
+	value& hist::point::varY(){return y;}
 	hist::hist(){}
 	hist::hist(string&&filename,const vector<string>&path,string&&histname){
 		TFile* file=TFile::Open(filename.c_str());
@@ -53,9 +90,7 @@ namespace ROOT_data{
 						dy=1.0;
 					double x=histogram->GetBinCenter(i);
 					double dx=histogram->GetBinWidth(i)/2.0;
-					point p;
-					p.x=x;p.y=y;p.dx=dx;p.dy=dy;
-					data.push_back(p);
+					data.push_back(point(value(x,dx),value(y,dy)));
 				}
 			}
 			file->Close();
@@ -89,7 +124,7 @@ namespace ROOT_data{
 			data.push_back(p);
 	}
 	hist& hist::Cut(double a, double b){
-		for(int i=0;i<data.size();i++)if((data[i].x<a)||(data[i].x>b)){
+		for(int i=0;i<data.size();i++)if((data[i].X().val()<a)||(data[i].X().val()>b)){
 			data.erase(data.begin()+i);
 			i--;
 		}
@@ -100,8 +135,7 @@ namespace ROOT_data{
 	hist hist::CloneEmptyBins()const{
 		hist res(*this);
 		for(int i=0,n=count();i<n;i++){
-			res.data[i].y=0;
-			res.data[i].dy=1;
+			res.data[i].varY()=value(0);
 		}
 		return res;
 	}
@@ -119,7 +153,7 @@ namespace ROOT_data{
 	double hist::Entries()const{
 		double res=0;
 		for(const point& P:data)
-			res+=P.y;
+			res+=P.Y().val();
 		return res;
 	}
 	hist::point& hist::operator[](int i)const{return const_cast<point&>(data[i]);}
@@ -127,7 +161,7 @@ namespace ROOT_data{
 		size_t res_ind=0;
 		double difference=+INFINITY;
 		for(size_t i=0,n=count();i<n;i++){
-			double d=pow(data[i].x-x,2);
+			double d=pow(data[i].X().val()-x,2);
 			if(d<difference){
 				difference=d;
 				res_ind=i;
@@ -145,19 +179,16 @@ namespace ROOT_data{
 	
 	void hist::imbibe(const hist& second){
 		for(int i=0,n=count();i<n;i++){
-			if(data[i].x==second[i].x){
-				data[i].y+=second[i].y;
-				data[i].dy=sqrt(data[i].y);
-				if(data[i].dy<1)data[i].dy=1;
+			if(data[i].X().val()==second[i].X().val()){
+				data[i].varY()=(data[i].Y().val()+second[i].Y().val());
 			}else
 				throw Exception<hist>("Cannot imbibe histogram. bins differ");
 		}
 	}
 	hist& hist::operator+=(const hist& second){
 		for(size_t i=0,n=count();i<n;i++){
-			if(data[i].x==second[i].x){
-				data[i].y+=second[i].y;
-				data[i].dy=sqrt(pow(data[i].dy,2)+pow(second[i].dy,2));
+			if(data[i].X().val()==second[i].X().val()){
+				data[i].varY()+=second[i].Y();
 			}else
 				throw Exception<hist>("Cannot add histogram. bins differ");
 		}
@@ -165,14 +196,19 @@ namespace ROOT_data{
 	}
 	hist& hist::operator+=(function<double(double)>f){
 		for(size_t i=0,n=count();i<n;i++)
-			data[i].y+=f(data[i].x);
+			data[i].varY()+=value(f(data[i].X().val()),0);
 		return *this;
 	}
+	hist& hist::operator+=(const value&v){
+		for(size_t i=0,n=count();i<n;i++)data[i].varY()+=v;
+		return *this;
+	}
+	hist& hist::operator+=(value&&v){return operator+=(v);}
+	
 	hist& hist::operator-=(const hist& second){
 		for(size_t i=0,n=count();i<n;i++){
-			if(data[i].x==second[i].x){
-				data[i].y-=second[i].y;
-				data[i].dy=sqrt(pow(data[i].dy,2)+pow(second[i].dy,2));
+			if(data[i].X().val()==second[i].X().val()){
+				data[i].varY()-=second[i].Y();
 			}else
 				throw Exception<hist>("Cannot substract histogram. bins differ");
 		}
@@ -180,86 +216,71 @@ namespace ROOT_data{
 	}
 	hist& hist::operator-=(function<double(double)>f){
 		for(size_t i=0,n=count();i<n;i++)
-			data[i].y-=f(data[i].x);
+			data[i].varY()-=value(f(data[i].X().val()),0);
 		return *this;
 	}
-	hist& hist::operator*=(const hist& second_hist){
+	hist& hist::operator-=(const value&v){
+		for(size_t i=0,n=count();i<n;i++)data[i].varY()-=v;
+		return *this;
+	}
+	hist& hist::operator-=(value&&v){return operator-=(v);}
+	
+	
+	hist& hist::operator*=(const hist& second){
 		for(size_t i=0,n=count();i<n;i++){
-			if(data[i].x==second_hist[i].x){
-				auto Y1=make_pair(data[i].y,data[i].dy);
-				auto Y2=make_pair(second_hist[i].y,second_hist[i].dy);
-				data[i].y=Y1.first*Y2.first;
-				data[i].dy=sqrt(pow(Y1.second*Y2.first,2)+pow(Y2.second*Y1.first,2));
+			if(data[i].X().val()==second[i].X().val()){
+				data[i].varY()*=second[i].Y();
 			}else
-				throw Exception<hist>("Cannot multiply by a histogram. bins differ");
-		}
-		return *this;
-	}
-	hist& hist::operator*=(double c){
-		for(size_t i=0,n=count();i<n;i++){
-			data[i].y*=c;
-			if(c>=0)data[i].dy*=c;
-			else data[i].dy*=-c;
-		}
-		return *this;
-	}
-	hist& hist::operator*=(pair<double,double>&& c){
-		for(size_t i=0,n=count();i<n;i++){
-			data[i].dy*=sqrt(pow(data[i].y*c.second,2)+pow(c.first*data[i].dy,2));
-			data[i].y*=c.first;
+				throw Exception<hist>("Cannot substract histogram. bins differ");
 		}
 		return *this;
 	}
 	hist& hist::operator*=(function<double(double)>f){
-		for(int i=0,n=count();i<n;i++){
-			double c=f(data[i].x);
-			data[i].y*=c;
-			if(c>=0)data[i].dy*=c;
-			else data[i].dy*=-c;
-		}
+		for(size_t i=0,n=count();i<n;i++)
+			data[i].varY()*=value(f(data[i].X().val()),0);
 		return *this;
 	}
-	hist& hist::operator/=(const hist& second_hist){
+	hist& hist::operator*=(const value&v){
+		for(size_t i=0,n=count();i<n;i++)data[i].varY()*=v;
+		return *this;
+	}
+	hist& hist::operator*=(value&&v){return operator*=(v);}
+	
+	
+	hist& hist::operator/=(const hist& second){
 		for(size_t i=0,n=count();i<n;i++){
-			if(data[i].x==second_hist[i].x){
-				auto Y1=make_pair(data[i].y,data[i].dy);
-				auto Y2=make_pair(second_hist[i].y,second_hist[i].dy);
-				data[i].y=Y1.first/Y2.first;
-				data[i].dy=sqrt(pow(Y1.second/Y2.first,2)+pow(Y2.second*Y1.first/pow(Y2.first,2),2));
+			if(data[i].X().val()==second[i].X().val()){
+				data[i].varY()/=second[i].Y();
 			}else
-				throw Exception<hist>("Cannot multiply by a histogram. bins differ");
+				throw Exception<hist>("Cannot substract histogram. bins differ");
 		}
 		return *this;
-	}
-	hist& hist::operator/=(double c){
-		return operator*=(1.0/c);
-	}
-	hist& hist::operator/=(pair< double, double >&& c){
-		return operator*=(make_pair(1.0/c.first,c.second/pow(c.first,2)));
 	}
 	hist& hist::operator/=(function<double(double)>f){
-		return operator*=([f](double x){return 1.0/f(x);});
+		for(size_t i=0,n=count();i<n;i++)
+			data[i].varY()/=value(f(data[i].X().val()),0);
+		return *this;
 	}
+	hist& hist::operator/=(const value&v){
+		for(size_t i=0,n=count();i<n;i++)data[i].varY()/=v;
+		return *this;
+	}
+	hist& hist::operator/=(value&&v){return operator/=(v);}
+	
+	
+	
 	hist& hist::operator<<(size_t c){
-		for(size_t i=0,n=count()-c;i<n;i++){
-			data[i].y=data[i+c].y;
-			data[i].dy=data[i+c].dy;
-		}
-		for(size_t n=count(),i=n-c;i<n;i++){
-			data[i].y=0;
-			data[i].dy=1;
-		}
+		for(size_t i=0,n=count()-c;i<n;i++)
+			data[i].varY()=data[i+c].Y();
+		for(size_t n=count(),i=n-c;i<n;i++)
+			data[i].varY()=value(0);
 		return *this;
 	}
 	hist& hist::operator>>(size_t c){
-		for(size_t i=count()-1;i>=c;i--){
-			data[i].y=data[i-c].y;
-			data[i].dy=data[i-c].dy;
-		}
-		for(size_t i=0;i<c;i++){
-			data[i].y=0;
-			data[i].dy=1;
-		}
+		for(size_t i=count()-1;i>=c;i--)
+			data[i].varY()=data[i+c].Y();
+		for(size_t i=0;i<c;i++)
+			data[i].varY()=value(0);
 		return *this;
 	}
 	
@@ -267,7 +288,7 @@ namespace ROOT_data{
 		double res=0,k=a.count()-paramcount;
 		if(k<=0)throw Exception<hist>("ChiSq error: too few points or too many parameters");
 		for(const hist::point&p:a)
-			res+=pow((p.y-b(p.x))/p.dy,2);
+			res+=pow((p.Y().val()-b(p.X().val()))/p.Y().val(),2);
 		return res/k;
 	}
 	double ChiSq(const hist&a,const hist&b,size_t paramcount){
@@ -275,9 +296,10 @@ namespace ROOT_data{
 		double res=0,k=a.count()-paramcount;
 		if(k<=0)throw Exception<hist>("ChiSq error: too few points or too many parameters");
 		for(size_t i=0,n=a.count();i<n;i++){
-			if(a[i].x!=b[i].x)throw Exception<hist>("ChiSq error: hists bins mismatch");
-			if(a[i].dx!=b[i].dx)throw Exception<hist>("ChiSq error: hists bins widths mismatch");
-			res+=pow(a[i].y-b[i].x,2)/(pow(a[i].dy,2)+pow(b[i].dy,2));
+			if(a[i].X().val()!=b[i].X().val())throw Exception<hist>("ChiSq error: hists bins mismatch");
+			if(a[i].X().delta()!=b[i].X().delta())throw Exception<hist>("ChiSq error: hists bins widths mismatch");
+			auto diff=a[i].Y()-b[i].Y();
+			res+=pow(diff.val()/diff.delta(),2);
 		}
 		return res/k;
 	}
@@ -285,7 +307,8 @@ namespace ROOT_data{
 	PlotHist::PlotHist():Plot<double>(){}
 	PlotHist& PlotHist::Hist(string&&name,const hist&data){
 		Plot<double>::OutputPlot(static_cast<string&&>(name),[&data](std::ofstream&str){
-			for(hist::point p:data)str<<p.x<<" "<<p.y<<" "<<p.dx<<" "<<p.dy<<"\n";
+			for(hist::point p:data)
+				str<<p.X().val()<<" "<<p.Y().val()<<" "<<p.X().delta()<<" "<<p.Y().delta()<<endl;
 		},"using 1:2:($1-$3):($1+$3):($2-$4):($2+$4) with xyerrorbars");
 		return *this;
 	}
@@ -294,7 +317,8 @@ namespace ROOT_data{
 	}
 	PlotHist& PlotHist::HistWLine(string&& name, const hist& data){
 		Plot<double>::OutputPlot(static_cast<string&&>(name),[&data](std::ofstream&str){
-			for(hist::point p:data)str<<p.x<<" "<<p.y<<" "<<p.dx<<" "<<p.dy<<"\n";
+			for(hist::point p:data)
+				str<<p.X().val()<<" "<<p.Y().val()<<" "<<p.X().delta()<<" "<<p.Y().delta()<<endl;
 		},"using 1:2 w l");
 		return *this;
 	}

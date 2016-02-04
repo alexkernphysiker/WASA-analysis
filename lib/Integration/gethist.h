@@ -11,12 +11,57 @@ namespace ROOT_data{
 	using namespace Genetic;
 	double PresentRunsAmountRatio(string&&reaction);
 	enum histsource{MC,DATA};
+	class value{
+	public:
+		value();
+		value(double v);
+		value(double v,double err);
+		value(const value&source);
+		double val()const;
+		double delta()const;
+		double epsilon()const;
+		double min()const;
+		double max()const;
+		value&operator+=(const value&other);
+		value&operator-=(const value&other);
+		value&operator*=(const value&other);
+		value&operator/=(const value&other);
+	private:
+		double Value,Error;
+	};
+	inline value operator+(const value&a,const value&b){value res=a;res+=b;return res;}
+	inline value operator+(value&&a,const value&b){return a+b;}
+	inline value operator+(const value&a,value&&b){return a+b;}
+	inline value operator+(value&&a,value&&b){return a+b;}
+	inline value operator-(const value&a,const value&b){value res=a;res-=b;return res;}
+	inline value operator-(value&&a,const value&b){return a-b;}
+	inline value operator-(const value&a,value&&b){return a-b;}
+	inline value operator-(value&&a,value&&b){return a-b;}
+	inline value operator*(const value&a,const value&b){value res=a;res*=b;return res;}
+	inline value operator*(value&&a,const value&b){return a*b;}
+	inline value operator*(const value&a,value&&b){return a*b;}
+	inline value operator*(value&&a,value&&b){return a*b;}
+	inline value operator/(const value&a,const value&b){value res=a;res/=b;return res;}
+	inline value operator/(value&&a,const value&b){return a/b;}
+	inline value operator/(const value&a,value&&b){return a/b;}
+	inline value operator/(value&&a,value&&b){return a/b;}
 	class hist{
 	public:
-		struct point{
-			double x,y,dx,dy;
-			pair<double,double> X()const;
-			pair<double,double> Y()const;
+		class point{
+		public:
+			point(const value&pos);
+			point(value&&pos);
+			point(const value&pos,const value&val);
+			point(value&&pos,const value&val);
+			point(const value&pos,value&&val);
+			point(value&&pos,value&&val);
+			point(const point&source);
+			value&X()const;
+			value&Y()const;
+			value&varY();
+		private:
+			value x;
+			value y;
 		};
 		hist();
 		hist(string&&filename,const vector<string>&path,string&&histname);
@@ -45,16 +90,24 @@ namespace ROOT_data{
 		hist& Cut(double a,double b);
 		hist &operator+=(const hist& second);
 		hist &operator+=(function<double(double)>);
+		hist &operator+=(const value&c);
+		hist &operator+=(value&&c);
+		
 		hist &operator-=(const hist& second);
 		hist &operator-=(function<double(double)>);
+		hist &operator-=(const value&c);
+		hist &operator-=(value&&c);
+		
 		hist &operator*=(const hist& second);
-		hist &operator*=(double c);
-		hist &operator*=(pair<double,double>&&c);
 		hist &operator*=(function<double(double)>);
+		hist &operator*=(const value&c);
+		hist &operator*=(value&&c);
+		
 		hist &operator/=(const hist& second);
-		hist &operator/=(double c);
-		hist &operator/=(pair<double,double>&&c);
 		hist &operator/=(function<double(double)>);
+		hist &operator/=(const value&c);
+		hist &operator/=(value&&c);
+		
 		hist &operator<<(size_t c);
 		hist &operator>>(size_t c);
 	private:
@@ -65,33 +118,54 @@ namespace ROOT_data{
 	inline hist operator+(hist&&a,const hist&b){hist res=a;res+=b;return res;}
 	inline hist operator+(const hist&a,hist&&b){hist res=a;res+=b;return res;}
 	inline hist operator+(hist&&a,hist&&b){hist res=a;res+=b;return res;}
+
 	inline hist operator+(const hist&a,function<double(double)>b){hist res=a;res+=b;return res;}
 	inline hist operator+(hist&&a,function<double(double)>b){hist res=a;res+=b;return res;}
+
+	inline hist operator+(const hist&a,const value&b){hist res=a;res+=b;return res;}
+	inline hist operator+(hist&&a,const value&b){return a+b;}
+	inline hist operator+(const hist&a,value&&b){return a+b;}
+	inline hist operator+(hist&&a,value&&b){return a+b;}
 	
 	inline hist operator-(const hist&a,const hist&b){hist res=a;res-=b;return res;}
 	inline hist operator-(hist&&a,const hist&b){hist res=a;res-=b;return res;}
 	inline hist operator-(const hist&a,hist&&b){hist res=a;res-=b;return res;}
 	inline hist operator-(hist&&a,hist&&b){hist res=a;res-=b;return res;}
+	
 	inline hist operator-(const hist&a,function<double(double)>b){hist res=a;res-=b;return res;}
 	inline hist operator-(hist&&a,function<double(double)>b){hist res=a;res-=b;return res;}
-
+	
+	inline hist operator-(const hist&a,const value&b){hist res=a;res-=b;return res;}
+	inline hist operator-(hist&&a,const value&b){return a-b;}
+	inline hist operator-(const hist&a,value&&b){return a-b;}
+	inline hist operator-(hist&&a,value&&b){return a-b;}
+	
 	inline hist operator*(const hist&a,const hist&b){hist res=a;res*=b;return res;}
 	inline hist operator*(hist&&a,const hist&b){hist res=a;res*=b;return res;}
 	inline hist operator*(const hist&a,hist&&b){hist res=a;res*=b;return res;}
 	inline hist operator*(hist&&a,hist&&b){hist res=a;res*=b;return res;}
+	
 	inline hist operator*(const hist&a,function<double(double)>b){hist res=a;res*=b;return res;}
 	inline hist operator*(hist&&a,function<double(double)>b){hist res=a;res*=b;return res;}
-	inline hist operator*(const hist&a,double b){hist res=a;res*=b;return res;}
-	inline hist operator*(hist&&a,double b){hist res=a;res*=b;return res;}
 
+	inline hist operator*(const hist&a,const value&b){hist res=a;res*=b;return res;}
+	inline hist operator*(hist&&a,const value&b){return a*b;}
+	inline hist operator*(const hist&a,value&&b){return a*b;}
+	inline hist operator*(hist&&a,value&&b){return a*b;}
+	
 	inline hist operator/(const hist&a,const hist&b){hist res=a;res/=b;return res;}
 	inline hist operator/(hist&&a,const hist&b){hist res=a;res/=b;return res;}
 	inline hist operator/(const hist&a,hist&&b){hist res=a;res/=b;return res;}
 	inline hist operator/(hist&&a,hist&&b){hist res=a;res/=b;return res;}
+
 	inline hist operator/(const hist&a,function<double(double)>b){hist res=a;res/=b;return res;}
 	inline hist operator/(hist&&a,function<double(double)>b){hist res=a;res/=b;return res;}
-	inline hist operator/(const hist&a,double b){hist res=a;res/=b;return res;}
-	inline hist operator/(hist&&a,double b){hist res=a;res/=b;return res;}
+	
+	inline hist operator/(const hist&a,const value&b){hist res=a;res/=b;return res;}
+	inline hist operator/(hist&&a,const value&b){return a/b;}
+	inline hist operator/(const hist&a,value&&b){return a/b;}
+	inline hist operator/(hist&&a,value&&b){return a/b;}
+	
 	
 	double ChiSq(const hist&a,function<double(double)>b,size_t paramcount);
 	inline double ChiSq(hist&&a,function<double(double)>b,size_t paramcount){return ChiSq(a,b,paramcount);}
@@ -108,7 +182,7 @@ namespace ROOT_data{
 		PlotHist&HistWLine(string&&name,const hist&data);
 	};
 	inline shared_ptr<FitPoints> operator<<(shared_ptr<FitPoints>dest,const hist::point&source){
-		return dest<<Point({source.x},{source.dx},source.y,source.dy);
+		return dest<<Point({source.X().val()},{source.X().delta()},source.Y().val(),source.Y().delta());
 	}
 	inline shared_ptr<FitPoints> operator<<(shared_ptr<FitPoints>dest,const hist&source){
 		for(auto&P:source)dest<<P;
