@@ -74,4 +74,6 @@ int main(int,char**){
 	}
 	PlotHist().Hist("Acceptance",acceptance_fg)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Acceptance, n.d.'";
 	PlotHist().Hist("Events He3eta",events_fg)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Events count'";
+	auto luminosity=events_fg/(acceptance_fg*sigmaHe3eta);
+	PlotHist().Hist("Luminosity He3eta",events_fg)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Integral luminosity, nb^{-1}'";
 }
