@@ -150,7 +150,7 @@ namespace ROOT_data{
 	size_t hist::count()const{
 		return data.size();
 	}
-	double hist::Entries()const{
+	double hist::Total()const{
 		double res=0;
 		for(const point& P:data)
 			res+=P.Y().val();

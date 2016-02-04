@@ -73,7 +73,7 @@ namespace ROOT_data{
 		hist&operator=(const hist& source);
 		
 		hist CloneEmptyBins()const;
-		double Entries()const;
+		double Total()const;
 		point&operator[](int i)const;
 		point&operator()(double x)const;
 		size_t count()const;

@@ -1,1 +1,1 @@
-add_library(reaction SHARED theory.cpp)
+add_library(reaction SHARED he3.cpp)

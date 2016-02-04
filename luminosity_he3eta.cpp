@@ -12,13 +12,13 @@
 #include <Genetic/initialconditions.h>
 #include <str_get.h>
 #include <gethist.h>
-#include <theory.h>
+#include <he3.h>
 #include "phys_constants.h"
-#include "kinematics.h"
 using namespace std;
 using namespace ROOT_data;
 using namespace GnuplotWrap;
 using namespace Genetic;
+using namespace Theory;
 int main(int,char**){
 	RANDOM engine;
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward");
@@ -27,8 +27,7 @@ int main(int,char**){
 	hist mc_norm_bg1(MC,"He3pi0pi0",histpath_forward,"0-Reference");
 	hist mc_norm_bg2(MC,"He3pi0pi0pi0",histpath_forward,"0-Reference");
 	{// debug messaging
-		double MC_events_count=0;for(auto&p: mc_norm_fg)MC_events_count+=p.Y().val();
-		cout<<"Montecarlo evens count of "<<MC_events_count<<" detected."<<endl;
+		cout<<"Montecarlo evens count of "<<mc_norm_fg.Total()<<" detected."<<endl;
 		hist n1(MC,"He3eta",histpath_forward,"1-AllTracks");
 		hist n2(MC,"He3eta",histpath_forward,"2-FPC");
 		hist n3(MC,"He3eta",histpath_forward,"3-AllCuts");
@@ -43,22 +42,18 @@ int main(int,char**){
 		hist background1(MC,"He3pi0pi0",histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
 		hist background2(MC,"He3pi0pi0pi0",histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
 		hist measured(DATA,"He3",histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
-		double norm=0;for(auto&p:foreground)norm+=p.Y().val();
-		if(norm>0){
-			foreground/=value(norm);
-			
-			acceptance_fg[bin_num].varY()=value(norm)/mc_norm_fg[bin_num].Y();
-			double norm_b1=0;for(auto&p:background1)norm_b1+=p.Y().val();
-			background1/=value(norm_b1);
-			double norm_b2=0;for(auto&p:background2)norm_b2+=p.Y().val();
-			background2/=value(norm_b2);
-			
-			double total_events=0;for(auto&p:measured)total_events+=p.Y().val();
+		value norm(foreground.Total());
+		if(norm.val()>1){
+			foreground/=norm;			
+			acceptance_fg[bin_num].varY()=norm/mc_norm_fg[bin_num].Y();
+			background1/=value(background1.Total());
+			background2/=value(background2.Total());
 			
 			Equation<DifferentialMutations<Parabolic>> fit([&measured,&foreground,&background1,&background2](const ParamSet&P)->double{
 				return ChiSq(measured,(foreground*value(P[0],0))+(background1*value(P[1],0))+(background2*value(P[2],0)),3);
 			});
 			fit.SetFilter([](const ParamSet&P)->bool{return (P[0]>=0)&&(P[1]>=0)&&(P[2]>=0);});
+			double total_events=measured.Total();
 			fit.Init(100,make_shared<GenerateByGauss>()<<make_pair(total_events,total_events)<<make_pair(0,total_events)<<make_pair(0,total_events),engine);
 			cout<<"Population:"<<fit.PopulationSize()<<endl;
 			cout<<"Parameters:"<<fit.ParamCount()<<endl;

@@ -15,8 +15,8 @@
 #include <CDTracksSimple.hh>
 #include <TCutG.h>
 #include "../phys_constants.h"
-#include "../kinematics.h"
 #include "../reconstruction_types.h"
+#include "Theory/he3.h"
 #include "trackprocessing.h"
 #include "detectors.h"
 #include "reconstruction.h"
@@ -26,6 +26,7 @@
 namespace ReactionSetup{
 	using namespace std;
 	using namespace TrackAnalyse;
+	using namespace Theory;
 	string dirname(){return "He3Forward_Reconstruction";};
 	Analysis* Prepare(He3Modification mode){
 		Analysis* res=nullptr;
