@@ -39,6 +39,7 @@ int main(int,char**){
 		PlotHist().Hist("All MC events",mc_norm_fg).Hist("Forward Tracks",n1).Hist("FPC",n2).Hist("E_{dep} cuts",n3).Hist("Kinematic cuts",mc_accepted_fg)
 			<<"set yrange [0:]"<<"set xlabel 'Q, MeV'"<<"set ylabel 'Events count'";
 	}
+	PlotHist().Hist("Acceptance",mc_accepted_fg/mc_norm_fg);
 	for(size_t bin_num=0;bin_num<mc_norm_fg.count();bin_num++)if(mc_accepted_fg[bin_num].y>1){
 		hist foreground(MC,"He3eta",histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
 		hist background1(MC,"He3pi0pi0",histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
@@ -63,6 +64,7 @@ int main(int,char**){
 		cout<<fit<<endl;
 		cout<<"Errors:"<<endl;
 		cout<<fit.GetParamParabolicErrors({1,1,1})<<endl;
+		PlotHist().Hist(string("Data-")+to_string(bin_num),measured).Hist(string("He3eta-")+to_string(bin_num),foreground*fit[0])
+			.Hist(string("He3pi0pi0-")+to_string(bin_num),background1*fit[1]).Hist(string("He3pi0pi0pi0-")+to_string(bin_num),background2*fit[2]);
 	}
-	
 }
