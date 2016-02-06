@@ -73,9 +73,12 @@ int main(int,char**){
 			.Hist(background1*fit[1],"^3He+2pi^0").Hist(background2*fit[2],"^3He+3pi^0")
 			<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'Events count'";
 			events_fg[bin_num].varY()=value<double>(fit[0],errors[0]);
+		}else{
+			acceptance_fg[bin_num].varY()=value<double>(0,0);
+			events_fg[bin_num].varY()=value<double>(0,0);
 		}
 	}
-	PlotHist().Hist(acceptance_fg)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Acceptance, n.d.'";
+	PlotHist().Hist(acceptance_fg,"^3He+eta")<<"set xlabel 'Q, MeV'"<<"set ylabel 'Acceptance, n.d.'";
 	PlotHist().Hist(events_fg,"^3He+eta")<<"set xlabel 'Q, MeV'"<<"set ylabel 'Events count'";
 	auto luminosity=events_fg/(acceptance_fg*sigmaHe3eta);
 	PlotHist().Hist(events_fg)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Integral luminosity, nb^{-1}'";
