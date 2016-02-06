@@ -32,45 +32,16 @@ namespace ROOT_data{
 		}
 		return double(present_runs)/double(allruns);
 	}
-	value::value(){Value=0;Error=1;}
-	value::value(double v){
-		Value=v;Error=sqrt(v);
-		if(Error<1)Error=1;
-	}
-	value::value(double v, double err){Value=v;Error=err;}
-	value::value(const value& source){Value=source.Value;Error=source.Error;}
-	double value::val() const{return Value;}
-	double value::delta() const{return Error;}
-	double value::epsilon() const{return Error/Value;}
-	double value::min() const{return Value-Error;}
-	double value::max() const{return Value+Error;}
-	value& value::operator+=(const value& other){
-		Error=sqrt(pow(Error,2)+pow(other.Error,2));
-		Value+=other.Value;
-	}
-	value& value::operator-=(const value& other){
-		Error=sqrt(pow(Error,2)+pow(other.Error,2));
-		Value-=other.Value;
-	}
-	value& value::operator*=(const value& other){
-		Error=sqrt(pow(Error*other.Value,2)+pow(other.Error*Value,2));
-		Value*=other.Value;
-	}
-	value& value::operator/=(const value& other){
-		Error=sqrt(pow(Error/other.Value,2)+pow(other.Error*Value/pow(other.Value,2),2));
-		Value/=other.Value;
-	}
-	
-	hist::point::point(const value& pos):x(pos){}
-	hist::point::point(value&& pos):x(pos){}
-	hist::point::point(const value& pos, const value& val):x(pos),y(val){}
-	hist::point::point(value&& pos, const value& val):x(pos),y(val){}
-	hist::point::point(const value& pos, value&& val):x(pos),y(val){}
-	hist::point::point(value&& pos, value&& val):x(pos),y(val){}
+	hist::point::point(const value<double>& pos):x(pos){}
+	hist::point::point(value<double>&& pos):x(pos){}
+	hist::point::point(const value<double>& pos, const value<double>& val):x(pos),y(val){}
+	hist::point::point(value<double>&& pos, const value<double>& val):x(pos),y(val){}
+	hist::point::point(const value<double>& pos, value<double>&& val):x(pos),y(val){}
+	hist::point::point(value<double>&& pos, value<double>&& val):x(pos),y(val){}
 	hist::point::point(const hist::point& source):x(source.x),y(source.y){}
-	value& hist::point::X() const{return const_cast<value&>(x);}
-	value& hist::point::Y() const{return const_cast<value&>(y);}
-	value& hist::point::varY(){return y;}
+	value<double>& hist::point::X() const{return const_cast<value<double>&>(x);}
+	value<double>& hist::point::Y() const{return const_cast<value<double>&>(y);}
+	value<double>& hist::point::varY(){return y;}
 	hist::hist(){}
 	hist::hist(string&&filename,const vector<string>&path,string&&histname){
 		TFile* file=TFile::Open(filename.c_str());
@@ -90,7 +61,7 @@ namespace ROOT_data{
 						dy=1.0;
 					double x=histogram->GetBinCenter(i);
 					double dx=histogram->GetBinWidth(i)/2.0;
-					data.push_back(point(value(x,dx),value(y,dy)));
+					data.push_back(point(value<double>(x,dx),value<double>(y,dy)));
 				}
 			}
 			file->Close();
@@ -135,7 +106,7 @@ namespace ROOT_data{
 	hist hist::CloneEmptyBins()const{
 		hist res(*this);
 		for(int i=0,n=count();i<n;i++){
-			res.data[i].varY()=value(0);
+			res.data[i].varY()=value<double>(0);
 		}
 		return res;
 	}
@@ -196,14 +167,14 @@ namespace ROOT_data{
 	}
 	hist& hist::operator+=(function<double(double)>f){
 		for(size_t i=0,n=count();i<n;i++)
-			data[i].varY()+=value(f(data[i].X().val()),0);
+			data[i].varY()+=value<double>(f(data[i].X().val()),0);
 		return *this;
 	}
-	hist& hist::operator+=(const value&v){
+	hist& hist::operator+=(const value<double>&v){
 		for(size_t i=0,n=count();i<n;i++)data[i].varY()+=v;
 		return *this;
 	}
-	hist& hist::operator+=(value&&v){return operator+=(v);}
+	hist& hist::operator+=(value<double>&&v){return operator+=(v);}
 	
 	hist& hist::operator-=(const hist& second){
 		for(size_t i=0,n=count();i<n;i++){
@@ -216,14 +187,14 @@ namespace ROOT_data{
 	}
 	hist& hist::operator-=(function<double(double)>f){
 		for(size_t i=0,n=count();i<n;i++)
-			data[i].varY()-=value(f(data[i].X().val()),0);
+			data[i].varY()-=value<double>(f(data[i].X().val()),0);
 		return *this;
 	}
-	hist& hist::operator-=(const value&v){
+	hist& hist::operator-=(const value<double>&v){
 		for(size_t i=0,n=count();i<n;i++)data[i].varY()-=v;
 		return *this;
 	}
-	hist& hist::operator-=(value&&v){return operator-=(v);}
+	hist& hist::operator-=(value<double>&&v){return operator-=(v);}
 	
 	
 	hist& hist::operator*=(const hist& second){
@@ -237,14 +208,14 @@ namespace ROOT_data{
 	}
 	hist& hist::operator*=(function<double(double)>f){
 		for(size_t i=0,n=count();i<n;i++)
-			data[i].varY()*=value(f(data[i].X().val()),0);
+			data[i].varY()*=value<double>(f(data[i].X().val()),0);
 		return *this;
 	}
-	hist& hist::operator*=(const value&v){
+	hist& hist::operator*=(const value<double>&v){
 		for(size_t i=0,n=count();i<n;i++)data[i].varY()*=v;
 		return *this;
 	}
-	hist& hist::operator*=(value&&v){return operator*=(v);}
+	hist& hist::operator*=(value<double>&&v){return operator*=(v);}
 	
 	
 	hist& hist::operator/=(const hist& second){
@@ -258,14 +229,14 @@ namespace ROOT_data{
 	}
 	hist& hist::operator/=(function<double(double)>f){
 		for(size_t i=0,n=count();i<n;i++)
-			data[i].varY()/=value(f(data[i].X().val()),0);
+			data[i].varY()/=value<double>(f(data[i].X().val()),0);
 		return *this;
 	}
-	hist& hist::operator/=(const value&v){
+	hist& hist::operator/=(const value<double>&v){
 		for(size_t i=0,n=count();i<n;i++)data[i].varY()/=v;
 		return *this;
 	}
-	hist& hist::operator/=(value&&v){return operator/=(v);}
+	hist& hist::operator/=(value<double>&&v){return operator/=(v);}
 	
 	
 	
@@ -273,14 +244,14 @@ namespace ROOT_data{
 		for(size_t i=0,n=count()-c;i<n;i++)
 			data[i].varY()=data[i+c].Y();
 		for(size_t n=count(),i=n-c;i<n;i++)
-			data[i].varY()=value(0);
+			data[i].varY()=value<double>(0);
 		return *this;
 	}
 	hist& hist::operator>>(size_t c){
 		for(size_t i=count()-1;i>=c;i--)
 			data[i].varY()=data[i+c].Y();
 		for(size_t i=0;i<c;i++)
-			data[i].varY()=value(0);
+			data[i].varY()=value<double>(0);
 		return *this;
 	}
 	
@@ -303,23 +274,15 @@ namespace ROOT_data{
 		}
 		return res/k;
 	}
-	
 	PlotHist::PlotHist():Plot<double>(){}
-	PlotHist& PlotHist::Hist(string&&name,const hist&data){
-		Plot<double>::OutputPlot(static_cast<string&&>(name),[&data](std::ofstream&str){
+	PlotHist& PlotHist::Hist(const hist&data,string&&title){
+		Plot<double>::OutputPlot([&data](std::ofstream&str){
 			for(hist::point p:data)
 				str<<p.X().val()<<" "<<p.Y().val()<<" "<<p.X().delta()<<" "<<p.Y().delta()<<endl;
-		},"using 1:2:($1-$3):($1+$3):($2-$4):($2+$4) with xyerrorbars");
+		},"using 1:2:($1-$3):($1+$3):($2-$4):($2+$4) with xyerrorbars",static_cast<string&&>(title));
 		return *this;
 	}
-	PlotHist& PlotHist::Hist(string&& name, hist&& data){
-		return Hist(static_cast<string&&>(name),data);
-	}
-	PlotHist& PlotHist::HistWLine(string&& name, const hist& data){
-		Plot<double>::OutputPlot(static_cast<string&&>(name),[&data](std::ofstream&str){
-			for(hist::point p:data)
-				str<<p.X().val()<<" "<<p.Y().val()<<" "<<p.X().delta()<<" "<<p.Y().delta()<<endl;
-		},"using 1:2 w l");
-		return *this;
+	PlotHist& PlotHist::Hist(hist&& data,string&&title){
+		return Hist(data,static_cast<string&&>(title));
 	}
 };

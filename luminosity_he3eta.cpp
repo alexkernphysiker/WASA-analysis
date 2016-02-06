@@ -32,7 +32,8 @@ int main(int,char**){
 		hist n3(MC,"He3eta",histpath_forward,"3-AllCuts");
 		hist n4(MC,"He3eta",histpath_forward,"4-Reconstructed");
 		hist n5(MC,"He3eta",histpath_forward,"5-Kinematic cut");
-		PlotHist().Hist("All MC events",mc_norm_fg).Hist("Forward Tracks",n1).Hist("FPC",n2).Hist("E_{dep} cuts",n3).Hist("Kinematic cuts",n5)
+		PlotHist().Hist(mc_norm_fg,"All events").Hist(n1,"Forward Tracks")
+			.Hist(n2,"Signal in FPC").Hist(n3,"E_{dep} cuts").Hist(n5,"Kinematic cuts")
 			<<"set yrange [0:]"<<"set xlabel 'Q, MeV'"<<"set ylabel 'Events count'";
 	}
 	auto events_fg=mc_norm_fg.CloneEmptyBins(),acceptance_fg=mc_norm_fg.CloneEmptyBins();
@@ -41,15 +42,18 @@ int main(int,char**){
 		hist background1(MC,"He3pi0pi0",histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
 		hist background2(MC,"He3pi0pi0pi0",histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
 		hist measured(DATA,"He3",histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
-		value norm(foreground.Total());
+		value<double> norm(foreground.Total());
 		if(norm.val()>1){
 			foreground/=norm;			
 			acceptance_fg[bin_num].varY()=norm/mc_norm_fg[bin_num].Y();
-			background1/=value(background1.Total());
-			background2/=value(background2.Total());
+			background1/=value<double>(background1.Total());
+			background2/=value<double>(background2.Total());
 			
 			Equation<DifferentialMutations<Parabolic>> fit([&measured,&foreground,&background1,&background2](const ParamSet&P)->double{
-				return ChiSq(measured,(foreground*value(P[0],0))+(background1*value(P[1],0))+(background2*value(P[2],0)),3);
+				return ChiSq(measured,(foreground*value<double>(P[0],0))
+					+(background1*value<double>(P[1],0))
+					+(background2*value<double>(P[2],0))
+				,3);
 			});
 			fit.SetFilter([](const ParamSet&P)->bool{return (P[0]>=0)&&(P[1]>=0)&&(P[2]>=0);});
 			double total_events=measured.Total();
@@ -65,14 +69,14 @@ int main(int,char**){
 			cout<<"Errors:"<<endl;
 			auto errors=fit.GetParamParabolicErrors({1,1,1});
 			cout<<errors<<endl;
-			PlotHist().Hist(string("Data-")+to_string(bin_num),measured).Hist(string("He3eta-")+to_string(bin_num),foreground*fit[0])
-			.Hist(string("He3pi0pi0-")+to_string(bin_num),background1*fit[1]).Hist(string("He3pi0pi0pi0-")+to_string(bin_num),background2*fit[2])
+			PlotHist().Hist(foreground*fit[0],"^3He+eta")
+			.Hist(background1*fit[1],"^3He+2pi^0").Hist(background2*fit[2],"^3He+3pi^0")
 			<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'Events count'";
-			events_fg[bin_num].varY()=value(fit[0],errors[0]);
+			events_fg[bin_num].varY()=value<double>(fit[0],errors[0]);
 		}
 	}
-	PlotHist().Hist("Acceptance",acceptance_fg)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Acceptance, n.d.'";
-	PlotHist().Hist("Events He3eta",events_fg)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Events count'";
+	PlotHist().Hist(acceptance_fg)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Acceptance, n.d.'";
+	PlotHist().Hist(events_fg,"^3He+eta")<<"set xlabel 'Q, MeV'"<<"set ylabel 'Events count'";
 	auto luminosity=events_fg/(acceptance_fg*sigmaHe3eta);
-	PlotHist().Hist("Luminosity He3eta",events_fg)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Integral luminosity, nb^{-1}'";
+	PlotHist().Hist(events_fg)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Integral luminosity, nb^{-1}'";
 }

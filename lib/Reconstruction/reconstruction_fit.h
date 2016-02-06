@@ -75,12 +75,12 @@ namespace SimulationDataProcess{
 		}
 		ParamsPerBins binned_plots(theta_binning);
 		{
-			SimplePlotStream total_pic(reconstructionname+" weights",params_shown);
+			SimplePlotStream total_pic(params_shown);
 			for(const Point&P:*points)if(P.wy()>5){
 				total_pic<<(ParamSet(P.X())<<P.y());
 				//binned_plots<<(ParamSet(P.X())<<P.y());
 			}
-			SimplePlotStream total_points(reconstructionname+" points",params_shown);
+			SimplePlotStream total_points(params_shown);
 			for(const ParamSet&P:AllData){
 				total_points<<P;
 				binned_plots<<P;
@@ -88,7 +88,7 @@ namespace SimulationDataProcess{
 		}
 		for(size_t i=0;i<binned_plots.count();i++){
 			double theta=binned_plots.bin_center(i);
-			SimplePlotStream plot(reconstructionname+" theta="+to_string(theta),params_shown);
+			SimplePlotStream plot(params_shown);
 			for(ParamSet&P:binned_plots[i])plot<<P;
 			plot.AddFunc([theta,&fit](double Edep){return fit({Edep,theta});});
 		}

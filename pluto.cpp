@@ -7,24 +7,32 @@
 #include <PBeamSmearing.h>
 #include <PReaction.h>
 #include <str_get.h>
-#include <gnuplot_wrap.h>
 #include <experiment_conv.h>
 #include <reactions.h>
 #include "config.h"
 using namespace std;
-using namespace GnuplotWrap;
+string ReplaceAll(const string&source, const string& from, const string& to) {
+	string str=source;
+	size_t start_pos = 0;
+	while((start_pos = str.find(from, start_pos)) != string::npos) {
+		str.replace(start_pos, from.length(), to);
+		start_pos += to.length();
+	}
+	return str;
+}
+string ReplaceAll(string&& str, const string& from, const string& to){
+	return ReplaceAll(str,from,to);
+}
 int main(int argc, char **arg){
 	if(argc<3){
-		printf("reaction expected\n");
+		cout<<"reaction expected"<<endl;
 		return -1;
 	}
-	printf("%s\n",arg[1]);
 	string react="";
 	for(int i=2;i<argc;i++){
 		react+=string(arg[i]);
 		if(i<(argc-1))react+=" ";
 	}
-	printf("%s\n",react.c_str());
 	PUSHD();
 	CD(PLUTO);
 	PBeamSmearing *smear = new PBeamSmearing("beam_smear", "Beam smearing");
