@@ -1,10 +1,12 @@
 // this file is distributed under 
 // MIT license
 #include <functional>
+#include <math_h/error.h>
 #include "analysismodule.hh"
 #include "config.h"
 #include "reactions.h"
 using namespace std;
+using namespace MathTemplates;
 Logger LOG;
 string type;
 void SetAnalysisType(std::string t){
@@ -19,6 +21,7 @@ AnalysisModule::AnalysisModule(){
 AnalysisModule::AnalysisModule(const char* name):CAnalysisModule(name){
 	using namespace ReactionSetup;
 	Logger::SubLog log=LOG.Log(NoLog);
+	m_data=nullptr;
 	if("RE_He3eta"==type)
 		m_data= He3_forward_reconstruction(forEta);
 	if(
@@ -37,6 +40,8 @@ AnalysisModule::AnalysisModule(const char* name):CAnalysisModule(name){
 		m_data=He3_forward_analyse(forPi0);
 	if("Data_He3"==type)
 		m_data=He3_forward_analyse(forData);
+	if(nullptr==m_data)
+		throw Exception<AnalysisModule>("Cannot find analysis module");
 }
 AnalysisModule::~AnalysisModule(){
 	if(m_data)
