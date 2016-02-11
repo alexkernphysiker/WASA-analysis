@@ -69,6 +69,7 @@ int main(int,char**){
 			auto errors=fit.GetParamParabolicErrors({1,1,1});
 			cout<<errors<<endl;
 			PlotHist().Hist(measured,string("Data for bin where Q=")+to_string(mc_norm_fg[bin_num].X().val())+"+/-"+to_string(mc_norm_fg[bin_num].X().delta()))
+				.Hist((foreground*fit[0])+(background1*fit[1])+(background2*fit[2]),"Fit")
 				.Hist(foreground*fit[0],"^3He+eta").Hist(background1*fit[1],"^3He+2pi^0").Hist(background2*fit[2],"^3He+3pi^0")
 			<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'Events count'";
 			events_fg[bin_num].varY()=value<double>(fit[0],errors[0]);
