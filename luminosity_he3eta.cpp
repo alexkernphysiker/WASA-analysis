@@ -56,7 +56,7 @@ int main(int,char**){
 				,3);
 			});
 			fit.SetFilter([](const ParamSet&P)->bool{return (P[0]>=0)&&(P[1]>=0)&&(P[2]>=0);});
-			fit.Init(100,make_shared<GenerateByGauss>()<<make_pair(norm.val(),norm.val())<<make_pair(norm.val(),norm.val())<<make_pair(norm.val(),norm.val()),engine);
+			fit.Init(200,make_shared<GenerateByGauss>()<<make_pair(norm.val()*2.0,norm.val()*2.0)<<make_pair(norm.val(),norm.val())<<make_pair(norm.val(),norm.val()),engine);
 			cout<<"Population:"<<fit.PopulationSize()<<endl;
 			cout<<"Parameters:"<<fit.ParamCount()<<endl;
 			while(!fit.AbsoluteOptimalityExitCondition(0.000000001))
