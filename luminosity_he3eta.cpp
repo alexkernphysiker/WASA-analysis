@@ -56,11 +56,10 @@ int main(int,char**){
 				,3);
 			});
 			fit.SetFilter([](const ParamSet&P)->bool{return (P[0]>=0)&&(P[1]>=0)&&(P[2]>=0);});
-			double total_events=measured.Total();
-			fit.Init(100,make_shared<GenerateByGauss>()<<make_pair(total_events,total_events)<<make_pair(0,total_events)<<make_pair(0,total_events),engine);
+			fit.Init(100,make_shared<GenerateByGauss>()<<make_pair(norm.val(),norm.val())<<make_pair(norm.val(),norm.val())<<make_pair(norm.val(),norm.val()),engine);
 			cout<<"Population:"<<fit.PopulationSize()<<endl;
 			cout<<"Parameters:"<<fit.ParamCount()<<endl;
-			while(!fit.AbsoluteOptimalityExitCondition(0.0000001))
+			while(!fit.AbsoluteOptimalityExitCondition(0.000000001))
 				fit.Iterate(engine);
 			cout<<fit.iteration_count()<<" iterations"<<endl;
 			cout<<"Chi^2 = "<<fit.Optimality()<<endl;
@@ -69,8 +68,8 @@ int main(int,char**){
 			cout<<"Errors:"<<endl;
 			auto errors=fit.GetParamParabolicErrors({1,1,1});
 			cout<<errors<<endl;
-			PlotHist().Hist(foreground*fit[0],"^3He+eta")
-			.Hist(background1*fit[1],"^3He+2pi^0").Hist(background2*fit[2],"^3He+3pi^0")
+			PlotHist().Hist(measured,string("Data for bin where Q=")+to_string(mc_norm_fg[bin_num].X().val())+"+/-"+to_string(mc_norm_fg[bin_num].X().delta()))
+				.Hist(foreground*fit[0],"^3He+eta").Hist(background1*fit[1],"^3He+2pi^0").Hist(background2*fit[2],"^3He+3pi^0")
 			<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'Events count'";
 			events_fg[bin_num].varY()=value<double>(fit[0],errors[0]);
 		}else{
