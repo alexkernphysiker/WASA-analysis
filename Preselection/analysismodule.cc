@@ -41,7 +41,7 @@ AnalysisModule::AnalysisModule(const char* name):CAnalysisModule(name){
 	if("Data_He3"==type)
 		m_data=He3_forward_analyse(forData);
 	if(nullptr==m_data)
-		throw Exception<AnalysisModule>("Cannot find analysis module");
+		throw Exception<AnalysisModule>("Cannot create analysis module");
 }
 AnalysisModule::~AnalysisModule(){
 	if(m_data)
