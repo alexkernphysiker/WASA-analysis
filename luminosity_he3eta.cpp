@@ -36,7 +36,7 @@ int main(int,char**){
 			.Hist(n2,"Signal in FPC").Hist(n3,"E_{dep} cuts").Hist(n5,"Kinematic cuts")
 			<<"set yrange [0:]"<<"set xlabel 'Q, MeV'"<<"set ylabel 'Events count'";
 	}
-	auto events_fg=mc_norm_fg.CloneEmptyBins(),acceptance_fg=mc_norm_fg.CloneEmptyBins();
+	auto events_fg=mc_norm_fg.CloneEmptyBins(),acceptance_fg=mc_norm_fg.CloneEmptyBins(),chi_sq=mc_norm_fg.CloneEmptyBins();
 	for(size_t bin_num=0;bin_num<mc_norm_fg.count();bin_num++){
 		hist foreground(MC,"He3eta",histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
 		hist background1(MC,"He3pi0pi0",histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
@@ -59,8 +59,7 @@ int main(int,char**){
 			fit.Init(200,make_shared<GenerateByGauss>()<<make_pair(norm.val()*2.0,norm.val()*2.0)<<make_pair(norm.val(),norm.val())<<make_pair(norm.val(),norm.val()),engine);
 			cout<<"Population:"<<fit.PopulationSize()<<endl;
 			cout<<"Parameters:"<<fit.ParamCount()<<endl;
-			while(!fit.AbsoluteOptimalityExitCondition(0.000000001))
-				fit.Iterate(engine);
+			Find(fit,engine);
 			cout<<fit.iteration_count()<<" iterations"<<endl;
 			cout<<"Chi^2 = "<<fit.Optimality()<<endl;
 			cout<<"Parameters:"<<endl;
@@ -69,15 +68,17 @@ int main(int,char**){
 			auto errors=fit.GetParamParabolicErrors({1,1,1});
 			cout<<errors<<endl;
 			PlotHist().Hist(measured,string("Data for bin where Q=")+to_string(mc_norm_fg[bin_num].X().val())+"+/-"+to_string(mc_norm_fg[bin_num].X().delta()))
-				.Hist((foreground*fit[0])+(background1*fit[1])+(background2*fit[2]),"Fit")
-				.Hist(foreground*fit[0],"^3He+eta").Hist(background1*fit[1],"^3He+2pi^0").Hist(background2*fit[2],"^3He+3pi^0")
+				.Hist((foreground*value<double>(fit[0],0))+(background1*value<double>(fit[1],0))+(background2*value<double>(fit[2],0)),"Fit")
+				.Hist(foreground*value<double>(fit[0],0),"^3He+eta").Hist(background1*value<double>(fit[1],0),"^3He+2pi^0").Hist(background2*value<double>(fit[2],0),"^3He+3pi^0")
 			<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'Events count'";
+			chi_sq[bin_num].varY()=value<double>(fit.Optimality(),0);
 			events_fg[bin_num].varY()=value<double>(fit[0],errors[0]);
 		}else{
 			acceptance_fg[bin_num].varY()=value<double>(0,0);
 			events_fg[bin_num].varY()=value<double>(0,0);
 		}
 	}
+	PlotHist().Hist(chi_sq)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Fit chi^2, n.d.'";
 	PlotHist().Hist(acceptance_fg,"^3He+eta")<<"set xlabel 'Q, MeV'"<<"set ylabel 'Acceptance, n.d.'";
 	PlotHist().Hist(events_fg,"^3He+eta")<<"set xlabel 'Q, MeV'"<<"set ylabel 'Events count'";
 	auto luminosity=events_fg/(acceptance_fg*sigmaHe3eta);
