@@ -24,8 +24,10 @@ if(NOT $ENV{ROOTSYS} STREQUAL "")
 	#applications
 	add_executable(reconstruction_he3 reconstruction_he3.cpp)
 	target_link_libraries(reconstruction_he3 ${ROOT_LIBRARIES} ${libs})
-	add_executable(luminosity_he3eta luminosity_he3eta.cpp)
-	target_link_libraries(luminosity_he3eta ${ROOT_LIBRARIES} ${libs})
+	add_executable(luminosity_he3eta_fit luminosity_he3eta_fit.cpp)
+	target_link_libraries(luminosity_he3eta_fit ${ROOT_LIBRARIES} ${libs})
+	add_executable(luminosity_he3eta_count luminosity_he3eta_eventcount.cpp)
+	target_link_libraries(luminosity_he3eta_count ${ROOT_LIBRARIES} ${libs})
 	#pluto
 	if(NOT $ENV{PLUTOSYS} STREQUAL "")
 	link_directories($ENV{PLUTOSYS})

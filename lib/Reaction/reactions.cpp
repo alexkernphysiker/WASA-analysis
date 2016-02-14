@@ -21,3 +21,15 @@ double sigmaHe3eta(double q){
 	if(q<=0)return 0;
 	else return 400;
 }
+double sigmaHe3pi0(double q_eta){
+	//ToDo: provide correct data
+	return 0;
+}
+double sigmaHe3pi0pi0(double q_eta){
+	//ToDo: provide correct data
+	return 0;
+}
+double sigmaHe3pi0pi0pi0(double q_eta){
+	//ToDo: provide correct data
+	return 0;
+}

@@ -59,7 +59,8 @@ int main(int,char**){
 			fit.Init(200,make_shared<GenerateByGauss>()<<make_pair(norm.val()*2.0,norm.val()*2.0)<<make_pair(norm.val(),norm.val())<<make_pair(norm.val(),norm.val()),engine);
 			cout<<"Population:"<<fit.PopulationSize()<<endl;
 			cout<<"Parameters:"<<fit.ParamCount()<<endl;
-			Find(fit,engine);
+			while(!fit.AbsoluteOptimalityExitCondition(0.0000001))
+				fit.Iterate(engine);
 			cout<<fit.iteration_count()<<" iterations"<<endl;
 			cout<<"Chi^2 = "<<fit.Optimality()<<endl;
 			cout<<"Parameters:"<<endl;
@@ -82,5 +83,5 @@ int main(int,char**){
 	PlotHist().Hist(acceptance_fg,"^3He+eta")<<"set xlabel 'Q, MeV'"<<"set ylabel 'Acceptance, n.d.'";
 	PlotHist().Hist(events_fg,"^3He+eta")<<"set xlabel 'Q, MeV'"<<"set ylabel 'Events count'";
 	auto luminosity=events_fg/(acceptance_fg*sigmaHe3eta);
-	PlotHist().Hist(events_fg)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Integral luminosity, nb^{-1}'";
+	PlotHist().Hist(luminosity)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Integral luminosity, nb^{-1}'";
 }
