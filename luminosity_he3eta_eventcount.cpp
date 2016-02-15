@@ -47,6 +47,7 @@ int main(int,char**){
 		if(fg_count.val()>1){
 			acceptance_fg[bin_num].varY()=fg_count/mc_norm_fg[bin_num].Y();
 			value<double> bg1_count(background1.Total()),bg2_count(background2.Total());
+			//ToDo: think about normalization if it's correct
 			foreground/=fg_count;
 			background1/=bg1_count;
 			background2/=bg2_count;
