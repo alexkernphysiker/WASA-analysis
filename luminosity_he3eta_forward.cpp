@@ -1,0 +1,59 @@
+// this file is distributed under 
+// MIT license
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <memory>
+#include <math_h/functions.h>
+#include <math_h/error.h>
+#include <Genetic/fit.h>
+#include <Genetic/equation.h>
+#include <Genetic/filter.h>
+#include <Genetic/initialconditions.h>
+#include <str_get.h>
+#include <gethist.h>
+#include <particles.h>
+#include <reactions.h>
+using namespace std;
+using namespace ROOT_data;
+using namespace GnuplotWrap;
+using namespace Genetic;
+int main(int,char**){
+	RANDOM engine;
+	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward");
+	vector<string> histpath_forward={"Histograms","He3Forward_Reconstruction"};
+	vector<string> reaction={"He3eta","He3pi0pi0pi0","He3pi0pi0","He3pi0"};
+	vector<hist> norm;
+	for(const string& r:reaction)norm.push_back(hist(MC,r,histpath_forward,"0-Reference"));
+	{// debug messaging
+		cout<<"Montecarlo evens count of "<<norm[0].Total()<<" detected."<<endl;
+		hist n1(MC,reaction[0],histpath_forward,"1-AllTracks");
+		hist n2(MC,reaction[0],histpath_forward,"2-FPC");
+		hist n3(MC,reaction[0],histpath_forward,"3-AllCuts");
+		hist n4(MC,reaction[0],histpath_forward,"4-Reconstructed");
+		hist n5(MC,reaction[0],histpath_forward,"5-Kinematic cut");
+		PlotHist().Hist(norm[0],"All events").Hist(n1,"Forward Tracks")
+		.Hist(n2,"Signal in FPC").Hist(n3,"E_{dep} cuts").Hist(n5,"Kinematic cuts")
+		<<"set yrange [0:]"<<"set xlabel 'Q, MeV'"<<"set ylabel 'Events count'";
+	}
+	vector<hist> acceptance;
+	for(const auto&h:norm)acceptance.push_back(h.CloneEmptyBins());
+	auto luminosity=norm[0].CloneEmptyBins();
+	for(size_t bin_num=0;bin_num<norm[0].count();bin_num++){
+		vector<hist> simulated;
+		for(const string r:reaction)simulated.push_back(hist(MC,r,histpath_forward,string("MissingMass-Bin-")+to_string(bin_num)));
+		vector<value<double>> mc_event_count;
+		for(size_t i=0;i<reaction.size();i++){
+			mc_event_count.push_back(value<double>(simulated[i].Total()));
+			acceptance[i][bin_num].varY()=mc_event_count[i]/norm[i][bin_num].Y();
+		}
+		//hist measured(DATA,"He3",histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
+	}
+	PlotHist().Hist(luminosity)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Integral luminosity, nb^{-1}'";
+	{//Plot acceptance
+		PlotHist plot;
+		plot<<"set yrange [0:0.7]";
+		for(size_t i=0;i<reaction.size();i++)plot.Hist(acceptance[i],reaction[i]);
+		plot<<"set xlabel 'Q, MeV'"<<"set ylabel 'Acceptance, n.d.'";
+	}
+}

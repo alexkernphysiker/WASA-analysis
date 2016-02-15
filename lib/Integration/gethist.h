@@ -32,6 +32,7 @@ namespace ROOT_data{
 		hist();
 		hist(string&&filename,const vector<string>&path,string&&histname);
 		hist(string&&filename,vector<string>&&path,string&&histname);
+		hist(histsource src,const string&reaction,const vector<string>&path,string&&histname);
 		hist(histsource src,string&&reaction,const vector<string>&path,string&&histname);
 		hist(histsource src,string&&reaction,vector<string>&&path,string&&histname);
 		hist(const hist& source);
@@ -143,6 +144,7 @@ namespace ROOT_data{
 	class PlotHist:public Plot<double>{
 	public:
 		PlotHist();
+		PlotHist&Hist(const hist&data,const string&title);
 		PlotHist&Hist(const hist&data,string&&title="");
 		PlotHist&Hist(hist&&data,string&&title="");
 	};

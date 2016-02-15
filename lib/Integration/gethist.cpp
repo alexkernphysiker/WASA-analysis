@@ -69,7 +69,7 @@ namespace ROOT_data{
 		}
 	}
 	hist::hist(string&& filename, vector< string >&& path, string&& histname):hist(static_cast<string&&>(filename),path,static_cast<string&&>(histname)){}
-	hist::hist(histsource src, string&& reaction, const vector< string >& path, string&& histname){
+	hist::hist(histsource src, const string& reaction, const vector< string >& path, string&& histname){
 		switch(src){
 			case MC:{
 				hist tmp(inputpath+"/MC"+reaction+".root",static_cast<decltype(path)&&>(path),static_cast<string&&>(histname));
@@ -89,7 +89,8 @@ namespace ROOT_data{
 			}break;
 		};
 	}
-	hist::hist(histsource src,string&&reaction,vector<string>&&path,string&&histname):hist(src,static_cast<string&&>(reaction),path,static_cast<string&&>(histname)){}
+	hist::hist(histsource src, string&& reaction, const vector< string >& path, string&& histname):hist(src,reaction,path,static_cast<string&&>(histname)){}
+	hist::hist(histsource src,string&&reaction,vector<string>&&path,string&&histname):hist(src,reaction,path,static_cast<string&&>(histname)){}
 	hist::hist(const hist& source){
 		for(point p: source.data)
 			data.push_back(p);
@@ -275,14 +276,13 @@ namespace ROOT_data{
 		return res/k;
 	}
 	PlotHist::PlotHist():Plot<double>(){}
-	PlotHist& PlotHist::Hist(const hist&data,string&&title){
+	PlotHist& PlotHist::Hist(const hist&data,const string&title){
 		Plot<double>::OutputPlot([&data](std::ofstream&str){
 			for(hist::point p:data)
 				str<<p.X().val()<<" "<<p.Y().val()<<" "<<p.X().delta()<<" "<<p.Y().delta()<<endl;
-		},"using 1:2:($1-$3):($1+$3):($2-$4):($2+$4) with xyerrorbars",static_cast<string&&>(title));
+		},"using 1:2:($1-$3):($1+$3):($2-$4):($2+$4) with xyerrorbars",title);
 		return *this;
 	}
-	PlotHist& PlotHist::Hist(hist&& data,string&&title){
-		return Hist(data,static_cast<string&&>(title));
-	}
+	PlotHist& PlotHist::Hist(const hist& data, string&& title){return Hist(data,title);}
+	PlotHist& PlotHist::Hist(hist&& data,string&&title){return Hist(data,title);}
 };
