@@ -31,5 +31,5 @@ double sigmaHe3pi0pi0(double q_eta){
 }
 double sigmaHe3pi0pi0pi0(double q_eta){
 	//ToDo: provide correct data
-	return 0;
+	return 500;
 }

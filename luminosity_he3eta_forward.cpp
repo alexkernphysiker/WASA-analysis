@@ -23,6 +23,7 @@ int main(int,char**){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward");
 	vector<string> histpath_forward={"Histograms","He3Forward_Reconstruction"};
 	vector<string> reaction={"He3eta","He3pi0pi0pi0","He3pi0pi0","He3pi0"};
+	vector<function<double(double)>> cross_section={sigmaHe3eta,sigmaHe3pi0pi0pi0,sigmaHe3pi0pi0,sigmaHe3pi0};
 	vector<hist> norm;
 	for(const string& r:reaction)norm.push_back(hist(MC,r,histpath_forward,"0-Reference"));
 	{// debug messaging
@@ -39,15 +40,27 @@ int main(int,char**){
 	vector<hist> acceptance;
 	for(const auto&h:norm)acceptance.push_back(h.CloneEmptyBins());
 	auto luminosity=norm[0].CloneEmptyBins();
-	for(size_t bin_num=0;bin_num<norm[0].count();bin_num++){
+	for(size_t bin_num=6;bin_num<norm[0].count();bin_num++){
 		vector<hist> simulated;
 		for(const string r:reaction)simulated.push_back(hist(MC,r,histpath_forward,string("MissingMass-Bin-")+to_string(bin_num)));
 		vector<value<double>> mc_event_count;
+		PlotHist mc_plot;
 		for(size_t i=0;i<reaction.size();i++){
 			mc_event_count.push_back(value<double>(simulated[i].Total()));
 			acceptance[i][bin_num].varY()=mc_event_count[i]/norm[i][bin_num].Y();
+			simulated[i]/=norm[i][bin_num].Y();
+			simulated[i]*=cross_section[i];
+			mc_plot.Hist(simulated[i],reaction[i]);
 		}
-		//hist measured(DATA,"He3",histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
+		mc_plot<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'counts (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'";
+		if(mc_event_count[0].val()>1){
+			hist measured(DATA,"He3",histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
+			hist theory=measured.CloneEmptyBins();
+			for(const hist&H:simulated)theory+=H;
+			luminosity[bin_num].varY()=value<double>(measured.Total())/value<double>(theory.Total());
+			PlotHist().Hist(measured,"DATA").Hist(theory*luminosity[bin_num].Y(),"Simulation")
+			<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'counts (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'";
+		}
 	}
 	PlotHist().Hist(luminosity)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Integral luminosity, nb^{-1}'";
 	{//Plot acceptance
