@@ -107,7 +107,7 @@ namespace ROOT_data{
 	hist hist::CloneEmptyBins()const{
 		hist res(*this);
 		for(int i=0,n=count();i<n;i++){
-			res.data[i].varY()=value<double>(0);
+			res.data[i].varY()=value<double>(0,0);
 		}
 		return res;
 	}
