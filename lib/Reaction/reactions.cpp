@@ -18,18 +18,15 @@ double Q_He3eta(double pBeam){
 	return P_Total.M()-(Particle::he3().mass_GeV()+Particle::eta().mass_GeV());
 }
 double sigmaHe3eta(double q){
+	//From proposal
 	if(q<=0)return 0;
 	else return 400;
 }
-double sigmaHe3pi0(double q_eta){
-	//ToDo: provide correct data
-	return 0;
+double sigmaHe3pi0pi0pi0(double q_eta){
+	//From proposal
+	return 27;
 }
 double sigmaHe3pi0pi0(double q_eta){
-	//ToDo: provide correct data
-	return 0;
-}
-double sigmaHe3pi0pi0pi0(double q_eta){
-	//ToDo: provide correct data
-	return 500;
+	//From proposal
+	return 2800;
 }
