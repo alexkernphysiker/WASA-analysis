@@ -5,13 +5,15 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <gnuplot_wrap.h>
 #include <math_h/error.h>
+#include <math_h/hist.h>
 #include <Genetic/fit.h>
-#include <Genetic/paramsort.h>
 namespace SimulationDataProcess{
 	using namespace std;
 	using namespace Genetic;
 	using namespace MathTemplates;
+	using namespace GnuplotWrap;
 	string SimulationDataPath();
 	template<class FITFUNC>
 	void He3ForEtaFit(
@@ -21,12 +23,10 @@ namespace SimulationDataProcess{
 		RANDOM&R
 	){
 		auto params_shown=make_pair(0,2);
-		auto Edep_binning=BinningParam(0,E_range,30);
-		auto theta_binning=BinningParam(1,make_pair(0.10,0.13),15);
-		auto Ek_binning=BinningParam(2,E_range,30);
-		
-		ParamsPerBinsCounter<3> Binner({Edep_binning,theta_binning,Ek_binning});
-		auto AllData=vector<ParamSet>();
+		vector<value<double>> theta_bins=BinsByStep(0.10,0.02,0.13);
+		vector<Distribution2D<double>> E_sp2;
+		for(const value<double>&bin:theta_bins)
+			E_sp2.push_back(Distribution2D<double>(BinsByStep(E_range.first,0.05,E_range.second),BinsByStep(E_range.first,0.05,E_range.second)));
 		{
 			ifstream file;
 			file.open(SimulationDataPath()+reconstructionname+".simulation.txt");
@@ -35,10 +35,11 @@ namespace SimulationDataProcess{
 				string line;
 				while(getline(file,line)){
 					istringstream str(line);
-					ParamSet X;
-					str>>X;
-					Binner<<X;
-					AllData.push_back(X);
+					double Edep,theta,Ekin;
+					str>>Edep,theta,Ekin;
+					for(size_t i=0,n=theta_bins.size();i<n;i++)
+						if(theta_bins[i].contains(theta))
+							E_sp2[i]<<make_pair(Edep,Ekin);
 				}
 				file.close();
 				cout<<"done."<<endl;
@@ -47,11 +48,11 @@ namespace SimulationDataProcess{
 		}
 		cout<<"Init1"<<endl;
 		auto points=make_shared<FitPoints>();
-		Binner.FullCycle([&points](const ParamSet&center_pos,const unsigned long events_count){
-			double y;
-			ParamSet X=center_pos;X>>y;
-			points<<Point(X,y,events_count);
-		});
+		for(size_t i=0,n=theta_bins.size();i<n;i++)
+			E_sp2[i].FullCycle([&theta_bins,&E_sp2,&points,i](Distribution2D<double>::Point&&P){
+				if(!P.Z().contains(0))
+					points<<Point({P.X().val(),theta_bins[i].val()},P.Y().val(),P.Z().val());
+			});
 		FitFunction<DifferentialMutations<>,FITFUNC,SumWeightedSquareDiff> fit(points);
 		cout<<"Init2"<<endl;
 		fit.SetFilter(filter).Init(25*FITFUNC::ParamCount,init,R);
@@ -73,24 +74,14 @@ namespace SimulationDataProcess{
 			}else
 				throw Exception<ofstream>("Cannot write output");
 		}
-		ParamsPerBins binned_plots(theta_binning);
-		{
-			SimplePlotStream total_pic(params_shown);
-			for(const Point&P:*points)if(P.wy()>5){
-				total_pic<<(ParamSet(P.X())<<P.y());
-				//binned_plots<<(ParamSet(P.X())<<P.y());
-			}
-			SimplePlotStream total_points(params_shown);
-			for(const ParamSet&P:AllData){
-				total_points<<P;
-				binned_plots<<P;
-			}
-		}
-		for(size_t i=0;i<binned_plots.count();i++){
-			double theta=binned_plots.bin_center(i);
-			SimplePlotStream plot(params_shown);
-			for(ParamSet&P:binned_plots[i])plot<<P;
-			plot.AddFunc([theta,&fit](double Edep){return fit({Edep,theta});});
+		for(size_t i=0,n=theta_bins.size();i<n;i++){
+			PlotDistribution2D<double>(sp2).Distr(E_sp2[i],"Theta=["+to_string(theta_bins[i].min())+":"+to_string(theta_bins[i].max())+"]");
+			typedef PlotDistribution2D<double>::point P;
+			vector<P> func_line;
+			for(const value<double>Ed:BinsByStep(E_range.first,0.05,E_range.second))
+				func_line.push_back(P(Ed.val(),fit({Ed.val(),theta_bins[i].val()}),0));
+			PlotDistribution2D<double>(normal).Distr(E_sp2[i],"Theta=["+to_string(theta_bins[i].min())+":"+to_string(theta_bins[i].max())+"]")
+				.Line(func_line,"Theta="+to_string(theta_bins[i].val()));
 		}
 	}
 };

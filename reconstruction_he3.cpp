@@ -1,6 +1,7 @@
 // this file is distributed under 
 // MIT license
 #include <unistd.h>
+#include <gnuplot_wrap.h>
 #include <Genetic/fit.h>
 #include <Genetic/filter.h>
 #include <Genetic/initialconditions.h>
