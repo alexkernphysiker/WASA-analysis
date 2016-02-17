@@ -52,12 +52,12 @@ namespace SimulationDataProcess{
 		cout<<points->size()<<" points"<<endl;
 		FitFunction<DifferentialMutations<>,FITFUNC,SumWeightedSquareDiff> fit(points);
 		cout<<"Init2"<<endl;
-		fit.Init(25*FITFUNC::ParamCount,init,R);
+		fit.Init(40*FITFUNC::ParamCount,init,R);
 		cout<<"population "<<fit.PopulationSize()<<endl;
 		cout<<"Fitting"<<endl;
 		while(
 			(!fit.AbsoluteOptimalityExitCondition(0.000001))&&
-			(!fit.RelativeOptimalityExitCondition(0.001))
+			(!fit.RelativeOptimalityExitCondition(0.0001))
 		){
 			fit.Iterate(R);
 			cout<<fit.Optimality()<<"<S<"<<fit.Optimality(fit.PopulationSize()-1)<<"     \r";
@@ -74,12 +74,20 @@ namespace SimulationDataProcess{
 		}
 		for(size_t i=0,n=theta_bins.size();i<n;i++){
 			PlotDistribution2D<double>(sp2).Distr(E_sp2[i],"Theta=["+to_string(theta_bins[i].min())+":"+to_string(theta_bins[i].max())+"]");
-			typedef PlotDistribution2D<double>::point P;
-			vector<P> func_line;
-			for(const value<double>Ed:BinsByStep(E_range.first,0.001,E_range.second))
-				func_line.push_back(P(Ed.val(),fit({Ed.val(),theta_bins[i].val()}),500));
-			PlotDistribution2D<double>(normal).Distr(E_sp2[i],"Theta=["+to_string(theta_bins[i].min())+":"+to_string(theta_bins[i].max())+"]")
-				.Line(func_line,"Theta="+to_string(theta_bins[i].val()));
+			PlotDistribution2D<double>(normal).Distr(E_sp2[i],"Theta=["+to_string(theta_bins[i].min())+":"+to_string(theta_bins[i].max())+"]");
+			double max=0;E_sp2[i].FullCycle([&max](Distribution2D<double>::Point&&P){if(P.Z().val()>max)max=P.Z().val();});
+			vector<pair<double,double>> lo,hi;
+			E_sp2[i].FullCycle([max,&lo,&hi](Distribution2D<double>::Point&&P){
+				if(!P.Z().contains(0)){
+					auto p=make_pair(P.X().val(),P.Y().val());
+					if(P.Z().val()>(max/2.0))
+						hi.push_back(p);
+					else
+						lo.push_back(p);
+				}
+			});
+			Plot<double>().Points(lo).Points(hi)
+				.Line(LinearInterpolation<double>([&fit,i,&theta_bins](double x)->double{return fit({x,theta_bins[i].val()});},E_range.first,0.001,E_range.second));
 		}
 	}
 };
