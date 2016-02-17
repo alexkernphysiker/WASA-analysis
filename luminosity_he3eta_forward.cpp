@@ -17,8 +17,8 @@ using namespace GnuplotWrap;
 int main(int,char**){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward");
 	vector<string> histpath_forward={"Histograms","He3Forward_Reconstruction"};
-	vector<string> reaction={"He3eta","He3pi0pi0","He3pi0pi0pi0"};
-	vector<function<double(double)>> cross_section={sigmaHe3eta,sigmaHe3pi0pi0,sigmaHe3pi0pi0pi0};
+	vector<string> reaction={"He3eta","He3pi0pi0","He3pi0pi0pi0","He3pi0"};
+	vector<function<double(double)>> cross_section={sigmaHe3eta,sigmaHe3pi0pi0,sigmaHe3pi0pi0pi0,[](double)->double{return 1000;}};
 	vector<hist<double>> norm;
 	for(const string& r:reaction)norm.push_back(Hist(MC,r,histpath_forward,"0-Reference"));
 	Plot<double>().Hist(norm[0],"All events")
@@ -63,5 +63,6 @@ int main(int,char**){
 		for(size_t i=0;i<reaction.size();i++)plot.Hist(acceptance[i],reaction[i]);
 		plot<<"set xlabel 'Q, MeV'"<<"set ylabel 'Acceptance, n.d.'";
 	}
-	Plot<double>().Hist(hist<double>(luminosity))<<"set xlabel 'Q, MeV'"<<"set ylabel 'Integral luminosity, a.u.'"<<"unset yrange"<<"set yrange [0:]";
+	Plotter::Instance()<<"unset yrange";
+	Plot<double>().Hist(hist<double>(luminosity))<<"set xlabel 'Q, MeV'"<<"set ylabel 'Integral luminosity, a.u.'"<<"set yrange [0:]";
 }
