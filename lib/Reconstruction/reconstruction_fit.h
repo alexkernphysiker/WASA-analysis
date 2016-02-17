@@ -87,7 +87,7 @@ namespace SimulationDataProcess{
 				}
 			});
 			Plot<double>().Points(lo).Points(hi)
-				.Line(LinearInterpolation<double>([&fit,i,&theta_bins](double x)->double{return fit({x,theta_bins[i].val()});},E_d_bins[0].val(),0.001,E_d_bins[E_d_bins.size()-1].val()));
+				.Line(LinearInterpolation<double>([&fit,i,&theta_bins](double x)->double{return fit({x,theta_bins[i].val()});},ChainWithStep(E_d_bins[0].val(),0.001,E_d_bins[E_d_bins.size()-1].val())));
 		}
 	}
 };
