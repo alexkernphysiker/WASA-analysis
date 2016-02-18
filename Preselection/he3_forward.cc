@@ -285,8 +285,8 @@ namespace ReactionSetup{
 			<<Forward::Get().CreateMarker(dirname(),"5-Kinematic cut")
 			<<make_shared<Hist1D>(dirname(),"5-Kinematic cut",Q);
 	}
-	shared_ptr<AbstractChain> KinematicHe3Test(const Analysis&data,const Axis&Q,bool MC){
-		auto res=make_shared<Chain>()<<make_shared<SetOfHists2D>(dirname(),"Kinematic-reconstructed",Q,Ek_GeV,Th_deg);
+	shared_ptr<AbstractChain> KinematicHe3Test(const Analysis&data,const Axis&Q,bool MC,string&&opt_name="reconstructed"){
+		auto res=make_shared<Chain>()<<make_shared<SetOfHists2D>(dirname(),string("Kinematic-")+opt_name,Q,Ek_GeV,Th_deg);
 		if(MC){
 			Axis Ev([&data]()->double{return data.FromFirstVertex(kHe3).E;},Ek_GeV);
 			Axis Tv([&data]()->double{return data.FromFirstVertex(kHe3).Th*180.0/3.1416;},Th_deg);
@@ -299,7 +299,8 @@ namespace ReactionSetup{
 		auto res=Prepare(mode);auto Q=Q_axis(res);
 		res->EventProcessing()<<make_shared<Hist1D>(dirname(),"0-Reference",Q);
 		res->TrackTypeProcess(kFDC)<<(make_shared<ChainCheck>()
-			<<ReconstructionProcess(*res,Q)<<He3Eta_kin_cut(*res,Q)
+			<<ReconstructionProcess(*res,Q)
+			<<KinematicHe3Test(*res,Q,mode==forEta,"before-cut")<<He3Eta_kin_cut(*res,Q)
 			<<MissingMass(*res,Q)<<KinematicHe3Test(*res,Q,mode==forEta)
 		);
 		return res;
