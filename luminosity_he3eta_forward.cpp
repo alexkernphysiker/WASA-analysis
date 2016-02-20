@@ -31,7 +31,7 @@ int main(int,char**){
 	vector<hist<double>> acceptance;
 	for(const auto&h:norm)acceptance.push_back(h.CloneEmptyBins());
 	vector<point<double>> luminosity;
-	for(size_t bin_num=6,bin_count=norm[0].size()-1;bin_num<bin_count;bin_num++){
+	for(size_t bin_num=5,bin_count=norm[0].size();bin_num<bin_count;bin_num++){
 		Plot<double> mc_plot1;
 		Plot<double> mc_plot;
 		hist<double> theory;
