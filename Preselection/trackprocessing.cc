@@ -165,9 +165,7 @@ namespace TrackAnalyse{
 		m_chain.push_back(element);
 		return *this;
 	}
-	vector<shared_ptr<ITrackParamProcess>>&AbstractChain::chain() const{
-		return const_cast<vector<shared_ptr<ITrackParamProcess>>&>(m_chain);
-	}
+	const vector<shared_ptr<ITrackParamProcess>>&AbstractChain::chain() const{return m_chain;}
 	shared_ptr<AbstractChain>operator<<(shared_ptr<AbstractChain>ch,shared_ptr<ITrackParamProcess>v){
 		if(v)
 			ch->operator<<(v);

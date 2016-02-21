@@ -66,10 +66,10 @@ Analysis::particle_info::particle_info(ParticleType t, double m){type=t;mass=m;}
 void Analysis::AddParticleToFirstVertex(ParticleType type, double mass){
 	first_vertex.push_back(particle_info(type,mass));
 }
-Analysis::Kinematic& Analysis::FromFirstVertex(ParticleType type)const{
+const Analysis::Kinematic& Analysis::FromFirstVertex(ParticleType type)const{
 	for(const particle_info&info:first_vertex)
 		if(info.type==type)
-			return const_cast<Kinematic&>(info.cache);
+			return info.cache;
 	throw MathTemplates::Exception<Analysis>("Particle not found in the vertex");
 }
 void Analysis::ForFirstVertex(function<void(ParticleType,double,Kinematic&)> cyclebody){

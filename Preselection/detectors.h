@@ -28,8 +28,8 @@ namespace TrackAnalyse{
 			double Edep(WTrack&)const;
 		protected:
 			ForwardDetectorPlane plane()const;
-			string&name()const;
-			Axis&axis()const;
+			const string&name()const;
+			const Axis&axis()const;
 			double threshold()const;
 		private:
 			ForwardDetectorPlane m_plane;
@@ -43,7 +43,7 @@ namespace TrackAnalyse{
 		const_iterator end()const;
 		const_iterator cend()const;
 		size_t count()const;
-		plane_data&operator[](ForwardDetectorPlane)const;
+		const plane_data&operator[](ForwardDetectorPlane)const;
 		ForwardDetectorPlane StoppingLayer(WTrack&)const;
 		shared_ptr<Chain> CreateMarker(string&&dir,string&&name)const;
 	private:

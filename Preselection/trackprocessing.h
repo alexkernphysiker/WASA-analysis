@@ -132,7 +132,7 @@ namespace TrackAnalyse{
 		virtual ~AbstractChain();
 		AbstractChain&operator<<(shared_ptr<ITrackParamProcess>element);
 	protected:
-		vector<shared_ptr<ITrackParamProcess>>&chain()const;
+		const vector<shared_ptr<ITrackParamProcess>>&chain()const;
 	private:
 		vector<shared_ptr<ITrackParamProcess>> m_chain;
 	};

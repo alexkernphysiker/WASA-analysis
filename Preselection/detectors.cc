@@ -10,8 +10,8 @@ namespace TrackAnalyse {
 		:m_plane(p),m_name(n),m_thr(thr),m_axis([p](WTrack&T){return T.Edep(p);},0,upper,500){}
 	Forward::plane_data::~plane_data(){}
 	ForwardDetectorPlane Forward::plane_data::plane() const{return m_plane;}
-	Axis& Forward::plane_data::axis() const{return const_cast<Axis&>(m_axis);}
-	string& Forward::plane_data::name() const{return const_cast<string&>(m_name);}
+	const Axis& Forward::plane_data::axis() const{return m_axis;}
+	const string& Forward::plane_data::name() const{return m_name;}
 	double Forward::plane_data::threshold() const{return m_thr;}
 	double Forward::plane_data::Edep(WTrack&T) const{
 		vector<double> P;
@@ -29,7 +29,7 @@ namespace TrackAnalyse {
 	Forward::~Forward(){}
 	const Forward& Forward::Get(){
 		static Forward result;
-		return const_cast<Forward&>(result);
+		return result;
 	}
 	Forward::const_iterator Forward::begin() const{
 		return PlaneData.begin();
@@ -44,10 +44,10 @@ namespace TrackAnalyse {
 		return PlaneData.cend();
 	}
 	size_t Forward::count() const{return PlaneData.size();}
-	Forward::plane_data& Forward::operator[](ForwardDetectorPlane index) const{
+	const Forward::plane_data& Forward::operator[](ForwardDetectorPlane index) const{
 		for(const plane_data&plane:PlaneData)
 			if(plane.plane()==index)
-				return const_cast<plane_data&>(plane);
+				return plane;
 		throw MathTemplates::Exception<Forward>("Forward layer not found");
 	}
 	ForwardDetectorPlane Forward::StoppingLayer(WTrack&T)const{

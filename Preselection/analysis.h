@@ -43,7 +43,7 @@ private:
 	TrackAnalyse::EventProcess m_eventproc;
 public:
 	struct Kinematic{Kinematic();double E,Th,Phi;};
-	Kinematic&FromFirstVertex(ParticleType type)const;
+	const Kinematic&FromFirstVertex(ParticleType type)const;
 	double PBeam()const;
 	void AddParticleToFirstVertex(ParticleType type,double mass);
 protected:
