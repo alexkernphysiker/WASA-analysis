@@ -35,6 +35,10 @@ int main(int,char**){
 		Plot<double> mc_plot1;
 		Plot<double> mc_plot;
 		hist<double> theory;
+		Plotter::Instance()<<"unset yrange"<<"unset xrange";
+		PlotHist2d<double>(sp2).Distr(Hist2d(MC,reaction[0],histpath_forward,string("Kinematic-before-cut-Bin-")+to_string(bin_num)))
+		<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'";
+		PlotHist2d<double>(sp2).Distr(Hist2d(DATA,"He3",histpath_forward,string("Kinematic-before-cut-Bin-")+to_string(bin_num)));
 		for(size_t i=0;i<reaction.size();i++){
 			auto react_sim=Hist(MC,reaction[i],histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
 			mc_plot1.Hist(react_sim,reaction[i]);

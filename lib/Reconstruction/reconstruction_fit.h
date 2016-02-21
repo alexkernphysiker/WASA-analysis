@@ -45,7 +45,7 @@ namespace SimulationDataProcess{
 		cout<<"Init1"<<endl;
 		auto points=make_shared<FitPoints>();
 		for(size_t i=0,n=theta_bins.size();i<n;i++)
-			E_sp2[i].FullCycle([&theta_bins,&E_sp2,&points,i](Distribution2D<double>::Point&&P){
+			E_sp2[i].FullCycle([&theta_bins,&E_sp2,&points,i](point3d<double>&&P){
 				if(!P.Z().contains(0))
 					points<<Point({P.X().val(),theta_bins[i].val()},P.Y().val(),P.Z().val());
 			});
@@ -73,11 +73,11 @@ namespace SimulationDataProcess{
 				throw Exception<ofstream>("Cannot write output");
 		}
 		for(size_t i=0,n=theta_bins.size();i<n;i++){
-			PlotDistribution2D<double>(sp2).Distr(E_sp2[i],"Theta=["+to_string(theta_bins[i].min())+":"+to_string(theta_bins[i].max())+"]");
-			PlotDistribution2D<double>(normal).Distr(E_sp2[i],"Theta=["+to_string(theta_bins[i].min())+":"+to_string(theta_bins[i].max())+"]");
-			double max=0;E_sp2[i].FullCycle([&max](Distribution2D<double>::Point&&P){if(P.Z().val()>max)max=P.Z().val();});
+			PlotHist2d<double>(sp2).Distr(E_sp2[i],"Theta=["+to_string(theta_bins[i].min())+":"+to_string(theta_bins[i].max())+"]");
+			PlotHist2d<double>(normal).Distr(E_sp2[i],"Theta=["+to_string(theta_bins[i].min())+":"+to_string(theta_bins[i].max())+"]");
+			double max=0;E_sp2[i].FullCycle([&max](point3d<double>&&P){if(P.Z().val()>max)max=P.Z().val();});
 			vector<pair<double,double>> lo,hi;
-			E_sp2[i].FullCycle([max,&lo,&hi](Distribution2D<double>::Point&&P){
+			E_sp2[i].FullCycle([max,&lo,&hi](point3d<double>&&P){
 				if(!P.Z().contains(0)){
 					auto p=make_pair(P.X().val(),P.Y().val());
 					if(P.Z().val()>(max/2.0))
