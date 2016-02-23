@@ -76,7 +76,7 @@ int main(int,char**){
 						return Ekin2Theta_He3eta(E[0],PBeam_He3eta(x.val()/1000.0)-Offs[0]);
 					}
 				);
-				fit.Init(30,make_shared<GenerateByGauss>()<<make_pair(0,0.100),r);
+				fit.Init(50,make_shared<GenerateByGauss>()<<make_pair(0,0.01),r);
 				Find(fit,r);
 				Plot<double>().Points(points->Hist1(0).Line())
 				.Line(LinearInterpolation<double>(
