@@ -22,10 +22,9 @@ double Q_He3eta(double pBeam){
 	return P_Total.M()-(Particle::he3().mass_GeV()+Particle::eta().mass_GeV());
 }
 double PBeam_He3eta(double Q){
-	static LinearInterpolation<double> P_Q;
-	if(P_Q.size()==0)
-		for(double p:ChainWithStep(0.0,0.001,3.0))
-			P_Q<<make_pair(Q_He3eta(p),p);
+	static LinearInterpolation<double> P_Q=LinearInterpolation<double>(
+		Q_He3eta,ChainWithStep(0.0,0.001,3.0)
+	).Transponate();
 	return P_Q(Q);
 }
 double Ekin2Theta_He3eta(double Ekin,double p_beam){
@@ -41,12 +40,7 @@ double Ekin2Theta_He3eta(double Ekin,double p_beam){
 	double betaHe3_cm = sqrt(pow(THe3_cm,2)+2*THe3_cm*mHe3)/(THe3_cm+mHe3);
 	double pHe3_cm = betaHe3_cm*(mHe3+THe3_cm);
 	double theta_cm = acos((Ekin-(gamma-1)*mHe3-gamma*THe3_cm)/(gamma*beta*pHe3_cm));
-	double thetaHe3 = atan(sin(theta_cm)/(gamma*(cos(theta_cm)+beta/betaHe3_cm)))*180./3.1415926;
-	if(thetaHe3>0. && thetaHe3<18.)
-		return thetaHe3;
-	else
-		return INFINITY;
-	
+	return atan(sin(theta_cm)/(gamma*(cos(theta_cm)+beta/betaHe3_cm)))*180./3.1415926;
 }
 double sigmaHe3eta(double p_beam){
 	//From proposal

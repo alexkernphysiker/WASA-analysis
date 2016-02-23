@@ -35,6 +35,19 @@ int main(int,char**){
 	vector<hist<double>> acceptance;
 	for(const auto&h:norm)acceptance.push_back(h.CloneEmptyBins());
 	vector<point<double>> luminosity;
+	{
+		Plot<double> kin_plot;
+		for(const auto&P:norm[0])
+			kin_plot.Line(
+				LinearInterpolation<double>(
+					[&P](double E)->double{
+						return Ekin2Theta_He3eta(E,PBeam_He3eta(P.X().val()/1000.0));
+					},
+					ChainWithStep(0.2,0.001,0.4)
+				),
+				to_string(P.X().val())
+			);
+	}
 	for(size_t bin_num=5,bin_count=norm[0].size();bin_num<bin_count;bin_num++){
 		Plot<double> mc_plot1;
 		Plot<double> mc_plot;
