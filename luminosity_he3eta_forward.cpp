@@ -17,8 +17,12 @@ using namespace GnuplotWrap;
 int main(int,char**){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward");
 	vector<string> histpath_forward={"Histograms","He3Forward_Reconstruction"};
-	vector<string> reaction={"He3eta","He3pi0pi0","He3pi0pi0pi0","He3pi0"};
-	vector<function<double(double)>> cross_section={sigmaHe3eta,sigmaHe3pi0pi0,sigmaHe3pi0pi0pi0,[](double)->double{return 1000;}};
+	vector<string> reaction={"He3eta","He3pi0pi0","He3pi0pi0pi0"};
+	vector<function<double(double)>> cross_section={
+		[](double q)->double{return sigmaHe3eta(PBeam_He3eta(q));},
+		[](double q)->double{return sigmaHe3pi0pi0(PBeam_He3eta(q));},
+		[](double q)->double{return sigmaHe3pi0pi0pi0(PBeam_He3eta(q));}
+	};
 	vector<hist<double>> norm;
 	for(const string& r:reaction)norm.push_back(Hist(MC,r,histpath_forward,"0-Reference"));
 	Plot<double>().Hist(norm[0],"All events")
@@ -36,9 +40,14 @@ int main(int,char**){
 		Plot<double> mc_plot;
 		hist<double> theory;
 		Plotter::Instance()<<"unset yrange"<<"unset xrange";
-		PlotHist2d<double>(sp2).Distr(Hist2d(MC,reaction[0],histpath_forward,string("Kinematic-before-cut-Bin-")+to_string(bin_num)))
-		<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'";
-		PlotHist2d<double>(sp2).Distr(Hist2d(DATA,"He3",histpath_forward,string("Kinematic-before-cut-Bin-")+to_string(bin_num)));
+		if(bin_num>9){
+			auto kin_mc=Hist2d(MC,reaction[0],histpath_forward,string("Kinematic-before-cut-Bin-")+to_string(bin_num));
+			kin_mc=kin_mc.Scale(4,4);
+			PlotHist2d<double>(sp2).Distr(kin_mc)<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'";
+			auto kin_data=Hist2d(DATA,"He3",histpath_forward,string("Kinematic-before-cut-Bin-")+to_string(bin_num));
+			kin_data=kin_data.Scale(4,4);
+			PlotHist2d<double>(sp2).Distr(kin_data);
+		}
 		for(size_t i=0;i<reaction.size();i++){
 			auto react_sim=Hist(MC,reaction[i],histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
 			mc_plot1.Hist(react_sim,reaction[i]);

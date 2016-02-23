@@ -3,8 +3,10 @@
 #ifndef xylgjnjy
 #define xylgjnjy
 const double p_he3_eta_threshold=1.5727;
-double Q_He3eta(double pBeam);//GeV -> MeV
-double sigmaHe3eta(double q);// MeV -> nb
-double sigmaHe3pi0pi0pi0(double q_eta);// MeV -> nb
-double sigmaHe3pi0pi0(double q_eta);// MeV -> nb
+double Q_He3eta(double pBeam);//GeV/c -> MeV
+double PBeam_He3eta(double Q);//MeV -> GeV/c
+double Ekin2Theta_He3eta(double Ekin,double p_beam);//GeV,GeV/c -> deg
+double sigmaHe3eta(double p_beam);// MeV -> nb
+double sigmaHe3pi0pi0pi0(double p_beam);// MeV -> nb
+double sigmaHe3pi0pi0(double p_beam);// MeV -> nb
 #endif 
