@@ -9,6 +9,7 @@
 #include <math_h/error.h>
 #include <Genetic/fit.h>
 #include <Genetic/initialconditions.h>
+#include <experiment_conv.h>
 #include <str_get.h>
 #include <gethist.h>
 #include <particles.h>
@@ -114,7 +115,7 @@ int main(int,char**){
 		Plot<double>().Hist(measured,"DATA").Line((theory*K).Line(),"Simulation")
 			<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'counts (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
 			<<"set yrange [0:]";
-		luminosity.push_back(point<double>(norm[0][bin_num].X(),K));
+		luminosity.push_back(point<double>(norm[0][bin_num].X(),K*value<double>(trigger_he3_forward.scaling)));
 	}
 	Plot<double>().Hist(mc_offs,"MC").Hist(data_offs,"DATA");
 	{//Plot acceptance

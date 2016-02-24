@@ -15,6 +15,7 @@
 #include <CDTracksSimple.hh>
 #include <TCutG.h>
 #include "reconstruction_types.h"
+#include "experiment_conv.h"
 #include "Theory/particles.h"
 #include "Theory/reactions.h"
 #include "trackprocessing.h"
@@ -297,7 +298,10 @@ namespace ReactionSetup{
 	///Reaction analysis types visible from reactions.h
 	Analysis* He3_forward_analyse(He3Modification mode){
 		auto res=Prepare(mode);auto Q=Q_axis(res);
-		res->EventProcessing()<<make_shared<Hist1D>(dirname(),"0-Reference",Q);
+		auto event_preprocess=make_shared<ChainCheck>();
+		if(forData==mode)event_preprocess<<[res]()->bool{return res->Trigger(trigger_he3_forward.number);};
+		event_preprocess<<make_shared<Hist1D>(dirname(),"0-Reference",Q);
+		res->EventProcessing()<<event_preprocess;
 		res->TrackTypeProcess(kFDC)<<(make_shared<ChainCheck>()
 			<<ReconstructionProcess(*res,Q)
 			<<KinematicHe3Test(*res,Q,false,"before-cut")<<He3Eta_kin_cut(*res,Q)
@@ -308,10 +312,7 @@ namespace ReactionSetup{
 	Analysis* He3_forward_reconstruction(He3Modification mode){
 		auto res=Prepare(mode);auto Q=Q_axis(res);
 		res->EventProcessing()<<make_shared<Hist1D>(dirname(),"0-Reference",Q);
-		res->TrackTypeProcess(kFDC)<<(make_shared<ChainCheck>()
-			<<ReconstructionProcess(*res,Q)
-			<<KinematicHe3Test(*res,Q,mode==forEta)
-		);
+		res->TrackTypeProcess(kFDC)<<(make_shared<ChainCheck>()<<ReconstructionProcess(*res,Q)<<KinematicHe3Test(*res,Q,mode==forEta));
 		return res;
 	}
 }

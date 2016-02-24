@@ -1,11 +1,14 @@
 // this file is distributed under 
 // MIT license
 #ifndef AXWBNBYL
-#define AXWBNBYL
-
+#	define AXWBNBYL
 #define ALLRUNS int runindex=45873;runindex<=46884;runindex++
 const double p_beam_low=1.426;
 const double p_beam_hi=1.635;
+const double pbeam_measurement_offset=0.0;
+struct trigger{unsigned char number; unsigned long scaling;};
+const trigger trigger_he3_forward={.number=17,.scaling=4000};
+
 //calsulational designations
 inline double NormPhi(double p){
 	const double twopi=2*3.1415926;
