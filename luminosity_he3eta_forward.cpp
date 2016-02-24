@@ -77,7 +77,7 @@ int main(int,char**){
 					}
 				);
 				fit.Init(50,make_shared<GenerateByGauss>()<<make_pair(0,0.01),r);
-				Find(fit,r);
+				while(!fit.RelativeOptimalityExitCondition(0.00001))fit.Iterate(r);
 				Plot<double>().Points(points->Hist1(0).Line())
 				.Line(LinearInterpolation<double>(
 					[&fit](double e)->double{return fit({e});},
