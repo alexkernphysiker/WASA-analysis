@@ -80,6 +80,10 @@ int main(int,char**){
 						to_string(offset)
 					);
 			};
+			auto kin_v=Hist2d(MC,reaction[0],histpath_forward,string("Kinematic-before-cut-Bin-")+to_string(bin_num));
+			kin_v=kin_v.Scale(4,4);
+			PlotHist2d<double>(sp2).Distr(kin_v)<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'";
+			do_plot(kin_v);
 			auto kin_mc=Hist2d(MC,reaction[0],histpath_forward,string("Kinematic-before-cut-Bin-")+to_string(bin_num));
 			kin_mc=kin_mc.Scale(4,4);
 			PlotHist2d<double>(sp2).Distr(kin_mc)<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'";
