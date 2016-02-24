@@ -61,7 +61,7 @@ int main(int,char**){
 		if(bin_num>8){
 			auto x=norm[0][bin_num].X();
 			RANDOM r;
-			auto do_fit=[&x,&r](const hist2d<double>&kin_)->point<double>{
+			auto do_plot=[&x,&r](const hist2d<double>&kin_)->point<double>{
 				auto points=make_shared<FitPoints>();
 				double max=0;kin_.FullCycle([&max](point3d<double>&&P){
 					if(max<P.Z().val())
@@ -90,11 +90,11 @@ int main(int,char**){
 			auto kin_mc=Hist2d(MC,reaction[0],histpath_forward,string("Kinematic-before-cut-Bin-")+to_string(bin_num));
 			kin_mc=kin_mc.Scale(4,4);
 			PlotHist2d<double>(sp2).Distr(kin_mc)<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'";
-			mc_offs.push_back(do_fit(kin_mc));
+			mc_offs.push_back(do_plot(kin_mc));
 			auto kin_data=Hist2d(DATA,"He3",histpath_forward,string("Kinematic-before-cut-Bin-")+to_string(bin_num));
 			kin_data=kin_data.Scale(4,4);
 			PlotHist2d<double>(sp2).Distr(kin_data);
-			data_offs.push_back(do_fit(kin_data));
+			data_offs.push_back(do_plot(kin_data));
 		}
 		for(size_t i=0;i<reaction.size();i++){
 			auto react_sim=Hist(MC,reaction[i],histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
