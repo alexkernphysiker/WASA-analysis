@@ -7,8 +7,6 @@
 #include <gnuplot_wrap.h>
 #include <math_h/functions.h>
 #include <math_h/error.h>
-#include <Genetic/fit.h>
-#include <Genetic/initialconditions.h>
 #include <experiment_conv.h>
 #include <str_get.h>
 #include <gethist.h>
@@ -17,7 +15,6 @@
 using namespace std;
 using namespace ROOT_data;
 using namespace MathTemplates;
-using namespace Genetic;
 using namespace GnuplotWrap;
 int main(int,char**){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward");
@@ -39,7 +36,7 @@ int main(int,char**){
 	Plotter::Instance()<<"unset yrange";
 	vector<hist<double>> acceptance;
 	for(const auto&h:norm)acceptance.push_back(h.CloneEmptyBins());
-	vector<point<double>> luminosity,mc_offs,data_offs;
+	vector<point<double>> luminosity;
 	{
 		Plot<double> kin_plot;
 		for(const auto&P:norm[0])
@@ -58,43 +55,39 @@ int main(int,char**){
 		Plot<double> mc_plot;
 		hist<double> theory;
 		Plotter::Instance()<<"unset yrange"<<"unset xrange";
-		if(bin_num>8){
+		{
 			auto x=norm[0][bin_num].X();
-			RANDOM r;
-			auto do_plot=[&x,&r](const hist2d<double>&kin_)->point<double>{
-				auto points=make_shared<FitPoints>();
+			auto do_plot=[&x](const hist2d<double>&kin_){
+				vector<pair<double,double>> points;
 				double max=0;kin_.FullCycle([&max](point3d<double>&&P){
 					if(max<P.Z().val())
 						max=P.Z().val();
 				});
 				kin_.FullCycle([max,&points](point3d<double>&&P){
-					if(P.Z().val()>(max/2.0))
-						points<<Point({P.X().val()},P.Y().val(),P.Z().val());
+					if(P.Z().val()>(2.0*max/3.0))
+						points.push_back(make_pair(P.X().val(),P.Y().val()));
 				});
-				Fit<DifferentialMutations<>,SumWeightedSquareDiff> fit(
-					points,
-					[&x](const ParamSet&E,const ParamSet&Offs)->double{
-						return Ekin2Theta_He3eta(E[0],PBeam_He3eta(x.val()/1000.0)-Offs[0]);
-					}
-				);
-				fit.Init(15,make_shared<GenerateUniform>()<<make_pair(-0.001,0.003),r);
-				while(!fit.RelativeOptimalityExitCondition(0.01))
-					fit.Iterate(r);
-				Plot<double>().Points(points->Hist1(0).Line())
-				.Line(LinearInterpolation<double>(
-					[&fit](double e)->double{return fit({e});},
-					ChainWithStep(0.25,0.001,0.35)
-				));
-				return point<double>(x,value<double>(fit[0],0));
+				Plot<double> kin_plot;
+				kin_plot.Points(points);
+				for(double offset=0.000;offset<0.010;offset+=0.001)
+					kin_plot.Line(
+						LinearInterpolation<double>(
+							[&offset,&x](double E)->double{
+								return Ekin2Theta_He3eta(E,PBeam_He3eta(x.val()/1000.0+offset));
+							},
+							ChainWithStep(0.2,0.001,0.4)
+						),
+						to_string(offset)
+					);
 			};
 			auto kin_mc=Hist2d(MC,reaction[0],histpath_forward,string("Kinematic-before-cut-Bin-")+to_string(bin_num));
 			kin_mc=kin_mc.Scale(4,4);
 			PlotHist2d<double>(sp2).Distr(kin_mc)<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'";
-			mc_offs.push_back(do_plot(kin_mc));
+			do_plot(kin_mc);
 			auto kin_data=Hist2d(DATA,"He3",histpath_forward,string("Kinematic-before-cut-Bin-")+to_string(bin_num));
 			kin_data=kin_data.Scale(4,4);
 			PlotHist2d<double>(sp2).Distr(kin_data);
-			data_offs.push_back(do_plot(kin_data));
+			do_plot(kin_data);
 		}
 		for(size_t i=0;i<reaction.size();i++){
 			auto react_sim=Hist(MC,reaction[i],histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
@@ -116,9 +109,8 @@ int main(int,char**){
 		Plot<double>().Hist(measured,"DATA").Line((theory*K).Line(),"Simulation")
 			<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'counts (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
 			<<"set yrange [0:]";
-		luminosity.push_back(point<double>(norm[0][bin_num].X(),K*value<double>(trigger_he3_forward.scaling)));
+		luminosity.push_back(point<double>(norm[0][bin_num].X(),K*value<double>(trigger_he3_forward.scaling,0)));
 	}
-	Plot<double>().Hist(mc_offs,"MC").Hist(data_offs,"DATA");
 	{//Plot acceptance
 		Plot<double> plot;
 		plot<<"set yrange [0:0.7]";
