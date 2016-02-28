@@ -13,7 +13,7 @@ using namespace Reconstruction;
 using namespace MathTemplates;
 using namespace GnuplotWrap;
 RANDOM engine;
-int main(int,char**){
+int main(){
   	Plotter::Instance().SetOutput(SimulationDataProcess::SimulationDataPath(),"He3Ekin");
 	SimulationDataProcess::He3ForEtaFit<He3EnergyFRH1>("He3.E.FRH1",
 		BinsByStep(0.0,0.005,0.3),
