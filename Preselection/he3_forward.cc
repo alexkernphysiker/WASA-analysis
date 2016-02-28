@@ -1,18 +1,6 @@
 // this file is distributed under 
 // MIT license
-#include <TLorentzVector.h>
-#include <CAnalysisModule.hh>
-#include <CDataManager.hh>
-#include <FDEdep2Ekin.hh>
-#include <CCardWDET.hh>
 #include <Wasa.hh>
-#include <CAnalysisModule.hh>
-#include <REventWmcHeader.hh>
-#include <REventHeader.hh>
-#include <WTrackBank.hh>
-#include <WVertexBank.hh>
-#include <FDFTHTracks.hh>
-#include <CDTracksSimple.hh>
 #include <TCutG.h>
 #include "reconstruction_types.h"
 #include "experiment_conv.h"
@@ -135,25 +123,7 @@ namespace ReactionSetup{
 	shared_ptr<AbstractChain> MissingMass(const Analysis&data,const Axis&Q){
 		return make_shared<Chain>()
 		<<make_shared<Parameter>([&data](WTrack&T,const vector<double>&P)->double{
-			double E=Ek_GeV(T,P);
-			double p=He3eta.products()[0].E2P(E);
-			TVector3 p_He3;
-			p_He3.SetMagThetaPhi(p,T.Theta(),T.Phi());//requires values in radians
-			TLorentzVector P_He3;
-			P_He3.SetVectM(p_He3,He3eta.products()[0].mass());
-			TLorentzVector P_Total;{
-				TVector3 p_beam;
-				p_beam.SetMagThetaPhi(data.PBeam(),0,0);
-				TLorentzVector P_Beam;
-				TLorentzVector P_Target;
-				P_Beam.SetVectM(p_beam,He3eta.projectile().mass());
-				TVector3 ptarget;
-				ptarget.SetMagThetaPhi(0,0,0);
-				P_Target.SetVectM(ptarget,He3eta.target().mass());
-				P_Total=P_Beam+P_Target;
-			}
-			TLorentzVector P_Missing=P_Total-P_He3;
-			return P_Missing.M();
+			return He3eta.MissingMass({{.index=0,.E=Ek_GeV(T,P),.theta=T.Theta(),.phi=T.Phi()}},data.PBeam());
 		})
 		<<make_shared<SetOfHists1D>(dirname(),"MissingMass",Q,MM_GeV);
 	}

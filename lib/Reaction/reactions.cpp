@@ -2,13 +2,16 @@
 // MIT license
 #include <unistd.h>
 #include <math.h>
+#include <TVector3.h>
+#include <TLorentzVector.h>
 #include <math_h/interpolate.h>
 #include <math_h/error.h>
 #include "particles.h"
 #include "reactions.h"
 #include <experiment_conv.h>
+using namespace std;
 using namespace MathTemplates;
-Reaction::Reaction(const Particle& p, const Particle& t, const std::initializer_list< Particle >& products)
+Reaction::Reaction(const Particle& p, const Particle& t, const initializer_list<Particle>& products)
 :m_projectile(p),m_target(t){
 	for(const Particle&item:products)
 		m_products.push_back(item);
@@ -21,7 +24,7 @@ Reaction::Reaction(const Reaction& source)
 Reaction::~Reaction(){}
 const Particle& Reaction::projectile()const{return m_projectile;}
 const Particle& Reaction::target()const{return m_target;}
-const std::vector<Particle>& Reaction::products()const{return m_products;}
+const vector<Particle>& Reaction::products()const{return m_products;}
 const double Reaction::M_before() const{return m_projectile.mass()+m_target.mass();}
 const double Reaction::M_after() const{
 	double res=0;
@@ -56,12 +59,37 @@ const double Reaction::PbEr2Theta(const double Pbeam, const double Ereg) const{
 	return atan(sin(theta_reg_cm)/(gamma*(cos(theta_reg_cm)+beta/beta_reg_cm)));
 }
 
-double sigmaHe3eta(const double Q){
-	return 400;
+const double Reaction::MissingMass(const initializer_list<registered_particle_parameters>& data,const double Pbeam) const{
+	TLorentzVector PTotal;{
+		TVector3 p_beam;
+		p_beam.SetMagThetaPhi(Pbeam,0,0);
+		TLorentzVector P_Beam;
+		TLorentzVector P_Target;
+		P_Beam.SetVectM(p_beam,projectile().mass());
+		TVector3 ptarget;
+		ptarget.SetMagThetaPhi(0,0,0);
+		P_Target.SetVectM(ptarget,target().mass());
+		PTotal=P_Beam+P_Target;
+	}
+	TLorentzVector PReg;
+	for(const registered_particle_parameters&pr:data){
+		TVector3 P;
+		P.SetMagThetaPhi(products()[pr.index].E2P(pr.E),pr.theta,pr.phi);
+		TLorentzVector L;
+		L.SetVectM(P,products()[pr.index].mass());
+		PReg=PReg+L;
+	}
+	TLorentzVector P_Missing=PTotal-PReg;
+	return P_Missing.M();
 }
-double sigmaHe3pi0pi0pi0(const double E){
-	return 1000;
-}
-double sigmaHe3pi0pi0(const double E){
-	return 25000;
+const double Reaction::InvariantMass(const initializer_list< Reaction::registered_particle_parameters >& data) const{
+	TLorentzVector PReg;
+	for(const registered_particle_parameters&pr:data){
+		TVector3 P;
+		P.SetMagThetaPhi(products()[pr.index].E2P(pr.E),pr.theta,pr.phi);
+		TLorentzVector L;
+		L.SetVectM(P,products()[pr.index].mass());
+		PReg=PReg+L;
+	}
+	return PReg.M();
 }

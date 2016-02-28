@@ -16,6 +16,15 @@ using namespace std;
 using namespace ROOT_data;
 using namespace MathTemplates;
 using namespace GnuplotWrap;
+double sigmaHe3eta(const double Q){
+	return 400;
+}
+double sigmaHe3pi0pi0pi0(const double E){
+	return 1000;
+}
+double sigmaHe3pi0pi0(const double E){
+	return 25000;
+}
 int main(){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward");
 	Reaction main_react(Particle::p(),Particle::d(),{Particle::he3(),Particle::eta()});

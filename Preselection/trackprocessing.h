@@ -7,6 +7,8 @@
 #include <memory>
 #include <string>
 #include <WTrack.hh>
+#include <TH1F.h>
+#include <TH2F.h>
 namespace TrackAnalyse{
 	using namespace std;
 	//WTrack cannot be transfered as const because
