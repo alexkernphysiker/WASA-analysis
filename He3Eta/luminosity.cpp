@@ -19,11 +19,11 @@ using namespace GnuplotWrap;
 double sigmaHe3eta(const double Q){
 	return 400;
 }
-double sigmaHe3pi0pi0pi0(const double E){
-	return 1000;
-}
 double sigmaHe3pi0pi0(const double E){
 	return 25000;
+}
+double sigmaHe3pi0pi0pi0(const double E){
+	return 1000;
 }
 int main(){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward");
