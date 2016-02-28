@@ -2,56 +2,66 @@
 // MIT license
 #include <unistd.h>
 #include <math.h>
-#include <TVector3.h>
-#include <TLorentzVector.h>
 #include <math_h/interpolate.h>
+#include <math_h/error.h>
 #include "particles.h"
 #include "reactions.h"
 #include <experiment_conv.h>
 using namespace MathTemplates;
-double Q_He3eta(double pBeam){
-	TVector3 p_beam;
-	p_beam.SetMagThetaPhi(pBeam,0,0);
-	TLorentzVector P_Beam;
-	TLorentzVector P_Target;
-	P_Beam.SetVectM(p_beam,Particle::p().mass_GeV());
-	TVector3 ptarget;
-	ptarget.SetMagThetaPhi(0,0,0);
-	P_Target.SetVectM(ptarget,Particle::d().mass_GeV());
-	TLorentzVector P_Total=P_Beam+P_Target;
-	return P_Total.M()-(Particle::he3().mass_GeV()+Particle::eta().mass_GeV());
+Reaction::Reaction(const Particle& p, const Particle& t, const std::initializer_list< Particle >& products)
+:m_projectile(p),m_target(t){
+	for(const Particle&item:products)
+		m_products.push_back(item);
 }
-double PBeam_He3eta(double Q){
-	static LinearInterpolation<double> P_Q=LinearInterpolation<double>(
-		Q_He3eta,ChainWithStep(0.0,0.001,3.0)
-	).Transponate();
-	return P_Q(Q);
+Reaction::Reaction(const Reaction& source)
+:m_projectile(source.m_projectile),m_target(source.m_target){
+	for(const Particle&item:source.m_products)
+		m_products.push_back(item);
 }
-double Ekin2Theta_He3eta(double Ekin,double p_beam){
-	double mbeam=Particle::p().mass_GeV();
-	double mtarget=Particle::d().mass_GeV();
-	double Eb = sqrt(pow(p_beam,2)+pow(mbeam,2))-mbeam;
-	double beta = p_beam/(Eb+mbeam+mtarget);
+Reaction::~Reaction(){}
+const Particle& Reaction::projectile()const{return m_projectile;}
+const Particle& Reaction::target()const{return m_target;}
+const std::vector<Particle>& Reaction::products()const{return m_products;}
+const double Reaction::M_before() const{return m_projectile.mass()+m_target.mass();}
+const double Reaction::M_after() const{
+	double res=0;
+	for(const Particle&item:m_products)res+=item.mass();
+	return res;
+}
+
+const double Reaction::EThreshold() const{
+	return M_after()-M_before();
+}
+const double Reaction::PThreshold() const{
+	return m_projectile.E2P(EThreshold());
+}
+const double Reaction::E2Q(const double E) const{
+	return sqrt(pow(E+M_before(),2)-pow(m_projectile.E2P(E),2))-M_after();
+}
+const double Reaction::P2Q(const double P) const{
+	return sqrt(pow(m_projectile.P2E(P)+M_before(),2)-pow(P,2))-M_after();
+}
+const double Reaction::PbEr2Theta(const double Pbeam, const double Ereg) const{
+	if(m_products.size()!=2)
+		throw Exception<Reaction>("Calculation of theta is available only for binary reactions");
+	double E=m_projectile.P2E(Pbeam);
+	double P=Pbeam;
+	double Q=P2Q(P);
+	double beta = P/(E+M_before());
 	double gamma = 1./sqrt(1.-pow(beta,2));
-	double Q = Q_He3eta(p_beam);
-	double meta=Particle::eta().mass_GeV();
-	double mHe3=Particle::he3().mass_GeV();
-	double THe3_cm = Q/2.*(Q+2*meta)/(Q+meta+mHe3);
-	double betaHe3_cm = sqrt(pow(THe3_cm,2)+2*THe3_cm*mHe3)/(THe3_cm+mHe3);
-	double pHe3_cm = betaHe3_cm*(mHe3+THe3_cm);
-	double theta_cm = acos((Ekin-(gamma-1)*mHe3-gamma*THe3_cm)/(gamma*beta*pHe3_cm));
-	return atan(sin(theta_cm)/(gamma*(cos(theta_cm)+beta/betaHe3_cm)))*180./3.1415926;
+	double T_reg_cm = Q/2.*(Q+2*m_products[1].mass())/(Q+M_after());
+	double beta_reg_cm = sqrt(pow(T_reg_cm,2)+2*T_reg_cm*m_products[0].mass())/(T_reg_cm+m_products[0].mass());
+	double p_reg_cm = beta_reg_cm*(m_products[0].mass()+T_reg_cm);
+	double theta_reg_cm = acos((Ereg-(gamma-1)*m_products[0].mass()-gamma*T_reg_cm)/(gamma*beta*p_reg_cm));
+	return atan(sin(theta_reg_cm)/(gamma*(cos(theta_reg_cm)+beta/beta_reg_cm)));
 }
-double sigmaHe3eta(double p_beam){
-	//From proposal
-	if(p_beam<=p_he3_eta_threshold)return 0;
-	else return 400;
+
+double sigmaHe3eta(const double Q){
+	return 400;
 }
-double sigmaHe3pi0pi0pi0(double p_beam){
-	//From proposal
-	return 27;
+double sigmaHe3pi0pi0pi0(const double E){
+	return 1000;
 }
-double sigmaHe3pi0pi0(double p_beam){
-	//From proposal
-	return 2800;
+double sigmaHe3pi0pi0(const double E){
+	return 25000;
 }

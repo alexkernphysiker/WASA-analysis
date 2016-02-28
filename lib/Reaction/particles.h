@@ -4,9 +4,12 @@
 #	define ______PARTICLES_H_____
 class Particle{
 public:
+	Particle(const Particle&source);
 	virtual ~Particle();
-	double mass_GeV()const;
-	int charge()const;
+	const double mass()const;
+	const int charge()const;
+	const double E2P(const double E)const;
+	const double P2E(const double P)const;
 	static const Particle&n();
 	static const Particle&p();
 	static const Particle&d();

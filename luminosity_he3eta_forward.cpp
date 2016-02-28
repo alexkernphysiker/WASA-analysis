@@ -16,14 +16,17 @@ using namespace std;
 using namespace ROOT_data;
 using namespace MathTemplates;
 using namespace GnuplotWrap;
-int main(int,char**){
+int main(){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward");
+	Reaction main_react(Particle::p(),Particle::d(),{Particle::he3(),Particle::eta()});
+	auto Q2P=LinearInterpolation<double>([&main_react](double p){return main_react.P2Q(p);},ChainWithStep(0.0,0.001,3.0)).Transponate();
+	auto Q2E=LinearInterpolation<double>([&main_react](double e){return main_react.E2Q(e);},ChainWithStep(0.0,0.001,3.0)).Transponate();
 	vector<string> histpath_forward={"Histograms","He3Forward_Reconstruction"};
 	vector<string> reaction={"He3eta","He3pi0pi0","He3pi0pi0pi0"};
 	vector<function<double(double)>> cross_section={
-		[](double q)->double{return sigmaHe3eta(PBeam_He3eta(q));},
-		[](double q)->double{return sigmaHe3pi0pi0(PBeam_He3eta(q));},
-		[](double q)->double{return sigmaHe3pi0pi0pi0(PBeam_He3eta(q));}
+		[](double q)->double{return sigmaHe3eta(q);},
+		[&main_react,&Q2E](double q)->double{return sigmaHe3pi0pi0(Q2E(q));},
+		[&main_react,&Q2E](double q)->double{return sigmaHe3pi0pi0pi0(Q2E(q));}
 	};
 	vector<hist<double>> norm;
 	for(const string& r:reaction)norm.push_back(Hist(MC,r,histpath_forward,"0-Reference"));
@@ -42,8 +45,9 @@ int main(int,char**){
 		for(const auto&P:norm[0])
 			kin_plot.Line(
 				LinearInterpolation<double>(
-					[&P](double E)->double{
-						return Ekin2Theta_He3eta(E,PBeam_He3eta(P.X().val()/1000.0));
+					[&P,&Q2P](double E)->double{
+						static Reaction R(Particle::p(),Particle::d(),{Particle::he3(),Particle::eta()});
+						return R.PbEr2Theta(Q2P(P.X().val()/1000.0),E)*180./3.1415926;
 					},
 					ChainWithStep(0.2,0.001,0.4)
 				),
@@ -57,7 +61,7 @@ int main(int,char**){
 		Plotter::Instance()<<"unset yrange"<<"unset xrange";
 		{
 			auto x=norm[0][bin_num].X();
-			auto do_plot=[&x](const hist2d<double>&kin_){
+			auto do_plot=[&x,&Q2P](const hist2d<double>&kin_){
 				vector<pair<double,double>> points;
 				double max=0;kin_.FullCycle([&max](point3d<double>&&P){
 					if(max<P.Z().val())
@@ -72,8 +76,9 @@ int main(int,char**){
 				for(double offset=0.000;offset<0.010;offset+=0.001)
 					kin_plot.Line(
 						LinearInterpolation<double>(
-							[&offset,&x](double E)->double{
-								return Ekin2Theta_He3eta(E,PBeam_He3eta(x.val()/1000.0+offset));
+							[&offset,&x,&Q2P](double E)->double{
+								static Reaction R(Particle::p(),Particle::d(),{Particle::he3(),Particle::eta()});
+								return R.PbEr2Theta(Q2P(x.val()/1000.0+offset),E)*180./3.1415926;
 							},
 							ChainWithStep(0.2,0.001,0.4)
 						),
