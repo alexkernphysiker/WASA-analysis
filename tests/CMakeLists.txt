@@ -1,7 +1,0 @@
-enable_testing()
-find_package(GTest REQUIRED)
-include_directories(${GTEST_INCLUDE_DIRS})
-set(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage -g -Wall -pthread -std=gnu++11")
-add_executable(wasa_libs_test hist.cpp)
-target_link_libraries(wasa_libs_test ${GTEST_BOTH_LIBRARIES} ${ROOT_LIBRARIES} ${libs})
-add_test(WASA wasa_libs_test)
