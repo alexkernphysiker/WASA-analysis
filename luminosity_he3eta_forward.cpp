@@ -7,11 +7,11 @@
 #include <gnuplot_wrap.h>
 #include <math_h/functions.h>
 #include <math_h/error.h>
-#include <experiment_conv.h>
-#include <str_get.h>
-#include <gethist.h>
-#include <particles.h>
-#include <reactions.h>
+#include <Experiment/experiment_conv.h>
+#include <Experiment/str_get.h>
+#include <Experiment/gethist.h>
+#include <Kinematics/particles.h>
+#include <Kinematics/reactions.h>
 using namespace std;
 using namespace ROOT_data;
 using namespace MathTemplates;

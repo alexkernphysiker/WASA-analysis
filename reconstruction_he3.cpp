@@ -4,9 +4,9 @@
 #include <gnuplot_wrap.h>
 #include <math_h/hist.h>
 #include <Genetic/initialconditions.h>
-#include <reconstruction_fit.h>
-#include <str_get.h>
-#include <reconstruction_types.h>
+#include <ReconstructionFit/reconstruction_types.h>
+#include <ReconstructionFit/reconstruction_fit.h>
+#include <Experiment/str_get.h>
 using namespace std;
 using namespace Genetic;
 using namespace Reconstruction;
