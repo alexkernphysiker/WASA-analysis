@@ -16,27 +16,58 @@ using namespace std;
 using namespace ROOT_data;
 using namespace MathTemplates;
 using namespace GnuplotWrap;
+const Reaction&main_reaction(){
+	static Reaction main_react(Particle::p(),Particle::d(),{Particle::he3(),Particle::eta()});
+	return main_react;
+}
+Plot<double> cs_plot;
 double sigmaHe3eta(const double Q){
-	return 400;
+	static LinearInterpolation<double> sigma;
+	if(sigma.size()==0){
+		sigma
+		//http://arxiv.org/pdf/nucl-ex/0701072v1
+		<<make_pair(-0.5,0.0)
+		<<make_pair(0.0,100.0)
+		<<make_pair(0.5,380.0)
+		<<make_pair(1.5,400.0)
+		<<make_pair(6.0,390.0)
+		<<make_pair(12.0,380.0)
+		//Extrapolating
+		<<make_pair(24.0,360.0)
+		<<make_pair(36.0,340.0);
+		cs_plot.Line(sigma,"3He+eta");
+	}
+	return sigma(Q);
 }
-double sigmaHe3pi0pi0(const double E){
-	return 25000;
+double sigmaHe3pi0pi0(const double Q){
+	static LinearInterpolation<double> sigma;
+	if(sigma.size()==0){
+		sigma
+		//Proposal
+		<<make_pair(-0.5,2800.0)
+		<<make_pair(32.0,2800.0);
+		cs_plot.Line(sigma,"3He+2pi0");
+	}
+	return sigma(Q);
 }
-double sigmaHe3pi0pi0pi0(const double E){
-	return 1000;
+double sigmaHe3pi0pi0pi0(const double Q){
+	static LinearInterpolation<double> sigma;
+	if(sigma.size()==0){
+		sigma
+		//10.1140/epja/i2010-10981-3
+		<<make_pair(-0.5,115.0)
+		<<make_pair(32.0,115.0);
+		cs_plot.Line(sigma,"3He+3pi0");
+	}
+	return sigma(Q);
 }
 int main(){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward");
-	Reaction main_react(Particle::p(),Particle::d(),{Particle::he3(),Particle::eta()});
-	auto Q2P=LinearInterpolation<double>([&main_react](double p){return main_react.P2Q(p);},ChainWithStep(0.0,0.001,3.0)).Transponate();
-	auto Q2E=LinearInterpolation<double>([&main_react](double e){return main_react.E2Q(e);},ChainWithStep(0.0,0.001,3.0)).Transponate();
+	auto Q2P=LinearInterpolation<double>([](double p){return main_reaction().P2Q(p);},ChainWithStep(0.0,0.001,3.0)).Transponate();
+	auto Q2E=LinearInterpolation<double>([](double e){return main_reaction().E2Q(e);},ChainWithStep(0.0,0.001,3.0)).Transponate();
 	vector<string> histpath_forward={"Histograms","He3Forward_Reconstruction"};
 	vector<string> reaction={"He3eta","He3pi0pi0","He3pi0pi0pi0"};
-	vector<function<double(double)>> cross_section={
-		[](double q)->double{return sigmaHe3eta(q);},
-		[&main_react,&Q2E](double q)->double{return sigmaHe3pi0pi0(Q2E(q));},
-		[&main_react,&Q2E](double q)->double{return sigmaHe3pi0pi0pi0(Q2E(q));}
-	};
+	vector<function<double(double)>> cross_section={sigmaHe3eta,sigmaHe3pi0pi0,sigmaHe3pi0pi0pi0};
 	vector<hist<double>> norm;
 	for(const string& r:reaction)norm.push_back(Hist(MC,r,histpath_forward,"0-Reference"));
 	Plot<double>().Hist(norm[0],"All events")
@@ -55,8 +86,7 @@ int main(){
 			kin_plot.Line(
 				LinearInterpolation<double>(
 					[&P,&Q2P](double E)->double{
-						static Reaction R(Particle::p(),Particle::d(),{Particle::he3(),Particle::eta()});
-						return R.PbEr2Theta(Q2P(P.X().val()/1000.0),E)*180./3.1415926;
+						return main_reaction().PbEr2Theta(Q2P(P.X().val()/1000.0),E)*180./3.1415926;
 					},
 					ChainWithStep(0.2,0.001,0.4)
 				),
@@ -86,8 +116,7 @@ int main(){
 					kin_plot.Line(
 						LinearInterpolation<double>(
 							[&offset,&x,&Q2P](double E)->double{
-								static Reaction R(Particle::p(),Particle::d(),{Particle::he3(),Particle::eta()});
-								return R.PbEr2Theta(Q2P(x.val()/1000.0+offset),E)*180./3.1415926;
+								return main_reaction().PbEr2Theta(Q2P(x.val()/1000.0+offset),E)*180./3.1415926;
 							},
 							ChainWithStep(0.2,0.001,0.4)
 						),
