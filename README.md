@@ -3,37 +3,26 @@ WASA Analysis
 Sources of my software used for analysis of data obtained from the experiment WASA-at-COSY on searching eta-mesic 3He in May 2014.
 
 
-
 Required software
 =================
-
-ROOT - framework for calulations
-
-gnuplot - software for plotting. Is used by some applications performing final analysis.
-
+	ROOT - framework for calulations
+	gnuplot - software for plotting. Is used by some applications performing final analysis.
 
 
 Needed environment variables
 ============================
-
-ROOTSYS - path where ROOT is installed
-
-and all other dscribed in WASA-libs/config.h
-
+	ROOTSYS - path where ROOT is installed
+	from WASA-libs/config.h
 
 
 Compiling other programs (locally)
 ========================
 
-git clone https://github.com/alexkernphysiker/WASA-analysis.git
-
-cd WASA-analysis
-
-git submodule update --init --recursive
-
-cmake .
-
-make
+	git clone https://github.com/alexkernphysiker/WASA-analysis.git
+	cd WASA-analysis
+	git submodule update --init --recursive
+	cmake .
+	make
 
 Here you can run application for analysis
 
