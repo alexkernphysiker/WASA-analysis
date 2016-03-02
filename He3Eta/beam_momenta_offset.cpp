@@ -59,9 +59,9 @@ int main(){
 						[&offset,&x,&Q2P](double E)->double{
 							return main_reaction().PbEr2Theta(Q2P(x.val()/1000.0+offset),E)*180./3.1415926;
 						},
-				 ChainWithStep(0.2,0.001,0.4)
+						ChainWithStep(0.2,0.001,0.4)
 					),
-		  to_string(offset)
+					to_string(offset)
 				);
 		};
 		auto kin_v=Hist2d(MC,he3eta,histpath_forward,string("Kinematic-vertex-Bin-")+to_string(bin_num));
