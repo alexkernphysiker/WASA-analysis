@@ -35,7 +35,8 @@ double sigmaHe3eta(const double Q){
 		//Extrapolating
 		<<make_pair(24.0,360.0)
 		<<make_pair(36.0,340.0);
-		cs_plot.Line(sigma,"3He+eta");
+		cs_plot.Line(sigma,"3He eta");
+		cs_plot<<"set xlabel 'Q, MeV'"<<"set ylabel 'cross section, mb'";
 	}
 	return sigma(Q);
 }
@@ -46,7 +47,7 @@ double sigmaHe3pi0pi0(const double Q){
 		//Proposal
 		<<make_pair(-0.5,2800.0)
 		<<make_pair(32.0,2800.0);
-		cs_plot.Line(sigma,"3He+2pi0");
+		cs_plot.Line(sigma,"3He 2pi0");
 	}
 	return sigma(Q);
 }
@@ -57,7 +58,7 @@ double sigmaHe3pi0pi0pi0(const double Q){
 		//10.1140/epja/i2010-10981-3
 		<<make_pair(-0.5,115.0)
 		<<make_pair(32.0,115.0);
-		cs_plot.Line(sigma,"3He+3pi0");
+		cs_plot.Line(sigma,"3He 3pi0");
 	}
 	return sigma(Q);
 }
@@ -82,6 +83,7 @@ int main(){
 	vector<point<double>> luminosity;
 	{
 		Plot<double> kin_plot;
+		kin_plot<<"set xlabel 'E_{kin}, GeV'"<<"set ylabel 'theta, deg'";
 		for(const auto&P:norm[0])
 			kin_plot.Line(
 				LinearInterpolation<double>(
