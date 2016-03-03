@@ -15,14 +15,11 @@ Needed environment variables
 	from WASA-libs/config.h
 
 
-Compiling other programs (locally)
-========================
+Compiling (locally)
+===================
 
 	git clone https://github.com/alexkernphysiker/WASA-analysis.git
 	cd WASA-analysis
 	git submodule update --init --recursive
 	cmake .
 	make
-
-Here you can run application for analysis
-
