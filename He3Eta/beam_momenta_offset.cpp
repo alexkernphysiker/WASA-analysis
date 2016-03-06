@@ -44,7 +44,7 @@ int main(){
 		);
 	RANDOM engine;
 	vector<point<double>> offs_vertex,offs_mc,offs_data;
-	for(size_t bin_num=9,bin_count=QBins.size();bin_num<bin_count;bin_num++){
+	for(size_t bin_num=QBins.size()-1,bin_count=QBins.size();bin_num<bin_count;bin_num++){
 		auto x=QBins[bin_num].X();
 		auto do_fit=[&engine,&x,&Q2P](const hist2d<double>&kin_)->point<double>{
 			auto points=make_shared<FitPoints>();

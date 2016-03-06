@@ -107,7 +107,7 @@ int main(){
 		}
 		Plotter::Instance()<<"unset yrange"<<"unset xrange"<<"unset logscale";
 		auto measured=Hist(DATA,"He3",histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
-		Fit<DifferentialMutations<>,ChiSquareWithXError> fit(
+		Fit<DifferentialMutations<>,ChiSquare> fit(
 			make_shared<FitPoints>(measured),
 			[&simulations](const ParamSet&X,const ParamSet&P)->double{
 				double res=0;
@@ -122,9 +122,13 @@ int main(){
 			for(double p:P)if(p<0.0)return false;
 			return true;
 		});
-		fit.Init(100,make_shared<GenerateByGauss>()
-		<<make_pair(50000.0,50000.0)<<make_pair(10000.0,10000.0)<<make_pair(10000.0,10000.0)
-		,random_engine);
+		fit.Init(100,
+			 make_shared<GenerateUniform>()
+				<<make_pair(0.0,60000.0)
+				<<make_pair(0.0,60000.0)
+				<<make_pair(0.0,60000.0)
+			,random_engine
+		);
 		while(!fit.AbsoluteOptimalityExitCondition(0.0000001))
 			fit.Iterate(random_engine);
 		Plot<double>().Hist(measured,"DATA")
