@@ -124,9 +124,9 @@ int main(){
 		});
 		fit.Init(100,
 			 make_shared<GenerateUniform>()
-				<<make_pair(0.0,60000.0)
-				<<make_pair(0.0,60000.0)
-				<<make_pair(0.0,60000.0)
+				<<make_pair(0.0,100000.0)
+				<<make_pair(0.0,1000000.0)
+				<<make_pair(0.0,1000000.0)
 			,random_engine
 		);
 		while(!fit.AbsoluteOptimalityExitCondition(0.0000001))
