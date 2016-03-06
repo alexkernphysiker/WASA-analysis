@@ -49,10 +49,10 @@ int main(){
 		auto do_fit=[&engine,&x,&Q2P](const hist2d<double>&kin_)->point<double>{
 			auto points=make_shared<FitPoints>();
 			double max=0;
-			kin_.FullCycle([&max](point3d<double>&&P){
+			kin_.FullCycle([&max](const point3d<double>&P){
 				if(max<P.Z().val())max=P.Z().val();
 			});
-			kin_.FullCycle([max,&points](point3d<double>&&P){
+			kin_.FullCycle([max,&points](const point3d<double>&P){
 				if((P.Z().val()>(3.0*max/4.0))&&(P.X().val()>0.28)&&(P.X().val()<0.35))
 					points<<Point({P.X().val()},P.Y().val(),P.Z().val());
 			});

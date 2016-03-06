@@ -85,7 +85,9 @@ int main(){
 	Plotter::Instance()<<"unset yrange";
 	vector<hist<double>> acceptance;
 	for(const auto&h:norm)acceptance.push_back(h.CloneEmptyBins());
-	vector<point<double>> luminosity;
+	vector<point<double>> luminosity,chisq;
+	vector<vector<point<double>>> ev_count;
+	for(const auto&item:reaction)ev_count.push_back(vector<point<double>>());
 	for(size_t bin_num=5,bin_count=norm[0].size();bin_num<bin_count;bin_num++){
 		vector<hist<double>> simulations;
 		Plotter::Instance()<<"unset yrange"<<"unset xrange";
@@ -100,48 +102,58 @@ int main(){
 				mc_plot.Hist(react_sim,reaction[i]);
 			}
 			mc_plot<<"set xlabel 'Missing mass, GeV'"
-				<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
-				<<"set yrange [0:]"<<"set logscale y";
+			<<"set ylabel 'counts, a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
+			<<"set logscale y"<<"set yrange [0.0001:]";
 		}
 		Plotter::Instance()<<"unset yrange"<<"unset xrange"<<"unset logscale";
 		auto measured=Hist(DATA,"He3",histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
-		SearchMin<DifferentialMutations<Parabolic>> find_parameters(
-			[&simulations,&measured](const ParamSet&P)->double{
-				auto sum=measured.CloneEmptyBins();
+		Fit<DifferentialMutations<>,ChiSquareWithXError> fit(
+			make_shared<FitPoints>(measured),
+			[&simulations](const ParamSet&X,const ParamSet&P)->double{
+				double res=0;
 				for(size_t i=0,n=P.size();i<n;i++)
-					sum+=simulations[i]*value<double>(P[i],0);
-				return measured.ChiSq_only_y_error(sum,P.size());
+					for(const auto&p:simulations[i])
+						if(p.X().contains(X[0]))
+							res+=p.Y().val()*P[i];
+				return res;
 			}
 		);
-		find_parameters.SetFilter([](const ParamSet&P)->bool{
+		fit.SetFilter([](const ParamSet&P)->bool{
 			for(double p:P)if(p<0.0)return false;
 			return true;
 		});
-		find_parameters.Init(60,make_shared<GenerateByGauss>()<<make_pair(1000.0,1000.0)<<make_pair(1000.0,1000.0)<<make_pair(1000.0,1000.0),random_engine);
-		while(!find_parameters.AbsoluteOptimalityExitCondition(0.0000001))
-			find_parameters.Iterate(random_engine);
-		
+		fit.Init(100,make_shared<GenerateByGauss>()
+		<<make_pair(50000.0,50000.0)<<make_pair(10000.0,10000.0)<<make_pair(10000.0,10000.0)
+		,random_engine);
+		while(!fit.AbsoluteOptimalityExitCondition(0.0000001))
+			fit.Iterate(random_engine);
 		Plot<double>().Hist(measured,"DATA")
-		.Hist(
-			simulations[0]*value<double>(find_parameters[0],0)+
-			simulations[1]*value<double>(find_parameters[1],0)+
-			simulations[2]*value<double>(find_parameters[2],0)
-			,"fit"
-		)
+		.Line(LinearInterpolation<double>([&fit](double x)->double{return fit({x});},ChainWithStep(0.53,0.001,0.56)),"fit")
 		<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'counts (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
 		<<"set yrange [0:]";
+		chisq.push_back(point<double>(norm[0][bin_num].X(),value<double>(fit.Optimality(),0)));
+		for(size_t i=0,n=fit.ParamCount();i<n;i++)
+			ev_count[i].push_back(point<double>(
+				norm[0][bin_num].X(),
+				value<double>(fit[i],fit.GetParamParabolicError(0.1,i))
+			));
 		luminosity.push_back(point<double>(
 			norm[0][bin_num].X(),
-			value<double>(find_parameters[0],find_parameters.GetParamParabolicError(0.1,0))/
+			value<double>(fit[0],fit.GetParamParabolicError(0.1,0))/
 			value<double>(cross_section[0](norm[0][bin_num].X().val()),0)
 		));
 	}
 	{//Plot acceptance
-		Plot<double> plot;
-		plot<<"set yrange [0:0.7]";
-		for(size_t i=0;i<reaction.size();i++)plot.Hist(acceptance[i],reaction[i]);
-		plot<<"set xlabel 'Q, MeV'"<<"set ylabel 'Acceptance, n.d.'";
+		Plot<double> plot_acceptance,plot_event_count;
+		plot_acceptance<<"set yrange [0:0.7]";
+		for(size_t i=0;i<reaction.size();i++){
+			plot_acceptance.Hist(acceptance[i],reaction[i]);
+			plot_event_count.Hist(ev_count[i],reaction[i]);
+		}
+		plot_acceptance<<"set xlabel 'Q, MeV'"<<"set ylabel 'Acceptance, n.d.'";
+		plot_event_count<<"set xlabel 'Q, MeV'"<<"set ylabel 'event count, a.u.'";
 	}
 	Plotter::Instance()<<"unset yrange";
+	Plot<double>().Hist(chisq)<<"set xlabel 'Q, MeV'"<<"set ylabel 'chi^2, n.d.'"<<"set yrange [0:]";
 	Plot<double>().Hist(luminosity)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Integral luminosity, a.u.'"<<"set yrange [0:]";
 }
