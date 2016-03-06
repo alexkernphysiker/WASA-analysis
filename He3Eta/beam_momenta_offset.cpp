@@ -40,7 +40,7 @@ int main(){
 				},
 			       ChainWithStep(0.2,0.001,0.4)
 			),
-		to_string(P.X().val())
+			to_string(P.X().val())
 		);
 	RANDOM engine;
 	vector<point<double>> offs_vertex,offs_mc,offs_data;

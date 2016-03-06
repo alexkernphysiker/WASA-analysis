@@ -7,6 +7,9 @@
 #include <gnuplot_wrap.h>
 #include <math_h/functions.h>
 #include <math_h/error.h>
+#include <Genetic/fit.h>
+#include <Genetic/equation.h>
+#include <Genetic/initialconditions.h>
 #include <Experiment/experiment_conv.h>
 #include <Experiment/str_get.h>
 #include <Experiment/gethist.h>
@@ -16,6 +19,8 @@ using namespace std;
 using namespace ROOT_data;
 using namespace MathTemplates;
 using namespace GnuplotWrap;
+using namespace Genetic;
+RANDOM random_engine;
 const Reaction&main_reaction(){
 	static Reaction main_react(Particle::p(),Particle::d(),{Particle::he3(),Particle::eta()});
 	return main_react;
@@ -82,29 +87,54 @@ int main(){
 	for(const auto&h:norm)acceptance.push_back(h.CloneEmptyBins());
 	vector<point<double>> luminosity;
 	for(size_t bin_num=5,bin_count=norm[0].size();bin_num<bin_count;bin_num++){
-		Plot<double> mc_plot;
-		hist<double> theory;
+		vector<hist<double>> simulations;
 		Plotter::Instance()<<"unset yrange"<<"unset xrange";
-		for(size_t i=0;i<reaction.size();i++){
-			auto react_sim=Hist(MC,reaction[i],histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
-			auto N=value<double>(react_sim.Total());
-			acceptance[i].Bin(bin_num).varY()=N/norm[i][bin_num].Y();
-			react_sim/=norm[i][bin_num].Y();
-			react_sim*=cross_section[i];
-			if(theory.size()==0)
-				theory=react_sim;
-			else
-				theory+=react_sim;
-			mc_plot.Hist(react_sim,reaction[i]);
+		{
+			Plot<double> mc_plot;
+			for(size_t i=0;i<reaction.size();i++){
+				auto react_sim=Hist(MC,reaction[i],histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
+				auto N=value<double>(react_sim.Total());
+				acceptance[i].Bin(bin_num).varY()=N/norm[i][bin_num].Y();
+				react_sim/=norm[i][bin_num].Y();
+				simulations.push_back(react_sim);
+				mc_plot.Hist(react_sim,reaction[i]);
+			}
+			mc_plot<<"set xlabel 'Missing mass, GeV'"
+				<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
+				<<"set yrange [0:]"<<"set logscale y";
 		}
-		mc_plot.Line(theory.Line(),"Sum")<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"<<"set yrange [0:]";
-
+		Plotter::Instance()<<"unset yrange"<<"unset xrange"<<"unset logscale";
 		auto measured=Hist(DATA,"He3",histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
-		auto K=value<double>(measured.Total())/theory.TotalSum();
-		Plot<double>().Hist(measured,"DATA").Line((theory*K).Line(),"Simulation")
-			<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'counts (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
-			<<"set yrange [0:]";
-		luminosity.push_back(point<double>(norm[0][bin_num].X(),K*value<double>(trigger_he3_forward.scaling,0)));
+		SearchMin<DifferentialMutations<Parabolic>> find_parameters(
+			[&simulations,&measured](const ParamSet&P)->double{
+				auto sum=measured.CloneEmptyBins();
+				for(size_t i=0,n=P.size();i<n;i++)
+					sum+=simulations[i]*value<double>(P[i],0);
+				return measured.ChiSq_only_y_error(sum,P.size());
+			}
+		);
+		find_parameters.SetFilter([](const ParamSet&P)->bool{
+			for(double p:P)if(p<0.0)return false;
+			return true;
+		});
+		find_parameters.Init(60,make_shared<GenerateByGauss>()<<make_pair(1000.0,1000.0)<<make_pair(1000.0,1000.0)<<make_pair(1000.0,1000.0),random_engine);
+		while(!find_parameters.AbsoluteOptimalityExitCondition(0.0000001))
+			find_parameters.Iterate(random_engine);
+		
+		Plot<double>().Hist(measured,"DATA")
+		.Hist(
+			simulations[0]*value<double>(find_parameters[0],0)+
+			simulations[1]*value<double>(find_parameters[1],0)+
+			simulations[2]*value<double>(find_parameters[2],0)
+			,"fit"
+		)
+		<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'counts (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
+		<<"set yrange [0:]";
+		luminosity.push_back(point<double>(
+			norm[0][bin_num].X(),
+			value<double>(find_parameters[0],find_parameters.GetParamParabolicError(0.1,0))/
+			value<double>(cross_section[0](norm[0][bin_num].X().val()),0)
+		));
 	}
 	{//Plot acceptance
 		Plot<double> plot;
