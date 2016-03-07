@@ -84,6 +84,6 @@ int main(){
 		PlotHist2d<double>(sp2).Distr(kin_data);
 		offs_data.push_back(do_fit(kin_data));
 	}
-	Plot<double>().Hist(offs_vertex,"Vertex").Hist(offs_mc,"WMC").Hist(offs_data,"Data");
+	Plot<double>().Hist(offs_mc,"WMC").Hist(offs_data,"Data");
 	return 0;
 }

@@ -132,7 +132,7 @@ int main(){
 		while(!fit.AbsoluteOptimalityExitCondition(0.0000001))
 			fit.Iterate(random_engine);
 		Plot<double>().Hist(measured,"DATA")
-		.Line(LinearInterpolation<double>([&fit](double x)->double{return fit({x});},ChainWithStep(0.53,0.001,0.56)),"fit")
+		.Line(LinearInterpolation<double>([&fit](double x)->double{return fit({x});},ChainWithStep(0.53,0.0001,0.56)),"fit")
 		<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'counts (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
 		<<"set yrange [0:]";
 		chisq.push_back(point<double>(norm[0][bin_num].X(),value<double>(fit.Optimality(),0)));
