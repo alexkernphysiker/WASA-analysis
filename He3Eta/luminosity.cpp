@@ -45,8 +45,9 @@ double sigmaHe3pi0pi0(const double Q){
 	if(sigma.size()==0){
 		sigma
 		//Proposal
-		<<make_pair(-0.5,2800.0)
-		<<make_pair(32.0,2800.0);
+		// MULTIPLIED BY 10(?)
+		<<make_pair(-0.5,28000.0)
+		<<make_pair(32.0,28000.0);
 		cs_plot.Line(sigma,"3He 2pi0");
 	}
 	return sigma(Q);
