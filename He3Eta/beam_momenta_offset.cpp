@@ -36,7 +36,7 @@ int main(){
 		theory_plot.Line(
 			SortedPoints<double>(
 				[&P,&Q2P](double E)->double{
-					return main_reaction().PbEr2Theta(Q2P(P.X().val()/1000.0),E)*180./3.1415926;
+					return main_reaction().PbEr2Theta(Q2P(P.X().val()/1000.0),E)*180./PI();
 				},
 			       ChainWithStep(0.2,0.001,0.4)
 			),
@@ -59,7 +59,7 @@ int main(){
 			Fit<DifferentialMutations<>,SumWeightedSquareDiff> fit(
 				points,
 				[&x,&Q2P](const ParamSet&E,const ParamSet&P){
-					return main_reaction().PbEr2Theta(Q2P((x.val()+P[0])/1000.0),E[0])*180./3.1415926;
+					return main_reaction().PbEr2Theta(Q2P((x.val()+P[0])/1000.0),E[0])*180./PI();
 				}
 			);
 			fit.Init(50,make_shared<GenerateUniform>()<<make_pair(-10.0,10.0),engine);
