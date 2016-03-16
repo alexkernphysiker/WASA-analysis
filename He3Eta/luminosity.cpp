@@ -65,8 +65,8 @@ double sigmaHe3pi0pi0pi0(const double Q){
 }
 int main(){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward");
-	auto Q2P=LinearInterpolation<double>([](double p){return main_reaction().P2Q(p);},ChainWithStep(0.0,0.001,3.0)).Transponate();
-	auto Q2E=LinearInterpolation<double>([](double e){return main_reaction().E2Q(e);},ChainWithStep(0.0,0.001,3.0)).Transponate();
+	auto Q2P=LinearInterpolation<double>(SortedPoints<double>([](double p){return main_reaction().P2Q(p);},ChainWithStep(0.0,0.001,3.0)).Transponate());
+	auto Q2E=LinearInterpolation<double>(SortedPoints<double>([](double e){return main_reaction().E2Q(e);},ChainWithStep(0.0,0.001,3.0)).Transponate());
 	vector<string> histpath_forward={"Histograms","He3Forward_Reconstruction"};
 	vector<string> reaction={"He3eta","He3pi0pi0","He3pi0pi0pi0"};
 	vector<function<double(double)>> cross_section={sigmaHe3eta,sigmaHe3pi0pi0,sigmaHe3pi0pi0pi0};
@@ -102,7 +102,7 @@ int main(){
 
 		auto measured=Hist(DATA,"He3",histpath_forward,string("MissingMass-Bin-")+to_string(bin_num));
 		auto K=value<double>(measured.Total())/theory.TotalSum();
-		Plot<double>().Hist(measured,"DATA").Line((theory*K).Line(),"Simulation")
+		Plot<double>().Hist(measured,"DATA").Hist(theory*K,"Simulation")
 			<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'counts (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
 			<<"set yrange [0:]";
 		luminosity.push_back(point<double>(norm[0][bin_num].X(),K*value<double>(trigger_he3_forward.scaling,0)));

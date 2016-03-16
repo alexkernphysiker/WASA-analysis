@@ -25,8 +25,8 @@ const Reaction&main_reaction(){
 }
 int main(){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"beam_momenta");
-	auto Q2P=LinearInterpolation<double>([](double p){return main_reaction().P2Q(p);},ChainWithStep(0.0,0.001,3.0)).Transponate();
-	auto Q2E=LinearInterpolation<double>([](double e){return main_reaction().E2Q(e);},ChainWithStep(0.0,0.001,3.0)).Transponate();
+	auto Q2P=LinearInterpolation<double>(SortedPoints<double>([](double p){return main_reaction().P2Q(p);},ChainWithStep(0.0,0.001,3.0)).Transponate());
+	auto Q2E=LinearInterpolation<double>(SortedPoints<double>([](double e){return main_reaction().E2Q(e);},ChainWithStep(0.0,0.001,3.0)).Transponate());
 	vector<string> histpath_forward={"Histograms","He3Forward_Reconstruction"};
 	string he3eta="He3eta";
 	Plot<double> theory_plot;
@@ -34,7 +34,7 @@ int main(){
 	auto QBins=Hist(MC,he3eta,histpath_forward,"0-Reference");
 	for(const auto&P:QBins)
 		theory_plot.Line(
-			LinearInterpolation<double>(
+			SortedPoints<double>(
 				[&P,&Q2P](double E)->double{
 					return main_reaction().PbEr2Theta(Q2P(P.X().val()/1000.0),E)*180./3.1415926;
 				},
@@ -67,7 +67,7 @@ int main(){
 				fit.Iterate(engine);
 			Plot<double> kin_plot;
 			kin_plot.Points(points->Hist1(0).Line()).Line(
-				LinearInterpolation<double>(
+				SortedPoints<double>(
 					[&fit](double E)->double{return fit({E});},
 					ChainWithStep(0.2,0.001,0.4)
 				)
