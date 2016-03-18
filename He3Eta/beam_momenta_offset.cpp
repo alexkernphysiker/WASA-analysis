@@ -42,7 +42,7 @@ int main(){
 				if(max<P.Z().val())max=P.Z().val();
 			});
 			kin_.FullCycle([max,&points](const point3d<value<double>>&P){
-				if((P.Z().val()>(2.0*max/3.0))&&(P.X().val()>0.28)&&(P.X().val()<0.35))
+				if((P.Z().val()>(1.0*max/2.0))&&(P.X().val()>0.28)&&(P.X().val()<0.35))
 					points<<Point({P.X().val()},P.Y().val(),P.Z().val());
 			});
 			Fit<DifferentialMutations<>,SumWeightedSquareDiff> fit(
@@ -55,9 +55,7 @@ int main(){
 			while(!fit.AbsoluteOptimalityExitCondition(0.00001))
 				fit.Iterate(engine);
 			Plot<double> kin_plot;
-			SortedPoints<double> pts;
-			for(const auto&pt:points->Hist1(0))pts<<point<double>(pt.X().val(),pt.Y().val());
-			kin_plot.Points(pts).Line(
+			kin_plot.Points(points->Line(0)).Line(
 				SortedPoints<double>(
 					[&fit](double E)->double{return fit({E});},
 					ChainWithStep(0.2,0.005,0.4)
