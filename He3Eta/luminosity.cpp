@@ -22,7 +22,7 @@ const Reaction&main_reaction(){
 	return main_react;
 }
 Plot<double> cs_plot;
-double sigmaHe3eta(const double Q){
+value<double> sigmaHe3eta(const value<double>&Q){
 	static LinearInterpolation<double> sigma;
 	if(sigma.size()==0){
 		sigma
@@ -39,9 +39,9 @@ double sigmaHe3eta(const double Q){
 		cs_plot.Line(sigma,"3He eta");
 		cs_plot<<"set xlabel 'Q, MeV'"<<"set ylabel 'cross section, mb'";
 	}
-	return sigma(Q);
+	return sigma(Q.val());
 }
-double sigmaHe3pi0pi0(const double Q){
+value<double> sigmaHe3pi0pi0(const value<double>&Q){
 	static LinearInterpolation<double> sigma;
 	if(sigma.size()==0){
 		sigma
@@ -51,9 +51,9 @@ double sigmaHe3pi0pi0(const double Q){
 		<<point<double>(32.0,28000.0);
 		cs_plot.Line(sigma,"3He 2pi0");
 	}
-	return sigma(Q);
+	return sigma(Q.val());
 }
-double sigmaHe3pi0pi0pi0(const double Q){
+value<double> sigmaHe3pi0pi0pi0(const value<double>&Q){
 	static LinearInterpolation<double> sigma;
 	if(sigma.size()==0){
 		sigma
@@ -62,7 +62,7 @@ double sigmaHe3pi0pi0pi0(const double Q){
 		<<point<double>(32.0,115.0);
 		cs_plot.Line(sigma,"3He 3pi0");
 	}
-	return sigma(Q);
+	return sigma(Q.val());
 }
 int main(){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward");
@@ -70,7 +70,7 @@ int main(){
 	auto Q2E=LinearInterpolation<double>(SortedPoints<double>([](double e){return main_reaction().E2Q(e);},ChainWithStep(0.0,0.001,3.0)).Transponate());
 	vector<string> histpath_forward={"Histograms","He3Forward_Reconstruction"};
 	vector<string> reaction={"He3eta","He3pi0pi0","He3pi0pi0pi0"};
-	vector<function<double(double)>> cross_section={sigmaHe3eta,sigmaHe3pi0pi0,sigmaHe3pi0pi0pi0};
+	vector<hist<double>::Func> cross_section={sigmaHe3eta,sigmaHe3pi0pi0,sigmaHe3pi0pi0pi0};
 	vector<hist<double>> norm;
 	for(const string& r:reaction)norm.push_back(Hist(MC,r,histpath_forward,"0-Reference"));
 	Plot<double>().Hist(norm[0],"All events")
@@ -82,7 +82,7 @@ int main(){
 	Plotter::Instance()<<"unset yrange";
 	vector<hist<double>> acceptance;
 	for(const auto&h:norm)acceptance.push_back(h.CloneEmptyBins());
-	vector<hist<double>::Point> luminosity;
+	SortedPoints<value<double>> luminosity;
 	for(size_t bin_num=5,bin_count=norm[0].size();bin_num<bin_count;bin_num++){
 		Plot<double> mc_plot;
 		hist<double> theory;
@@ -106,7 +106,7 @@ int main(){
 		Plot<double>().Hist(measured,"DATA").Hist(theory*K,"Simulation")
 			<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'counts (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
 			<<"set yrange [0:]";
-		luminosity.push_back(point<value<double>>(norm[0][bin_num].X(),K*value<double>(trigger_he3_forward.scaling,0)));
+		luminosity<<point<value<double>>(norm[0][bin_num].X(),K*value<double>(trigger_he3_forward.scaling,0));
 	}
 	{//Plot acceptance
 		Plot<double> plot;
@@ -115,5 +115,5 @@ int main(){
 		plot<<"set xlabel 'Q, MeV'"<<"set ylabel 'Acceptance, n.d.'";
 	}
 	Plotter::Instance()<<"unset yrange";
-	Plot<double>().Hist(hist<double>(luminosity))<<"set xlabel 'Q, MeV'"<<"set ylabel 'Integral luminosity, a.u.'"<<"set yrange [0:]";
+	Plot<double>().Hist(luminosity)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Integral luminosity, a.u.'"<<"set yrange [0:]";
 }

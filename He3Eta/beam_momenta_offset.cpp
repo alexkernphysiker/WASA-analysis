@@ -30,7 +30,7 @@ int main(){
 	vector<string> histpath_forward={"Histograms","He3Forward_Reconstruction"};
 	string he3eta="He3eta";
 	RANDOM engine;
-	vector<hist<double>::Point> offs_mc,offs_data;
+	SortedPoints<value<double>> offs_mc,offs_data;
 	auto QBins=Hist(MC,he3eta,histpath_forward,"0-Reference");
 	for(size_t bin_num=10,bin_count=QBins.size();bin_num<bin_count;bin_num++){
 		auto Q=QBins[bin_num].X();
@@ -55,7 +55,9 @@ int main(){
 			while(!fit.AbsoluteOptimalityExitCondition(0.00001))
 				fit.Iterate(engine);
 			Plot<double> kin_plot;
-			kin_plot.Points(points->Hist1(0).Line()).Line(
+			SortedPoints<double> pts;
+			for(const auto&pt:points->Hist1(0))pts<<point<double>(pt.X().val(),pt.Y().val());
+			kin_plot.Points(pts).Line(
 				SortedPoints<double>(
 					[&fit](double E)->double{return fit({E});},
 					ChainWithStep(0.2,0.005,0.4)
@@ -67,10 +69,10 @@ int main(){
 		PlotHist2d<double>(sp2).Distr(kin_v)<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'";
 		auto kin_mc=Hist2d(MC,he3eta,histpath_forward,string("Kinematic-reconstructed-Bin-")+to_string(bin_num)).Scale(4,4);
 		PlotHist2d<double>(sp2).Distr(kin_mc)<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'";
-		offs_mc.push_back(do_fit(kin_mc));
+		offs_mc<<do_fit(kin_mc);
 		auto kin_data=Hist2d(DATA,"He3",histpath_forward,string("Kinematic-reconstructed-Bin-")+to_string(bin_num)).Scale(4,4);
 		PlotHist2d<double>(sp2).Distr(kin_data);
-		offs_data.push_back(do_fit(kin_data));
+		offs_data<<do_fit(kin_data);
 	}
 	Plot<double>().Hist(offs_mc,"WMC").Hist(offs_data,"Data")<<"set yrange [0:.006]"
 		<<"set xlabel 'Q, MeV'"<<"set ylabel 'delta, GeV'";
