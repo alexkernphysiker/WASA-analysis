@@ -2,7 +2,7 @@
 // MIT license
 #include <unistd.h>
 #include <gnuplot_wrap.h>
-#include <math_h/hist.h>
+#include <math_h/structures.h>
 #include <Genetic/initialconditions.h>
 #include <ReconstructionFit/reconstruction_types.h>
 #include <ReconstructionFit/reconstruction_fit.h>
@@ -26,8 +26,8 @@ int main(){
 		,engine
 	);
 	SimulationDataProcess::He3ForEtaFit<He3EnergyFRH2>("He3.E.FRH2",
-		BinsByStep(0.25,0.005,0.40),
-		BinsByStep(0.45,0.005,0.55),
+		BinsByStep(0.25,0.005,0.45),
+		BinsByStep(0.45,0.005,0.60),
 		make_shared<GenerateByGauss>()
 			<<make_pair(0,0.1)<<make_pair(0,0.1)<<make_pair(0,0.1)<<make_pair(0,0.01)
 			<<make_pair(1,0.5)<<make_pair(0,0.1)<<make_pair(0,0.1)<<make_pair(0,0.01)

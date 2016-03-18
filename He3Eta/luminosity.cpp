@@ -7,6 +7,7 @@
 #include <gnuplot_wrap.h>
 #include <math_h/functions.h>
 #include <math_h/error.h>
+#include <math_h/interpolate.h>
 #include <Experiment/experiment_conv.h>
 #include <Experiment/str_get.h>
 #include <Experiment/gethist.h>
@@ -26,15 +27,15 @@ double sigmaHe3eta(const double Q){
 	if(sigma.size()==0){
 		sigma
 		//http://arxiv.org/pdf/nucl-ex/0701072v1
-		<<make_pair(-0.5,0.0)
-		<<make_pair(0.0,100.0)
-		<<make_pair(0.5,380.0)
-		<<make_pair(1.5,400.0)
-		<<make_pair(6.0,390.0)
-		<<make_pair(12.0,380.0)
+		<<point<double>(-0.5,0.0)
+		<<point<double>(0.0,100.0)
+		<<point<double>(0.5,380.0)
+		<<point<double>(1.5,400.0)
+		<<point<double>(6.0,390.0)
+		<<point<double>(12.0,380.0)
 		//Extrapolating
-		<<make_pair(24.0,360.0)
-		<<make_pair(36.0,340.0);
+		<<point<double>(24.0,360.0)
+		<<point<double>(36.0,340.0);
 		cs_plot.Line(sigma,"3He eta");
 		cs_plot<<"set xlabel 'Q, MeV'"<<"set ylabel 'cross section, mb'";
 	}
@@ -46,8 +47,8 @@ double sigmaHe3pi0pi0(const double Q){
 		sigma
 		//Proposal
 		// MULTIPLIED BY 10(?)
-		<<make_pair(-0.5,28000.0)
-		<<make_pair(32.0,28000.0);
+		<<point<double>(-0.5,28000.0)
+		<<point<double>(32.0,28000.0);
 		cs_plot.Line(sigma,"3He 2pi0");
 	}
 	return sigma(Q);
@@ -57,8 +58,8 @@ double sigmaHe3pi0pi0pi0(const double Q){
 	if(sigma.size()==0){
 		sigma
 		//10.1140/epja/i2010-10981-3
-		<<make_pair(-0.5,115.0)
-		<<make_pair(32.0,115.0);
+		<<point<double>(-0.5,115.0)
+		<<point<double>(32.0,115.0);
 		cs_plot.Line(sigma,"3He 3pi0");
 	}
 	return sigma(Q);
@@ -81,7 +82,7 @@ int main(){
 	Plotter::Instance()<<"unset yrange";
 	vector<hist<double>> acceptance;
 	for(const auto&h:norm)acceptance.push_back(h.CloneEmptyBins());
-	vector<point<double>> luminosity;
+	vector<hist<double>::Point> luminosity;
 	for(size_t bin_num=5,bin_count=norm[0].size();bin_num<bin_count;bin_num++){
 		Plot<double> mc_plot;
 		hist<double> theory;
@@ -105,7 +106,7 @@ int main(){
 		Plot<double>().Hist(measured,"DATA").Hist(theory*K,"Simulation")
 			<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'counts (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
 			<<"set yrange [0:]";
-		luminosity.push_back(point<double>(norm[0][bin_num].X(),K*value<double>(trigger_he3_forward.scaling,0)));
+		luminosity.push_back(point<value<double>>(norm[0][bin_num].X(),K*value<double>(trigger_he3_forward.scaling,0)));
 	}
 	{//Plot acceptance
 		Plot<double> plot;
@@ -114,5 +115,5 @@ int main(){
 		plot<<"set xlabel 'Q, MeV'"<<"set ylabel 'Acceptance, n.d.'";
 	}
 	Plotter::Instance()<<"unset yrange";
-	Plot<double>().Hist(luminosity)<<"set xlabel 'Q, MeV'"<<"set ylabel 'Integral luminosity, a.u.'"<<"set yrange [0:]";
+	Plot<double>().Hist(hist<double>(luminosity))<<"set xlabel 'Q, MeV'"<<"set ylabel 'Integral luminosity, a.u.'"<<"set yrange [0:]";
 }

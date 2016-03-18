@@ -25,65 +25,54 @@ const Reaction&main_reaction(){
 }
 int main(){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"beam_momenta");
-	auto Q2P=LinearInterpolation<double>(SortedPoints<double>([](double p){return main_reaction().P2Q(p);},ChainWithStep(0.0,0.001,3.0)).Transponate());
-	auto Q2E=LinearInterpolation<double>(SortedPoints<double>([](double e){return main_reaction().E2Q(e);},ChainWithStep(0.0,0.001,3.0)).Transponate());
+	auto Q2P=LinearInterpolation<double>(SortedPoints<double>([](double p){return main_reaction().P2Q(p);},ChainWithStep(0.0,0.005,3.0)).Transponate());
+	auto Q2E=LinearInterpolation<double>(SortedPoints<double>([](double e){return main_reaction().E2Q(e);},ChainWithStep(0.0,0.005,3.0)).Transponate());
 	vector<string> histpath_forward={"Histograms","He3Forward_Reconstruction"};
 	string he3eta="He3eta";
-	Plot<double> theory_plot;
-	theory_plot<<"set xlabel 'E_{kin}, GeV'"<<"set ylabel 'theta, deg'";
-	auto QBins=Hist(MC,he3eta,histpath_forward,"0-Reference");
-	for(const auto&P:QBins)
-		theory_plot.Line(
-			SortedPoints<double>(
-				[&P,&Q2P](double E)->double{
-					return main_reaction().PbEr2Theta(Q2P(P.X().val()/1000.0),E)*180./PI();
-				},
-			       ChainWithStep(0.2,0.001,0.4)
-			),
-		to_string(P.X().val())
-		);
 	RANDOM engine;
-	vector<point<double>> offs_vertex,offs_mc,offs_data;
-	for(size_t bin_num=9,bin_count=QBins.size();bin_num<bin_count;bin_num++){
-		auto x=QBins[bin_num].X();
-		auto do_fit=[&engine,&x,&Q2P](const hist2d<double>&kin_)->point<double>{
+	vector<hist<double>::Point> offs_mc,offs_data;
+	auto QBins=Hist(MC,he3eta,histpath_forward,"0-Reference");
+	for(size_t bin_num=10,bin_count=QBins.size();bin_num<bin_count;bin_num++){
+		auto Q=QBins[bin_num].X();
+		double p=Q2P(Q.val()/1000.0);
+		auto do_fit=[&engine,&Q,&p](const hist2d<double>&kin_)->point<value<double>>{
 			auto points=make_shared<FitPoints>();
 			double max=0;
-			kin_.FullCycle([&max](const point3d<double>&P){
+			kin_.FullCycle([&max](const point3d<value<double>>&P){
 				if(max<P.Z().val())max=P.Z().val();
 			});
-			kin_.FullCycle([max,&points](const point3d<double>&P){
+			kin_.FullCycle([max,&points](const point3d<value<double>>&P){
 				if((P.Z().val()>(2.0*max/3.0))&&(P.X().val()>0.28)&&(P.X().val()<0.35))
 					points<<Point({P.X().val()},P.Y().val(),P.Z().val());
 			});
 			Fit<DifferentialMutations<>,SumWeightedSquareDiff> fit(
 				points,
-				[&x,&Q2P](const ParamSet&E,const ParamSet&P){
-					return main_reaction().PbEr2Theta(Q2P((x.val()+P[0])/1000.0),E[0])*180./PI();
+				[p](const ParamSet&E,const ParamSet&P){
+					return main_reaction().PbEr2Theta(p+P[0],E[0])*180./PI();
 				}
 			);
-			fit.Init(50,make_shared<GenerateUniform>()<<make_pair(-10.0,10.0),engine);
-			while(!fit.AbsoluteOptimalityExitCondition(0.000001))
+			fit.Init(30,make_shared<GenerateUniform>()<<make_pair(-0.01,0.01),engine);
+			while(!fit.AbsoluteOptimalityExitCondition(0.00001))
 				fit.Iterate(engine);
 			Plot<double> kin_plot;
 			kin_plot.Points(points->Hist1(0).Line()).Line(
 				SortedPoints<double>(
 					[&fit](double E)->double{return fit({E});},
-					ChainWithStep(0.2,0.001,0.4)
+					ChainWithStep(0.2,0.005,0.4)
 				)
 			);
-			return point<double>(x,value<double>(fit[0],0));
+			return point<value<double>>(Q,value<double>(fit[0],0));
 		};
 		auto kin_v=Hist2d(MC,he3eta,histpath_forward,string("Kinematic-vertex-Bin-")+to_string(bin_num)).Scale(4,4);
 		PlotHist2d<double>(sp2).Distr(kin_v)<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'";
-		offs_vertex.push_back(do_fit(kin_v));
-		auto kin_mc=Hist2d(MC,he3eta,histpath_forward,string("Kinematic-before-cut-Bin-")+to_string(bin_num)).Scale(4,4);
+		auto kin_mc=Hist2d(MC,he3eta,histpath_forward,string("Kinematic-reconstructed-Bin-")+to_string(bin_num)).Scale(4,4);
 		PlotHist2d<double>(sp2).Distr(kin_mc)<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'";
 		offs_mc.push_back(do_fit(kin_mc));
-		auto kin_data=Hist2d(DATA,"He3",histpath_forward,string("Kinematic-before-cut-Bin-")+to_string(bin_num)).Scale(4,4);
+		auto kin_data=Hist2d(DATA,"He3",histpath_forward,string("Kinematic-reconstructed-Bin-")+to_string(bin_num)).Scale(4,4);
 		PlotHist2d<double>(sp2).Distr(kin_data);
 		offs_data.push_back(do_fit(kin_data));
 	}
-	Plot<double>().Hist(offs_mc,"WMC").Hist(offs_data,"Data")<<"set yrange [0:6]";
+	Plot<double>().Hist(offs_mc,"WMC").Hist(offs_data,"Data")<<"set yrange [0:.006]"
+		<<"set xlabel 'Q, MeV'"<<"set ylabel 'delta, GeV'";
 	return 0;
 }
