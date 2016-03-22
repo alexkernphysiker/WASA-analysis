@@ -5,14 +5,17 @@ Sources of my software used for analysis of data obtained from the experiment WA
 
 Required software
 =================
-	ROOT - framework for calulations
-	gnuplot - software for plotting. Is used by some applications performing final analysis.
+	ROOT 
+framework for calulations
+
+	gnuplot
+software for plotting. Is used by some applications performing final analysis.
 
 
 Needed environment variables
 ============================
-	ROOTSYS - path where ROOT is installed
-	from WASA-libs/config.h
+	ROOTSYS 
+path where ROOT is installed from WASA-libs/config.h
 
 
 Compiling (locally)
