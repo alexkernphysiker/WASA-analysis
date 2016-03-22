@@ -39,7 +39,7 @@ value<double> sigmaHe3eta(const value<double>&Q){
 		cs_plot.Line(sigma,"3He eta");
 		cs_plot<<"set xlabel 'Q, MeV'"<<"set ylabel 'cross section, mb'";
 	}
-	return sigma.func()*Q;
+	return func_value(sigma.func(),Q);
 }
 value<double> sigmaHe3pi0pi0(const value<double>&Q){
 	static LinearInterpolation<double> sigma;
@@ -50,7 +50,7 @@ value<double> sigmaHe3pi0pi0(const value<double>&Q){
 		<<point<double>(32.0,2800.0);
 		cs_plot.Line(sigma,"3He 2pi0");
 	}
-	return sigma.func()*Q;
+	return func_value(sigma.func(),Q);
 }
 value<double> sigmaHe3pi0pi0pi0(const value<double>&Q){
 	static LinearInterpolation<double> sigma;
@@ -61,7 +61,7 @@ value<double> sigmaHe3pi0pi0pi0(const value<double>&Q){
 		<<point<double>(32.0,115.0);
 		cs_plot.Line(sigma,"3He 3pi0");
 	}
-	return sigma.func()*Q;
+	return func_value(sigma.func(),Q);
 }
 int main(){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward");
