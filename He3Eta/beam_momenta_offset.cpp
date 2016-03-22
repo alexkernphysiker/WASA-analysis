@@ -27,12 +27,11 @@ int main(){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"beam_momenta");
 	auto Q2P=LinearInterpolation<double>(SortedPoints<double>([](double p){return main_reaction().P2Q(p);},ChainWithStep(0.0,0.005,3.0)).Transponate());
 	auto Q2E=LinearInterpolation<double>(SortedPoints<double>([](double e){return main_reaction().E2Q(e);},ChainWithStep(0.0,0.005,3.0)).Transponate());
-	vector<string> histpath_forward={"Histograms","He3Forward_Reconstruction"};
 	string he3eta="He3eta";
 	RANDOM engine;
 	SortedPoints<value<double>> offs_mc,offs_data;
-	auto QBins=Hist(MC,he3eta,histpath_forward,"0-Reference");
-	for(size_t bin_num=10,bin_count=QBins.size();bin_num<bin_count;bin_num++){
+	auto QBins=Hist(MC,he3eta,{"Histograms","He3Forward_Reconstruction"},"0-Reference");
+	for(size_t bin_num=9,bin_count=QBins.size();bin_num<bin_count;bin_num++){
 		auto Q=QBins[bin_num].X();
 		double p=Q2P(Q.val()/1000.0);
 		auto do_fit=[&engine,&Q,&p](const hist2d<double>&kin_)->point<value<double>>{
@@ -63,16 +62,16 @@ int main(){
 			);
 			return point<value<double>>(Q,value<double>(fit[0],0));
 		};
-		auto kin_v=Hist2d(MC,he3eta,histpath_forward,string("Kinematic-vertex-Bin-")+to_string(bin_num)).Scale(4,4);
+		auto kin_v=Hist2d(MC,he3eta,{"Histograms","He3Forward_Vertices"},string("Kinematic-vertex-Bin-")+to_string(bin_num)).Scale(4,4);
 		PlotHist2d<double>(sp2).Distr(kin_v)<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'";
-		auto kin_mc=Hist2d(MC,he3eta,histpath_forward,string("Kinematic-reconstructed-Bin-")+to_string(bin_num)).Scale(4,4);
+		auto kin_mc=Hist2d(MC,he3eta,{"Histograms","He3Forward_Reconstruction"},string("Kinematic-reconstructed-Bin-")+to_string(bin_num)).Scale(4,4);
 		PlotHist2d<double>(sp2).Distr(kin_mc)<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'";
 		offs_mc<<do_fit(kin_mc);
-		auto kin_data=Hist2d(DATA,"He3",histpath_forward,string("Kinematic-reconstructed-Bin-")+to_string(bin_num)).Scale(4,4);
+		auto kin_data=Hist2d(DATA,"He3",{"Histograms","He3Forward_Reconstruction"},string("Kinematic-reconstructed-Bin-")+to_string(bin_num)).Scale(4,4);
 		PlotHist2d<double>(sp2).Distr(kin_data);
 		offs_data<<do_fit(kin_data);
 	}
-	Plot<double>().Hist(offs_mc,"WMC").Hist(offs_data,"Data")<<"set yrange [0:.006]"
+	Plot<double>().Hist(offs_mc,"WMC").Hist(offs_data,"Data")<<"set yrange [0:.015]"
 		<<"set xlabel 'Q, MeV'"<<"set ylabel 'delta, GeV'";
 	return 0;
 }

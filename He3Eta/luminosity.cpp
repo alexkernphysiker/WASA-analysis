@@ -67,26 +67,26 @@ int main(){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward");
 	auto Q2P=LinearInterpolation<double>(SortedPoints<double>([](double p){return main_reaction().P2Q(p);},ChainWithStep(0.0,0.001,3.0)).Transponate());
 	auto Q2E=LinearInterpolation<double>(SortedPoints<double>([](double e){return main_reaction().E2Q(e);},ChainWithStep(0.0,0.001,3.0)).Transponate());
-	vector<string> histpath_forward={"Histograms","He3Forward_Reconstruction"};
+	vector<string> histpath_forward_reconstr={"Histograms","He3Forward_Reconstruction"};
 	vector<string> reaction={"He3eta","He3pi0pi0","He3pi0pi0pi0"};
 	vector<hist<double>::Func> cross_section={sigmaHe3eta,sigmaHe3pi0pi0,sigmaHe3pi0pi0pi0};
 	vector<hist<double>> norm;
-	for(const string& r:reaction)norm.push_back(Hist(MC,r,histpath_forward,"0-Reference"));
+	for(const string& r:reaction)norm.push_back(Hist(MC,r,histpath_forward_reconstr,"0-Reference"));
 	Plot<double>().Hist(norm[0],"All events")
-		.Hist(Hist(MC,reaction[0],histpath_forward,"1-AllTracks"),"All tracks in forward")
-		.Hist(Hist(MC,reaction[0],histpath_forward,"2-FPC"),"Signal in FPC")
-		.Hist(Hist(MC,reaction[0],histpath_forward,"3-AllCuts"),"^3He")
+		.Hist(Hist(MC,reaction[0],histpath_forward_reconstr,"1-AllTracks"),"All tracks in forward")
+		.Hist(Hist(MC,reaction[0],histpath_forward_reconstr,"2-FPC"),"Signal in FPC")
+		.Hist(Hist(MC,reaction[0],histpath_forward_reconstr,"3-AllCuts"),"^3He")
 		<<"set yrange [0:400000]"<<"set xlabel 'Q, MeV'"<<"set ylabel 'Events count'";
 	Plotter::Instance()<<"unset yrange";
 	vector<hist<double>> acceptance;
 	for(const auto&h:norm)acceptance.push_back(h.CloneEmptyBins());
 	SortedPoints<value<double>> luminosity;
-	for(size_t bin_num=5,bin_count=norm[0].size();bin_num<bin_count;bin_num++){
+	for(size_t bin_num=0,bin_count=norm[0].size();bin_num<bin_count;bin_num++){
 		Plot<double> mc_plot;
 		hist<double> theory;
 		Plotter::Instance()<<"unset yrange"<<"unset xrange";
 		for(size_t i=0;i<reaction.size();i++){
-			hist<double> react_sim=Hist(MC,reaction[i],histpath_forward,string("MissingMass-Bin-")+to_string(bin_num)).XRange(0.4,0.6);
+			hist<double> react_sim=Hist(MC,reaction[i],histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num)).XRange(0.4,0.6);
 			auto N=value<double>(react_sim.Total());
 			acceptance[i].Bin(bin_num).varY()=N/norm[i][bin_num].Y();
 			react_sim/=norm[i][bin_num].Y();
@@ -99,7 +99,7 @@ int main(){
 		}
 		mc_plot.Line(theory.Line(),"Sum")<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"<<"set yrange [0:]";
 
-		hist<double> measured=Hist(DATA,"He3",histpath_forward,string("MissingMass-Bin-")+to_string(bin_num)).XRange(0.4,0.6);
+		hist<double> measured=Hist(DATA,"He3",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num)).XRange(0.4,0.6);
 		auto K=value<double>(measured.Total())/theory.TotalSum();
 		Plot<double>().Hist(measured,"DATA").Hist(theory*K,"Simulation")
 			<<"set xlabel 'Missing mass, GeV'"
