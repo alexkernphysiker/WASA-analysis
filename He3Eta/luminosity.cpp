@@ -45,6 +45,7 @@ value<double> sigmaHe3pi0pi0(const value<double>&Q){
 	static LinearInterpolation<double> sigma;
 	if(sigma.size()==0){
 		sigma
+		//proposal
 		<<point<double>(-0.5,2800.0)
 		<<point<double>(32.0,2800.0);
 		cs_plot.Line(sigma,"3He 2pi0");
@@ -101,9 +102,10 @@ int main(){
 		hist<double> measured=Hist(DATA,"He3",histpath_forward,string("MissingMass-Bin-")+to_string(bin_num)).XRange(0.4,0.6);
 		auto K=value<double>(measured.Total())/theory.TotalSum();
 		Plot<double>().Hist(measured,"DATA").Hist(theory*K,"Simulation")
-			<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'counts (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
+			<<"set xlabel 'Missing mass, GeV'"
+			<<"set ylabel 'counts (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
 			<<"set yrange [0:]";
-		luminosity<<point<value<double>>(norm[0][bin_num].X(),K*value<double>(trigger_he3_forward.scaling,0));
+		luminosity<<point<value<double>>(norm[0][bin_num].X(),K*value<double>(trigger_he3_forward.scaling));
 	}
 	{//Plot acceptance
 		Plot<double> plot;
