@@ -5,9 +5,10 @@
 #include <sstream>
 #include <memory>
 #include <gnuplot_wrap.h>
-#include <math_h/functions.h>
-#include <math_h/error.h>
 #include <math_h/interpolate.h>
+#include <Genetic/fit.h>
+#include <Genetic/initialconditions.h>
+#include <Genetic/filter.h>
 #include <Experiment/experiment_conv.h>
 #include <Experiment/str_get.h>
 #include <Experiment/gethist.h>
@@ -15,6 +16,7 @@
 #include <Kinematics/reactions.h>
 using namespace std;
 using namespace ROOT_data;
+using namespace Genetic;
 using namespace MathTemplates;
 using namespace GnuplotWrap;
 const Reaction&main_reaction(){
@@ -64,33 +66,42 @@ int main(){
 	Plotter::Instance()<<"unset yrange";
 	vector<hist<double>> acceptance;
 	for(const auto&h:norm)acceptance.push_back(h.CloneEmptyBins());
-	SortedPoints<value<double>> luminosity;
+	SortedPoints<value<double>> luminosity,bg_chi_sq;
+	RANDOM r_eng;
 	for(size_t bin_num=0,bin_count=norm[0].size();bin_num<bin_count;bin_num++){
-		Plot<double> mc_plot;
-		hist<double> theory;
 		Plotter::Instance()<<"unset yrange"<<"unset xrange";
+		hist<double> measured=Hist(DATA,"He3",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num)).XRange(0.4,0.6);
+		Plot<double>().Hist(measured,"DATA")<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"<<"set yrange [0:]";
+		vector<hist<double>> theory;
 		for(size_t i=0;i<reaction.size();i++){
 			hist<double> react_sim=Hist(MC,reaction[i],histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num)).XRange(0.4,0.6);
 			auto N=value<double>(react_sim.Total());
 			acceptance[i].Bin(bin_num).varY()=N/norm[i][bin_num].Y();
-			react_sim/=norm[i][bin_num].Y();
-			react_sim*=cross_section[i];
-			if(theory.size()==0)
-				theory=react_sim;
-			else
-				theory+=react_sim;
-			mc_plot.Hist(react_sim,reaction[i]);
+			theory.push_back(react_sim/norm[i][bin_num].Y());
 		}
-		mc_plot.Line(theory.Line(),"Sum")<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"<<"set yrange [0:]";
+		vector<value<double>> bg_coefs;
+		{
+			vector<LinearInterpolation<double>> bg_funcs{theory[1].Line(),theory[2].Line()};
+			auto points=make_shared<FitPoints>(measured.XRange(0.500,0.535));
+			Fit<DifferentialMutations<>,ChiSquare> fit(points,[&bg_funcs](const ParamSet&X,const ParamSet&P){
+				double res=0;
+				for(size_t i=0;i<bg_funcs.size();i++)res+=bg_funcs[i](X[0])*P[i];
+				return res;
+			});
+			fit.SetUncertaintyCalcDeltas({0.01,0.01}).SetFilter(make_shared<Above>()<<0.0<<0.0);
+			auto count=measured.Total()*10.0;
+			fit.Init(60,make_shared<GenerateUniform>()<<make_pair(0.0,count)<<make_pair(0.0,count),r_eng);
+			while(!fit.AbsoluteOptimalityExitCondition(0.000001))
+				fit.Iterate(r_eng);
+			Plot<double>().Hist(points->Hist1(0),"DATA").Line(SortedPoints<double>([&fit](double x){return fit({x});},ChainWithStep(0.41,0.001,0.59)))
+			<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"<<"set yrange [0:]";
+			for(const auto&v:fit.ParametersWithUncertainties())bg_coefs.push_back(v);
+			bg_chi_sq<<point<value<double>>(norm[0][bin_num].X(),fit.Optimality());
+		}
 
-		hist<double> measured=Hist(DATA,"He3",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num)).XRange(0.4,0.6);
-		auto K=value<double>(measured.Total())/theory.TotalSum();
-		Plot<double>().Hist(measured,"DATA").Hist(theory*K,"Simulation")
-			<<"set xlabel 'Missing mass, GeV'"
-			<<"set ylabel 'counts (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
-			<<"set yrange [0:]";
-		luminosity<<point<value<double>>(norm[0][bin_num].X(),K*value<double>(trigger_he3_forward.scaling));
+		//luminosity<<point<value<double>>(norm[0][bin_num].X(),K*value<double>(trigger_he3_forward.scaling));
 	}
+	Plot<double>().Hist(bg_chi_sq)<<"set xlabel 'Q, MeV'"<<"set ylabel 'BG fit chi^2, n.d.'"<<"set yrange [0:]";
 	{//Plot acceptance
 		Plot<double> plot;
 		plot<<"set yrange [0:0.7]";
