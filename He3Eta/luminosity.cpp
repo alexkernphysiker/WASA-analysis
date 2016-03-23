@@ -21,55 +21,39 @@ const Reaction&main_reaction(){
 	static Reaction main_react(Particle::p(),Particle::d(),{Particle::he3(),Particle::eta()});
 	return main_react;
 }
-Plot<double> cs_plot;
-value<double> sigmaHe3eta(const value<double>&Q){
-	static LinearInterpolation<double> sigma;
-	if(sigma.size()==0){
-		sigma
-		//http://arxiv.org/pdf/nucl-ex/0701072v1
-		<<point<double>(-0.5,0.0)
-		<<point<double>(0.0,100.0)
-		<<point<double>(0.5,380.0)
-		<<point<double>(1.5,400.0)
-		<<point<double>(6.0,390.0)
-		<<point<double>(12.0,380.0)
-		//Extrapolating
-		<<point<double>(24.0,360.0)
-		<<point<double>(36.0,340.0);
-		cs_plot.Line(sigma,"3He eta");
-		cs_plot<<"set xlabel 'Q, MeV'"<<"set ylabel 'cross section, mb'";
-	}
-	return func_value(sigma.func(),Q);
-}
-value<double> sigmaHe3pi0pi0(const value<double>&Q){
-	static LinearInterpolation<double> sigma;
-	if(sigma.size()==0){
-		sigma
-		//proposal
-		<<point<double>(-0.5,2800.0)
-		<<point<double>(32.0,2800.0);
-		cs_plot.Line(sigma,"3He 2pi0");
-	}
-	return func_value(sigma.func(),Q);
-}
-value<double> sigmaHe3pi0pi0pi0(const value<double>&Q){
-	static LinearInterpolation<double> sigma;
-	if(sigma.size()==0){
-		sigma
-		//10.1140/epja/i2010-10981-3
-		<<point<double>(-0.5,115.0)
-		<<point<double>(32.0,115.0);
-		cs_plot.Line(sigma,"3He 3pi0");
-	}
-	return func_value(sigma.func(),Q);
-}
 int main(){
+	LinearInterpolation<double> sigmaHe3eta{
+		//http://arxiv.org/pdf/nucl-ex/0701072v1
+		point<double>(-0.5,0.0),
+		point<double>(0.0,100.0),
+		point<double>(0.5,380.0),
+		point<double>(1.5,400.0),
+		point<double>(6.0,390.0),
+		point<double>(12.0,380.0),
+		//Extrapolating
+		point<double>(24.0,360.0),
+		point<double>(36.0,340.0)
+	};
+	LinearInterpolation<double> sigmaHe3pi0pi0{
+		//proposal
+		point<double>(-0.5,2800.0),
+		point<double>(32.0,2800.0)
+	};
+	LinearInterpolation<double> sigmaHe3pi0pi0pi0{
+		//10.1140/epja/i2010-10981-3
+		point<double>(-0.5,115.0),
+		point<double>(32.0,115.0)
+	};
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward");
 	auto Q2P=LinearInterpolation<double>(SortedPoints<double>([](double p){return main_reaction().P2Q(p);},ChainWithStep(0.0,0.001,3.0)).Transponate());
 	auto Q2E=LinearInterpolation<double>(SortedPoints<double>([](double e){return main_reaction().E2Q(e);},ChainWithStep(0.0,0.001,3.0)).Transponate());
 	vector<string> histpath_forward_reconstr={"Histograms","He3Forward_Reconstruction"};
 	vector<string> reaction={"He3eta","He3pi0pi0","He3pi0pi0pi0"};
-	vector<hist<double>::Func> cross_section={sigmaHe3eta,sigmaHe3pi0pi0,sigmaHe3pi0pi0pi0};
+	vector<hist<double>::Func> cross_section={
+		value_func(sigmaHe3eta.func()),
+		value_func(sigmaHe3pi0pi0.func()),
+		value_func(sigmaHe3pi0pi0pi0.func())
+	};
 	vector<hist<double>> norm;
 	for(const string& r:reaction)norm.push_back(Hist(MC,r,histpath_forward_reconstr,"0-Reference"));
 	Plot<double>().Hist(norm[0],"All events")
