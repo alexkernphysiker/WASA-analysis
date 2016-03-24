@@ -36,26 +36,11 @@ int main(){
 		point<double>(24.0,360.0),
 		point<double>(36.0,340.0)
 	};
-	LinearInterpolation<double> sigmaHe3pi0pi0{
-		//proposal
-		point<double>(-0.5,2800.0),
-		point<double>(32.0,2800.0)
-	};
-	LinearInterpolation<double> sigmaHe3pi0pi0pi0{
-		//10.1140/epja/i2010-10981-3
-		point<double>(-0.5,115.0),
-		point<double>(32.0,115.0)
-	};
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward");
 	auto Q2P=LinearInterpolation<double>(SortedPoints<double>([](double p){return main_reaction().P2Q(p);},ChainWithStep(0.0,0.001,3.0)).Transponate());
 	auto Q2E=LinearInterpolation<double>(SortedPoints<double>([](double e){return main_reaction().E2Q(e);},ChainWithStep(0.0,0.001,3.0)).Transponate());
 	vector<string> histpath_forward_reconstr={"Histograms","He3Forward_Reconstruction"};
 	vector<string> reaction={"He3eta","He3pi0pi0","He3pi0pi0pi0"};
-	vector<hist<double>::Func> cross_section={
-		value_func(sigmaHe3eta.func()),
-		value_func(sigmaHe3pi0pi0.func()),
-		value_func(sigmaHe3pi0pi0pi0.func())
-	};
 	vector<hist<double>> norm;
 	for(const string& r:reaction)norm.push_back(Hist(MC,r,histpath_forward_reconstr,"0-Reference"));
 	Plot<double>().Hist(norm[0],"All events")
@@ -79,27 +64,44 @@ int main(){
 			acceptance[i].Bin(bin_num).varY()=N/norm[i][bin_num].Y();
 			theory.push_back(react_sim/norm[i][bin_num].Y());
 		}
-		vector<value<double>> bg_coefs;
-		{
-			vector<LinearInterpolation<double>> bg_funcs{theory[1].Line(),theory[2].Line()};
-			auto points=make_shared<FitPoints>(measured.XRange(0.500,0.535));
-			Fit<DifferentialMutations<>,ChiSquare> fit(points,[&bg_funcs](const ParamSet&X,const ParamSet&P){
+		vector<LinearInterpolation<double>> bg_funcs{theory[1].Line(),theory[2].Line()};
+		Fit<DifferentialMutations<>,ChiSquareWithXError> bg_fit(
+			make_shared<FitPoints>(measured.YRange(700.0,+INFINITY).XRange(0.450,0.542)),
+			[&bg_funcs](const ParamSet&X,const ParamSet&P){
 				double res=0;
 				for(size_t i=0;i<bg_funcs.size();i++)res+=bg_funcs[i](X[0])*P[i];
 				return res;
-			});
-			fit.SetUncertaintyCalcDeltas({0.01,0.01}).SetFilter(make_shared<Above>()<<0.0<<0.0);
-			auto count=measured.Total()*10.0;
-			fit.Init(60,make_shared<GenerateUniform>()<<make_pair(0.0,count)<<make_pair(0.0,count),r_eng);
-			while(!fit.AbsoluteOptimalityExitCondition(0.000001))
-				fit.Iterate(r_eng);
-			Plot<double>().Hist(points->Hist1(0),"DATA").Line(SortedPoints<double>([&fit](double x){return fit({x});},ChainWithStep(0.41,0.001,0.59)))
-			<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"<<"set yrange [0:]";
-			for(const auto&v:fit.ParametersWithUncertainties())bg_coefs.push_back(v);
-			bg_chi_sq<<point<value<double>>(norm[0][bin_num].X(),fit.Optimality());
-		}
-
-		//luminosity<<point<value<double>>(norm[0][bin_num].X(),K*value<double>(trigger_he3_forward.scaling));
+			}
+		);
+		bg_fit.SetUncertaintyCalcDeltas({0.01,0.01}).SetFilter(make_shared<Above>()<<0.0<<0.0);
+		auto count=measured.Total()*50.0;
+		bg_fit.Init(100,make_shared<GenerateUniform>()<<make_pair(0.0,count)<<make_pair(0.0,count),r_eng);
+		while(!bg_fit.AbsoluteOptimalityExitCondition(0.000001))
+			bg_fit.Iterate(r_eng);
+		SortedPoints<double> BG_displ(theory[1].Line()*bg_fit[0]+theory[2].Line()*bg_fit[1]);
+		Plot<double>().Hist(bg_fit.Points()->Hist1(0),"DATA").Line(BG_displ,"fit")
+		<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"<<"set yrange [0:]";
+		
+		bg_chi_sq<<point<value<double>>(norm[0][bin_num].X(),bg_fit.Optimality());
+		
+		hist<double> BG(theory[1]*bg_fit.ParametersWithUncertainties()[0]+theory[2]*bg_fit.ParametersWithUncertainties()[1]);
+		Plot<double>().Hist(bg_fit.Points()->Hist1(0),"DATA").Hist(BG,"fit+uncertainty")
+		<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"<<"set yrange [0:]";
+		
+		Plotter::Instance()<<"unset yrange"<<"unset xrange";
+		auto FG=(measured-BG).XRange(0.50,0.56);
+		Plot<double>().Hist(FG,"substract").Object("0*x title ''")
+		<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
+		<<"set yrange [-300:1500]";
+		
+		Plotter::Instance()<<"unset yrange"<<"unset xrange";
+		FG=FG.XRange(0.53,0.56).YRange(0.0,+INFINITY);
+		value<double> L=0.0;
+		for(const auto&P:FG)L+=P.Y();
+		Plot<double>().Hist(FG,"substract").Hist(theory[0]*L,"MC")
+		<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"<<"set yrange [0:]";
+		if(!L.contains(0))
+			luminosity<<point<value<double>>(norm[0][bin_num].X(),L/func_value(sigmaHe3eta.func(),norm[0][bin_num].X()));
 	}
 	Plot<double>().Hist(bg_chi_sq)<<"set xlabel 'Q, MeV'"<<"set ylabel 'BG fit chi^2, n.d.'"<<"set yrange [0:]";
 	{//Plot acceptance
