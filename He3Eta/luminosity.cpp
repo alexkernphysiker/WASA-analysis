@@ -51,7 +51,7 @@ int main(){
 	Plotter::Instance()<<"unset yrange";
 	vector<hist<double>> acceptance;
 	for(const auto&h:norm)acceptance.push_back(h.CloneEmptyBins());
-	SortedPoints<value<double>> luminosity,bg_chi_sq;
+	SortedPoints<value<double>> luminosity,bg_chi_sq,fg_chi_sq;
 	RANDOM r_eng;
 	for(size_t bin_num=0,bin_count=norm[0].size();bin_num<bin_count;bin_num++){
 		Plotter::Instance()<<"unset yrange"<<"unset xrange";
@@ -95,15 +95,31 @@ int main(){
 		<<"set yrange [-300:1500]";
 		
 		Plotter::Instance()<<"unset yrange"<<"unset xrange";
-		FG=FG.XRange(0.53,0.56).YRange(0.0,+INFINITY);
-		value<double> L=0.0;
-		for(const auto&P:FG)L+=P.Y();
-		Plot<double>().Hist(FG,"substract").Hist(theory[0]*L,"MC")
-		<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"<<"set yrange [0:]";
-		if(!L.contains(0))
-			luminosity<<point<value<double>>(norm[0][bin_num].X(),L/func_value(sigmaHe3eta.func(),norm[0][bin_num].X()));
+		FG=FG.XRange(0.54,0.56).YRange(0.0,+INFINITY);
+		LinearInterpolation<double> fg_mc(theory[0].Line());
+		Fit<DifferentialMutations<>,ChiSquareWithXError> fg_fit(
+			make_shared<FitPoints>(FG),
+			[&fg_mc](const ParamSet&X,const ParamSet&P){
+				return fg_mc(X[0])*P[0];
+			}
+		);
+		fg_fit.SetUncertaintyCalcDeltas({0.01,0.01}).SetFilter(make_shared<Above>()<<0.0)
+		.Init(100,make_shared<GenerateUniform>()<<make_pair(0.0,count),r_eng);
+		while(!fg_fit.AbsoluteOptimalityExitCondition(0.000001))
+			fg_fit.Iterate(r_eng);
+		if(!fg_fit.ParametersWithUncertainties()[0].contains(0)){
+			fg_chi_sq<<point<value<double>>(norm[0][bin_num].X(),fg_fit.Optimality());
+			Plot<double>().Hist(FG,"substract").Hist(theory[0]*value<double>(fg_fit[0]),"MC")
+			<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
+			<<"set yrange [0:]";
+			Plot<double>().Hist(FG,"substract").Hist(theory[0]*fg_fit.ParametersWithUncertainties()[0],"MC+uncertainty")
+			<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
+			<<"set yrange [0:]";
+			luminosity<<point<value<double>>(norm[0][bin_num].X(),fg_fit.ParametersWithUncertainties()[0]/func_value(sigmaHe3eta.func(),norm[0][bin_num].X()));
+		}
 	}
 	Plot<double>().Hist(bg_chi_sq)<<"set xlabel 'Q, MeV'"<<"set ylabel 'BG fit chi^2, n.d.'"<<"set yrange [0:]";
+	Plot<double>().Hist(fg_chi_sq)<<"set xlabel 'Q, MeV'"<<"set ylabel 'FG fit chi^2, n.d.'"<<"set yrange [0:]";
 	{//Plot acceptance
 		Plot<double> plot;
 		plot<<"set yrange [0:0.7]";
