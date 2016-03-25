@@ -6,9 +6,8 @@
 #include <memory>
 #include <gnuplot_wrap.h>
 #include <math_h/functions.h>
-#include <math_h/error.h>
-#include <Genetic/fit.h>
-#include <Genetic/initialconditions.h>
+#include <math_h/sigma.h>
+#include <math_h/interpolate.h>
 #include <Experiment/experiment_conv.h>
 #include <Experiment/str_get.h>
 #include <Experiment/gethist.h>
@@ -18,44 +17,52 @@ using namespace std;
 using namespace ROOT_data;
 using namespace MathTemplates;
 using namespace GnuplotWrap;
-using namespace Genetic;
-const Reaction&main_reaction(){
-	static Reaction main_react(Particle::p(),Particle::d(),{Particle::he3(),Particle::eta()});
-	return main_react;
-}
 int main(){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"beam_momenta");
-	auto Q2P=LinearInterpolation<double>(SortedPoints<double>([](double p){return main_reaction().P2Q(p);},ChainWithStep(0.0,0.005,3.0)).Transponate());
-	auto Q2E=LinearInterpolation<double>(SortedPoints<double>([](double e){return main_reaction().E2Q(e);},ChainWithStep(0.0,0.005,3.0)).Transponate());
+	Reaction He3eta(Particle::p(),Particle::d(),{Particle::he3(),Particle::eta()});
+	LinearInterpolation<double> Q2P=SortedPoints<double>(
+		[&He3eta](double p){return He3eta.P2Q(p);},ChainWithStep(0.0,0.001,3.0)
+	).Transponate();
+	LinearInterpolation<double> Q2E=SortedPoints<double>(
+		[&He3eta](double e){return He3eta.E2Q(e);},ChainWithStep(0.0,0.001,3.0)
+	).Transponate();
+	LinearInterpolation<double> ThetaMax2P=SortedPoints<double>(
+		[&He3eta](double p){
+			const double Ek_theta_max=0.3;
+			return He3eta.PbEr2Theta(p,Ek_theta_max)*180/PI();
+			
+		},ChainWithStep(He3eta.PThreshold(),0.001,3.0)
+	).Transponate();
 	string he3eta="He3eta";
-	RANDOM engine;
 	SortedPoints<value<double>> offs_mc,offs_data;
 	auto QBins=Hist(MC,he3eta,{"Histograms","He3Forward_Reconstruction"},"0-Reference");
-	for(size_t bin_num=9,bin_count=QBins.size();bin_num<bin_count;bin_num++){
+	for(size_t bin_num=9,bin_count=QBins.size()-1;bin_num<bin_count;bin_num++){
 		auto Q=QBins[bin_num].X();
 		double p=Q2P(Q.val()/1000.0);
-		auto do_fit=[&engine,&Q,&p](const hist2d<double>&kin_){
-			auto points=make_shared<FitPoints>();
-			double max=0;
+		auto do_fit=[&He3eta,&ThetaMax2P,&Q,&p](const hist2d<double>&kin_){
+			double max=0;WeightedAverageCalculator<double> theta_avr;
+			vector<point<value<double>>> points;
 			kin_.FullCycle([&max](const point3d<value<double>>&P){
 				if(max<P.Z().val())max=P.Z().val();
 			});
-			kin_.FullCycle([max,&points](const point3d<value<double>>&P){
-				if((P.Z().val()>(1.0*max/2.0))&&(P.X().val()>0.28)&&(P.X().val()<0.35))
-					points<<Point({P.X().val()},P.Y().val(),P.Z().val());
-			});
-			Fit<DifferentialMutations<>,SumWeightedSquareDiff> fit(
-				points,
-				[&p](const ParamSet&E,const ParamSet&P){
-					return main_reaction().PbEr2Theta(p+P[0],E[0])*180./PI();
+			kin_.FullCycle([max,&theta_avr,&points](const point3d<value<double>>&P){
+				if(
+					(P.X().val()>0.25)&&(P.X().val()<0.35)
+					&&(P.Y().val()<7.5)
+					&&(P.Z().val()>(4.0*max/5.0))
+				){
+					points.push_back(point<value<double>>(P.X(),P.Y()));
+					for(unsigned long i=0;i<(P.Z().val()-(4.0*max/5.0));i++)
+						theta_avr<<P.Y();
 				}
+			});
+			auto P=func_value(ThetaMax2P.func(),theta_avr());
+			Plot<double>().Hist(points)
+			.Line(SortedPoints<double>(
+				[&He3eta,&theta_avr,&P](double E)->double{return He3eta.PbEr2Theta(P.val(),E)*180./PI();},
+				ChainWithStep(0.25,0.001,0.35))
 			);
-			fit.Init(60,make_shared<GenerateUniform>()<<make_pair(-0.01,0.01),engine);
-			while(!fit.RelativeOptimalityExitCondition(0.001))
-				fit.Iterate(engine);
-			Plot<double>().Points(points->Line(0))
-			.Line(SortedPoints<double>([&fit](double E)->double{return fit({E});},ChainWithStep(0.2,0.005,0.4)));
-			return point<value<double>>(Q,fit.ParametersStatistics()[0]);
+			return point<value<double>>(Q,P-value<double>(p));
 		};
 		auto kin_v=Hist2d(MC,he3eta,{"Histograms","He3Forward_Vertices"},string("Kinematic-vertex-Bin-")+to_string(bin_num)).Scale(4,4);
 		PlotHist2d<double>(sp2).Distr(kin_v)<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'";
@@ -66,7 +73,7 @@ int main(){
 		offs_mc<<do_fit(kin_mc);
 		offs_data<<do_fit(kin_data);
 	}
-	Plot<double>().Hist(offs_mc,"WMC").Hist(offs_data,"Data")<<"set yrange [0:.015]"
-		<<"set xlabel 'Q, MeV'"<<"set ylabel 'delta, GeV'";
+	Plot<double>().Hist(offs_mc,"WMC").Hist(offs_data,"Data")<<"set yrange [0:0.01]"
+		<<"set xlabel 'Q, MeV'"<<"set ylabel 'delta P, GeV/c'";
 	return 0;
 }
