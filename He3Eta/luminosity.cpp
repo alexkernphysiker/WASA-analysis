@@ -55,13 +55,6 @@ int main(){
 	for(size_t bin_num=3,bin_count=norm[0].size();bin_num<bin_count;bin_num++){
 		Plotter::Instance()<<"unset yrange"<<"unset xrange";
 		hist<double> measured=Hist(DATA,"He3",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
-		{//shift MM spectrum I guess the need to do this 
-		//is connected with shift of kinematic histogram for data  relatively to MC
-			hist<double> tmp;
-			for(size_t i=1;i<measured.size();i++)
-				tmp<<point<value<double>>(measured[i].X(),measured[i-1].Y());
-			measured=tmp;
-		}
 		measured=measured.XRange(0.4,0.7);
 		Plot<double>().Hist(measured,"DATA")<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"<<"set yrange [0:]";
 		vector<hist<double>> theory;
@@ -74,7 +67,7 @@ int main(){
 		}
 		vector<LinearInterpolation<double>> bg_funcs{theory[1].Line(),theory[2].Line()};
 		Fit<DifferentialMutations<>,ChiSquareWithXError> bg_fit(
-			make_shared<FitPoints>(measured.XRange(0.450,0.502)),
+			make_shared<FitPoints>(measured.XRange(0.450,0.527)),
 			[&bg_funcs](const ParamSet&X,const ParamSet&P){
 				double res=0;
 				for(size_t i=0;i<bg_funcs.size();i++)res+=bg_funcs[i](X[0])*P[i];
@@ -105,11 +98,11 @@ int main(){
 		
 		if(norm[0][bin_num].X().val()>17){
 			Plotter::Instance()<<"unset yrange"<<"unset xrange";
-			FG=FG.XRange(0.52,0.57).YRange(0.0,+INFINITY);
+			FG=FG.XRange(0.525,0.57);
 			value<double> L=0.0;
 			for(const auto&P:FG)L+=P.Y();
 			L/=theory[0].Total();
-			Plot<double>().Hist(FG,"substracted").Hist(theory[0].XRange(0.54,0.56)*L,"MC")
+			Plot<double>().Hist(FG,"substracted").Hist(theory[0].XRange(0.525,0.57)*L,"MC")
 			<<"set xlabel 'Missing mass, GeV'"
 			<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
 			<<"set yrange [0:]";
