@@ -65,7 +65,7 @@ int main(){
 		}
 		vector<LinearInterpolation<double>> bg_funcs{theory[1].Line(),theory[2].Line()};
 		Fit<DifferentialMutations<>,ChiSquareWithXError> bg_fit(
-			make_shared<FitPoints>(measured.YRange(700.0,+INFINITY).XRange(0.450,0.542)),
+			make_shared<FitPoints>(measured.YRange(750.0,+INFINITY).XRange(0.450,0.542)),
 			[&bg_funcs](const ParamSet&X,const ParamSet&P){
 				double res=0;
 				for(size_t i=0;i<bg_funcs.size();i++)res+=bg_funcs[i](X[0])*P[i];
@@ -78,18 +78,18 @@ int main(){
 		while(!bg_fit.AbsoluteOptimalityExitCondition(0.000001))
 			bg_fit.Iterate(r_eng);
 		SortedPoints<double> BG_displ(theory[1].Line()*bg_fit[0]+theory[2].Line()*bg_fit[1]);
-		Plot<double>().Hist(bg_fit.Points()->Hist1(0),"DATA").Line(BG_displ,"fit")
+		Plot<double>().Hist(bg_fit.Points()->Hist1(0),"cut DATA").Line(BG_displ,"fit")
 		<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"<<"set yrange [0:]";
 		
 		bg_chi_sq<<point<value<double>>(norm[0][bin_num].X(),bg_fit.Optimality());
 		
 		hist<double> BG(theory[1]*bg_fit.ParametersWithUncertainties()[0]+theory[2]*bg_fit.ParametersWithUncertainties()[1]);
-		Plot<double>().Hist(bg_fit.Points()->Hist1(0),"DATA").Hist(BG,"fit+uncertainty")
+		Plot<double>().Hist(measured,"all DATA").Hist(BG,"background")
 		<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"<<"set yrange [0:]";
 		
 		Plotter::Instance()<<"unset yrange"<<"unset xrange";
 		auto FG=(measured-BG).XRange(0.50,0.56);
-		Plot<double>().Hist(FG,"substract").Object("0*x title ''")
+		Plot<double>().Hist(FG,"substracted").Object("0*x title ''")
 		<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
 		<<"set yrange [-300:1500]";
 		
@@ -108,13 +108,19 @@ int main(){
 			fg_fit.Iterate(r_eng);
 		if(!fg_fit.ParametersWithUncertainties()[0].contains(0)){
 			fg_chi_sq<<point<value<double>>(norm[0][bin_num].X(),fg_fit.Optimality());
-			Plot<double>().Hist(FG,"substract").Hist(theory[0]*value<double>(fg_fit[0]),"MC")
+			Plot<double>().Hist(FG,"substracted")
+			.Hist(theory[0].XRange(0.54,0.56)*value<double>(fg_fit[0]),"fit")
 			<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
 			<<"set yrange [0:]";
-			Plot<double>().Hist(FG,"substract").Hist(theory[0]*fg_fit.ParametersWithUncertainties()[0],"MC+uncertainty")
-			<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
+			Plot<double>().Hist(FG,"substracted")
+			.Hist(theory[0].XRange(0.54,0.56)*fg_fit.ParametersWithUncertainties()[0],"MC")
+			<<"set xlabel 'Missing mass, GeV'"
+			<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
 			<<"set yrange [0:]";
-			luminosity<<point<value<double>>(norm[0][bin_num].X(),fg_fit.ParametersWithUncertainties()[0]/func_value(sigmaHe3eta.func(),norm[0][bin_num].X()));
+			luminosity<<point<value<double>>(
+				norm[0][bin_num].X(),
+				fg_fit.ParametersWithUncertainties()[0]/func_value(sigmaHe3eta.func(),norm[0][bin_num].X())
+			);
 		}
 	}
 	Plot<double>().Hist(bg_chi_sq)<<"set xlabel 'Q, MeV'"<<"set ylabel 'BG fit chi^2, n.d.'"<<"set yrange [0:]";
