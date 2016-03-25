@@ -55,6 +55,13 @@ int main(){
 	for(size_t bin_num=3,bin_count=norm[0].size();bin_num<bin_count;bin_num++){
 		Plotter::Instance()<<"unset yrange"<<"unset xrange";
 		hist<double> measured=Hist(DATA,"He3",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
+		{//shift MM spectrum I guess the need to do this 
+		//is connected with shift of kinematic histogram for data  relatively to MC
+			hist<double> tmp;
+			for(size_t i=1;i<measured.size();i++)
+				tmp<<point<value<double>>(measured[i].X(),measured[i-1].Y());
+			measured=tmp;
+		}
 		measured=measured.XRange(0.4,0.7);
 		Plot<double>().Hist(measured,"DATA")<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"<<"set yrange [0:]";
 		vector<hist<double>> theory;
@@ -67,7 +74,7 @@ int main(){
 		}
 		vector<LinearInterpolation<double>> bg_funcs{theory[1].Line(),theory[2].Line()};
 		Fit<DifferentialMutations<>,ChiSquareWithXError> bg_fit(
-			make_shared<FitPoints>(measured.XRange(0.50,0.528)),
+			make_shared<FitPoints>(measured.XRange(0.450,0.502)),
 			[&bg_funcs](const ParamSet&X,const ParamSet&P){
 				double res=0;
 				for(size_t i=0;i<bg_funcs.size();i++)res+=bg_funcs[i](X[0])*P[i];
@@ -75,9 +82,9 @@ int main(){
 			}
 		);
 		bg_fit.SetUncertaintyCalcDeltas({0.01,0.01}).SetFilter(make_shared<Above>()<<0.0<<0.0);
-		auto count=measured.Total()*2.0;
-		bg_fit.Init(40,make_shared<GenerateUniform>()<<make_pair(0.0,count)<<make_pair(0.0,count),r_eng);
-		while(!bg_fit.AbsoluteOptimalityExitCondition(0.000001))
+		auto count=measured.Total()*20.0;
+		bg_fit.Init(100,make_shared<GenerateUniform>()<<make_pair(0.0,count)<<make_pair(0.0,count),r_eng);
+		while(!bg_fit.AbsoluteOptimalityExitCondition(0.0000001))
 			bg_fit.Iterate(r_eng);
 		SortedPoints<double> BG_displ(theory[1].Line()*bg_fit[0]+theory[2].Line()*bg_fit[1]);
 		Plot<double>().Hist(bg_fit.Points()->Hist1(0),"cut DATA").Line(BG_displ,"fit")
@@ -87,15 +94,16 @@ int main(){
 		
 		hist<double> BG(theory[1]*bg_fit.ParametersWithUncertainties()[0]+theory[2]*bg_fit.ParametersWithUncertainties()[1]);
 		Plot<double>().Hist(measured,"all DATA").Hist(BG,"background")
+		.Line(hist<double>(theory[1]*bg_fit.ParametersWithUncertainties()[0]).Line(),"^3He2pi^0")
 		<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"<<"set yrange [0:]";
 		
 		Plotter::Instance()<<"unset yrange"<<"unset xrange";
-		auto FG=(measured-BG).XRange(0.45,0.57);
+		auto FG=(measured-BG).XRange(0.41,0.58);
 		Plot<double>().Hist(FG,"substracted").Object("0*x title ''")
 		<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
 		<<"set yrange [-300:1500]";
 		
-		if(norm[0][bin_num].X().val()>20){
+		if(norm[0][bin_num].X().val()>17){
 			Plotter::Instance()<<"unset yrange"<<"unset xrange";
 			FG=FG.XRange(0.52,0.57).YRange(0.0,+INFINITY);
 			value<double> L=0.0;
@@ -107,7 +115,7 @@ int main(){
 			<<"set yrange [0:]";
 			luminosity<<point<value<double>>(
 				norm[0][bin_num].X(),
-				L/func_value(sigmaHe3eta.func(),norm[0][bin_num].X())
+				L*value<double>(trigger_he3_forward.scaling)/func_value(sigmaHe3eta.func(),norm[0][bin_num].X())
 			);
 		}
 	}
