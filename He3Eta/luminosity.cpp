@@ -43,10 +43,9 @@ int main(){
 	vector<string> reaction={"He3eta","He3pi0pi0","He3pi0pi0pi0"};
 	vector<hist<double>> norm;
 	for(const string& r:reaction)norm.push_back(Hist(MC,r,histpath_forward_reconstr,"0-Reference"));
-	Plot<double>().Hist(norm[0],"All events")
-		.Hist(Hist(MC,reaction[0],histpath_forward_reconstr,"1-AllTracks"),"All tracks in forward")
-		.Hist(Hist(MC,reaction[0],histpath_forward_reconstr,"2-FPC"),"Signal in FPC")
-		.Hist(Hist(MC,reaction[0],histpath_forward_reconstr,"3-AllCuts"),"^3He")
+	Plot<double>().Hist(norm[0],"Simulated events")
+		.Hist(Hist(MC,reaction[0],histpath_forward_reconstr,"2-FPC"),"Forward tracks with signal in FPC")
+		.Hist(Hist(MC,reaction[0],histpath_forward_reconstr,"3-AllCuts"),"identified as ^3He")
 		<<"set yrange [0:400000]"<<"set xlabel 'Q, MeV'"<<"set ylabel 'Events count'";
 	Plotter::Instance()<<"unset yrange";
 	vector<hist<double>> acceptance;
