@@ -40,7 +40,7 @@ int main(){
 		auto Q=QBins[bin_num].X();
 		double p=Q2P(Q.val()/1000.0);
 		auto do_fit=[&He3eta,&ThetaMax2P,&Q,&p](const hist2d<double>&kin_){
-			double max=0;WeightedAverageCalculator<double> theta_avr;
+			double max=0;StandardDeviation<double> theta_avr;
 			vector<point<value<double>>> points;
 			kin_.FullCycle([&max](const point3d<value<double>>&P){
 				if(max<P.Z().val())max=P.Z().val();
@@ -52,8 +52,8 @@ int main(){
 					&&(P.Z().val()>(4.0*max/5.0))
 				){
 					points.push_back(point<value<double>>(P.X(),P.Y()));
-					for(unsigned long i=0;i<(P.Z().val()-(4.0*max/5.0));i++)
-						theta_avr<<P.Y();
+					for(unsigned long i=0;i<(P.Z().val()-(3.0*max/4.0));i++)
+						theta_avr<<P.Y().val();
 				}
 			});
 			auto P=func_value(ThetaMax2P.func(),theta_avr());
@@ -73,7 +73,7 @@ int main(){
 		offs_mc<<do_fit(kin_mc);
 		offs_data<<do_fit(kin_data);
 	}
-	Plot<double>().Hist(offs_mc,"WMC").Hist(offs_data,"Data")<<"set yrange [0:0.01]"
+	Plot<double>().Hist(offs_mc,"WMC").Hist(offs_data,"Data")<<"set yrange [0.002:0.008]"
 		<<"set xlabel 'Q, MeV'"<<"set ylabel 'delta P, GeV/c'";
 	return 0;
 }

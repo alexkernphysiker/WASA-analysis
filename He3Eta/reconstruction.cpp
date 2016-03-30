@@ -2,7 +2,7 @@
 // MIT license
 #include <unistd.h>
 #include <gnuplot_wrap.h>
-#include <math_h/structures.h>
+#include <math_h/hists.h>
 #include <Genetic/initialconditions.h>
 #include <ReconstructionFit/reconstruction_types.h>
 #include <ReconstructionFit/reconstruction_fit.h>
