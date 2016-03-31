@@ -34,25 +34,25 @@ int main(){
 		},ChainWithStep(He3eta.PThreshold(),0.001,3.0)
 	).Transponate();
 	string he3eta="He3eta";
-	SortedPoints<value<double>> offs_mc,offs_data;
+	SortedPoints<value<double>> offs_mc,offs_data,ek_mc,ek_data;
 	auto QBins=Hist(MC,he3eta,{"Histograms","He3Forward_Reconstruction"},"0-Reference");
-	for(size_t bin_num=9,bin_count=QBins.size()-1;bin_num<bin_count;bin_num++){
+	for(size_t bin_num=8,bin_count=QBins.size();bin_num<bin_count;bin_num++){
 		auto Q=QBins[bin_num].X();
 		double p=Q2P(Q.val()/1000.0);
-		auto do_fit=[&He3eta,&ThetaMax2P,&Q,&p](const hist2d<double>&kin_){
+		auto P_offset=[&He3eta,&ThetaMax2P,&Q,&p](const hist2d<double>&kin_,const double ratio){
 			double max=0;StandardDeviation<double> theta_avr;
 			vector<point<value<double>>> points;
 			kin_.FullCycle([&max](const point3d<value<double>>&P){
 				if(max<P.Z().val())max=P.Z().val();
 			});
-			kin_.FullCycle([max,&theta_avr,&points](const point3d<value<double>>&P){
+			kin_.FullCycle([&max,&theta_avr,&points,&ratio](const point3d<value<double>>&P){
 				if(
-					(P.X().val()>0.25)&&(P.X().val()<0.35)
-					&&(P.Y().val()<7.5)
-					&&(P.Z().val()>(4.0*max/5.0))
+					(P.X().val()>0.2)&&(P.X().val()<0.4)
+					&&(P.Y().val()<7.3)
+					&&(P.Z().val()>(ratio*max))
 				){
 					points.push_back(point<value<double>>(P.X(),P.Y()));
-					for(unsigned long i=0;i<(P.Z().val()-(3.0*max/4.0));i++)
+					for(unsigned long i=0;i<(P.Z().val()-(max*ratio));i++)
 						theta_avr<<P.Y().val();
 				}
 			});
@@ -64,16 +64,39 @@ int main(){
 			);
 			return point<value<double>>(Q,P-value<double>(p));
 		};
-		auto kin_v=Hist2d(MC,he3eta,{"Histograms","He3Forward_Vertices"},string("Kinematic-vertex-Bin-")+to_string(bin_num)).Scale(4,4);
+		auto Ek_avr=[&He3eta,&ThetaMax2P,&Q,&p](const hist2d<double>&kin_,const double ratio){
+			double max=0;StandardDeviation<double> ek_avr;
+			vector<point<value<double>>> points;
+			kin_.FullCycle([&max](const point3d<value<double>>&P){
+				if(max<P.Z().val())max=P.Z().val();
+			});
+			kin_.FullCycle([&max,&ek_avr,&points,&ratio](const point3d<value<double>>&P){
+				if(
+					(P.X().val()>0.2)&&(P.X().val()<0.4)
+					&&(P.Y().val()<7.3)
+					&&(P.Z().val()>(ratio*max))
+				){
+					points.push_back(point<value<double>>(P.X(),P.Y()));
+					for(unsigned long i=0;i<(P.Z().val()-(max*ratio));i++)
+						ek_avr<<P.X().val();
+				}
+			});
+			return point<value<double>>(Q,ek_avr());
+		};
+		auto kin_v=Hist2d(MC,he3eta,{"Histograms","He3Forward_Vertices"},string("Kinematic-vertex-Bin-")+to_string(bin_num)).Scale(6,6);
 		PlotHist2d<double>(sp2).Distr(kin_v)<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'";
-		auto kin_mc=Hist2d(MC,he3eta,{"Histograms","He3Forward_Reconstruction"},string("Kinematic-reconstructed-Bin-")+to_string(bin_num)).Scale(4,4);
+		auto kin_mc=Hist2d(MC,he3eta,{"Histograms","He3Forward_Reconstruction"},string("Kinematic-reconstructed-Bin-")+to_string(bin_num)).Scale(6,6);
 		PlotHist2d<double>(sp2).Distr(kin_mc)<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'";
-		auto kin_data=Hist2d(DATA,"He3",{"Histograms","He3Forward_Reconstruction"},string("Kinematic-reconstructed-Bin-")+to_string(bin_num)).Scale(4,4);
+		auto kin_data=Hist2d(DATA,"He3",{"Histograms","He3Forward_Reconstruction"},string("Kinematic-reconstructed-Bin-")+to_string(bin_num)).Scale(6,6);
 		PlotHist2d<double>(sp2).Distr(kin_data);
-		offs_mc<<do_fit(kin_mc);
-		offs_data<<do_fit(kin_data);
+		offs_mc<<P_offset(kin_mc,1.0/2.0);
+		offs_data<<P_offset(kin_data,1.0/2.0);
+		ek_mc<<Ek_avr(kin_mc,1.0/2.0);
+		ek_data<<Ek_avr(kin_data,1.0/2.0);
 	}
-	Plot<double>().Hist(offs_mc,"WMC").Hist(offs_data,"Data")<<"set yrange [0.002:0.008]"
+	Plot<double>().Hist(offs_mc,"WMC").Hist(offs_data,"Data")
 		<<"set xlabel 'Q, MeV'"<<"set ylabel 'delta P, GeV/c'";
+	Plot<double>().Hist(ek_mc,"WMC").Hist(ek_data,"Data")
+		<<"set xlabel 'Q, MeV'"<<"set ylabel 'Ek_{avr}, GeV'";
 	return 0;
 }
