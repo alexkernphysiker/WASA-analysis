@@ -91,7 +91,7 @@ int main(){
 		<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"<<"set yrange [0:]";
 		
 		Plotter::Instance()<<"unset yrange"<<"unset xrange";
-		auto FG=(measured-BG).XRange(0.41,0.58);
+		hist<double> FG=(measured-BG).XRange(0.41,0.58);
 		Plot<double>().Hist(FG,"substracted").Object("0*x title ''")
 		<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
 		<<"set yrange [-300:1500]";
@@ -99,9 +99,7 @@ int main(){
 		if(norm[0][bin_num].X().val()>17){
 			Plotter::Instance()<<"unset yrange"<<"unset xrange";
 			FG=FG.XRange(0.525,0.57);
-			value<double> L=0.0;
-			for(const auto&P:FG)L+=P.Y();
-			L/=theory[0].Total();
+			value<double> L=FG.TotalSum()/theory[0].Total();
 			Plot<double>().Hist(FG,"substracted").Hist(theory[0].XRange(0.525,0.57)*L,"MC")
 			<<"set xlabel 'Missing mass, GeV'"
 			<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"
