@@ -53,14 +53,15 @@ int main(){
 	SortedPoints<value<double>> luminosity,bg_chi_sq;
 	RANDOM r_eng;
 	for(size_t bin_num=3,bin_count=norm[0].size();bin_num<bin_count;bin_num++){
+		auto transform=[](hist<double>&h){h=h.Scale(2).XRange(0.4,0.7);};
 		Plotter::Instance()<<"unset yrange"<<"unset xrange";
 		hist<double> measured=Hist(DATA,"He3",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
-		measured=measured.Scale(2).XRange(0.4,0.7);
+		transform(measured);
 		Plot<double>().Hist(measured,"DATA")<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"<<"set yrange [0:]";
 		vector<hist<double>> theory;
 		for(size_t i=0;i<reaction.size();i++){
 			hist<double> react_sim=Hist(MC,reaction[i],histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
-			react_sim=react_sim.Scale(2).XRange(0.4,0.7);
+			transform(react_sim);
 			auto N=value<double>(react_sim.Total());
 			acceptance[i].Bin(bin_num).varY()=N/norm[i][bin_num].Y();
 			theory.push_back(react_sim/norm[i][bin_num].Y());
@@ -85,7 +86,7 @@ int main(){
 		
 		bg_chi_sq<<point<value<double>>(norm[0][bin_num].X(),bg_fit.Optimality());
 		
-		hist<double> BG(theory[1]*bg_fit.ParametersWithUncertainties()[0]+theory[2]*bg_fit.ParametersWithUncertainties()[1]);
+		hist<double> BG=theory[1]*bg_fit.ParametersWithUncertainties()[0]+theory[2]*bg_fit.ParametersWithUncertainties()[1];
 		Plot<double>().Hist(measured,"all DATA").Hist(BG,"background")
 		.Line(hist<double>(theory[1]*bg_fit.ParametersWithUncertainties()[0]).Line(),"^3He2pi^0")
 		<<"set xlabel 'Missing mass, GeV'"<<"set ylabel 'a.u (Q="+to_string(norm[0][bin_num].X().val())+" MeV)'"<<"set yrange [0:]";
