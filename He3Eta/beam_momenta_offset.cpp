@@ -61,7 +61,8 @@ int main(){
 			.Line(SortedPoints<double>(
 				[&He3eta,&theta_avr,&P](double E)->double{return He3eta.PbEr2Theta(P.val(),E)*180./PI();},
 				ChainWithStep(0.25,0.001,0.35))
-			);
+			)
+			<<"set xrange [0.2:0.4]"<<"set yrange [4.5:7.5]";
 			return point<value<double>>(Q,P-value<double>(p));
 		};
 		auto Ek_avr=[&He3eta,&ThetaMax2P,&Q,&p](const hist2d<double>&kin_,const double ratio){
@@ -89,10 +90,10 @@ int main(){
 		PlotHist2d<double>(sp2).Distr(kin_mc)<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'";
 		auto kin_data=Hist2d(DATA,"He3",{"Histograms","He3Forward_Reconstruction"},string("Kinematic-reconstructed-Bin-")+to_string(bin_num)).Scale(6,6);
 		PlotHist2d<double>(sp2).Distr(kin_data);
-		offs_mc<<P_offset(kin_mc,1.0/2.0);
-		offs_data<<P_offset(kin_data,1.0/2.0);
-		ek_mc<<Ek_avr(kin_mc,1.0/2.0);
-		ek_data<<Ek_avr(kin_data,1.0/2.0);
+		offs_mc<<P_offset(kin_mc,2.0/3.0);
+		offs_data<<P_offset(kin_data,2.0/3.0);
+		ek_mc<<Ek_avr(kin_mc,2.0/3.0);
+		ek_data<<Ek_avr(kin_data,2.0/3.0);
 	}
 	Plot<double>().Hist(offs_mc,"WMC").Hist(offs_data,"Data")
 		<<"set xlabel 'Q, MeV'"<<"set ylabel 'delta P, GeV/c'";
