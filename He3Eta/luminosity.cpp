@@ -79,7 +79,7 @@ int main(){
 		if(norm[0][bin_num].X()>20.0){
 			vector<LinearInterpolation<double>> bg_funcs{theory[1].Line(),theory[2].Line()};
 			Fit<DifferentialMutations<>,ChiSquareWithXError> bg_fit(
-				make_shared<FitPoints>(data.XRange(0.50,0.56).XExclude(0.532,0.554)),
+				make_shared<FitPoints>(data.XRange(0.47,0.56).XExclude(0.532,0.555)),
 				[&bg_funcs](const ParamSet&X,const ParamSet&P){
 					double res=0;
 					for(size_t i=0;i<bg_funcs.size();i++)res+=bg_funcs[i](X[0])*P[i];
@@ -151,5 +151,5 @@ int main(){
 	Plot<double>().Hist(luminosity,to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs") 
 	<< "set key on" << "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'Integral luminosity, nb^{-1}'" 
-	<< "set yrange [0:]";
+	<< "set yrange [0:100]";
 }
