@@ -53,12 +53,13 @@ int main(){
 
 	vector<hist<double>> acceptance;
 	for(const auto&h:norm)acceptance.push_back(hist<double>());
-	SortedPoints<value<double>> luminosity,bg_chi_sq;
+	SortedPoints<value<double>> luminosity,bg_chi_sq,bg_ratio;
 	RANDOM r_eng;
 	for(size_t bin_num=3,bin_count=norm[0].size();bin_num<bin_count;bin_num++)
-		if(norm[0][bin_num].X()>15.0){
-			string Qmsg="Q in ["+to_string(int(norm[0][bin_num].X().min()))+":"+to_string(int(norm[0][bin_num].X().max()))+"] MeV";
-			auto transform=[](hist<double>&h){h=h.Scale(3).XRange(0.45,0.6);};
+		if(norm[0][bin_num].X()>17.0){
+			auto Q=norm[0][bin_num].X();
+			string Qmsg="Q in ["+to_string(norm[0][bin_num].X().min())+":"+to_string(norm[0][bin_num].X().max())+"] MeV";
+			auto transform=[](hist<double>&h){h=h.XRange(0.35,0.75);};
 
 			hist<double> data=Hist(DATA,"He3",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
 			transform(data);
@@ -67,29 +68,33 @@ int main(){
 			<< "set key on"
 			<< "set xlabel 'Missing mass, GeV'"
 			<< "set ylabel 'counts'"
-			<< "set xrange [0.45:0.6]"
-			<< "set yrange [-1000:10000]";
+			<< "set xrange [0.4:0.6]"
+			<< "set yrange [-200:3500]";
 		
 			vector<hist<double>> theory;{
 				Plot<double> MCplot;
 				for(size_t i=0;i<reaction.size();i++){
 					hist<double> react_sim=Hist(MC,reaction[i],histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
 					transform(react_sim);
-					auto N=value<double>(react_sim.Total());
-					acceptance[i] << point<value<double>>(norm[0][bin_num].X(),N/norm[i][bin_num].Y());
-					theory.push_back(react_sim/norm[i][bin_num].Y());
+					auto N=norm[i][bin_num].Y();
+					acceptance[i] << point<value<double>>(Q,value<double>(react_sim.Total())/N);
+					theory.push_back(react_sim/N);
 					MCplot.Hist(theory[i],reaction[i]+" MC "+Qmsg);
 				}
 				MCplot 
-				<< "set xrange [0.45:0.6]"
+				<< "set xrange [0.4:0.6]"
 				<< "set yrange [0:0.3]"
 				<< "set key on" 
 				<< "set ylabel 'acceptance, channel^{-1}'";
 			}
 			vector<LinearInterpolation<double>> bg_funcs{theory[1].Line(),theory[2].Line()};
-			
-			Fit<DifferentialMutations<>,ChiSquareWithXError> bg_fit(
-				make_shared<FitPoints>(data.XRange(0.48,0.56).XExclude(0.532,0.553)),
+			auto for_fit=data.XRange(0.45,0.57);
+			if((Q.val()>17)&&(Q.val()<20))for_fit=for_fit.XExclude(0.526,0.546);
+			if((Q.val()>20)&&(Q.val()<22))for_fit=for_fit.XExclude(0.528,0.548);
+			if((Q.val()>22)&&(Q.val()<25))for_fit=for_fit.XExclude(0.530,0.550);
+			if((Q.val()>25)&&(Q.val()<27))for_fit=for_fit.XExclude(0.532,0.552);
+			if((Q.val()>27)&&(Q.val()<30))for_fit=for_fit.XExclude(0.535,0.555);
+			Fit<DifferentialMutations<>,ChiSquare> bg_fit(make_shared<FitPoints>(for_fit),
 				[&bg_funcs](const ParamSet&X,const ParamSet&P){
 					double res=0;
 					for(size_t i=0;i<bg_funcs.size();i++)res+=bg_funcs[i](X[0])*P[i];
@@ -100,13 +105,18 @@ int main(){
 			{
 				auto count=data.Total();
 				bg_fit.Init(100,make_shared<GenerateUniform>()
-					<<make_pair(0.0,3.0*count)
-					<<make_pair(0.0,3.0*count)
+					<<make_pair(0.0,5.0*count)
+					<<make_pair(0.0,5.0*count)
 					,r_eng
 				);
 			}
 			while(!bg_fit.AbsoluteOptimalityExitCondition(0.0000001))
 				bg_fit.Iterate(r_eng);
+			bg_ratio << point<value<double>>(Q,
+				bg_fit.ParametersWithUncertainties()[0]
+				/
+				bg_fit.ParametersWithUncertainties()[1]
+			);
 			
 			SortedPoints<double> BG_displ(theory[1].Line()*bg_fit[0]+theory[2].Line()*bg_fit[1]);
 			Plot<double>()
@@ -115,10 +125,10 @@ int main(){
 			<< "set key on"
 			<< "set xlabel 'Missing mass, GeV'"
 			<< "set ylabel 'counts'"
-			<< "set xrange [0.45:0.6]"
-			<< "set yrange [-1000:10000]";
+			<< "set xrange [0.4:0.6]"
+			<< "set yrange [-200:3500]";
 			
-			bg_chi_sq << point<value<double>>(norm[0][bin_num].X(),bg_fit.Optimality());
+			bg_chi_sq << point<value<double>>(Q,bg_fit.Optimality());
 			
 			hist<double> BG=
 				theory[1]*bg_fit.ParametersWithUncertainties()[0]+
@@ -130,17 +140,17 @@ int main(){
 			<< "set key on"
 			<< "set xlabel 'Missing mass, GeV'" 
 			<< "set ylabel 'counts'"
-			<< "set xrange [0.45:0.6]"
-			<< "set yrange [-1000:10000]";
+			<< "set xrange [0.4:0.6]"
+			<< "set yrange [-200:3500]";
 			
-			hist<double> FG=(data-BG).XRange(0.45,0.60);
+			hist<double> FG=(data-BG).XRange(0.40,0.70);
 			Plot<double>().Object("0*x title ''")
 			.Hist(FG,"DATA-background "+Qmsg)
 			<< "set key on" 
 			<< "set xlabel 'Missing mass, GeV'"
 			<< "set ylabel 'counts'"
-			<< "set xrange [0.45:0.6]"
-			<< "set yrange [-1000:10000]";
+			<< "set xrange [0.4:0.6]"
+			<< "set yrange [-200:3500]";
 			
 			FG=FG.XRange(0.525,0.560);
 			value<double> L=FG.TotalSum()/theory[0].Total();
@@ -150,20 +160,24 @@ int main(){
 			<< "set key on"
 			<< "set xlabel 'Missing mass, GeV'"
 			<< "set ylabel 'counts'"
-			<< "set xrange [0.45:0.6]"
-			<< "set yrange [-1000:10000]";
-			luminosity << point<value<double>>(
-				norm[0][bin_num].X(),
+			<< "set xrange [0.4:0.6]"
+			<< "set yrange [-200:3500]";
+			luminosity << point<value<double>>(Q,
 				L*value<double>(trigger_he3_forward.scaling)
 				/
 				func_value(sigmaHe3eta.func(),norm[0][bin_num].X())
 			);
 		}
 	
+	Plot<double>().Hist(bg_ratio) 
+	<< "set xlabel 'Q, MeV'" 
+	<< "set ylabel 'N_{^3He+2pi^0}/N_{^3He+3pi^0}, n.d.'" 
+	<< "set yrange [0:6]";
+
 	Plot<double>().Hist(bg_chi_sq) 
 	<< "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'BG fit chi^2, n.d.'" 
-	<< "set yrange [0:2.5]";
+	<< "set yrange [0:10]";
 	{//Plot acceptance
 		Plot<double> plot;
 		plot << "set key on" << "set yrange [0:0.7]";
