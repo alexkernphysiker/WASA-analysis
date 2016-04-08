@@ -56,7 +56,7 @@ int main(){
 	SortedPoints<value<double>> luminosity,bg_chi_sq,bg_ratio;
 	RANDOM r_eng;
 	for(size_t bin_num=3,bin_count=norm[0].size();bin_num<bin_count;bin_num++)
-		if(norm[0][bin_num].X()>17.0){
+		if(norm[0][bin_num].X()>15.0){
 			auto Q=norm[0][bin_num].X();
 			string Qmsg="Q in ["+to_string(norm[0][bin_num].X().min())+":"+to_string(norm[0][bin_num].X().max())+"] MeV";
 			auto transform=[](hist<double>&h){h=h.XRange(0.35,0.75);};
@@ -89,6 +89,7 @@ int main(){
 			}
 			vector<LinearInterpolation<double>> bg_funcs{theory[1].Line(),theory[2].Line()};
 			auto for_fit=data.XRange(0.45,0.57);
+			if((Q.val()>15)&&(Q.val()<17))for_fit=for_fit.XExclude(0.525,0.545);
 			if((Q.val()>17)&&(Q.val()<20))for_fit=for_fit.XExclude(0.526,0.546);
 			if((Q.val()>20)&&(Q.val()<22))for_fit=for_fit.XExclude(0.528,0.548);
 			if((Q.val()>22)&&(Q.val()<25))for_fit=for_fit.XExclude(0.530,0.550);
@@ -152,7 +153,7 @@ int main(){
 			<< "set xrange [0.4:0.6]"
 			<< "set yrange [-200:3500]";
 			
-			FG=FG.XRange(0.525,0.560);
+			FG=FG.XRange(0.520,0.565);
 			value<double> L=FG.TotalSum()/theory[0].Total();
 			Plot<double>().Object("0*x title ''")
 			.Hist(FG,"DATA-background "+Qmsg)
