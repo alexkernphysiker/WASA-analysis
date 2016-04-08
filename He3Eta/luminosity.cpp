@@ -83,7 +83,7 @@ int main(){
 				}
 				MCplot 
 				<< "set xrange [0.4:0.6]"
-				<< "set yrange [0:0.3]"
+				<< "set yrange [0:0.15]"
 				<< "set key on" 
 				<< "set ylabel 'acceptance, channel^{-1}'";
 			}
@@ -168,22 +168,23 @@ int main(){
 				func_value(sigmaHe3eta.func(),norm[0][bin_num].X())
 			);
 		}
-	
-	Plot<double>().Hist(bg_ratio) 
-	<< "set xlabel 'Q, MeV'" 
-	<< "set ylabel 'N_{^3He+2pi^0}/N_{^3He+3pi^0}, n.d.'" 
-	<< "set yrange [0:6]";
-
 	Plot<double>().Hist(bg_chi_sq) 
 	<< "set xlabel 'Q, MeV'" 
-	<< "set ylabel 'BG fit chi^2, n.d.'" 
+	<< "set ylabel 'chi^2, n.d.'" 
 	<< "set yrange [0:10]";
+			
 	{//Plot acceptance
 		Plot<double> plot;
 		plot << "set key on" << "set yrange [0:0.7]";
 		for(size_t i=0;i<reaction.size();i++)plot.Hist(acceptance[i],reaction[i]);
 		plot << "set xlabel 'Q, MeV'" << "set ylabel 'Acceptance, n.d.'";
 	}
+
+	Plot<double>().Hist(bg_ratio/(acceptance[1]/acceptance[2])) 
+	<< "set xlabel 'Q, MeV'" 
+	<< "set ylabel 'sigma("+reaction[1]+")/sigma("+reaction[2]+"), n.d.'" 
+	<< "set yrange [0:15]";
+
 	auto runs=PresentRuns("He3");
 	Plot<double>().Hist(luminosity,to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs") 
 	<< "set key on" << "set xlabel 'Q, MeV'" 
