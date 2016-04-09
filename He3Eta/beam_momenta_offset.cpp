@@ -21,10 +21,10 @@ int main(){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"beam_momenta");
 	Reaction He3eta(Particle::p(),Particle::d(),{Particle::he3(),Particle::eta()});
 	LinearInterpolation<double> Q2P=SortedPoints<double>(
-		[&He3eta](double p){return He3eta.P2Q(p);},ChainWithStep(0.0,0.01,3.0)
+		[&He3eta](double p){return He3eta.P2Q(p);},ChainWithStep(0.0,0.0002,3.0)
 	).Transponate();
 	LinearInterpolation<double> Q2E=SortedPoints<double>(
-		[&He3eta](double e){return He3eta.E2Q(e);},ChainWithStep(0.0,0.01,3.0)
+		[&He3eta](double e){return He3eta.E2Q(e);},ChainWithStep(0.0,0.0002,3.0)
 	).Transponate();
 	LinearInterpolation<double> ThetaMax2P=SortedPoints<double>(
 		[&He3eta](double p){
@@ -36,7 +36,7 @@ int main(){
 	string he3eta="He3eta";
 	SortedPoints<value<double>> offs_mc,offs_data,ek_mc,ek_data,ek_before_shift;
 	auto QBins=Hist(MC,he3eta,{"Histograms","He3Forward_Reconstruction"},"0-Reference");
-	for(size_t bin_num=9,bin_count=QBins.size();bin_num<bin_count;bin_num++){
+	for(size_t bin_num=9,bin_count=QBins.size()-1;bin_num<bin_count;bin_num++){
 		auto Q=QBins[bin_num].X();
 		double p=Q2P(Q.val()/1000.0);
 		auto P_offset=[&He3eta,&ThetaMax2P,&Q,&p](const hist2d<double>&kin_,const double ratio){
@@ -52,7 +52,7 @@ int main(){
 					&&(P.Z().val()>(ratio*max))
 				){
 					points.push_back(point<value<double>>(P.X(),P.Y()));
-					for(unsigned long i=0;i<(P.Z().val()-(max*ratio));i++)
+					for(unsigned long i=0;i<(P.Z().val());i++)
 						theta_avr<<P.Y().val();
 				}
 			});
