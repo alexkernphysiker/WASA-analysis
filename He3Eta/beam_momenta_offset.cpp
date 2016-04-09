@@ -118,10 +118,10 @@ int main(){
 		ek_mc << Ek_avr(kin_mc,3.0/4.0);
 		ek_data << Ek_avr(kin_data,3.0/4.0);
 	}
-	Plot<double>().Hist(offs_mc,"WMC").Hist(offs_data,"Data")
+	Plot<double>().Hist(offs_mc,"Simulation").Hist(offs_data,"Data")
 	<< "set xlabel 'Q, MeV'" << "set ylabel '\\Delta_{P}, GeV/c'"
-	<< "set yrange [0:0.010]";
-	Plot<double>().Hist(ek_mc,"WMC").Hist(ek_data,"Data")
-	<<"set xlabel 'Q, MeV'"<<"set ylabel 'Ek_{avr}, GeV'";
+	<< "set yrange [0:0.010]" << "set key on";
+	Plot<double>().Hist(ek_mc,"Simulation").Hist(ek_data,"Data")
+	<<"set xlabel 'Q, MeV'"<<"set ylabel 'Ek_{avr}, GeV'" << "set key on";
 	return 0;
 }
