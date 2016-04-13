@@ -61,7 +61,7 @@ int main(){
 			string Qmsg="Q in ["+to_string(norm[0][bin_num].X().min())+":"+to_string(norm[0][bin_num].X().max())+"] MeV";
 			auto transform=[](hist<double>&h){h=h.XRange(0.35,0.75);};
 
-			hist<double> data=Hist(DATA,"He3",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
+			hist<double> data=Hist(DATA,"",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
 			transform(data);
 			Plot<double>()
 			.Hist(data,"DATA "+Qmsg)
@@ -186,7 +186,7 @@ int main(){
 	<< "set ylabel 'sigma("+reaction[1]+")/sigma("+reaction[2]+"), n.d.'" 
 	<< "set yrange [0:15]";
 
-	auto runs=PresentRuns("He3");
+	auto runs=PresentRuns("");
 	Plot<double>().Hist(luminosity,to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs") 
 	<< "set key on" << "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'Integral luminosity, nb^{-1}'" 

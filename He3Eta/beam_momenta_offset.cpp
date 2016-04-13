@@ -90,7 +90,7 @@ int main(){
 		auto kin_mc=Hist2d(MC,he3eta,{"Histograms","He3Forward_Reconstruction"},string("Kinematic-reconstructed-Bin-")+to_string(bin_num)).Scale(3,3);
 		PlotHist2d<double>(sp2).Distr(kin_mc)<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'"
 		<< "set xrange [0.2:0.4]";
-		auto data_hist_init=Hist2d(DATA,"He3",{"Histograms","He3Forward_Reconstruction"},string("Kinematic-reconstructed-Bin-")+to_string(bin_num));
+		auto data_hist_init=Hist2d(DATA,"",{"Histograms","He3Forward_Reconstruction"},string("Kinematic-reconstructed-Bin-")+to_string(bin_num));
 		{
 			hist2d<double> shifted_back(
 				BinsByCount(data_hist_init.X().size(),
