@@ -55,8 +55,8 @@ int main(){
 	for(const auto&h:norm)acceptance.push_back(hist<double>());
 	SortedPoints<value<double>> luminosity,bg_chi_sq,bg_ratio;
 	RANDOM r_eng;
-	for(size_t bin_num=3,bin_count=norm[0].size();bin_num<bin_count;bin_num++)
-		if(norm[0][bin_num].X()>15.0){
+	for(size_t bin_num=0,bin_count=norm[0].size();bin_num<bin_count;bin_num++)
+		if(norm[0][bin_num].X()>17.5){
 			auto Q=norm[0][bin_num].X();
 			string Qmsg="Q in ["+to_string(norm[0][bin_num].X().min())+":"+to_string(norm[0][bin_num].X().max())+"] MeV";
 			auto transform=[](hist<double>&h){h=h.XRange(0.35,0.75);};
@@ -69,7 +69,7 @@ int main(){
 			<< "set xlabel 'Missing mass, GeV'"
 			<< "set ylabel 'counts'"
 			<< "set xrange [0.4:0.6]"
-			<< "set yrange [-200:3500]";
+			<< "set yrange [-200:1500]";
 		
 			vector<hist<double>> theory;{
 				Plot<double> MCplot;
@@ -88,14 +88,8 @@ int main(){
 				<< "set ylabel 'acceptance, channel^{-1}'";
 			}
 			vector<LinearInterpolation<double>> bg_funcs{theory[1].Line(),theory[2].Line()};
-			auto for_fit=data.XRange(0.45,0.57);
-			if((Q.val()>15)&&(Q.val()<17))for_fit=for_fit.XExclude(0.525,0.545);
-			if((Q.val()>17)&&(Q.val()<20))for_fit=for_fit.XExclude(0.526,0.546);
-			if((Q.val()>20)&&(Q.val()<22))for_fit=for_fit.XExclude(0.528,0.548);
-			if((Q.val()>22)&&(Q.val()<25))for_fit=for_fit.XExclude(0.530,0.550);
-			if((Q.val()>25)&&(Q.val()<27))for_fit=for_fit.XExclude(0.532,0.552);
-			if((Q.val()>27)&&(Q.val()<30))for_fit=for_fit.XExclude(0.535,0.555);
-			Fit<DifferentialMutations<>,ChiSquare> bg_fit(make_shared<FitPoints>(for_fit),
+			Fit<DifferentialMutations<>,ChiSquare> bg_fit(
+				make_shared<FitPoints>(data.XRange(0.45,0.53)),
 				[&bg_funcs](const ParamSet&X,const ParamSet&P){
 					double res=0;
 					for(size_t i=0;i<bg_funcs.size();i++)res+=bg_funcs[i](X[0])*P[i];
@@ -106,8 +100,8 @@ int main(){
 			{
 				auto count=data.Total();
 				bg_fit.Init(100,make_shared<GenerateUniform>()
-					<<make_pair(0.0,5.0*count)
-					<<make_pair(0.0,5.0*count)
+					<<make_pair(0.0,20.0*count)
+					<<make_pair(0.0,20.0*count)
 					,r_eng
 				);
 			}
@@ -127,7 +121,7 @@ int main(){
 			<< "set xlabel 'Missing mass, GeV'"
 			<< "set ylabel 'counts'"
 			<< "set xrange [0.4:0.6]"
-			<< "set yrange [-200:3500]";
+			<< "set yrange [-200:1500]";
 			
 			bg_chi_sq << point<value<double>>(Q,bg_fit.Optimality());
 			
@@ -142,7 +136,7 @@ int main(){
 			<< "set xlabel 'Missing mass, GeV'" 
 			<< "set ylabel 'counts'"
 			<< "set xrange [0.4:0.6]"
-			<< "set yrange [-200:3500]";
+			<< "set yrange [-200:1500]";
 			
 			hist<double> FG=(data-BG).XRange(0.40,0.70);
 			Plot<double>().Object("0*x title ''")
@@ -151,9 +145,9 @@ int main(){
 			<< "set xlabel 'Missing mass, GeV'"
 			<< "set ylabel 'counts'"
 			<< "set xrange [0.4:0.6]"
-			<< "set yrange [-200:3500]";
+			<< "set yrange [-200:1500]";
 			
-			FG=FG.XRange(0.520,0.565);
+			FG=FG.XRange(0.525,0.560);
 			value<double> L=FG.TotalSum()/theory[0].Total();
 			Plot<double>().Object("0*x title ''")
 			.Hist(FG,"DATA-background "+Qmsg)
@@ -162,7 +156,7 @@ int main(){
 			<< "set xlabel 'Missing mass, GeV'"
 			<< "set ylabel 'counts'"
 			<< "set xrange [0.4:0.6]"
-			<< "set yrange [-200:3500]";
+			<< "set yrange [-200:1500]";
 			luminosity << point<value<double>>(Q,
 				L*value<double>(trigger_he3_forward.scaling)
 				/
@@ -172,7 +166,7 @@ int main(){
 	Plot<double>().Hist(bg_chi_sq) 
 	<< "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'chi^2, n.d.'" 
-	<< "set yrange [0:10]";
+	<< "set yrange [0:5]";
 			
 	{//Plot acceptance
 		Plot<double> plot;
@@ -184,11 +178,11 @@ int main(){
 	Plot<double>().Hist(bg_ratio/(acceptance[1]/acceptance[2])) 
 	<< "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'sigma("+reaction[1]+")/sigma("+reaction[2]+"), n.d.'" 
-	<< "set yrange [0:15]";
+	<< "set yrange [0:]";
 
 	auto runs=PresentRuns("");
 	Plot<double>().Hist(luminosity,to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs") 
 	<< "set key on" << "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'Integral luminosity, nb^{-1}'" 
-	<< "set yrange [0:150]";
+	<< "set yrange [0:]";
 }

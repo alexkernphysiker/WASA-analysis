@@ -113,10 +113,10 @@ int main(){
 		auto kin_data=data_hist_init.Scale(3,3);
 		PlotHist2d<double>(sp2).Distr(kin_data)<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'"
 		<< "set xrange [0.2:0.4]";
-		offs_mc << P_offset(kin_mc,3.0/4.0);
-		offs_data << P_offset(kin_data,3.0/4.0);
-		ek_mc << Ek_avr(kin_mc,3.0/4.0);
-		ek_data << Ek_avr(kin_data,3.0/4.0);
+		offs_mc << P_offset(kin_mc,2.0/3.0);
+		offs_data << P_offset(kin_data,2.0/3.0);
+		ek_mc << Ek_avr(kin_mc,2.0/3.0);
+		ek_data << Ek_avr(kin_data,2.0/3.0);
 	}
 	Plot<double>().Hist(offs_mc,"Simulation").Hist(offs_data,"Data")
 	<< "set xlabel 'Q, MeV'" << "set ylabel '\\Delta_{P}, GeV/c'"
