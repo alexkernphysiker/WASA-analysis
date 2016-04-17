@@ -105,12 +105,12 @@ int main(){
 			for(size_t x=0;x<shifted_back.X().size();x++)
 				for(size_t y=0;y<shifted_back.Y().size();y++)
 					shifted_back.Bin(x,y)=data_hist_init[x][y];
-			shifted_back=shifted_back.Scale(3,3);
+			shifted_back=shifted_back.Scale(4,4);
 			PlotHist2d<double>(sp2).Distr(shifted_back)<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'"
 			<< "set xrange [0.2:0.4]";
 			ek_before_shift << Ek_avr(shifted_back,3.0/4.0);
 		}
-		auto kin_data=data_hist_init.Scale(3,3);
+		auto kin_data=data_hist_init.Scale(4,4);
 		PlotHist2d<double>(sp2).Distr(kin_data)<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'"
 		<< "set xrange [0.2:0.4]";
 		offs_mc << P_offset(kin_mc,2.0/3.0);
@@ -121,7 +121,7 @@ int main(){
 	Plot<double>().Hist(offs_mc,"Simulation").Hist(offs_data,"Data")
 	<< "set xlabel 'Q, MeV'" << "set ylabel '\\Delta_{P}, GeV/c'"
 	<< "set yrange [0:0.010]" << "set key on";
-	Plot<double>().Hist(ek_mc,"Simulation").Hist(ek_data,"Data")
+	Plot<double>().Hist(ek_mc,"Simulation").Hist(ek_data,"Data").Hist(ek_before_shift,"Before correction")
 	<<"set xlabel 'Q, MeV'"<<"set ylabel 'Ek_{avr}, GeV'" << "set key on";
 	return 0;
 }
