@@ -185,4 +185,8 @@ int main(){
 	<< "set key on" << "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'Integral luminosity, nb^{-1}'" 
 	<< "set yrange [0:80]";
+	
+	Plot<double>().Line(sigmaHe3eta,"Used in calculations")
+	<< "set key on" << "set xlabel 'Q, MeV'" 
+	<< "set ylabel 'sigma(^3He eta), nb'"<< "set yrange [0:600]";
 }
