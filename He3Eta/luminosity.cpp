@@ -89,7 +89,7 @@ int main(){
 			}
 			vector<LinearInterpolation<double>> bg_funcs{theory[1].Line(),theory[2].Line()};
 			Fit<DifferentialMutations<>,ChiSquare> bg_fit(
-				make_shared<FitPoints>(data.XRange(0.43,0.53)),
+				make_shared<FitPoints>(data.XRange(0.44,0.53)),
 				[&bg_funcs](const ParamSet&X,const ParamSet&P){
 					double res=0;
 					for(size_t i=0;i<bg_funcs.size();i++)res+=bg_funcs[i](X[0])*P[i];
