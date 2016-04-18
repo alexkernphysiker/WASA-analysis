@@ -69,7 +69,7 @@ int main(){
 			<< "set xlabel 'Missing mass, GeV'"
 			<< "set ylabel 'counts'"
 			<< "set xrange [0.4:0.6]"
-			<< "set yrange [-200:1500]";
+			<< "set yrange [-200:2500]";
 		
 			vector<hist<double>> theory;{
 				Plot<double> MCplot;
@@ -89,7 +89,7 @@ int main(){
 			}
 			vector<LinearInterpolation<double>> bg_funcs{theory[1].Line(),theory[2].Line()};
 			Fit<DifferentialMutations<>,ChiSquare> bg_fit(
-				make_shared<FitPoints>(data.XRange(0.45,0.53)),
+				make_shared<FitPoints>(data.XRange(0.43,0.53)),
 				[&bg_funcs](const ParamSet&X,const ParamSet&P){
 					double res=0;
 					for(size_t i=0;i<bg_funcs.size();i++)res+=bg_funcs[i](X[0])*P[i];
@@ -121,7 +121,7 @@ int main(){
 			<< "set xlabel 'Missing mass, GeV'"
 			<< "set ylabel 'counts'"
 			<< "set xrange [0.4:0.6]"
-			<< "set yrange [-200:1500]";
+			<< "set yrange [-200:2500]";
 			
 			bg_chi_sq << point<value<double>>(Q,bg_fit.Optimality());
 			
@@ -136,7 +136,7 @@ int main(){
 			<< "set xlabel 'Missing mass, GeV'" 
 			<< "set ylabel 'counts'"
 			<< "set xrange [0.4:0.6]"
-			<< "set yrange [-200:1500]";
+			<< "set yrange [-200:2500]";
 			
 			hist<double> FG=(data-BG).XRange(0.40,0.70);
 			Plot<double>().Object("0*x title ''")
@@ -145,7 +145,7 @@ int main(){
 			<< "set xlabel 'Missing mass, GeV'"
 			<< "set ylabel 'counts'"
 			<< "set xrange [0.4:0.6]"
-			<< "set yrange [-200:1500]";
+			<< "set yrange [-200:2500]";
 			
 			FG=FG.XRange(0.525,0.560);
 			value<double> L=FG.TotalSum()/theory[0].Total();
@@ -156,7 +156,7 @@ int main(){
 			<< "set xlabel 'Missing mass, GeV'"
 			<< "set ylabel 'counts'"
 			<< "set xrange [0.4:0.6]"
-			<< "set yrange [-200:1500]";
+			<< "set yrange [-200:2500]";
 			luminosity << point<value<double>>(Q,
 				L*value<double>(trigger_he3_forward.scaling)
 				/
@@ -166,7 +166,7 @@ int main(){
 	Plot<double>().Hist(bg_chi_sq) 
 	<< "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'chi^2, n.d.'" 
-	<< "set yrange [0:5]";
+	<< "set yrange [0:10]";
 			
 	{//Plot acceptance
 		Plot<double> plot;
@@ -184,5 +184,5 @@ int main(){
 	Plot<double>().Hist(luminosity,to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs") 
 	<< "set key on" << "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'Integral luminosity, nb^{-1}'" 
-	<< "set yrange [0:]";
+	<< "set yrange [0:80]";
 }
