@@ -20,10 +20,8 @@ int main(){
 		BinsByStep(0.0,0.005,0.3),
 		BinsByStep(0.2,0.005,0.5),
 		make_shared<GenerateByGauss>()
-			<<make_pair(0,0.1)<<make_pair(0,0.1)<<make_pair(0,0.1)<<make_pair(0,0.01)
-			<<make_pair(1,0.5)<<make_pair(0,0.1)<<make_pair(0,0.1)<<make_pair(0,0.01)
-			<<make_pair(0,0.1)<<make_pair(0,0.1)<<make_pair(0,0.1)<<make_pair(0,0.01)
-			<<make_pair(0,0.01)<<make_pair(0,0.01)<<make_pair(0,0.01)<<make_pair(0,0.01)
+			<<make_pair(0,0.1)<<make_pair(0,0.1)<<make_pair(0,0.1)
+			<<make_pair(1,0.5)<<make_pair(0,0.1)<<make_pair(0,0.1)
 		,engine
 	);
 	SimulationDataProcess::ForwardEkinReconstructionFit(
@@ -31,10 +29,8 @@ int main(){
 		BinsByStep(0.25,0.005,0.45),
 		BinsByStep(0.45,0.005,0.60),
 		make_shared<GenerateByGauss>()
-			<<make_pair(0,0.1)<<make_pair(0,0.1)<<make_pair(0,0.1)<<make_pair(0,0.01)
-			<<make_pair(1,0.5)<<make_pair(0,0.1)<<make_pair(0,0.1)<<make_pair(0,0.01)
-			<<make_pair(0,0.1)<<make_pair(0,0.1)<<make_pair(0,0.1)<<make_pair(0,0.01)
-			<<make_pair(0,0.01)<<make_pair(0,0.01)<<make_pair(0,0.01)<<make_pair(0,0.01)
+			<<make_pair(0,0.1)<<make_pair(0,0.1)<<make_pair(0,0.1)
+			<<make_pair(1,0.5)<<make_pair(0,0.1)<<make_pair(0,0.1)
 		,engine
 	);
 	
