@@ -12,33 +12,16 @@
 #include <Experiment/experiment_conv.h>
 #include <Experiment/str_get.h>
 #include <Experiment/gethist.h>
-#include <Kinematics/particles.h>
-#include <Kinematics/reactions.h>
+#include "he3eta.h"
 using namespace std;
 using namespace ROOT_data;
 using namespace Genetic;
 using namespace MathTemplates;
 using namespace GnuplotWrap;
-const Reaction&main_reaction(){
-	static Reaction main_react(Particle::p(),Particle::d(),{Particle::he3(),Particle::eta()});
-	return main_react;
-}
 int main(){
-	LinearInterpolation<double> sigmaHe3eta{
-		//http://arxiv.org/pdf/nucl-ex/0701072v1
-		point<double>(-0.5,0.0),
-		point<double>(0.0,100.0),
-		point<double>(0.5,380.0),
-		point<double>(1.5,400.0),
-		point<double>(6.0,390.0),
-		point<double>(12.0,380.0),
-		//Extrapolating
-		point<double>(24.0,360.0),
-		point<double>(36.0,340.0)
-	};
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward");
-	auto Q2P=LinearInterpolation<double>(SortedPoints<double>([](double p){return main_reaction().P2Q(p);},ChainWithStep(0.0,0.001,3.0)).Transponate());
-	auto Q2E=LinearInterpolation<double>(SortedPoints<double>([](double e){return main_reaction().E2Q(e);},ChainWithStep(0.0,0.001,3.0)).Transponate());
+	auto Q2P=LinearInterpolation<double>(SortedPoints<double>([](double p){return he3eta().P2Q(p);},ChainWithStep(0.0,0.001,3.0)).Transponate());
+	auto Q2E=LinearInterpolation<double>(SortedPoints<double>([](double e){return he3eta().E2Q(e);},ChainWithStep(0.0,0.001,3.0)).Transponate());
 	vector<string> histpath_forward_reconstr={"Histograms","He3Forward_Reconstruction"};
 	vector<string> reaction={"He3eta","He3pi0pi0","He3pi0pi0pi0"};
 	vector<hist<double>> norm;
@@ -160,7 +143,7 @@ int main(){
 			luminosity << point<value<double>>(Q,
 				L*value<double>(trigger_he3_forward.scaling)
 				/
-				func_value(sigmaHe3eta.func(),norm[0][bin_num].X())
+				func_value(he3eta_sigma().func(),norm[0][bin_num].X())
 			);
 		}
 	Plot<double>().Hist(bg_chi_sq) 
@@ -186,7 +169,7 @@ int main(){
 	<< "set ylabel 'Integral luminosity, nb^{-1}'" 
 	<< "set yrange [0:80]";
 	
-	Plot<double>().Line(sigmaHe3eta,"Used in calculations")
+	Plot<double>().Line(he3eta_sigma(),"Used in calculations")
 	<< "set key on" << "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'sigma(^3He eta), nb'"<< "set yrange [0:600]";
 }
