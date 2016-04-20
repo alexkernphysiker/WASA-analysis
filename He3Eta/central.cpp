@@ -19,4 +19,5 @@ using namespace Genetic;
 using namespace MathTemplates;
 using namespace GnuplotWrap;
 int main(){
+	
 }

@@ -20,8 +20,6 @@ using namespace MathTemplates;
 using namespace GnuplotWrap;
 int main(){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward");
-	auto Q2P=LinearInterpolation<double>(SortedPoints<double>([](double p){return he3eta().P2Q(p);},ChainWithStep(0.0,0.001,3.0)).Transponate());
-	auto Q2E=LinearInterpolation<double>(SortedPoints<double>([](double e){return he3eta().E2Q(e);},ChainWithStep(0.0,0.001,3.0)).Transponate());
 	vector<string> histpath_forward_reconstr={"Histograms","He3Forward_Reconstruction"};
 	vector<string> reaction={"He3eta","He3pi0pi0","He3pi0pi0pi0"};
 	vector<hist<double>> norm;
@@ -143,7 +141,7 @@ int main(){
 			luminosity << point<value<double>>(Q,
 				L*value<double>(trigger_he3_forward.scaling)
 				/
-				func_value(he3eta_sigma().func(),norm[0][bin_num].X())
+				func_value(he3eta_sigma().func(),Q)
 			);
 		}
 	Plot<double>().Hist(bg_chi_sq) 
