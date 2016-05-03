@@ -53,20 +53,18 @@ int main(){
 			<< "set yrange [-200:2500]";
 		
 			vector<hist<double>> theory;{
-				Plot<double> MCplot;
 				for(size_t i=0;i<reaction.size();i++){
 					hist<double> react_sim=Hist(MC,reaction[i],histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
 					transform(react_sim);
 					auto N=norm[i][bin_num].Y();
 					acceptance[i] << point<value<double>>(Q,value<double>(react_sim.Total())/N);
 					theory.push_back(react_sim/N);
-					MCplot.Hist(theory[i],reaction[i]+" MC "+Qmsg);
+					Plot<double>().Hist(theory[i],reaction[i]+" MC "+Qmsg)
+					<< "set xrange [0.4:0.6]"
+					<< "set yrange [0:]"
+					<< "set key on" 
+					<< "set ylabel 'acceptance density, channel^{-1}'";
 				}
-				MCplot 
-				<< "set xrange [0.4:0.6]"
-				<< "set yrange [0:0.15]"
-				<< "set key on" 
-				<< "set ylabel 'acceptance, channel^{-1}'";
 			}
 			vector<LinearInterpolation<double>> bg_funcs{theory[1].Line(),theory[2].Line()};
 			Fit<DifferentialMutations<>,ChiSquare> bg_fit(
