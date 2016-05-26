@@ -30,6 +30,6 @@ int main(){
 		string Qmsg="Q in ["+to_string(norm[0][bin_num].X().min())+":"+to_string(norm[0][bin_num].X().max())+"] MeV";
 		
 		hist<double> data=Hist(DATA,"",histpath_central_reconstr,string("InvMass2Gamma-Bin-")+to_string(bin_num));
-		Plot<double>().Hist(data);
+		Plot<double>().Hist(data)<<"set log y";
 	}
 }
