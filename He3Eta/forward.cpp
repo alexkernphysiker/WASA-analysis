@@ -168,4 +168,9 @@ int main(){
 	Plot<double>().Line(he3eta_sigma(),"Used in calculations")
 	<< "set key on" << "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'sigma(^3He eta), nb'"<< "set yrange [0:600]";
+	
+	Plot<double>().Line(Hist(DATA,"",{"Histograms","He3Forward_Debug"},"PhiDistribution-AllBins").Line(),"phi distribution")
+	<< "set key off" << "set xlabel 'Phi, deg'" 
+	<< "set ylabel 'events, count'"<< "set yrange [0:]";
+	
 }
