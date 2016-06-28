@@ -92,7 +92,7 @@ int main(){
 				bg_fit.ParametersWithUncertainties()[1]
 			);
 			
-			SortedPoints<double> BG_displ(theory[1].Line()*bg_fit[0]+theory[2].Line()*bg_fit[1]);
+			SortedPoints<double> BG_displ(theory[1].Line()*bg_fit.Parameters()[0]+theory[2].Line()*bg_fit.Parameters()[1]);
 			Plot<double>()
 			.Hist(bg_fit.Points()->Hist1(0),"cut DATA "+Qmsg)
 			.Line(BG_displ,"fit")
