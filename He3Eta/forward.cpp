@@ -34,7 +34,7 @@ int main(){
 
 	vector<hist<double>> acceptance;
 	for(const auto&h:norm)acceptance.push_back(hist<double>());
-	SortedPoints<value<double>> luminosity,bg_chi_sq,bg_ratio;
+	hist<double> luminosity,bg_chi_sq,bg_ratio;
 	RANDOM r_eng;
 	for(size_t bin_num=0,bin_count=norm[0].size();bin_num<bin_count;bin_num++)
 		if(norm[0][bin_num].X()>17.5){
@@ -137,7 +137,7 @@ int main(){
 			<< "set xrange [0.4:0.6]"
 			<< "set yrange [-200:2500]";
 			luminosity << point<value<double>>(Q,
-				L*value<double>(trigger_he3_forward.scaling)
+				L*double(trigger_he3_forward.scaling)
 				/
 				func_value(he3eta_sigma().func(),Q)
 			);
@@ -169,7 +169,7 @@ int main(){
 	<< "set key on" << "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'sigma(^3He eta), nb'"<< "set yrange [0:600]";
 	
-	Plot<double>().Line(Hist(DATA,"",{"Histograms","He3Forward_Debug"},"PhiDistribution-AllBins").Line(),"phi distribution")
+	Plot<double>().Hist(Hist(DATA,"",{"Histograms","He3Forward_Debug"},"PhiDistribution-AllBins").Scale(45),"phi distribution")
 	<< "set key off" << "set xlabel 'Phi, deg'" 
 	<< "set ylabel 'events, count'"<< "set yrange [0:]";
 	

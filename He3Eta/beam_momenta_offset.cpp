@@ -32,7 +32,7 @@ int main(){
 		},ChainWithStep(he3eta().PThreshold(),0.001,3.0)
 	).TransponateAndSort();
 	string He3eta_msg="He3eta";
-	SortedPoints<value<double>> offs_mc,offs_data,ek_mc,ek_data,ek_before_shift;
+	hist<double> offs_mc,offs_data,ek_mc,ek_data,ek_before_shift;
 	auto QBins=Hist(MC,He3eta_msg,{"Histograms","He3Forward_Reconstruction"},"0-Reference");
 	for(size_t bin_num=9,bin_count=QBins.size()-1;bin_num<bin_count;bin_num++){
 		auto Q=QBins[bin_num].X();
