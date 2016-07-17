@@ -20,17 +20,17 @@ int main(){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"beam_momenta");
 	LinearInterpolation<double> Q2P=SortedPoints<double>(
 		[](double p){return he3eta().P2Q(p);},ChainWithStep(0.0,0.0002,3.0)
-	).Transponate();
+	).TransponateAndSort();
 	LinearInterpolation<double> Q2E=SortedPoints<double>(
 		[](double e){return he3eta().E2Q(e);},ChainWithStep(0.0,0.0002,3.0)
-	).Transponate();
+	).TransponateAndSort();
 	LinearInterpolation<double> ThetaMax2P=SortedPoints<double>(
 		[](double p){
 			const double Ek_theta_max=0.3;
 			return he3eta().PbEr2Theta(p,Ek_theta_max)*180/PI();
 			
 		},ChainWithStep(he3eta().PThreshold(),0.001,3.0)
-	).Transponate();
+	).TransponateAndSort();
 	string He3eta_msg="He3eta";
 	SortedPoints<value<double>> offs_mc,offs_data,ek_mc,ek_data,ek_before_shift;
 	auto QBins=Hist(MC,He3eta_msg,{"Histograms","He3Forward_Reconstruction"},"0-Reference");
@@ -39,7 +39,7 @@ int main(){
 		double p=Q2P(Q.val()/1000.0);
 		auto P_offset=[&ThetaMax2P,&Q,&p](const hist2d<double>&kin_,const double ratio){
 			double max=0;StandardDeviation<double> theta_avr;
-			vector<point<value<double>>> points;
+			hist<double> points;
 			kin_.FullCycle([&max](const point3d<value<double>>&P){
 				if(max<P.Z().val())max=P.Z().val();
 			});
@@ -49,7 +49,7 @@ int main(){
 					&&(P.Y().val()<7.3)
 					&&(P.Z().val()>(ratio*max))
 				){
-					points.push_back(point<value<double>>(P.X(),P.Y()));
+					points<<point<value<double>>(P.X(),P.Y());
 					for(unsigned long i=0;i<(P.Z().val());i++)
 						theta_avr<<P.Y().val();
 				}
@@ -65,7 +65,7 @@ int main(){
 		};
 		auto Ek_avr=[&ThetaMax2P,&Q,&p](const hist2d<double>&kin_,const double ratio){
 			double max=0;StandardDeviation<double> ek_avr;
-			vector<point<value<double>>> points;
+			hist<double> points;
 			kin_.FullCycle([&max](const point3d<value<double>>&P){
 				if(max<P.Z().val())max=P.Z().val();
 			});
@@ -75,7 +75,7 @@ int main(){
 					&&(P.Y().val()<7.3)
 					&&(P.Z().val()>(ratio*max))
 				){
-					points.push_back(point<value<double>>(P.X(),P.Y()));
+					points<<point<value<double>>(P.X(),P.Y());
 					for(unsigned long i=0;i<(P.Z().val()-(max*ratio));i++)
 						ek_avr<<P.X().val();
 				}
