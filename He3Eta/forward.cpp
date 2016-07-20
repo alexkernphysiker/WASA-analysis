@@ -57,7 +57,7 @@ int main(){
 					hist<double> react_sim=Hist(MC,reaction[i],histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
 					transform(react_sim);
 					auto N=norm[i][bin_num].Y();
-					acceptance[i] << point<value<double>>(Q,value<double>(react_sim.Total())/N);
+					acceptance[i] << point<value<double>>(Q,value<double>(react_sim.TotalSum().val())/N);
 					theory.push_back(react_sim/N);
 					Plot<double>().Hist(theory[i],reaction[i]+" MC "+Qmsg)
 					<< "set xrange [0.4:0.6]"
@@ -66,7 +66,7 @@ int main(){
 					<< "set ylabel 'acceptance density, channel^{-1}'";
 				}
 			}
-			vector<LinearInterpolation<double>> bg_funcs{theory[1].Line(),theory[2].Line()};
+			vector<LinearInterpolation<double>> bg_funcs{theory[1].toLine(),theory[2].toLine()};
 			Fit<DifferentialMutations<>,ChiSquare> bg_fit(
 				make_shared<FitPoints>(data.XRange(0.44,0.53)),
 				[&bg_funcs](const ParamSet&X,const ParamSet&P){
@@ -77,7 +77,7 @@ int main(){
 			);
 			bg_fit.SetUncertaintyCalcDeltas({0.01,0.01}).SetFilter(make_shared<Above>()<<0.0<<0.0);
 			{
-				auto count=data.Total();
+				auto count=data.TotalSum().val();
 				bg_fit.Init(100,make_shared<GenerateUniform>()
 					<<make_pair(0.0,20.0*count)
 					<<make_pair(0.0,20.0*count)
@@ -92,7 +92,7 @@ int main(){
 				bg_fit.ParametersWithUncertainties()[1]
 			);
 			
-			SortedPoints<double> BG_displ(theory[1].Line()*bg_fit.Parameters()[0]+theory[2].Line()*bg_fit.Parameters()[1]);
+			SortedPoints<double> BG_displ(theory[1].toLine()*bg_fit.Parameters()[0]+theory[2].toLine()*bg_fit.Parameters()[1]);
 			Plot<double>()
 			.Hist(bg_fit.Points()->Hist1(0),"cut DATA "+Qmsg)
 			.Line(BG_displ,"fit")
@@ -109,8 +109,8 @@ int main(){
 				theory[2]*bg_fit.ParametersWithUncertainties()[1];
 			Plot<double>()
 			.Hist(data,"DATA "+Qmsg).Hist(BG,"background")
-			.Line(hist<double>(theory[1]*bg_fit.ParametersWithUncertainties()[0]).Line(),"^3He2pi^0")
-			.Line(hist<double>(theory[2]*bg_fit.ParametersWithUncertainties()[1]).Line(),"^3He3pi^0")
+			.Line(hist<double>(theory[1]*bg_fit.ParametersWithUncertainties()[0]).toLine(),"^3He2pi^0")
+			.Line(hist<double>(theory[2]*bg_fit.ParametersWithUncertainties()[1]).toLine(),"^3He3pi^0")
 			<< "set key on"
 			<< "set xlabel 'Missing mass, GeV'" 
 			<< "set ylabel 'counts'"
@@ -127,10 +127,10 @@ int main(){
 			<< "set yrange [-200:2500]";
 			
 			FG=FG.XRange(0.525,0.560);
-			value<double> L=FG.TotalSum()/theory[0].Total();
+			value<double> L=FG.TotalSum()/theory[0].TotalSum().val();
 			Plot<double>().Object("0*x title ''")
 			.Hist(FG,"DATA-background "+Qmsg)
-			.Line(hist<double>(theory[0]*L).Line(),"^3He+eta MC*N")
+			.Line(hist<double>(theory[0]*L).toLine(),"^3He+eta MC*N")
 			<< "set key on"
 			<< "set xlabel 'Missing mass, GeV'"
 			<< "set ylabel 'counts'"
