@@ -169,7 +169,7 @@ int main(){
 	<< "set key on" << "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'sigma(^3He eta), nb'"<< "set yrange [0:600]";
 	
-	for(int i=1;i<=4;i++){
+	for(int i=2;i<=4;i++){
 		auto phidistr=Hist(DATA,"",{"Histograms","He3Forward_Debug"},to_string(i)+"-PhiDistribution-AllBins").Scale(60);
 		auto phidistr_mc=Hist(MC,"",{"Histograms","He3Forward_Debug"},to_string(i)+"-PhiDistribution-AllBins").Scale(60);
 		Plot<double>().Hist(phidistr,"DATA").Hist(phidistr_mc,"MC")<<"set key on"
