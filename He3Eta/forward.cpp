@@ -169,12 +169,10 @@ int main(){
 	<< "set key on" << "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'sigma(^3He eta), nb'"<< "set yrange [0:600]";
 	
-	auto phidistr=Hist(DATA,"",{"Histograms","He3Forward_Debug"},"PhiDistribution-before-AllBins").Scale(60);
-	Plot<double>().Hist(phidistr,"phi distribution")
-	<< "set key off" << "set xlabel 'Phi, deg'" 
-	<< "set ylabel 'events, count'"<< "set yrange [0:]";
-	phidistr=Hist(DATA,"",{"Histograms","He3Forward_Debug"},"PhiDistribution-after-AllBins").Scale(60);
-	Plot<double>().Hist(phidistr,"phi distribution")
-	<< "set key off" << "set xlabel 'Phi, deg'" 
-	<< "set ylabel 'events, count'"<< "set yrange [0:]";
+	for(int i=1;i<=4;i++){
+		auto phidistr=Hist(DATA,"",{"Histograms","He3Forward_Debug"},to_string(i)+"-PhiDistribution-AllBins").Scale(60);
+		auto phidistr_mc=Hist(MC,"",{"Histograms","He3Forward_Debug"},to_string(i)+"-PhiDistribution-AllBins").Scale(60);
+		Plot<double>().Hist(phidistr,"DATA").Hist(phidistr_mc,"MC")<<"set key on"
+		<< "set xlabel 'Phi, deg'"<< "set ylabel 'events, count'"<< "set yrange [0:]";
+	}
 }
