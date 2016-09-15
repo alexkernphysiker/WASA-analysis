@@ -67,8 +67,8 @@ int main(){
 				}
 			}
 			vector<LinearInterpolation<double>> bg_funcs{theory[1].toLine(),theory[2].toLine()};
-			Fit<DifferentialMutations<>,ChiSquare> bg_fit(
-				make_shared<FitPoints>(data.XRange(0.44,0.53)),
+			Fit<DifferentialMutations<>,ChiSquareWithXError> bg_fit(
+				make_shared<FitPoints>(data.XRange(0.450,0.530)),
 				[&bg_funcs](const ParamSet&X,const ParamSet&P){
 					double res=0;
 					for(size_t i=0;i<bg_funcs.size();i++)res+=bg_funcs[i](X[0])*P[i];
@@ -102,7 +102,7 @@ int main(){
 			<< "set xrange [0.4:0.6]"
 			<< "set yrange [-200:2500]";
 			
-			bg_chi_sq << point<value<double>>(Q,bg_fit.Optimality());
+			bg_chi_sq << point<value<double>>(Q,bg_fit.Optimality()/(bg_fit.Points()->size()-bg_fit.ParamCount()));
 			
 			hist<double> BG=
 				theory[1]*bg_fit.ParametersWithUncertainties()[0]+
