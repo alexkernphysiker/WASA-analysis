@@ -32,7 +32,7 @@ int main(){
 		},ChainWithStep(he3eta().PThreshold(),0.001,3.0)
 	).TransponateAndSort();
 	string He3eta_msg="He3eta";
-	hist<double> offs_mc,offs_data,ek_mc,ek_data,ek_before_shift;
+	hist<double> offs_mc,offs_data,ek_mc,ek_data;
 	auto QBins=Hist(MC,He3eta_msg,{"Histograms","He3Forward_Reconstruction"},"0-Reference");
 	for(size_t bin_num=9,bin_count=QBins.size()-1;bin_num<bin_count;bin_num++){
 		auto Q=QBins[bin_num].X();
@@ -89,25 +89,6 @@ int main(){
 		PlotHist2d<double>(sp2).Distr(kin_mc)<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'"
 		<< "set xrange [0.2:0.4]";
 		auto data_hist_init=Hist2d(DATA,"",{"Histograms","He3Forward_Reconstruction"},string("Kinematic-reconstructed-Bin-")+to_string(bin_num));
-		{
-			hist2d<double> shifted_back(
-				BinsByCount(data_hist_init.X().size(),
-					    data_hist_init.X().left().min()-he3_forward_correct_energy,
-					    data_hist_init.X().right().max()-he3_forward_correct_energy
-				),
-				BinsByCount(data_hist_init.Y().size(),
-					    data_hist_init.Y().left().min(),
-					    data_hist_init.Y().right().max()
-				)
-			);
-			for(size_t x=0;x<shifted_back.X().size();x++)
-				for(size_t y=0;y<shifted_back.Y().size();y++)
-					shifted_back.Bin(x,y)=data_hist_init[x][y];
-			shifted_back=shifted_back.Scale(4,4);
-			PlotHist2d<double>(sp2).Distr(shifted_back)<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'"
-			<< "set xrange [0.2:0.4]";
-			ek_before_shift << Ek_avr(shifted_back,3.0/4.0);
-		}
 		auto kin_data=data_hist_init.Scale(4,4);
 		PlotHist2d<double>(sp2).Distr(kin_data)<<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'"
 		<< "set xrange [0.2:0.4]";
@@ -119,7 +100,7 @@ int main(){
 	Plot<double>().Hist(offs_mc,"Simulation").Hist(offs_data,"Data")
 	<< "set xlabel 'Q, MeV'" << "set ylabel '\\Delta_{P}, GeV/c'"
 	<< "set yrange [0:0.010]" << "set key on";
-	Plot<double>().Hist(ek_mc,"Simulation").Hist(ek_data,"Data").Hist(ek_before_shift,"Before correction")
+	Plot<double>().Hist(ek_mc,"Simulation").Hist(ek_data,"Data")
 	<<"set xlabel 'Q, MeV'"<<"set ylabel 'Ek_{avr}, GeV'" << "set key on";
 	return 0;
 }
