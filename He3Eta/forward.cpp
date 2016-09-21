@@ -163,7 +163,7 @@ int main(){
 	Plot<double>().Hist(luminosity,to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs") 
 	<< "set key on" << "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'Integral luminosity, nb^{-1}'" 
-	<< "set yrange [0:80]";
+	<< "set yrange [0:]";
 	
 	Plot<double>().Line(he3eta_sigma(),"Used in calculations")
 	<< "set key on" << "set xlabel 'Q, MeV'" 
