@@ -36,8 +36,10 @@ int main(){
 	for(const auto&h:norm)acceptance.push_back(hist<double>());
 	hist<double> luminosity,bg_chi_sq,bg_ratio;
 	RANDOM r_eng;
+	int index=-1;vector<double> right_edge={0.528,0.530,0.532,0.534,0.536};
 	for(size_t bin_num=0,bin_count=norm[0].size();bin_num<bin_count;bin_num++)
 		if(norm[0][bin_num].X()>17.5){
+			index++;
 			auto Q=norm[0][bin_num].X();
 			string Qmsg="Q in ["+to_string(norm[0][bin_num].X().min())+":"+to_string(norm[0][bin_num].X().max())+"] MeV";
 			auto transform=[](hist<double>&h){h=h.XRange(0.35,0.75);};
@@ -67,8 +69,8 @@ int main(){
 				}
 			}
 			vector<LinearInterpolation<double>> bg_funcs{theory[1].toLine(),theory[2].toLine()};
-			Fit<DifferentialMutations<>,ChiSquareWithXError> bg_fit(
-				make_shared<FitPoints>(data.XRange(0.450,0.530)),
+			Fit<DifferentialMutations<>,ChiSquare> bg_fit(
+				make_shared<FitPoints>(data.XRange(0.435,right_edge[index])),
 				[&bg_funcs](const ParamSet&X,const ParamSet&P){
 					double res=0;
 					for(size_t i=0;i<bg_funcs.size();i++)res+=bg_funcs[i](X[0])*P[i];
@@ -126,7 +128,7 @@ int main(){
 			<< "set xrange [0.4:0.6]"
 			<< "set yrange [-200:2500]";
 			
-			FG=FG.XRange(0.525,0.560);
+			FG=FG.XRange(right_edge[index]-0.004,0.555);
 			value<double> L=FG.TotalSum()/theory[0].TotalSum().val();
 			Plot<double>().Object("0*x title ''")
 			.Hist(FG,"DATA-background "+Qmsg)
@@ -145,11 +147,11 @@ int main(){
 	Plot<double>().Hist(bg_chi_sq) 
 	<< "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'chi^2, n.d.'" 
-	<< "set yrange [0:10]";
+	<< "set yrange [0:]";
 			
 	{//Plot acceptance
 		Plot<double> plot;
-		plot << "set key on" << "set yrange [0:0.7]";
+		plot << "set key on" << "set yrange [0:0.9]";
 		for(size_t i=0;i<reaction.size();i++)plot.Hist(acceptance[i],reaction[i]);
 		plot << "set xlabel 'Q, MeV'" << "set ylabel 'Acceptance, n.d.'";
 	}
