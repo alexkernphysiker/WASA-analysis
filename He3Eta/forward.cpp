@@ -36,10 +36,18 @@ int main(){
 	for(const auto&h:norm)acceptance.push_back(hist<double>());
 	hist<double> luminosity,bg_chi_sq,bg_ratio;
 	RANDOM r_eng;
-	int index=-1;vector<double> right_edge={0.528,0.530,0.532,0.534,0.536};
+	const vector<pair<double,double>> peak_region{
+		//make_pair(0.525,0.551),
+		make_pair(0.527,0.552),
+		make_pair(0.529,0.553),
+		make_pair(0.530,0.554),
+		make_pair(0.530,0.555)
+	};
+	int peak_index=-1;
 	for(size_t bin_num=0,bin_count=norm[0].size();bin_num<bin_count;bin_num++)
-		if(norm[0][bin_num].X()>17.5){
-			index++;
+		if(norm[0][bin_num].X()>20.0){
+			peak_index++;
+			const auto& peak=peak_region[peak_index];
 			auto Q=norm[0][bin_num].X();
 			string Qmsg="Q in ["+to_string(norm[0][bin_num].X().min())+":"+to_string(norm[0][bin_num].X().max())+"] MeV";
 			auto transform=[](hist<double>&h){h=h.XRange(0.35,0.75);};
@@ -70,7 +78,7 @@ int main(){
 			}
 			vector<LinearInterpolation<double>> bg_funcs{theory[1].toLine(),theory[2].toLine()};
 			Fit<DifferentialMutations<>,ChiSquare> bg_fit(
-				make_shared<FitPoints>(data.XRange(0.435,right_edge[index])),
+				make_shared<FitPoints>(data.XRange(0.450,0.575).XExclude(peak.first+0.001,peak.second-0.001)),
 				[&bg_funcs](const ParamSet&X,const ParamSet&P){
 					double res=0;
 					for(size_t i=0;i<bg_funcs.size();i++)res+=bg_funcs[i](X[0])*P[i];
@@ -128,7 +136,7 @@ int main(){
 			<< "set xrange [0.4:0.6]"
 			<< "set yrange [-200:2500]";
 			
-			FG=FG.XRange(right_edge[index]-0.004,0.555);
+			FG=FG.XRange(peak.first,peak.second);
 			value<double> L=FG.TotalSum()/theory[0].TotalSum().val();
 			Plot<double>().Object("0*x title ''")
 			.Hist(FG,"DATA-background "+Qmsg)
