@@ -37,7 +37,6 @@ int main(){
 	hist<double> luminosity,bg_chi_sq,bg_ratio;
 	RANDOM r_eng;
 	const vector<pair<double,double>> peak_region{
-		//make_pair(0.525,0.551),
 		make_pair(0.527,0.552),
 		make_pair(0.529,0.553),
 		make_pair(0.530,0.554),
@@ -85,7 +84,7 @@ int main(){
 					return res;
 				}
 			);
-			bg_fit.SetUncertaintyCalcDeltas({0.01,0.01}).SetFilter(make_shared<Above>()<<0.0<<0.0);
+			bg_fit.SetUncertaintyCalcDeltas({0.1,0.1}).SetFilter(make_shared<Above>()<<0.0<<0.0);
 			{
 				auto count=data.TotalSum().val();
 				bg_fit.Init(100,make_shared<GenerateUniform>()
@@ -173,7 +172,7 @@ int main(){
 	Plot<double>().Hist(luminosity,to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs") 
 	<< "set key on" << "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'Integral luminosity, nb^{-1}'" 
-	<< "set yrange [0:]";
+	<< "set yrange [0:100]";
 	
 	Plot<double>().Line(he3eta_sigma(),"Used in calculations")
 	<< "set key on" << "set xlabel 'Q, MeV'" 
