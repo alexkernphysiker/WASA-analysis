@@ -21,7 +21,7 @@ using namespace GnuplotWrap;
 int main(){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward");
 	vector<string> histpath_forward_reconstr={"Histograms","He3Forward_Reconstruction"};
-	vector<string> reaction={"He3eta","He3pi0pi0","He3pi0pi0pi0"};
+	vector<string> reaction={"He3eta","He3pi0pi0pi0","He3pi0pi0"};
 	vector<hist<double>> norm;
 	for(const string& r:reaction)norm.push_back(Hist(MC,r,histpath_forward_reconstr,"0-Reference"));
 	Plot<double>().Hist(norm[0],"Simulated events")
@@ -36,25 +36,15 @@ int main(){
 	for(const auto&h:norm)acceptance.push_back(hist<double>());
 	hist<double> luminosity,bg_chi_sq,bg_ratio;
 	RANDOM r_eng;
-	const vector<pair<double,double>> peak_region{
-		make_pair(0.527,0.552),
-		make_pair(0.529,0.553),
-		make_pair(0.530,0.554),
-		make_pair(0.530,0.555)
-	};
-	int peak_index=-1;
 	for(size_t bin_num=0,bin_count=norm[0].size();bin_num<bin_count;bin_num++)
-		if(norm[0][bin_num].X()>20.0){
-			peak_index++;
-			const auto& peak=peak_region[peak_index];
+		if(norm[0][bin_num].X()>0.0){
 			auto Q=norm[0][bin_num].X();
 			string Qmsg="Q in ["+to_string(norm[0][bin_num].X().min())+":"+to_string(norm[0][bin_num].X().max())+"] MeV";
 			auto transform=[](hist<double>&h){h=h.XRange(0.35,0.75);};
 
 			hist<double> data=Hist(DATA,"",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
 			transform(data);
-			Plot<double>()
-			.Hist(data,"DATA "+Qmsg)
+			Plot<double>().Hist(data,"DATA "+Qmsg)
 			<< "set key on"
 			<< "set xlabel 'Missing mass, GeV'"
 			<< "set ylabel 'counts'"
@@ -67,44 +57,38 @@ int main(){
 					transform(react_sim);
 					auto N=norm[i][bin_num].Y();
 					acceptance[i] << point<value<double>>(Q,value<double>(react_sim.TotalSum().val())/N);
-					theory.push_back(react_sim/N);
+					react_sim/=N;
+					theory.push_back(react_sim);
+					react_sim/=2.0*react_sim[0].X().uncertainty();
 					Plot<double>().Hist(theory[i],reaction[i]+" MC "+Qmsg)
 					<< "set xrange [0.4:0.6]"
 					<< "set yrange [0:]"
 					<< "set key on" 
-					<< "set ylabel 'acceptance density, channel^{-1}'";
+					<< "set ylabel 'acceptance density, MeV^{-1}'";
 				}
 			}
-			vector<LinearInterpolation<double>> bg_funcs{theory[1].toLine(),theory[2].toLine()};
+			vector<LinearInterpolation<double>> reaction_funcs{theory[0].toLine(),theory[1].toLine(),theory[2].toLine()};
 			Fit<DifferentialMutations<>,ChiSquare> bg_fit(
-				make_shared<FitPoints>(data.XRange(0.450,0.575).XExclude(peak.first+0.001,peak.second-0.001)),
-				[&bg_funcs](const ParamSet&X,const ParamSet&P){
+				make_shared<FitPoints>(data),
+				[&reaction_funcs](const ParamSet&X,const ParamSet&P){
 					double res=0;
-					for(size_t i=0;i<bg_funcs.size();i++)res+=bg_funcs[i](X[0])*P[i];
+					for(size_t i=0;i<reaction_funcs.size();i++)res+=reaction_funcs[i](X[0])*P[i];
 					return res;
 				}
 			);
-			bg_fit.SetUncertaintyCalcDeltas({0.1,0.1}).SetFilter(make_shared<Above>()<<0.0<<0.0);
+			bg_fit.SetUncertaintyCalcDeltas({0.1,0.1,0.1}).SetFilter(make_shared<Above>()<<0.0<<0.0<<0.0);
 			{
 				auto count=data.TotalSum().val();
-				bg_fit.Init(100,make_shared<GenerateUniform>()
-					<<make_pair(0.0,20.0*count)
-					<<make_pair(0.0,20.0*count)
-					,r_eng
-				);
+				bg_fit.Init(100,make_shared<GenerateUniform>()<<make_pair(0.0,20.0*count)<<make_pair(0.0,20.0*count)<<make_pair(0.0,20.0*count),r_eng);
 			}
-			while(!bg_fit.AbsoluteOptimalityExitCondition(0.0000001))
+			while(!bg_fit.AbsoluteOptimalityExitCondition(0.000001))
 				bg_fit.Iterate(r_eng);
-			bg_ratio << point<value<double>>(Q,
-				bg_fit.ParametersWithUncertainties()[0]
-				/
-				bg_fit.ParametersWithUncertainties()[1]
-			);
-			
-			SortedPoints<double> BG_displ(theory[1].toLine()*bg_fit.Parameters()[0]+theory[2].toLine()*bg_fit.Parameters()[1]);
+			const auto&P=bg_fit.ParametersWithUncertainties();
+			bg_ratio << point<value<double>>(Q,P[2]/P[1]);
+			SortedPoints<double> Fit_Displ(theory[0].toLine()*P[0].val()+theory[1].toLine()*P[1].val()+theory[2].toLine()*P[2].val());
 			Plot<double>()
 			.Hist(bg_fit.Points()->Hist1(0),"cut DATA "+Qmsg)
-			.Line(BG_displ,"fit")
+			.Line(Fit_Displ,"fit")
 			<< "set key on"
 			<< "set xlabel 'Missing mass, GeV'"
 			<< "set ylabel 'counts'"
@@ -113,43 +97,20 @@ int main(){
 			
 			bg_chi_sq << point<value<double>>(Q,bg_fit.Optimality()/(bg_fit.Points()->size()-bg_fit.ParamCount()));
 			
-			hist<double> BG=
-				theory[1]*bg_fit.ParametersWithUncertainties()[0]+
-				theory[2]*bg_fit.ParametersWithUncertainties()[1];
+			hist<double> FIT=theory[0]*P[0]+theory[1]*P[1]+theory[2]*P[2];
 			Plot<double>()
-			.Hist(data,"DATA "+Qmsg).Hist(BG,"background")
-			.Line(hist<double>(theory[1]*bg_fit.ParametersWithUncertainties()[0]).toLine(),"^3He2pi^0")
-			.Line(hist<double>(theory[2]*bg_fit.ParametersWithUncertainties()[1]).toLine(),"^3He3pi^0")
+			.Hist(data,"DATA "+Qmsg).Hist(FIT,"background")
+			.Line(hist<double>(theory[0]*P[0]).toLine(),"^3He eta")
+			.Line(hist<double>(theory[1]*P[1]).toLine(),"^3He3pi^0")
+			.Line(hist<double>(theory[2]*P[2]).toLine(),"^3He2pi^0")
 			<< "set key on"
 			<< "set xlabel 'Missing mass, GeV'" 
 			<< "set ylabel 'counts'"
 			<< "set xrange [0.4:0.6]"
 			<< "set yrange [-200:2500]";
 			
-			hist<double> FG=(data-BG).XRange(0.40,0.70);
-			Plot<double>().Object("0*x title ''")
-			.Hist(FG,"DATA-background "+Qmsg)
-			<< "set key on" 
-			<< "set xlabel 'Missing mass, GeV'"
-			<< "set ylabel 'counts'"
-			<< "set xrange [0.4:0.6]"
-			<< "set yrange [-200:2500]";
-			
-			FG=FG.XRange(peak.first,peak.second);
-			value<double> L=FG.TotalSum()/theory[0].TotalSum().val();
-			Plot<double>().Object("0*x title ''")
-			.Hist(FG,"DATA-background "+Qmsg)
-			.Line(hist<double>(theory[0]*L).toLine(),"^3He+eta MC*N")
-			<< "set key on"
-			<< "set xlabel 'Missing mass, GeV'"
-			<< "set ylabel 'counts'"
-			<< "set xrange [0.4:0.6]"
-			<< "set yrange [-200:2500]";
-			luminosity << point<value<double>>(Q,
-				L*double(trigger_he3_forward.scaling)
-				/
-				func_value(he3eta_sigma().func(),Q)
-			);
+			if(norm[0][bin_num].X()>5.0)
+				luminosity << point<value<double>>(Q,(P[0]/func_value(he3eta_sigma().func(),Q))*double(trigger_he3_forward.scaling));
 		}
 	Plot<double>().Hist(bg_chi_sq) 
 	<< "set xlabel 'Q, MeV'" 
