@@ -85,16 +85,6 @@ int main(){
 				bg_fit.Iterate(r_eng);
 			const auto&P=bg_fit.ParametersWithUncertainties();
 			bg_ratio << point<value<double>>(Q,P[2]/P[1]);
-			SortedPoints<double> Fit_Displ(theory[0].toLine()*P[0].val()+theory[1].toLine()*P[1].val()+theory[2].toLine()*P[2].val());
-			Plot<double>()
-			.Hist(bg_fit.Points()->Hist1(0),"cut DATA "+Qmsg)
-			.Line(Fit_Displ,"fit")
-			<< "set key on"
-			<< "set xlabel 'Missing mass, GeV'"
-			<< "set ylabel 'counts'"
-			<< "set xrange [0.4:0.6]"
-			<< "set yrange [-200:2500]";
-			
 			bg_chi_sq << point<value<double>>(Q,bg_fit.Optimality()/(bg_fit.Points()->size()-bg_fit.ParamCount()));
 			
 			hist<double> FIT=theory[0]*P[0]+theory[1]*P[1]+theory[2]*P[2];
@@ -116,7 +106,7 @@ int main(){
 	<< "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'chi^2, n.d.'" 
 	<< "set yrange [0:]";
-			
+
 	{//Plot acceptance
 		Plot<double> plot;
 		plot << "set key on" << "set yrange [0:0.9]";
@@ -134,11 +124,11 @@ int main(){
 	<< "set key on" << "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'Integral luminosity, nb^{-1}'" 
 	<< "set yrange [0:100]";
-	
+
 	Plot<double>().Line(he3eta_sigma(),"Used in calculations")
 	<< "set key on" << "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'sigma(^3He eta), nb'"<< "set yrange [0:600]";
-	
+
 	for(int i=2;i<=4;i++){
 		auto phidistr=Hist(DATA,"",{"Histograms","He3Forward_Debug"},to_string(i)+"-PhiDistribution-AllBins").Scale(30);
 		auto phidistr_mc=Hist(MC,"He3eta",{"Histograms","He3Forward_Debug"},to_string(i)+"-PhiDistribution-AllBins").Scale(30);
