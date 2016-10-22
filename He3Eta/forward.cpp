@@ -40,7 +40,7 @@ int main(){
 		if(norm[0][bin_num].X()>0.0){
 			auto Q=norm[0][bin_num].X();
 			string Qmsg="Q in ["+to_string(norm[0][bin_num].X().min())+":"+to_string(norm[0][bin_num].X().max())+"] MeV";
-			auto transform=[](hist<double>&h){h=h.XRange(0.35,0.75);};
+			auto transform=[](hist<double>&h){h=h.XRange(0.40,0.58);};
 
 			hist<double> data=Hist(DATA,"",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
 			transform(data);
@@ -48,8 +48,7 @@ int main(){
 			<< "set key on"
 			<< "set xlabel 'Missing mass, GeV'"
 			<< "set ylabel 'counts'"
-			<< "set xrange [0.4:0.6]"
-			<< "set yrange [-200:2500]";
+			<< "set yrange [0:]";
 		
 			vector<hist<double>> theory;{
 				for(size_t i=0;i<reaction.size();i++){
@@ -61,31 +60,38 @@ int main(){
 					theory.push_back(react_sim);
 					react_sim/=2.0*react_sim[0].X().uncertainty();
 					Plot<double>().Hist(theory[i],reaction[i]+" MC "+Qmsg)
-					<< "set xrange [0.4:0.6]"
 					<< "set yrange [0:]"
 					<< "set key on" 
 					<< "set ylabel 'acceptance density, MeV^{-1}'";
 				}
 			}
 			vector<LinearInterpolation<double>> reaction_funcs{theory[0].toLine(),theory[1].toLine(),theory[2].toLine()};
-			Fit<DifferentialMutations<>,ChiSquare> bg_fit(
+			Fit<DifferentialMutations<>,ChiSquare> fit(
 				make_shared<FitPoints>(data),
 				[&reaction_funcs](const ParamSet&X,const ParamSet&P){
 					double res=0;
-					for(size_t i=0;i<reaction_funcs.size();i++)res+=reaction_funcs[i](X[0])*P[i];
+					for(size_t i=0;i<reaction_funcs.size();i++)
+						res+=reaction_funcs[i](X[0])*P[i];
 					return res;
 				}
 			);
-			bg_fit.SetUncertaintyCalcDeltas({0.1,0.1,0.1}).SetFilter(make_shared<Above>()<<0.0<<0.0<<0.0);
+			ParamSet pExit{	0.001,	0.001,	0.001	},
+			pDelta{	0.01,	0.01,	0.01,	};
+			fit.SetUncertaintyCalcDeltas(pDelta).SetFilter(make_shared<Above>()<<0.0<<0.0<<0.0);
 			{
 				auto count=data.TotalSum().val();
-				bg_fit.Init(100,make_shared<GenerateUniform>()<<make_pair(0.0,20.0*count)<<make_pair(0.0,20.0*count)<<make_pair(0.0,20.0*count),r_eng);
+				fit.Init(300,make_shared<GenerateUniform>()<<make_pair(0.0,20.0*count)<<make_pair(0.0,20.0*count)<<make_pair(0.0,20.0*count),r_eng);
 			}
-			while(!bg_fit.AbsoluteOptimalityExitCondition(0.000001))
-				bg_fit.Iterate(r_eng);
-			const auto&P=bg_fit.ParametersWithUncertainties();
+			while((!fit.AbsoluteOptimalityExitCondition(0.000001))&&(!fit.ParametersDispersionExitCondition(pExit))){
+				fit.Iterate(r_eng);
+				cout<<fit.iteration_count()<<" iterations; "
+				<<fit.Optimality()<<"<chi^2<"
+				<<fit.Optimality(fit.PopulationSize()-1)
+				<<"        \r";
+			}
+			const auto&P=fit.ParametersWithUncertainties();
 			bg_ratio << point<value<double>>(Q,P[2]/P[1]);
-			bg_chi_sq << point<value<double>>(Q,bg_fit.Optimality()/(bg_fit.Points()->size()-bg_fit.ParamCount()));
+			bg_chi_sq << point<value<double>>(Q,fit.Optimality()/(fit.Points()->size()-fit.ParamCount()));
 			
 			hist<double> FIT=theory[0]*P[0]+theory[1]*P[1]+theory[2]*P[2];
 			Plot<double>()
@@ -96,8 +102,7 @@ int main(){
 			<< "set key on"
 			<< "set xlabel 'Missing mass, GeV'" 
 			<< "set ylabel 'counts'"
-			<< "set xrange [0.4:0.6]"
-			<< "set yrange [-200:2500]";
+			<< "set yrange [0:]";
 			
 			if(norm[0][bin_num].X()>5.0)
 				luminosity << point<value<double>>(Q,(P[0]/func_value(he3eta_sigma().func(),Q))*double(trigger_he3_forward.scaling));
@@ -109,7 +114,7 @@ int main(){
 
 	{//Plot acceptance
 		Plot<double> plot;
-		plot << "set key on" << "set yrange [0:0.9]";
+		plot << "set key on" << "set yrange [0:1.0]";
 		for(size_t i=0;i<reaction.size();i++)plot.Hist(acceptance[i],reaction[i]);
 		plot << "set xlabel 'Q, MeV'" << "set ylabel 'Acceptance, n.d.'";
 	}
