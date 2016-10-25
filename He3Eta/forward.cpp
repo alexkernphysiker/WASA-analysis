@@ -27,7 +27,7 @@ int main(){
 	Plot<double>().Hist(norm[0],"Simulated events")
 	.Hist(Hist(MC,reaction[0],histpath_forward_reconstr,"2-FPC"),"Forward tracks with signal in FPC")
 	.Hist(Hist(MC,reaction[0],histpath_forward_reconstr,"3-AllCuts"),"identified as ^3He")
-	<< "set key on"
+	<< "set key on"<< "set title 'Simulation "+reaction[0]+"'"
 	<< "set yrange [0:400000]"
 	<< "set xlabel 'Q, MeV'"
 	<< "set ylabel 'Events count'";
@@ -37,20 +37,22 @@ int main(){
 	hist<double> luminosity,bg_chi_sq,bg_ratio;
 	RANDOM r_eng;
 	for(size_t bin_num=0,bin_count=norm[0].size();bin_num<bin_count;bin_num++)
-		if(norm[0][bin_num].X()>0.0){
+		if(norm[0][bin_num].X()>5.0){
 			auto Q=norm[0][bin_num].X();
 			string Qmsg="Q in ["+to_string(norm[0][bin_num].X().min())+":"+to_string(norm[0][bin_num].X().max())+"] MeV";
-			auto transform=[](hist<double>&h){h=h.XRange(0.40,0.58);};
+			auto transform=[](hist<double>&h){h=h.XRange(0.481,0.58);};
 
 			hist<double> data=Hist(DATA,"",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
 			transform(data);
-			Plot<double>().Hist(data,"DATA "+Qmsg)
-			<< "set key on"
+			Plot<double> exp_plot;
+			exp_plot.Hist(data,"DATA")
+			<< "set key on"<< "set title '"+Qmsg+"'"
 			<< "set xlabel 'Missing mass, GeV'"
 			<< "set ylabel 'counts'"
 			<< "set yrange [0:]";
 		
 			vector<hist<double>> theory;{
+				Plot<double> th_plot;
 				for(size_t i=0;i<reaction.size();i++){
 					hist<double> react_sim=Hist(MC,reaction[i],histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
 					transform(react_sim);
@@ -59,11 +61,12 @@ int main(){
 					react_sim/=N;
 					theory.push_back(react_sim);
 					react_sim/=2.0*react_sim[0].X().uncertainty();
-					Plot<double>().Hist(theory[i],reaction[i]+" MC "+Qmsg)
-					<< "set yrange [0:]"
-					<< "set key on" 
-					<< "set ylabel 'acceptance density, MeV^{-1}'";
+					th_plot.Line(react_sim.toLine(),reaction[i]);
 				}
+				th_plot<< "set yrange [0:]"<< "set key on"<< "set xlabel 'Missing mass, GeV'"
+				<< "set title '"+Qmsg+"'"
+				<< "set ylabel 'acceptance density, GeV^{-1}'";
+				
 			}
 			vector<LinearInterpolation<double>> reaction_funcs{theory[0].toLine(),theory[1].toLine(),theory[2].toLine()};
 			Fit<DifferentialMutations<>,ChiSquare> fit(
@@ -93,53 +96,52 @@ int main(){
 			bg_ratio << point<value<double>>(Q,P[2]/P[1]);
 			bg_chi_sq << point<value<double>>(Q,fit.Optimality()/(fit.Points()->size()-fit.ParamCount()));
 			
-			hist<double> FIT=theory[0]*P[0]+theory[1]*P[1]+theory[2]*P[2];
-			Plot<double>()
-			.Hist(data,"DATA "+Qmsg).Hist(FIT,"background")
+			exp_plot.Line(hist<double>(theory[0]*P[0]+theory[1]*P[1]+theory[2]*P[2]).toLine(),"Total fit")
 			.Line(hist<double>(theory[0]*P[0]).toLine(),"^3He eta")
 			.Line(hist<double>(theory[1]*P[1]).toLine(),"^3He3pi^0")
-			.Line(hist<double>(theory[2]*P[2]).toLine(),"^3He2pi^0")
-			<< "set key on"
-			<< "set xlabel 'Missing mass, GeV'" 
-			<< "set ylabel 'counts'"
-			<< "set yrange [0:]";
+			.Line(hist<double>(theory[2]*P[2]).toLine(),"^3He2pi^0");
 			
-			if(norm[0][bin_num].X()>5.0)
-				luminosity << point<value<double>>(Q,(P[0]/func_value(he3eta_sigma().func(),Q))*double(trigger_he3_forward.scaling));
+			luminosity << point<value<double>>(Q,(P[0]/func_value(he3eta_sigma().func(),Q))*double(trigger_he3_forward.scaling));
 		}
 	Plot<double>().Hist(bg_chi_sq) 
 	<< "set xlabel 'Q, MeV'" 
-	<< "set ylabel 'chi^2, n.d.'" 
+	<< "set ylabel 'chi^2/d, n.d.'" 
 	<< "set yrange [0:]";
 
 	{//Plot acceptance
 		Plot<double> plot;
-		plot << "set key on" << "set yrange [0:1.0]";
+		plot << "set key on" 
+		<< "set title 'Acceptance'"
+		<< "set yrange [0:1.0]"
+		<< "set xlabel 'Q, MeV'" 
+		<< "set ylabel 'Acceptance, n.d.'";
 		for(size_t i=0;i<reaction.size();i++)plot.Hist(acceptance[i],reaction[i]);
-		plot << "set xlabel 'Q, MeV'" << "set ylabel 'Acceptance, n.d.'";
 	}
 
 	Plot<double>().Hist(bg_ratio/(acceptance[1]/acceptance[2])) 
+	<< "set title 'Background reactions'"
 	<< "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'sigma("+reaction[1]+")/sigma("+reaction[2]+"), n.d.'" 
 	<< "set yrange [0:]";
 
 	auto runs=PresentRuns("");
 	Plot<double>().Hist(luminosity,to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs") 
+	<< "set title 'Integral luminosity'"
 	<< "set key on" << "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'Integral luminosity, nb^{-1}'" 
-	<< "set yrange [0:100]";
+	<< "set yrange [0:]";
 
 	Plot<double>().Line(he3eta_sigma(),"Used in calculations")
+	<< "set title '"+reaction[0]+"'"
 	<< "set key on" << "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'sigma(^3He eta), nb'"<< "set yrange [0:600]";
 
 	for(int i=2;i<=4;i++){
 		auto phidistr=Hist(DATA,"",{"Histograms","He3Forward_Debug"},to_string(i)+"-PhiDistribution-AllBins").Scale(30);
 		auto phidistr_mc=Hist(MC,"He3eta",{"Histograms","He3Forward_Debug"},to_string(i)+"-PhiDistribution-AllBins").Scale(30);
-		Plot<double>().Hist(phidistr,"DATA")<<"set key on"
+		Plot<double>().Hist(phidistr,"DATA")<<"set key on" << "set title 'Phi-angle distribution'"
 		<< "set xlabel 'Phi, deg'"<< "set ylabel 'events, count'"<< "set yrange [0:]";
-		Plot<double>().Hist(phidistr_mc,"MC")<<"set key on"
+		Plot<double>().Hist(phidistr_mc,"MC")<<"set key on" << "set title 'Phi-angle distribution'"
 		<< "set xlabel 'Phi, deg'"<< "set ylabel 'events, count'"<< "set yrange [0:]";
 	}
 }
