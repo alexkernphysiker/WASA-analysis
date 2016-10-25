@@ -5,5 +5,7 @@ target_link_libraries(beam_momenta_offset ${ROOT_LIBRARIES} reconstructionfit ex
 
 add_executable(forward forward.cpp he3eta.cpp)
 target_link_libraries(forward ${ROOT_LIBRARIES} reconstructionfit experiment kinematics)
+add_executable(forward-cuts forward_cuts.cpp he3eta.cpp)
+target_link_libraries(forward-cuts ${ROOT_LIBRARIES} reconstructionfit experiment kinematics)
 add_executable(central central.cpp he3eta.cpp)
 target_link_libraries(central ${ROOT_LIBRARIES} reconstructionfit experiment kinematics)
