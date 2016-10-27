@@ -73,7 +73,7 @@ int main(){
 				return res;
 			});
 			ParamSet pExit{	0.0001,	0.0001,	0.0001	},
-			pDelta{	0.005,	0.005,	0.005	};
+			pDelta{	0.001,	0.001,	0.001	};
 			fit.SetUncertaintyCalcDeltas(pDelta).SetFilter(make_shared<Above>()<<0.0<<0.0<<0.0);
 			{
 				auto count=data.TotalSum().val();
@@ -87,11 +87,7 @@ int main(){
 				<<"        \r";
 			}
 			const auto&P=fit.ParametersWithUncertainties();
-			bg_ratio << point<value<double>>(Q,
-				(P[1]/acceptance[1].right().Y())
-				/
-				(P[2]/acceptance[2].right().Y())
-			);
+			bg_ratio << point<value<double>>(Q,P[1]/P[2]);
 			bg_chi_sq << point<value<double>>(Q,fit.Optimality()/(data.size()-fit.ParamCount()));
 			
 			exp_plot.Line(hist<double>(theory[0]*P[0]+theory[1]*P[1]+theory[2]*P[2]).toLine(),"Total fit")
@@ -100,8 +96,7 @@ int main(){
 			.Line(hist<double>(theory[2]*P[2]).toLine(),"^3He2pi^0");
 			
 			luminosity << point<value<double>>(Q,(
-				(P[0]/acceptance[0].right().Y())
-				/func_value(he3eta_sigma().func(),Q)
+				P[0]/func_value(he3eta_sigma().func(),Q)
 			)*double(trigger_he3_forward.scaling));
 		}
 	Plot<double>().Hist(bg_chi_sq) 

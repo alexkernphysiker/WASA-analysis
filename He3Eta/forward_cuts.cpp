@@ -26,7 +26,7 @@ int main(){
 			.Line(Hist(HS,R,{"Histograms","He3Forward_Reconstruction"},"2-FPC").toLine(),"Reconstructable forward tracks")
 			.Line(Hist(HS,R,{"Histograms","He3Forward_Reconstruction"},"3-AllCuts").toLine(),"identified as ^3He")
 			<< "set key on"<< "set title '"+title+"'"
-			<< "set yrange [0:400000]"
+			<< "set yrange [0:]"
 			<< "set xlabel 'Q, MeV'"
 			<< "set ylabel 'Events count'";
 		}
@@ -53,5 +53,5 @@ int main(){
 	MakePlots(MC,"He3eta",50000);
 	MakePlots(MC,"He3pi0pi0",50000);
 	MakePlots(MC,"He3pi0pi0pi0",50000);
-	MakePlots(DATA,"",10000);
+	MakePlots(DATA,"",50000);
 }
