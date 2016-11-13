@@ -58,7 +58,6 @@ int main(){
 					theory.push_back(react_sim/N);
 					th_plot.Hist(react_sim/(N*react_sim[0].X().uncertainty()*0.002),reaction[i]);
 				}
-				
 			}
 			SearchMin<DifferentialMutations<ParabolicErrorEstimationFromChisq>> 
 			fit([&theory,&data](const ParamSet&P){
@@ -74,7 +73,7 @@ int main(){
 			fit.SetUncertaintyCalcDeltas({0.001,0.001,0.001})
 			.SetFilter(make_shared<Above>()<<0.0<<0.0<<0.0);
 			{
-				auto count=data.TotalSum().val();
+				const auto&count=data.TotalSum().val();
 				fit.Init(300,
 					 make_shared<GenerateUniform>()
 					 <<make_pair(0.0,20.0*count)
@@ -99,9 +98,10 @@ int main(){
 			.Hist(theory[1]*P[1],"^3He 3pi^0")
 			.Hist(theory[2]*P[2],"^3He 2pi^0");
 			
-			luminosity << point<value<double>>(Q,(
-				P[0]/func_value(he3eta_sigma().func(),Q)
-			)*double(trigger_he3_forward.scaling));
+			luminosity << point<value<double>>(Q,
+			   (P[0]/he3eta_sigma()(Q.val()))
+			   *double(trigger_he3_forward.scaling)
+			);
 		}
 	Plot<double>().Hist(bg_chi_sq) 
 	<< "set xlabel 'Q, MeV'" 
@@ -131,7 +131,7 @@ int main(){
 	<< "set ylabel 'Integral luminosity, nb^{-1}'" 
 	<< "set yrange [0:]";
 
-	Plot<double>().Line(he3eta_sigma(),"Used in calculations")
+	Plot<double>().Hist(he3eta_sigma(),"Used in calculations")
 	<< "set title 'Cross section of "+reaction[0]+" used in the calculations'"
 	<< "set key on" << "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'sigma(^3He eta), nb'"<< "set yrange [0:600]";

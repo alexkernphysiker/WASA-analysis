@@ -1,23 +1,23 @@
 // this file is distributed under 
 // MIT license
+#include <fstream>
 #include "he3eta.h"
 using namespace MathTemplates;
+using namespace std;
 const Reaction&he3eta(){
 	static Reaction main_react(Particle::p(),Particle::d(),{Particle::he3(),Particle::eta()});
 	return main_react;
 }
-const LinearInterpolation<double>&he3eta_sigma(){
-	static LinearInterpolation<double> res{
-		//http://arxiv.org/pdf/nucl-ex/0701072v1
-		point<double>(-0.5,0.0),
-		point<double>(0.0,100.0),
-		point<double>(0.5,380.0),
-		point<double>(1.5,400.0),
-		point<double>(6.0,390.0),
-		point<double>(12.0,380.0),
-		//Extrapolating
-		point<double>(24.0,360.0),
-		point<double>(36.0,340.0)
-	};
+const LinearInterpolation<value<double>>&he3eta_sigma(){
+	static LinearInterpolation<value<double>> res;
+	if(res.size()==0){
+	    ifstream file("he3eta.txt");
+	    while(file){
+		double x,y,dy;
+		file>>x>>y>>dy;
+		res<< point<value<double>>(x,{y,dy});
+	    }
+	    file.close();
+	}
 	return res;
 }

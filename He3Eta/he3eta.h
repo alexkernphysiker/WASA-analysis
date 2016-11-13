@@ -7,6 +7,6 @@
 #include <Kinematics/particles.h>
 #include <Kinematics/reactions.h>
 const Reaction&he3eta();
-const MathTemplates::LinearInterpolation<double>&he3eta_sigma();
+const MathTemplates::LinearInterpolation<MathTemplates::value<double>>&he3eta_sigma();
 
 #endif
