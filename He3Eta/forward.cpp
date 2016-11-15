@@ -6,7 +6,7 @@
 #include <memory>
 #include <gnuplot_wrap.h>
 #include <math_h/interpolate.h>
-#include <Genetic/equation.h>
+#include <Genetic/searchmin.h>
 #include <Genetic/initialconditions.h>
 #include <Genetic/filter.h>
 #include <Experiment/experiment_conv.h>
