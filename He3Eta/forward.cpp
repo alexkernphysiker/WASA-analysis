@@ -70,7 +70,7 @@ int main(){
 		}
 		return res;
 	    });
-	    const auto ex=parEq(3,0.0001);
+	    const auto ex=parEq(3,0.001);
 	    fit.SetUncertaintyCalcDeltas(ex)
 	    .SetFilter(make_shared<Above>()<<0.0<<0.0<<0.0);
 	    const auto&data_count=data.TotalSum().val();
@@ -82,7 +82,7 @@ int main(){
 		 r_eng
 	    );
 	    while(
-		!fit.AbsoluteOptimalityExitCondition(0.00001)
+		!fit.AbsoluteOptimalityExitCondition(0.001)
 		&&
 		!fit.ParametersDispersionExitCondition(ex)
 	    ){
