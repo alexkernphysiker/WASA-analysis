@@ -33,7 +33,7 @@ int main(){
 	if(norm[0][bin_num].X()>5.0){
 	    auto Q=norm[0][bin_num].X();
 	    string Qmsg="Q in ["+to_string(norm[0][bin_num].X().min())+":"+to_string(norm[0][bin_num].X().max())+"] MeV";
-	    auto transform=[](hist<double>&h){h=h.Scale(3).XRange(0.46,0.58);};
+	    auto transform=[](hist<double>&h){h=h.XRange(0.45,0.58);};
 
 	    hist<double> data=Hist(DATA,"",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
 	    transform(data);
@@ -70,7 +70,8 @@ int main(){
 		}
 		return res;
 	    });
-	    fit.SetUncertaintyCalcDeltas({0.001,0.001,0.001})
+	    const auto ex=parEq(3,0.0001);
+	    fit.SetUncertaintyCalcDeltas(ex)
 	    .SetFilter(make_shared<Above>()<<0.0<<0.0<<0.0);
 	    const auto&data_count=data.TotalSum().val();
 	    fit.Init(300,
@@ -80,7 +81,11 @@ int main(){
 		     <<make_pair(0.0,20.0*data_count),
 		 r_eng
 	    );
-	    while(!fit.AbsoluteOptimalityExitCondition(0.00001)){
+	    while(
+		!fit.AbsoluteOptimalityExitCondition(0.00001)
+		&&
+		!fit.ParametersDispersionExitCondition(ex)
+	    ){
 		fit.Iterate(r_eng);
 		cout<<fit.iteration_count()<<" iterations; "
 		<<fit.Optimality()<<"<chi^2<"
@@ -97,7 +102,7 @@ int main(){
 	    .Hist(theory[2]*P[2],"^3He 2pi^0");
 		
 	    luminosity << point<value<double>>(Q,
-	       (P[0]/he3eta_sigma()(Q.val()))
+	       (P[0]/he3eta_sigma()(Q))
 	       *double(trigger_he3_forward.scaling)
 	    );
 	}
@@ -129,8 +134,11 @@ int main(){
     << "set ylabel 'Integral luminosity, nb^{-1}'" 
     << "set yrange [0:]";
 
-    Plot<double>().Hist(he3eta_sigma(),"Used in calculations")
+    Plot<double>()
+    .Hist(hist<double>(he3eta_sigma().func(),BinsByStep(0.0,2.5,30.0)))
+    .Hist(he3eta_sigma(),"Data from other experiments")
     << "set title 'Cross section of "+reaction[0]+" used in the calculations'"
     << "set key on" << "set xlabel 'Q, MeV'" 
-    << "set ylabel 'sigma(^3He eta), nb'"<< "set yrange [0:600]";
+    << "set ylabel 'sigma(^3He eta), nb'"
+    << "set xrange [-10:50]"<< "set yrange [0:600]";
 }
