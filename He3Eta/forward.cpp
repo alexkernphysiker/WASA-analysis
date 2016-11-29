@@ -30,10 +30,10 @@ int main(){
     hist<double> luminosity,bg_chi_sq,bg_ratio;
     RANDOM r_eng;
     for(size_t bin_num=0,bin_count=norm[0].size();bin_num<bin_count;bin_num++)
-	if(norm[0][bin_num].X()>5.0){
+	if(norm[0][bin_num].X()>10.0){
 	    auto Q=norm[0][bin_num].X();
 	    string Qmsg="Q in ["+to_string(norm[0][bin_num].X().min())+":"+to_string(norm[0][bin_num].X().max())+"] MeV";
-	    auto transform=[](hist<double>&h){h=h.XRange(0.45,0.58);};
+	    auto transform=[](hist<double>&h){h=h.Scale(2).XRange(0.48,0.58);};
 
 	    hist<double> data=Hist(DATA,"",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
 	    transform(data);
@@ -70,11 +70,11 @@ int main(){
 		}
 		return res;
 	    });
-	    const auto ex=parEq(3,0.001);
+	    const auto ex=parEq(3,0.01);
 	    fit.SetUncertaintyCalcDeltas(ex)
 	    .SetFilter(make_shared<Above>()<<0.0<<0.0<<0.0);
 	    const auto&data_count=data.TotalSum().val();
-	    fit.Init(300,
+	    fit.Init(60,
 		 make_shared<GenerateUniform>()
 		     <<make_pair(0.0,20.0*data_count)
 		     <<make_pair(0.0,20.0*data_count)
@@ -82,7 +82,7 @@ int main(){
 		 r_eng
 	    );
 	    while(
-		!fit.AbsoluteOptimalityExitCondition(0.001)
+		!fit.AbsoluteOptimalityExitCondition(0.01)
 		&&
 		!fit.ParametersDispersionExitCondition(ex)
 	    ){
@@ -97,10 +97,9 @@ int main(){
 	    bg_chi_sq << point<value<double>>(Q,fit.Optimality()/(data.size()-fit.ParamCount()));
 	    exp_plot
 	    .Line(hist<double>(theory[0]*P[0]+theory[1]*P[1]+theory[2]*P[2]).toLine(),"Total fit")
-	    .Hist(theory[0]*P[0],"^3He eta")
-	    .Hist(theory[1]*P[1],"^3He 3pi^0")
-	    .Hist(theory[2]*P[2],"^3He 2pi^0");
-		
+	    .Line(hist<double>(theory[0]*P[0]).toLine(),"^3He eta")
+	    .Line(hist<double>(theory[1]*P[1]).toLine(),"^3He 3pi^0")
+	    .Line(hist<double>(theory[2]*P[2]).toLine(),"^3He 2pi^0");
 	    luminosity << point<value<double>>(Q,
 	       (P[0]/he3eta_sigma()(Q))
 	       *double(trigger_he3_forward.scaling)
