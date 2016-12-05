@@ -55,7 +55,7 @@ int main(){
 		    auto MN=value<double>::std_error(react_sim.TotalSum().val());
 		    acceptance[i] << point<value<double>>(Q,MN/N);
 		    theory.push_back(react_sim/N);
-		    th_plot.Hist(react_sim/(N*react_sim[0].X().uncertainty()*0.002),reaction[i]);
+		    th_plot.Hist(react_sim/(N*react_sim[0].X().uncertainty()*2),reaction[i]);
 		}
 	    }
 
@@ -70,19 +70,19 @@ int main(){
 		}
 		return res;
 	    });
-	    const auto ex=parEq(3,0.01);
+	    const auto ex=parEq(3,0.001);
 	    fit.SetUncertaintyCalcDeltas(ex)
 	    .SetFilter(make_shared<Above>()<<0.0<<0.0<<0.0);
 	    const auto&data_count=data.TotalSum().val();
 	    fit.Init(60,
-		 make_shared<GenerateUniform>()
-		     <<make_pair(0.0,20.0*data_count)
-		     <<make_pair(0.0,20.0*data_count)
-		     <<make_pair(0.0,20.0*data_count),
+		 make_shared<InitialDistributions>()
+		     <<make_shared<DistribUniform>(0.0,20.0*data_count)
+		     <<make_shared<DistribUniform>(0.0,20.0*data_count)
+		     <<make_shared<DistribUniform>(0.0,20.0*data_count),
 		 r_eng
 	    );
 	    while(
-		!fit.AbsoluteOptimalityExitCondition(0.01)
+		!fit.AbsoluteOptimalityExitCondition(0.001)
 		&&
 		!fit.ParametersDispersionExitCondition(ex)
 	    ){
