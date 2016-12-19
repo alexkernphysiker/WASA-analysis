@@ -33,7 +33,7 @@ int main(){
 	if(norm[0][bin_num].X()>10.0){
 	    auto Q=norm[0][bin_num].X();
 	    string Qmsg="Q in ["+to_string(norm[0][bin_num].X().min())+":"+to_string(norm[0][bin_num].X().max())+"] MeV";
-	    auto transform=[](hist<double>&h){h=h.Scale(2).XRange(0.48,0.58);};
+	    auto transform=[](hist<double>&h){h=h.XRange(0.48,0.58);};
 
 	    hist<double> data=Hist(DATA,"",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
 	    transform(data);
@@ -52,10 +52,10 @@ int main(){
 		    hist<double> react_sim=Hist(MC,reaction[i],histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
 		    transform(react_sim);
 		    auto N=norm[i][bin_num].Y();
+		    th_plot.Hist(react_sim/(N*react_sim[0].X().uncertainty()*2),reaction[i]);
 		    auto MN=value<double>::std_error(react_sim.TotalSum().val());
 		    acceptance[i] << point<value<double>>(Q,MN/N);
 		    theory.push_back(react_sim/N);
-		    th_plot.Hist(react_sim/(N*react_sim[0].X().uncertainty()*2),reaction[i]);
 		}
 	    }
 
@@ -90,7 +90,7 @@ int main(){
 		cout<<fit.iteration_count()<<" iterations; "
 		<<fit.Optimality()<<"<chi^2<"
 		<<fit.Optimality(fit.PopulationSize()-1)
-		<<"        \r";
+		<<"          \r";
 	    }
 	    const auto&P=fit.ParametersWithUncertainties();
 	    bg_ratio << point<value<double>>(Q,P[1]/P[2]);

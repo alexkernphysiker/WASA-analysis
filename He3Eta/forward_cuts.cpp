@@ -16,7 +16,6 @@ using namespace MathTemplates;
 using namespace GnuplotWrap;
 int main(){
 	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward_cuts");
-	vector<string> reaction={"He3eta","He3pi0pi0pi0","He3pi0pi0"};
 	auto MakePlots=[](const histsource HS,const string& R, const uint max_z){
 		string title="Data";
 		if(HS==MC){
@@ -50,8 +49,9 @@ int main(){
 		SP2().Distr(Hist2d(HS,R,{"Histograms","He3Forward_Reconstruction"},string("2.5-FRH1-FTH1-vs-FRH1")).Scale(3,3))<<cut;
 		THD().Hist(Hist(HS,R,{"Histograms","He3Forward_Debug"},"3-PhiDistribution-AllBins").Scale(30))<<cut;
 	};
-	MakePlots(MC,"He3eta",50000);
-	MakePlots(MC,"He3pi0pi0",50000);
-	MakePlots(MC,"He3pi0pi0pi0",50000);
+	MakePlots(MC,"He3eta",500000);
+	MakePlots(MC,"He3pi0pi0",500000);
+	MakePlots(MC,"He3pi0pi0pi0",500000);
 	MakePlots(DATA,"",50000);
+	MakePlots(MC,"He3pi0",500000);
 }
