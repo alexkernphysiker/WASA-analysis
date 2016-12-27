@@ -1,5 +1,5 @@
 // this file is distributed under 
-// MIT license
+// GPL license
 #ifndef _____________________HE3_________eta__________
 #	define _____________________HE3_________eta__________
 

@@ -1,6 +1,7 @@
 WASA Analysis
 =============
 Sources of my software used for analysis of data obtained from the experiment WASA-at-COSY on searching eta-mesic 3He in May 2014.
+All files are distributed under GPL license
 
 
 Required software

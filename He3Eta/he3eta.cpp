@@ -1,5 +1,5 @@
 // this file is distributed under 
-// MIT license
+// GPL license
 #include <fstream>
 #include "he3eta.h"
 using namespace MathTemplates;

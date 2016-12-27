@@ -1,5 +1,5 @@
 // this file is distributed under 
-// MIT license
+// GPL license
 #include <iostream>
 #include <string>
 #include <sstream>
