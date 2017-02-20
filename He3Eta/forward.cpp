@@ -132,7 +132,7 @@ int main(){
     << "set title 'Integral luminosity estimation ("+to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs)'"
     << "set key on" << "set xlabel 'Q, MeV'" 
     << "set ylabel 'Integral luminosity, nb^{-1}'" 
-    << "set yrange [0:]";
+    << "set xrange [-5:45]"<< "set yrange [0:]";
 
     Plot<double>()
     .Hist(hist<double>(he3eta_sigma().func(),BinsByStep(0.0,2.5,30.0)))
@@ -140,5 +140,5 @@ int main(){
     << "set title 'Cross section of "+reaction[0]+" used in the calculations'"
     << "set key on" << "set xlabel 'Q, MeV'" 
     << "set ylabel 'sigma(^3He eta), nb'"
-    << "set xrange [-10:50]"<< "set yrange [0:600]";
+    << "set xrange [-5:45]"<< "set yrange [0:600]";
 }
