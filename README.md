@@ -15,8 +15,15 @@ software for plotting. Is used by some applications performing final analysis.
 
 Needed environment variables
 ============================
-	ROOTSYS 
-path where ROOT is installed from WASA-libs/config.h
+
+    ROOTSYS
+path where ROOT is installed
+
+    WASA_OUTPUT_DATA
+path to store raw analysis results
+
+    POST_ANALYSIS_DATA
+path to store final results of analysis
 
 
 Compiling (locally)

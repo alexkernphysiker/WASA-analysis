@@ -27,7 +27,8 @@ int main(){
     for(const string& r:reaction)norm.push_back(Hist(MC,r,histpath_forward_reconstr,"0-Reference"));
 
     vector<hist<double>> acceptance;
-    for(const auto&h:norm)acceptance.push_back(hist<double>());
+    for(size_t i=0;i<norm.size();i++)
+	acceptance.push_back(hist<double>());
     hist<double> luminosity,bg_chi_sq,bg_ratio;
     RANDOM r_eng;
     for(size_t bin_num=0,bin_count=norm[0].size();bin_num<bin_count;bin_num++)
