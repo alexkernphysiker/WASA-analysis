@@ -33,9 +33,9 @@ int main(){
     RANDOM r_eng;
     for(size_t bin_num=0,bin_count=norm[0].size();bin_num<bin_count;bin_num++)
 	if(norm[0][bin_num].X()>10.0){
-	    auto Q=norm[0][bin_num].X();
-	    string Qmsg="Q in ["+to_string(norm[0][bin_num].X().min())+":"+to_string(norm[0][bin_num].X().max())+"] MeV";
-	    auto transform=[](hist<double>&h){h=h.XRange(0.48,0.58);};
+	    const auto&Q=norm[0][bin_num].X();
+	    string Qmsg="Q in ["+to_string(Q.min())+":"+to_string(Q.max())+"] MeV";
+	    auto transform=[](hist<double>&h){h=h.Scale(2).XRange(0.48,0.58);};
 
 	    hist<double> data=Hist(DATA,"",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
 	    transform(data);
@@ -84,9 +84,7 @@ int main(){
 		 r_eng
 	    );
 	    while(
-		!fit.AbsoluteOptimalityExitCondition(0.001)
-		&&
-		!fit.ParametersDispersionExitCondition(ex)
+		!fit.AbsoluteOptimalityExitCondition(0.00001)
 	    ){
 		fit.Iterate(r_eng);
 		cout<<fit.iteration_count()<<" iterations; "
