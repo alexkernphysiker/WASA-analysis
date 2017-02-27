@@ -35,7 +35,7 @@ int main(){
 	if(norm[0][bin_num].X()>10.0){
 	    const auto&Q=norm[0][bin_num].X();
 	    string Qmsg="Q in ["+to_string(Q.min())+":"+to_string(Q.max())+"] MeV";
-	    auto transform=[](hist<double>&h){h=h.Scale(2).XRange(0.48,0.58);};
+	    auto transform=[](hist<double>&h){h=h.Scale(3).XRange(0.40,0.58);};
 
 	    hist<double> data=Hist(DATA,"",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
 	    transform(data);
@@ -47,14 +47,14 @@ int main(){
 	    << "set yrange [0:]";
 	    vector<hist<double>> theory;{
 		Plot<double> th_plot;
-		th_plot<< "set yrange [0:]"<< "set key on"<< "set xlabel 'Missing mass, MeV'"
+		th_plot<< "set yrange [0:150]"<< "set key on"<< "set xlabel 'Missing mass, MeV'"
 		<< "set title '"+Qmsg+"'"
 		<< "set ylabel 'acceptance density, GeV^{-1}'";
 		for(size_t i=0;i<reaction.size();i++){
 		    hist<double> react_sim=Hist(MC,reaction[i],histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
 		    transform(react_sim);
 		    auto N=norm[i][bin_num].Y();
-		    th_plot.Hist(react_sim/(N*react_sim[0].X().uncertainty()*2),reaction[i]);
+		    th_plot.Line(react_sim.toLine()/(N.val()*react_sim[0].X().uncertainty()*2.),reaction[i]);
 		    auto MN=value<double>::std_error(react_sim.TotalSum().val());
 		    acceptance[i] << point<value<double>>(Q,MN/N);
 		    theory.push_back(react_sim/N);
@@ -76,7 +76,7 @@ int main(){
 	    fit.SetUncertaintyCalcDeltas(ex)
 	    .SetFilter(make_shared<Above>()<<0.0<<0.0<<0.0);
 	    const auto&data_count=data.TotalSum().val();
-	    fit.Init(60,
+	    fit.Init(300,
 		 make_shared<InitialDistributions>()
 		     <<make_shared<DistribUniform>(0.0,20.0*data_count)
 		     <<make_shared<DistribUniform>(0.0,20.0*data_count)
@@ -84,7 +84,7 @@ int main(){
 		 r_eng
 	    );
 	    while(
-		!fit.AbsoluteOptimalityExitCondition(0.00001)
+		!fit.AbsoluteOptimalityExitCondition(0.0000001)
 	    ){
 		fit.Iterate(r_eng);
 		cout<<fit.iteration_count()<<" iterations; "
