@@ -29,17 +29,17 @@ int main(){
     vector<hist<double>> acceptance;
     for(size_t i=0;i<norm.size();i++)
 	acceptance.push_back(hist<double>());
-    hist<double> luminosity,bg_chi_sq,bg_ratio;
+    hist<double> luminosity,luminosity2,bg_chi_sq,bg_ratio;
     RANDOM r_eng;
     for(size_t bin_num=0,bin_count=norm[0].size();bin_num<bin_count;bin_num++)
 	if(norm[0][bin_num].X()>5.0){
 	    const auto&Q=norm[0][bin_num].X();
 	    string Qmsg="Q in ["+to_string(Q.min())+":"+to_string(Q.max())+"] MeV";
-	    auto transform=[](hist<double>&h){h=hist<double>(h.XRange(0.48,0.58)).Scale(4);};
+	    auto transform=[](hist<double>&h){h=hist<double>(h.XRange(0.48,0.58)).Scale(2);};
 
 	    hist<double> data=Hist(DATA,"",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
 	    transform(data);
-	    Plot<double> exp_plot;
+	    Plot<double> exp_plot,sub_plot;
 	    exp_plot.Hist(data,"DATA")
 	    << "set key on"<< "set title '"+Qmsg+"'"
 	    << "set xlabel 'Missing mass, GeV'"
@@ -77,11 +77,11 @@ int main(){
 	    .SetFilter(make_shared<Above>()<<0.0<<0.0<<0.0);
 	    const auto&data_count=data.TotalSum().val();
 	    fit.Init(200,
-		 make_shared<InitialDistributions>()
-		     <<make_shared<DistribUniform>(0.0,20.0*data_count)
-		     <<make_shared<DistribUniform>(0.0,20.0*data_count)
-		     <<make_shared<DistribUniform>(0.0,20.0*data_count),
-		 r_eng
+		make_shared<InitialDistributions>()
+		<<make_shared<DistribUniform>(0.0,20.0*data_count)
+		<<make_shared<DistribUniform>(0.0,20.0*data_count)
+		<<make_shared<DistribUniform>(0.0,20.0*data_count),
+		r_eng
 	    );
 	    while(
 		!fit.AbsoluteOptimalityExitCondition(0.000001)
@@ -102,6 +102,16 @@ int main(){
 	    .Line(hist<double>(theory[2]*P[2]).toLine(),"^3He 2pi^0");
 	    luminosity << point<value<double>>(Q,
 	       (P[0]/he3eta_sigma()(Q))
+	       *double(trigger_he3_forward.scaling)
+	    );
+	    hist<double> substracted=data-(theory[1]*P[1]+theory[2]*P[2]);
+	    sub_plot.Hist(substracted,"foreground estimation")
+	    << "set key on"<< "set title '"+Qmsg+"'"
+	    << "set xlabel 'Missing mass, GeV'"
+	    << "set ylabel 'foreground counts'";
+	    substracted=substracted.XRange(0.535,0.560);
+	    luminosity2 << point<value<double>>(Q,
+	       (substracted.TotalSum()/he3eta_sigma()(Q))
 	       *double(trigger_he3_forward.scaling)
 	    );
 	}
@@ -126,13 +136,6 @@ int main(){
     << "set ylabel 'n.d.'" 
     << "set yrange [0:20]";
 
-    auto runs=PresentRuns("");
-    Plot<double>().Hist(luminosity) 
-    << "set title 'Integral luminosity estimation ("+to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs)'"
-    << "set key on" << "set xlabel 'Q, MeV'" 
-    << "set ylabel 'Integral luminosity, nb^{-1}'" 
-    << "set xrange [0:45]"<< "set yrange [0:]";
-
     Plot<double>()
     .Hist(hist<double>(he3eta_sigma().func(),BinsByStep(5.0,2.5,30.0)))
     .Hist(he3eta_sigma(),"Data from other experiments")
@@ -140,4 +143,17 @@ int main(){
     << "set key on" << "set xlabel 'Q, MeV'" 
     << "set ylabel 'sigma(^3He eta), nb'"
     << "set xrange [0:45]"<< "set yrange [0:600]";
+
+    auto runs=PresentRuns("");
+    Plot<double>().Hist(luminosity) 
+    << "set title 'Integral luminosity estimation ("+to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs)'"
+    << "set key on" << "set xlabel 'Q, MeV'" 
+    << "set ylabel 'Integral luminosity, nb^{-1}'" 
+    << "set xrange [0:45]"<< "set yrange [0:]";
+
+    Plot<double>().Hist(luminosity2) 
+    << "set title 'Integral luminosity estimation ("+to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs)'"
+    << "set key on" << "set xlabel 'Q, MeV'" 
+    << "set ylabel 'Integral luminosity, nb^{-1}'" 
+    << "set xrange [0:45]"<< "set yrange [0:]";
 }
