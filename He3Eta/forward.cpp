@@ -109,7 +109,7 @@ int main(){
 	    << "set key on"<< "set title '"+Qmsg+"'"
 	    << "set xlabel 'Missing mass, GeV'"
 	    << "set ylabel 'foreground counts'";
-	    substracted=substracted.XRange(0.535,0.560);
+	    substracted=substracted.XRange(0.54,0.56);
 	    luminosity2 << point<value<double>>(Q,
 	       (substracted.TotalSum()/he3eta_sigma()(Q))
 	       *double(trigger_he3_forward.scaling)
