@@ -29,17 +29,17 @@ int main(){
     vector<hist<double>> acceptance;
     for(size_t i=0;i<norm.size();i++)
 	acceptance.push_back(hist<double>());
-    hist<double> luminosity,luminosity2,bg_chi_sq,bg_ratio;
+    hist<double> luminosity,bg_chi_sq,bg_ratio;
     RANDOM r_eng;
     for(size_t bin_num=0,bin_count=norm[0].size();bin_num<bin_count;bin_num++)
-	if(norm[0][bin_num].X()>5.0){
+	if(norm[0][bin_num].X()>10.0){
 	    const auto&Q=norm[0][bin_num].X();
 	    string Qmsg="Q in ["+to_string(Q.min())+":"+to_string(Q.max())+"] MeV";
-	    auto transform=[](hist<double>&h){h=hist<double>(h.XRange(0.48,0.58)).Scale(2);};
+	    auto transform=[](hist<double>&h){h=h.XRange(0.48,0.58);};
 
 	    hist<double> data=Hist(DATA,"",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
 	    transform(data);
-	    Plot<double> exp_plot,sub_plot;
+	    Plot<double> exp_plot;
 	    exp_plot.Hist(data,"DATA")
 	    << "set key on"<< "set title '"+Qmsg+"'"
 	    << "set xlabel 'Missing mass, GeV'"
@@ -64,7 +64,7 @@ int main(){
 	    SearchMin<DifferentialMutations<ParabolicErrorEstimationFromChisq>>
 	    fit([&theory,&data](const ParamSet&P){
 		double res=0;
-		for(size_t i=0,n=data.size();i<n;i++){
+		for(size_t i=1,n=data.size()-1;i<n;i++){
 		    value<double> exp_p=data[i].Y(),the_p=0;
 		    for(size_t j=0,n=theory.size()-1;j<n;j++)
 			the_p+=theory[j][i].Y()*P[j];
@@ -84,7 +84,7 @@ int main(){
 		r_eng
 	    );
 	    while(
-		!fit.AbsoluteOptimalityExitCondition(0.000001)
+		!fit.AbsoluteOptimalityExitCondition(0.0000001)
 	    ){
 		fit.Iterate(r_eng);
 		cout<<fit.iteration_count()<<" iterations; "
@@ -93,25 +93,13 @@ int main(){
 		<<"          \r";
 	    }
 	    const auto&P=fit.ParametersWithUncertainties();
-	    bg_ratio << point<value<double>>(Q,(P[1]/P[2])/(acceptance[2].right().Y()/acceptance[1].right().Y()));
+	    bg_ratio << point<value<double>>(Q,(P[2]/P[1])/(acceptance[1].right().Y()/acceptance[2].right().Y()));
 	    bg_chi_sq << point<value<double>>(Q,fit.Optimality()/(data.size()-fit.ParamCount()));
 	    exp_plot
-	    .Line(hist<double>(theory[0]*P[0]+theory[1]*P[1]+theory[2]*P[2]).toLine(),"Total fit")
-	    .Line(hist<double>(theory[0]*P[0]).toLine(),"^3He eta")
-	    .Line(hist<double>(theory[1]*P[1]).toLine(),"^3He 3pi^0")
-	    .Line(hist<double>(theory[2]*P[2]).toLine(),"^3He 2pi^0");
+	    .Line(hist<double>(theory[0]*P[0]+theory[1]*P[1]+theory[2]*P[2]).toLine(),"Total")
+	    .Line(hist<double>(theory[1]*P[1]+theory[2]*P[2]).toLine(),"Background");
 	    luminosity << point<value<double>>(Q,
 	       (P[0]/he3eta_sigma()(Q))
-	       *double(trigger_he3_forward.scaling)
-	    );
-	    hist<double> substracted=data-(theory[1]*P[1]+theory[2]*P[2]);
-	    sub_plot.Hist(substracted,"foreground estimation")
-	    << "set key on"<< "set title '"+Qmsg+"'"
-	    << "set xlabel 'Missing mass, GeV'"
-	    << "set ylabel 'foreground counts'";
-	    substracted=substracted.XRange(0.54,0.56);
-	    luminosity2 << point<value<double>>(Q,
-	       (substracted.TotalSum()/he3eta_sigma()(Q))
 	       *double(trigger_he3_forward.scaling)
 	    );
 	}
@@ -134,10 +122,10 @@ int main(){
     << "set title 'sigma("+reaction[1]+")/sigma("+reaction[2]+")'"
     << "set xlabel 'Q, MeV'" 
     << "set ylabel 'n.d.'" 
-    << "set yrange [0:20]";
+    << "set yrange [0:]";
 
     Plot<double>()
-    .Hist(hist<double>(he3eta_sigma().func(),BinsByStep(5.0,2.5,30.0)))
+    .Hist(hist<double>(he3eta_sigma().func(),BinsByStep(10.0,2.5,30.0)))
     .Hist(he3eta_sigma(),"Data from other experiments")
     << "set title 'Cross section of "+reaction[0]+" used in the calculations'"
     << "set key on" << "set xlabel 'Q, MeV'" 
@@ -146,12 +134,6 @@ int main(){
 
     auto runs=PresentRuns("");
     Plot<double>().Hist(luminosity) 
-    << "set title 'Integral luminosity estimation ("+to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs)'"
-    << "set key on" << "set xlabel 'Q, MeV'" 
-    << "set ylabel 'Integral luminosity, nb^{-1}'" 
-    << "set xrange [0:45]"<< "set yrange [0:]";
-
-    Plot<double>().Hist(luminosity2) 
     << "set title 'Integral luminosity estimation ("+to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs)'"
     << "set key on" << "set xlabel 'Q, MeV'" 
     << "set ylabel 'Integral luminosity, nb^{-1}'" 
