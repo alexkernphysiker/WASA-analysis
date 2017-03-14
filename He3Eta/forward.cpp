@@ -68,7 +68,7 @@ int main(){
 		    value<double> exp_p=data[i].Y(),the_p=0;
 		    for(size_t j=0,n=theory.size()-1;j<n;j++)
 			the_p+=theory[j][i].Y()*P[j];
-		    res+=exp_p.NumCompare(the_p)*Gaussian(data[i].X().val(),Particle::eta().mass(),0.1);
+		    res+=exp_p.NumCompare(the_p);
 		}
 		return res;
 	    });
