@@ -35,7 +35,7 @@ int main(){
 	if(norm[0][bin_num].X()>10.0){
 	    const auto&Q=norm[0][bin_num].X();
 	    string Qmsg="Q in ["+to_string(Q.min())+":"+to_string(Q.max())+"] MeV";
-	    auto transform=[](hist<double>&h){h=h.XRange(0.48,0.58);};
+	    auto transform=[](hist<double>&h){h=h.XRange(0.38,0.58);};
 
 	    hist<double> data=Hist(DATA,"",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
 	    transform(data);
