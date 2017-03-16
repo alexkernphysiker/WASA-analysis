@@ -48,7 +48,7 @@ int main(){
 	    vector<hist<double>> theory;{
 		Plot<double> th_plot;
 		th_plot<< "set yrange [0:100]"<< "set key on"<< "set xlabel 'Missing mass, MeV'"
-		<< "set title '"+Qmsg+"'"
+		<< "set title '"+Qmsg+"'"<<"set logy"
 		<< "set ylabel 'acceptance density, GeV^{-1}'";
 		for(size_t i=0;i<reaction.size();i++){
 		    hist<double> react_sim=Hist(MC,reaction[i],histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
@@ -76,11 +76,11 @@ int main(){
 	    fit.SetUncertaintyCalcDeltas(ex)
 	    .SetFilter(make_shared<Above>()<<0.0<<0.0<<0.0);
 	    const auto&data_count=data.TotalSum().val();
-	    fit.Init(200,
+	    fit.Init(80,
 		make_shared<InitialDistributions>()
-		<<make_shared<DistribUniform>(0.0,5.0*data_count)
-		<<make_shared<DistribUniform>(0.0,5.0*data_count)
-		<<make_shared<DistribUniform>(0.0,5.0*data_count),
+		<<make_shared<DistribUniform>(0.0,2.0*data_count)
+		<<make_shared<DistribUniform>(0.0,2.0*data_count)
+		<<make_shared<DistribUniform>(0.0,2.0*data_count),
 		r_eng
 	    );
 	    while(
