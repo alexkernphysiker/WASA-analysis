@@ -78,9 +78,9 @@ int main(){
 	    const auto&data_count=data.TotalSum().val();
 	    fit.Init(200,
 		make_shared<InitialDistributions>()
-		<<make_shared<DistribUniform>(0.0,20.0*data_count)
-		<<make_shared<DistribUniform>(0.0,20.0*data_count)
-		<<make_shared<DistribUniform>(0.0,20.0*data_count),
+		<<make_shared<DistribUniform>(0.0,5.0*data_count)
+		<<make_shared<DistribUniform>(0.0,5.0*data_count)
+		<<make_shared<DistribUniform>(0.0,5.0*data_count),
 		r_eng
 	    );
 	    while(
