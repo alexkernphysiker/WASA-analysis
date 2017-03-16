@@ -28,6 +28,10 @@ int main(){
 		PlotHist2d<double>(sp2).Distr(kin_mc,Qmsg)<<"set key on" <<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'"<< "set xrange [0.2:0.4]";
 		auto data_hist=Hist2d(DATA,"",{"Histograms","He3Forward_Reconstruction"},string("Kinematic-reconstructed-Bin-")+to_string(bin_num)).Scale(5,5);
 		PlotHist2d<double>(sp2).Distr(data_hist,Qmsg)<<"set key on" <<"set xlabel 'E_k, GeV'"<<"set ylabel 'theta, deg'"<< "set xrange [0.2:0.4]";
+		Plot<double>().Hist(kin_mc.CutY(kin_mc.X().size()/2),"MC").Hist(data_hist.CutY(kin_mc.X().size()/2),"DATA")
+		<<"set key on"<<"set yrange[0:]";
+		Plot<double>().Hist(kin_mc.CutX(kin_mc.Y().size()/3),"MC").Hist(data_hist.CutX(kin_mc.Y().size()/3),"DATA")
+		<<"set key on"<<"set yrange[0:]"<< "set xrange [0.2:0.4]";
 	}
 	return 0;
 }
