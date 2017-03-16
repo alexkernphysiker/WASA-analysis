@@ -44,11 +44,11 @@ int main(){
 	    << "set key on"<< "set title '"+Qmsg+"'"
 	    << "set xlabel 'Missing mass, GeV'"
 	    << "set ylabel 'counts'"
-	    << "set yrange [0:]";
+	    << "set yrange [0:]"<<"unset log y";
 	    vector<hist<double>> theory;{
 		Plot<double> th_plot;
-		th_plot<< "set yrange [0:100]"<< "set key on"<< "set xlabel 'Missing mass, MeV'"
-		<< "set title '"+Qmsg+"'"<<"set logy"
+		th_plot<< "set key on"<< "set xlabel 'Missing mass, MeV'"
+		<< "set title '"+Qmsg+"'"<<"set log y"
 		<< "set ylabel 'acceptance density, GeV^{-1}'";
 		for(size_t i=0;i<reaction.size();i++){
 		    hist<double> react_sim=Hist(MC,reaction[i],histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
@@ -106,7 +106,7 @@ int main(){
     Plot<double>().Hist(bg_chi_sq) 
     << "set xlabel 'Q, MeV'" 
     << "set ylabel 'chi^2/d, n.d.'" 
-    << "set yrange [0:]";
+    << "set yrange [0:]"<<"unset log y";
 
     {//Plot acceptance
 	Plot<double> plot;
