@@ -97,7 +97,9 @@ int main(){
 	    bg_chi_sq << point<value<double>>(Q,fit.Optimality()/(data.size()-fit.ParamCount()));
 	    exp_plot
 	    .Line(hist<double>(theory[0]*P[0]+theory[1]*P[1]+theory[2]*P[2]).toLine(),"Total")
-	    .Line(hist<double>(theory[1]*P[1]+theory[2]*P[2]).toLine(),"Background");
+	    .Line(hist<double>(theory[1]*P[1]+theory[2]*P[2]).toLine(),"Background")
+	    .Line(hist<double>(theory[1]*P[1]).toLine(),reaction[1])
+	    .Line(hist<double>(theory[2]*P[2]).toLine(),reaction[2]);
 	    luminosity << point<value<double>>(Q,
 	       (P[0]/he3eta_sigma()(Q))
 	       *double(trigger_he3_forward.scaling)
