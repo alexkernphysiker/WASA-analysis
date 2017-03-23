@@ -24,7 +24,7 @@ int main(){
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_luminosity");
     vector<string> histpath_forward_reconstr={"Histograms","He3Forward_Reconstruction"};
     hist<double> norm=Hist(MC,"He3eta",histpath_forward_reconstr,"0-Reference");
-    hist<double> luminosity,data_chi_sq,delta_mm;
+    hist<double> luminosity,luminosity2,data_chi_sq;
     RANDOM r_eng;
     for(size_t bin_num=0,bin_count=norm.size();bin_num<bin_count;bin_num++)
 	if(norm[bin_num].X()>5.0){
@@ -33,72 +33,91 @@ int main(){
 	    string Qmsg="Q in ["+to_string(Q.min())+":"+to_string(Q.max())+"] MeV";
 	    const hist<double> data=Hist(DATA,"",histpath_forward_reconstr,
 		string("MissingMass-Bin-")+to_string(bin_num)
-	    ).XRange(0.535,0.56).YRange(20.,+INFINITY);
-	    const auto chain=ChainWithStep(0.53,0.001,0.565);
+	    ).XRange(0.53,0.57);
+	    const auto chain=ChainWithStep(0.52,0.001,0.57);
 	    const hist<double> mc=Hist(MC,"He3eta",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num))/N;
 	    const LinearInterpolation<double> fg=mc.toLine();
-
 	    const auto&data_count=data.TotalSum().val();
 	    auto BG=[&data_count](const ParamSet&X,const ParamSet&P){
-		return data_count*(P[2]+X[0]*(P[3]+X[0]*P[4]));
+		const double res=data_count*(P[1]+X[0]*(P[2]+X[0]*P[3]));
+		return (res>0)?res:0.0;
 	    };
-	    Fit<DifferentialMutations<Uncertainty>,ChiSquareWithXError> FIT(make_shared<FitPoints>(data),
+	    Fit<DifferentialMutations<Uncertainty>>
+	    FIT(make_shared<FitPoints>(data),
 		[&fg,BG](const ParamSet&X,const ParamSet&P){
-		    return P[0]*fg(X[0]+P[1])+BG(X,P);
+		    return P[0]*fg(X[0])+BG(X,P);
 		}
 	    );
-	    FIT.SetFilter([](const ParamSet&P){
-		return (P[0]>0)&&(P[1]>-0.01)&&(P[1]<0.01);
+	    FIT.SetFilter([BG](const ParamSet&P){
+		return (P[0]>0)&&(BG({-P[2]/(2.0*P[3])},P)>0.001);
 	    });
-	    FIT.SetUncertaintyCalcDeltas({0.1,0.001});
 	    auto init=make_shared<InitialDistributions>()
-
-		<<make_shared<DistribUniform>(0.0,data_count*Q.val()/30.)
-		<<make_shared<DistribGauss>(0.0,0.001)
-
-		<<make_shared<DistribGauss>(100.,200.)
-		<<make_shared<DistribGauss>(-20.,20.0)
-		<<make_shared<DistribGauss>(-5.0,5.0)
+		<<make_shared<DistribUniform>(0.0,data_count*Q.val()/100.)
+		<<make_shared<DistribGauss>(10.,10.)
+		<<make_shared<DistribGauss>(-2.0,2.0)
+		<<make_shared<DistribGauss>(-0.5,0.5)
 	    ;
-	    FIT.Init(200,init,r_eng);
+	    FIT.SetUncertaintyCalcDeltas({0.1,0.01,0.001,0.001});
+	    FIT.Init(500,init,r_eng);
 
 	    cout<<endl;
 	    while(
 		!FIT.AbsoluteOptimalityExitCondition(0.0000001)
 	    ){
 		FIT.Iterate(r_eng);
-		cout<<"DATA:"<<FIT.iteration_count()<<" iterations; "
+		cout<<"Fitting: "<<FIT.iteration_count()<<" iterations; "
 		<<FIT.Optimality()<<"<chi^2<"
 		<<FIT.Optimality(FIT.PopulationSize()-1)
 		<<"          \r";
 	    }
 	    const auto&P=FIT.ParametersWithUncertainties();
 	    data_chi_sq << point<value<double>>(Q,FIT.Optimality()/(data.size()-FIT.ParamCount()));
-	    delta_mm << point<value<double>>(Q,P[1]);
 	    cout<<endl;
 	    Plot<double> exp_plot;
 	    exp_plot.Hist(data,"DATA")
 	    << "set key on"<< "set title '"+Qmsg+"'"
 	    << "set xlabel 'Missing mass, GeV'"
 	    << "set ylabel 'counts'"
-	    << "set yrange [0:]"<<"unset log y";
+	    << "set yrange [-200:]"<<"unset log y";
 	    const SortedPoints<double>
 		totalfit([&FIT](double x)->double{return FIT({x});},chain),
 		background([&FIT,BG](double x)->double{return BG({x},FIT.Parameters());},chain);
 	    exp_plot.Line(totalfit,"fit").Line(background,"background");
 
+	    hist<double> bg;
+	    for(const auto&po:data){
+		const double&x=po.X().val();
+		const ParamSet& p=FIT.Parameters();
+		double v=BG({x},p),u=0;
+		for(size_t index=1;index<p.size();index++){
+		    ParamSet p1=p,p2=p1;
+		    const double&delta=P[index].uncertainty();
+		    p1(index)+=delta;
+		    p2(index)-=delta;
+		    u+=pow(BG({x},p1)-BG({x},p2),2);
+		}
+		bg<<point<value<double>>(po.X(),{v,sqrt(u)});
+	    }
+	    hist<double> clean=data-bg;
+	    Plot<double> subplot;
+	    subplot.Object("0 title \"\"").Hist(clean);
+	    subplot.Hist(clean=clean.XRange(0.535,0.560))
+	    << "set key on"<< "set title '"+Qmsg+"'"
+	    << "set xlabel 'Missing mass, GeV'"
+	    << "set ylabel 'counts'"
+	    << "set yrange [-200:]"<<"unset log y";
+
 	    luminosity << point<value<double>>(Q,
 		(P[0]/he3eta_sigma()(Q))*double(trigger_he3_forward.scaling)
+	    );
+	    luminosity2 << point<value<double>>(Q,
+		((clean.TotalSum()/mc.TotalSum())/he3eta_sigma()(Q))*double(trigger_he3_forward.scaling)
 	    );
 	}
     Plot<double>().Hist(data_chi_sq)
     << "set xlabel 'Q, MeV'" 
     << "set ylabel 'chi^2/d, n.d.'" 
     << "set yrange [0:]"<<"unset log y";
-
-    Plot<double>().Hist(delta_mm)
-    << "set xlabel 'Q, MeV'" 
-    << "set ylabel 'delta pos, GeV'";
 
     Plot<double>()
     .Hist(hist<double>(he3eta_sigma().func(),BinsByStep(5.0,2.5,30.0)))
@@ -109,7 +128,7 @@ int main(){
     << "set xrange [0:45]"<< "set yrange [0:600]";
 
     auto runs=PresentRuns("");
-    Plot<double>().Hist(luminosity) 
+    Plot<double>().Hist(luminosity2,"Substracted").Hist(luminosity,"Fit parameter")
     << "set title 'Integral luminosity estimation ("+to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs)'"
     << "set key on" << "set xlabel 'Q, MeV'" 
     << "set ylabel 'Integral luminosity, nb^{-1}'" 
