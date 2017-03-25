@@ -39,25 +39,26 @@ int main(){
 	    const LinearInterpolation<double> fg=mc.toLine();
 	    const auto&data_count=data.TotalSum().val();
 	    auto BG=[&data_count](const ParamSet&X,const ParamSet&P){
-		const double res=data_count*(P[1]+X[0]*(P[2]+X[0]*P[3]));
+		const double res=data_count*(P[2]+X[0]*(P[3]+X[0]*P[4]));
 		return (res>0)?res:0.0;
 	    };
 	    Fit<DifferentialMutations<Uncertainty>>
 	    FIT(make_shared<FitPoints>(data),
 		[&fg,BG](const ParamSet&X,const ParamSet&P){
-		    return P[0]*fg(X[0])+BG(X,P);
+		    return P[0]*fg(X[0]+P[1])+BG(X,P);
 		}
 	    );
 	    FIT.SetFilter([BG](const ParamSet&P){
-		return (P[0]>0)&&(BG({-P[2]/(2.0*P[3])},P)>0.001);
+		return (P[0]>0)&&(P[4]<0)&&(BG({-P[3]/(2.0*P[4])},P)>0);
 	    });
 	    auto init=make_shared<InitialDistributions>()
 		<<make_shared<DistribUniform>(0.0,data_count*Q.val()/100.)
+		<<make_shared<DistribGauss>(0.,0.001)
 		<<make_shared<DistribGauss>(10.,10.)
 		<<make_shared<DistribGauss>(-2.0,2.0)
-		<<make_shared<DistribGauss>(-0.5,0.5)
+		<<make_shared<DistribGauss>(-1,1)
 	    ;
-	    FIT.SetUncertaintyCalcDeltas({0.1,0.01,0.001,0.001});
+	    FIT.SetUncertaintyCalcDeltas({0.1,0.0001,0.01,0.001,0.001});
 	    FIT.Init(500,init,r_eng);
 
 	    cout<<endl;
