@@ -25,6 +25,7 @@ int main(){
     vector<string> histpath_forward_reconstr={"Histograms","He3Forward_Reconstruction"};
     hist<double> norm=Hist(MC,"He3eta",histpath_forward_reconstr,"0-Reference");
     hist<double> luminosity,luminosity2,data_chi_sq;
+    vector<hist<double>> parhists;
     RANDOM r_eng;
     for(size_t bin_num=0,bin_count=norm.size();bin_num<bin_count;bin_num++)
 	if(norm[bin_num].X()>5.0){
@@ -33,7 +34,7 @@ int main(){
 	    string Qmsg="Q in ["+to_string(Q.min())+":"+to_string(Q.max())+"] MeV";
 	    const hist<double> data=Hist(DATA,"",histpath_forward_reconstr,
 		string("MissingMass-Bin-")+to_string(bin_num)
-	    ).XRange(0.53,0.57);
+	    ).XRange(0.527,0.570);
 	    const auto chain=ChainWithStep(0.52,0.001,0.57);
 	    const hist<double> mc=Hist(MC,"He3eta",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num))/N;
 	    const LinearInterpolation<double> fg=mc.toLine();
@@ -72,6 +73,12 @@ int main(){
 		<<"          \r";
 	    }
 	    const auto&P=FIT.ParametersWithUncertainties();
+	    if(parhists.size()==0){
+		for(size_t i=0;i<P.size();i++)
+		    parhists.push_back(hist<double>());
+	    }
+	    for(size_t i=0;i<P.size();i++)
+		parhists[i]<< point<value<double>>(Q,P[i]);
 	    data_chi_sq << point<value<double>>(Q,FIT.Optimality()/(data.size()-FIT.ParamCount()));
 	    cout<<endl;
 	    Plot<double> exp_plot;
@@ -115,6 +122,11 @@ int main(){
 		((clean.TotalSum()/mc.TotalSum())/he3eta_sigma()(Q))*double(trigger_he3_forward.scaling)
 	    );
 	}
+    for(size_t i=0;i<parhists.size();i++)
+	Plot<double>().Hist(parhists[i])
+	<< "set xlabel 'Q, MeV'" 
+	<< "set ylabel 'parameter"+to_string(i)+"'";
+
     Plot<double>().Hist(data_chi_sq)
     << "set xlabel 'Q, MeV'" 
     << "set ylabel 'chi^2/d, n.d.'" 
@@ -130,6 +142,11 @@ int main(){
 
     auto runs=PresentRuns("");
     Plot<double>().Hist(luminosity2,"Substracted").Hist(luminosity,"Fit parameter")
+    << "set title 'Integral luminosity estimation ("+to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs)'"
+    << "set key on" << "set xlabel 'Q, MeV'" 
+    << "set ylabel 'Integral luminosity, nb^{-1}'" 
+    << "set xrange [0:45]"<< "set yrange [0:]";
+    Plot<double>().Hist(luminosity2)
     << "set title 'Integral luminosity estimation ("+to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs)'"
     << "set key on" << "set xlabel 'Q, MeV'" 
     << "set ylabel 'Integral luminosity, nb^{-1}'" 
