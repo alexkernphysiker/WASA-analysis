@@ -19,17 +19,28 @@ using namespace Genetic;
 using namespace MathTemplates;
 using namespace GnuplotWrap;
 int main(){
-	Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_central");
-	vector<string> histpath_central_reconstr={"Histograms","CentralGammas"};
-	vector<string> reaction={"He3eta","He3pi0","He3pi0pi0","He3pi0pi0pi0"};
-	vector<hist<double>> norm;
-	for(const string& r:reaction)norm.push_back(Hist(MC,r,histpath_central_reconstr,"0-Reference"));
-	Plot<double>().Hist(norm[0],"Simulated events");
-	for(size_t bin_num=0,bin_count=norm[0].size();bin_num<bin_count;bin_num++){
-		auto Q=norm[0][bin_num].X();
-		string Qmsg="Q in ["+to_string(norm[0][bin_num].X().min())+":"+to_string(norm[0][bin_num].X().max())+"] MeV";
-		
-		hist<double> data=Hist(DATA,"",histpath_central_reconstr,string("InvMass2Gamma-Bin-")+to_string(bin_num));
-		Plot<double>().Hist(data)<<"set log y";
-	}
+    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_central");
+    vector<string> histpath_central_reconstr={"Histograms","CentralGammas"};
+    vector<string> reaction={"He3eta","He3pi0","He3pi0pi0","He3pi0pi0pi0"};
+    vector<hist<double>> norm;
+    for(const string& r:reaction)norm.push_back(Hist(MC,r,histpath_central_reconstr,"0-Reference"));
+    Plot<double>()
+    .Hist(norm[0],"3He+eta")
+    .Hist(norm[1],"3He+pi0")
+    .Hist(norm[2],"3He+2pi0")
+    .Hist(norm[3],"3He+3pi0")
+    <<"set key on";
+    for(size_t bin_num=0,bin_count=norm[0].size();bin_num<bin_count;bin_num++){
+	auto Q=norm[0][bin_num].X();
+	string Qmsg="Q in ["+to_string(norm[0][bin_num].X().min())+":"+to_string(norm[0][bin_num].X().max())+"] MeV";
+	Plot<double>()
+	.Hist(Hist(DATA,"",histpath_central_reconstr,string("InvMass2Gamma-Bin-")+to_string(bin_num)),"DATA")
+	<<"set log y"<<"set key on"<<"set title '"+Qmsg+"'"<<"set xlabel 'MM, GeV'";
+	Plot<double>()
+	.Hist(Hist(MC,"He3eta",histpath_central_reconstr,string("InvMass2Gamma-Bin-")+to_string(bin_num))/norm[0][bin_num].Y(),"3He+eta")
+	.Hist(Hist(MC,"He3pi0",histpath_central_reconstr,string("InvMass2Gamma-Bin-")+to_string(bin_num))/norm[1][bin_num].Y(),"3He+pi0")
+	.Hist(Hist(MC,"He3pi0pi0",histpath_central_reconstr,string("InvMass2Gamma-Bin-")+to_string(bin_num))/norm[2][bin_num].Y(),"3He+2pi0")
+	.Hist(Hist(MC,"He3pi0pi0pi0",histpath_central_reconstr,string("InvMass2Gamma-Bin-")+to_string(bin_num))/norm[3][bin_num].Y(),"3He+3pi0")
+	<<"set log y"<<"set key on"<<"set title '"+Qmsg+"'"<<"set xlabel 'MM, GeV'";
+    }
 }

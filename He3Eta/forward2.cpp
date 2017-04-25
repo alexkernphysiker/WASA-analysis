@@ -28,19 +28,19 @@ int main(){
     vector<hist<double>> parhists;
     RANDOM r_eng;
     for(size_t bin_num=0,bin_count=norm.size();bin_num<bin_count;bin_num++)
-	if(norm[bin_num].X()>5.0){
+	if(norm[bin_num].X()>10.0){
 	    const auto&Q=norm[bin_num].X();
 	    const auto&N=norm[bin_num].Y();
 	    string Qmsg="Q in ["+to_string(Q.min())+":"+to_string(Q.max())+"] MeV";
 	    const hist<double> data=Hist(DATA,"",histpath_forward_reconstr,
 		string("MissingMass-Bin-")+to_string(bin_num)
-	    ).XRange(0.527,0.570);
-	    const auto chain=ChainWithStep(0.52,0.001,0.57);
+	    ).XRange(0.53,0.57);
+	    const auto chain=ChainWithStep(0.53,0.001,0.57);
 	    const hist<double> mc=Hist(MC,"He3eta",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num))/N;
 	    const LinearInterpolation<double> fg=mc.toLine();
 	    const auto&data_count=data.TotalSum().val();
 	    auto BG=[&data_count](const ParamSet&X,const ParamSet&P){
-		const double res=data_count*(P[2]+X[0]*(P[3]+X[0]*P[4]));
+		const double res=data_count*Polynom(X[0],P,3,2);
 		return (res>0)?res:0.0;
 	    };
 	    Fit<DifferentialMutations<Uncertainty>>
@@ -56,10 +56,11 @@ int main(){
 		<<make_shared<DistribUniform>(0.0,data_count*Q.val()/100.)
 		<<make_shared<DistribGauss>(0.,0.001)
 		<<make_shared<DistribGauss>(10.,10.)
-		<<make_shared<DistribGauss>(-2.0,2.0)
-		<<make_shared<DistribGauss>(-1,1)
+		<<make_shared<DistribGauss>(0.,2.0)
+		<<make_shared<DistribGauss>(0.,01)
+		<<make_shared<DistribGauss>(0,.001)
 	    ;
-	    FIT.SetUncertaintyCalcDeltas({0.1,0.0001,0.01,0.001,0.001});
+	    FIT.SetUncertaintyCalcDeltas({0.1,0.0001,0.01,0.001,0.001,0.00001});
 	    FIT.Init(500,init,r_eng);
 
 	    cout<<endl;
@@ -109,17 +110,19 @@ int main(){
 	    hist<double> clean=data-bg;
 	    Plot<double> subplot;
 	    subplot.Object("0 title \"\"").Hist(clean);
-	    subplot.Hist(clean=clean.XRange(0.535,0.560))
+	    subplot.Hist(clean=clean.XRange(0.540,0.556))
 	    << "set key on"<< "set title '"+Qmsg+"'"
 	    << "set xlabel 'Missing mass, GeV'"
 	    << "set ylabel 'counts'"
 	    << "set yrange [-200:]"<<"unset log y";
 
 	    luminosity << point<value<double>>(Q,
-		(P[0]/he3eta_sigma()(Q))*double(trigger_he3_forward.scaling)
+		(P[0]/he3eta_sigma()(Q))
+		*double(trigger_he3_forward.scaling)
 	    );
 	    luminosity2 << point<value<double>>(Q,
-		((clean.TotalSum()/mc.TotalSum())/he3eta_sigma()(Q))*double(trigger_he3_forward.scaling)
+		((clean.TotalSum()/mc.TotalSum())/he3eta_sigma()(Q))
+		*double(trigger_he3_forward.scaling)
 	    );
 	}
     for(size_t i=0;i<parhists.size();i++)
@@ -133,7 +136,7 @@ int main(){
     << "set yrange [0:]"<<"unset log y";
 
     Plot<double>()
-    .Hist(hist<double>(he3eta_sigma().func(),BinsByStep(5.0,2.5,30.0)))
+    .Hist(hist<double>(he3eta_sigma().func(),BinsByStep(10.0,2.5,30.0)))
     .Hist(he3eta_sigma(),"Data from other experiments")
     << "set title 'Cross section of He3eta used in the calculations'"
     << "set key on" << "set xlabel 'Q, MeV'" 
