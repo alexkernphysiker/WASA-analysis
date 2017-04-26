@@ -34,8 +34,8 @@ int main(){
 	    string Qmsg="Q in ["+to_string(Q.min())+":"+to_string(Q.max())+"] MeV";
 	    const hist<double> data=Hist(DATA,"",histpath_forward_reconstr,
 		string("MissingMass-Bin-")+to_string(bin_num)
-	    ).XRange(0.53,0.57);
-	    const auto chain=ChainWithStep(0.53,0.001,0.57);
+	    ).XRange(0.52,0.57);
+	    const auto chain=ChainWithStep(0.52,0.001,0.57);
 	    const hist<double> mc=Hist(MC,"He3eta",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num))/N;
 	    const LinearInterpolation<double> fg=mc.toLine();
 	    const auto&data_count=data.TotalSum().val();
