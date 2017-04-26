@@ -16,9 +16,6 @@ software for plotting. Is used by some applications performing final analysis.
 Needed environment variables
 ============================
 
-    ROOTSYS
-path where ROOT is installed
-
     WASA_OUTPUT_DATA
 path to store raw analysis results
 
@@ -26,8 +23,8 @@ path to store raw analysis results
 path to store final results of analysis
 
 
-Compiling (locally)
-===================
+Compiling
+=========
 
 	git clone https://github.com/alexkernphysiker/WASA-analysis.git
 	cd WASA-analysis
