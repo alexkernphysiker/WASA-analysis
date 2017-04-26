@@ -28,14 +28,14 @@ int main(){
     vector<hist<double>> parhists;
     RANDOM r_eng;
     for(size_t bin_num=0,bin_count=norm.size();bin_num<bin_count;bin_num++)
-	if(norm[bin_num].X()>10.0){
+	if(norm[bin_num].X()>5.0){
 	    const auto&Q=norm[bin_num].X();
 	    const auto&N=norm[bin_num].Y();
 	    string Qmsg="Q in ["+to_string(Q.min())+":"+to_string(Q.max())+"] MeV";
 	    const hist<double> data=Hist(DATA,"",histpath_forward_reconstr,
 		string("MissingMass-Bin-")+to_string(bin_num)
-	    ).XRange(0.52,0.57);
-	    const auto chain=ChainWithStep(0.52,0.001,0.57);
+	    ).XRange(0.525,0.57);
+	    const auto chain=ChainWithStep(0.525,0.001,0.57);
 	    const hist<double> mc=Hist(MC,"He3eta",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num))/N;
 	    const LinearInterpolation<double> fg=mc.toLine();
 	    const auto&data_count=data.TotalSum().val();
@@ -43,24 +43,27 @@ int main(){
 		const double res=data_count*Polynom(X[0],P,3,2);
 		return (res>0)?res:0.0;
 	    };
-	    Fit<DifferentialMutations<Uncertainty>>
+	    Fit<AbsoluteMutations<DifferentialMutations<Uncertainty>>>
 	    FIT(make_shared<FitPoints>(data),
 		[&fg,BG](const ParamSet&X,const ParamSet&P){
 		    return P[0]*fg(X[0]+P[1])+BG(X,P);
 		}
 	    );
 	    FIT.SetFilter([BG](const ParamSet&P){
-		return (P[0]>0)&&(P[4]<0)&&(BG({-P[3]/(2.0*P[4])},P)>0);
+		return (P[0]>0)&&(BG({-P[3]/(2.0*P[4])},P)>0)
+		    &&(P[2]<0)&&(P[3]>0)&&(P[4]<0)&&(P[5]<0);
 	    });
 	    auto init=make_shared<InitialDistributions>()
 		<<make_shared<DistribUniform>(0.0,data_count*Q.val()/100.)
-		<<make_shared<DistribGauss>(0.,0.001)
-		<<make_shared<DistribGauss>(10.,10.)
-		<<make_shared<DistribGauss>(0.,2.0)
-		<<make_shared<DistribGauss>(0.,01)
-		<<make_shared<DistribGauss>(0,.001)
+		<<make_shared<DistribGauss>(0.,0.0001)
+		<<make_shared<DistribGauss>(-10,10.)
+		<<make_shared<DistribGauss>( 10,10)
+		<<make_shared<DistribGauss>(-5,5)
+		<<make_shared<DistribGauss>(-3,2)
 	    ;
-	    FIT.SetUncertaintyCalcDeltas({0.1,0.0001,0.01,0.001,0.001,0.00001});
+	    FIT.SetAbsoluteMutationCoefficients({1.,0.0001,1.,1.,1.,1.});
+	    FIT.SetAbsoluteMutationsProbability(0.2);
+	    FIT.SetUncertaintyCalcDeltas({0.1,0.0001,0.01,0.01,0.01,0.001});
 	    FIT.Init(500,init,r_eng);
 
 	    cout<<endl;
@@ -136,7 +139,7 @@ int main(){
     << "set yrange [0:]"<<"unset log y";
 
     Plot<double>()
-    .Hist(hist<double>(he3eta_sigma().func(),BinsByStep(10.0,2.5,30.0)))
+    .Hist(hist<double>(he3eta_sigma().func(),BinsByStep(5.0,2.5,30.0)))
     .Hist(he3eta_sigma(),"Data from other experiments")
     << "set title 'Cross section of He3eta used in the calculations'"
     << "set key on" << "set xlabel 'Q, MeV'" 
