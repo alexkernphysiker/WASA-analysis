@@ -14,7 +14,7 @@ using namespace MathTemplates;
 using namespace GnuplotWrap;
 RANDOM engine;
 int main(){
-  	Plotter::Instance().SetOutput(SimulationDataProcess::SimulationDataPath(),"He3Ekin");
+Plotter::Instance().SetOutput(SimulationDataProcess::SimulationDataPath(),"He3Ekin");
 	SimulationDataProcess::ForwardEkinReconstructionFit(
 		"He3.E.FRH1",make_shared<He3EnergyFRH1>(),
 		BinsByStep(0.0,0.005,0.3),
@@ -25,15 +25,4 @@ int main(){
 			<<make_shared<DistribGauss>(0,0.1)<<make_shared<DistribGauss>(0,0.1)
 		,engine
 	);
-	SimulationDataProcess::ForwardEkinReconstructionFit(
-		"He3.E.FRH2",make_shared<He3EnergyFRH2>(),
-		BinsByStep(0.25,0.005,0.45),
-		BinsByStep(0.45,0.005,0.60),
-		make_shared<InitialDistributions>()
-			<<make_shared<DistribGauss>(0,0.1)<<make_shared<DistribGauss>(0,0.1)
-			<<make_shared<DistribGauss>(0,0.1)<<make_shared<DistribGauss>(1,0.5)
-			<<make_shared<DistribGauss>(0,0.1)<<make_shared<DistribGauss>(0,0.1)
-		,engine
-	);
-	
 }
