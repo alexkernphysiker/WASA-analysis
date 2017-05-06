@@ -39,7 +39,7 @@ int main(){
 		auto THD=[](){
 			return Plot<double>()
 			<<"set key on" 
-			<< "set xlabel 'Phi, deg'"<<"set xrange [0:360]"
+			<< "set xlabel 'Phi, deg'"<<"set xrange [-180:180]"
 			<< "set ylabel 'events, count'"<< "set yrange [0:]";
 		};
 		string fpc="set title 'FPC condition "+title+"'";
