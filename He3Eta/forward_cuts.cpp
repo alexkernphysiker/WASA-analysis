@@ -22,8 +22,8 @@ int main(){
 			title="Simulation "+R;
 			Plot<double>()
 			.Line(Hist(HS,R,{"Histograms","He3Forward_Reconstruction"},"0-Reference").toLine(),"Simulated events")
-			.Line(Hist(HS,R,{"Histograms","He3Forward_Reconstruction"},"2-FPC").toLine(),"Reconstructable forward tracks")
-			.Line(Hist(HS,R,{"Histograms","He3Forward_Reconstruction"},"3-AllCuts").toLine(),"identified as ^3He")
+			.Line(Hist(HS,R,{"Histograms","He3Forward_Reconstruction"},"2-ThetaIsAccepted").toLine(),"Reconstructable forward tracks")
+			.Line(Hist(HS,R,{"Histograms","He3Forward_Reconstruction"},"4-GeomCut").toLine(),"identified as ^3He")
 			<< "set key on"<< "set title '"+title+"'"
 			<< "set yrange [0:]"
 			<< "set xlabel 'Q, MeV'"
@@ -43,11 +43,11 @@ int main(){
 			<< "set ylabel 'events, count'"<< "set yrange [0:]";
 		};
 		string fpc="set title 'FPC condition "+title+"'";
-		SP2().Distr(Hist2d(HS,R,{"Histograms","He3Forward_Reconstruction"},string("2-FPC-FTH1-vs-FRH1")).Scale(3,3))<<fpc;
+		SP2().Distr(Hist2d(HS,R,{"Histograms","He3Forward_Reconstruction"},string("2-ThetaIsAccepted-FTH1-vs-FRH1")).Scale(3,3))<<fpc;
 		THD().Hist(Hist(HS,R,{"Histograms","He3Forward_Debug"},"2-PhiDistribution-AllBins").Scale(30))<<fpc;
 		string cut="set title 'E_{dep} cut "+title+"'";
-		SP2().Distr(Hist2d(HS,R,{"Histograms","He3Forward_Reconstruction"},string("2.5-FRH1-FTH1-vs-FRH1")).Scale(3,3))<<cut;
-		THD().Hist(Hist(HS,R,{"Histograms","He3Forward_Debug"},"3-PhiDistribution-AllBins").Scale(30))<<cut;
+		SP2().Distr(Hist2d(HS,R,{"Histograms","He3Forward_Reconstruction"},string("4-GeomCut-FTH1-vs-FRH1")).Scale(3,3))<<cut;
+		THD().Hist(Hist(HS,R,{"Histograms","He3Forward_Debug"},"4-PhiDistribution-AllBins").Scale(30))<<cut;
 	};
 	MakePlots(MC,"He3eta",500000);
 	MakePlots(MC,"He3pi0pi0",500000);
