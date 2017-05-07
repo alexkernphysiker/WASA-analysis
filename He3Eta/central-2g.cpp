@@ -19,7 +19,7 @@ using namespace Genetic;
 using namespace MathTemplates;
 using namespace GnuplotWrap;
 int main(){
-    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_central");
+    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_central_2gamma");
     vector<string> histpath_central_reconstr={"Histograms","CentralGammas"};
     vector<string> reaction={"He3eta","He3pi0","He3pi0pi0","He3pi0pi0pi0"};
     vector<hist<double>> norm;
