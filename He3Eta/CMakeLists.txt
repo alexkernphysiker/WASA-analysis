@@ -12,5 +12,7 @@ target_link_libraries(forward-cuts ${ROOT_LIBRARIES} reconstructionfit experimen
 
 add_executable(central-2g central-2g.cpp he3eta.cpp)
 target_link_libraries(central-2g ${ROOT_LIBRARIES} reconstructionfit experiment kinematics)
+add_executable(central-6g central-6g.cpp he3eta.cpp)
+target_link_libraries(central-6g ${ROOT_LIBRARIES} reconstructionfit experiment kinematics)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/he3eta.txt DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

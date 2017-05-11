@@ -35,7 +35,7 @@ int main(){
 	if(norm[0][bin_num].X()>10.0){
 	    const auto&Q=norm[0][bin_num].X();
 	    string Qmsg="Q in ["+to_string(Q.min())+":"+to_string(Q.max())+"] MeV";
-	    auto transform=[](hist<double>&h){h=h.XRange(0.38,0.58);};
+	    auto transform=[](hist<double>&h){h=h.XRange(0.30,0.58);};
 
 	    hist<double> data=Hist(DATA,"",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
 	    transform(data);
@@ -48,7 +48,7 @@ int main(){
 	    vector<hist<double>> theory;{
 		Plot<double> th_plot;
 		th_plot<< "set key on"<< "set xlabel 'Missing mass, MeV'"
-		<< "set title '"+Qmsg+"'"<<"set log y"
+		<< "set title '"+Qmsg+"'"//<<"set log y"
 		<< "set ylabel 'acceptance density, GeV^{-1}'";
 		for(size_t i=0;i<reaction.size();i++){
 		    hist<double> react_sim=Hist(MC,reaction[i],histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
