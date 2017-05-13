@@ -39,7 +39,7 @@ int main(){
 	if(norm[0][bin_num].X()>10.0){
 	    const auto&Q=norm[0][bin_num].X();
 	    string Qmsg="Q in ["+to_string(Q.min())+":"+to_string(Q.max())+"] MeV";
-	    auto transform=[](hist<double>&h){h=h.XRange(0.30,0.58);};
+	    auto transform=[](hist<double>&h){h=h.XRange(0.42,0.58);};
 
 	    hist<double> data=Hist(DATA,"",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
 	    transform(data);
@@ -52,7 +52,7 @@ int main(){
 	    vector<hist<double>> theory;{
 		Plot<double> th_plot;
 		th_plot<< "set key on"<< "set xlabel 'Missing mass, MeV'"
-		<< "set title '"+Qmsg+"'"<<"set log y"
+		<< "set title '"+Qmsg+"'"
 		<< "set ylabel 'acceptance density, GeV^{-1}'";
 		for(size_t i=0;i<reaction.size();i++){
 		    hist<double> react_sim=Hist(MC,reaction[i],histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
@@ -76,36 +76,36 @@ int main(){
 		}
 		return res;
 	    });
-	    const auto ex=parEq(3,0.001);
-	    fit.SetUncertaintyCalcDeltas(ex)
-	    .SetFilter(make_shared<Above>()<<0.0<<0.0<<0.0<<0.0);
+	    fit.SetMutationCoefficient(0.8);
+	    fit.SetFilter([](const ParamSet&P)->bool{return (P[0]>0)&&(P[1]>0)&&(P[2]>0)&&(P[3]>=0);});
 	    const auto&data_count=data.TotalSum().val();
-	    fit.Init(80,
+	    fit.Init(100,
 		make_shared<InitialDistributions>()
-		<<make_shared<DistribUniform>(0.0,2.0*data_count)
-		<<make_shared<DistribUniform>(0.0,2.0*data_count)
-		<<make_shared<DistribUniform>(0.0,2.0*data_count)
-		<<make_shared<DistribUniform>(0.0,0.5*data_count),
-		r_eng
+		    <<make_shared<DistribUniform>(0.0,2.0*data_count)
+		    <<make_shared<DistribUniform>(0.0,2.0*data_count)
+		    <<make_shared<DistribUniform>(0.0,2.0*data_count)
+		    <<make_shared<FixParam>(0.0)
+		,r_eng
 	    );
-	    while(
-		!fit.AbsoluteOptimalityExitCondition(0.0000001)
-	    ){
+	    while(!fit.AbsoluteOptimalityExitCondition(0.000000000001)){
 		fit.Iterate(r_eng);
 		cout<<fit.iteration_count()<<" iterations; "
 		<<fit.Optimality()<<"<chi^2<"
 		<<fit.Optimality(fit.PopulationSize()-1)
 		<<"          \r";
 	    }
+	    fit.SetUncertaintyCalcDeltas({0.1,1.0,1.0,1.0});
 	    const auto&P=fit.ParametersWithUncertainties();
 	    for(size_t i=0;i<reaction.size();i++)
 		fit_params[i]<< point<value<double>>(Q,P[i]);
 	    bg_chi_sq << point<value<double>>(Q,fit.Optimality()/(data.size()-fit.ParamCount()));
 	    exp_plot
-	    .Line(hist<double>(theory[0]*P[0]+theory[1]*P[1]+theory[2]*P[2]).toLine(),"Total")
-	    .Line(hist<double>(theory[1]*P[1]+theory[2]*P[2]).toLine(),"Background")
-	    .Line(hist<double>(theory[1]*P[1]).toLine(),reaction[1])
-	    .Line(hist<double>(theory[2]*P[2]).toLine(),reaction[2]);
+		.Line(hist<double>(theory[0]*P[0]+theory[1]*P[1]+theory[2]*P[2]).toLine(),"Total")
+		.Line(hist<double>(theory[1]*P[1]+theory[2]*P[2]+theory[3]*P[3]).toLine(),"Background")
+		.Line(hist<double>(theory[1]*P[1]).toLine(),reaction[1])
+		.Line(hist<double>(theory[2]*P[2]).toLine(),reaction[2])
+		.Line(hist<double>(theory[3]*P[3]).toLine(),reaction[3])
+	    ;
 	    luminosity << point<value<double>>(Q,
 	       (P[0]/he3eta_sigma()(Q))
 	       *double(trigger_he3_forward.scaling)
@@ -142,7 +142,7 @@ int main(){
     << "set ylabel 'sigma(^3He eta), nb'"<<"unset log y"
     << "set xrange [0:45]"<< "set yrange [0:600]";
 
-    auto runs=PresentRuns("");
+    const auto runs=PresentRuns("");
     Plot<double>().Hist(luminosity) 
     << "set title 'Integral luminosity estimation ("+to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs)'"
     << "set key on" << "set xlabel 'Q, MeV'" 

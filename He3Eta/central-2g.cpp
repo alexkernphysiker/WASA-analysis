@@ -30,17 +30,20 @@ int main(){
     .Hist(norm[2],"3He+2pi0")
     .Hist(norm[3],"3He+3pi0")
     <<"set key on";
+    const auto runs=PresentRuns("");
     for(size_t bin_num=0,bin_count=norm[0].size();bin_num<bin_count;bin_num++){
 	auto Q=norm[0][bin_num].X();
 	string Qmsg="Q in ["+to_string(norm[0][bin_num].X().min())+":"+to_string(norm[0][bin_num].X().max())+"] MeV";
 	Plot<double>()
-	.Hist(Hist(DATA,"",histpath_central_reconstr,string("InvMass2Gamma-Bin-")+to_string(bin_num)),"DATA")
-	<<"set log y"<<"set key on"<<"set title '"+Qmsg+"'"<<"set xlabel 'MM, GeV'";
+	.Hist(Hist(DATA,"",histpath_central_reconstr,string("InvMass2GammaAfter-Bin-")+to_string(bin_num)),"DATA")
+	<<"set log y"<<"set key on"<<"set xlabel 'MM, GeV'"
+	<< "set title '2Gamma inv. mass ("+to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs, "+Qmsg+")'";
 	Plot<double>()
-	.Hist(Hist(MC,"He3eta",histpath_central_reconstr,string("InvMass2Gamma-Bin-")+to_string(bin_num))/norm[0][bin_num].Y(),"3He+eta")
-	.Hist(Hist(MC,"He3pi0",histpath_central_reconstr,string("InvMass2Gamma-Bin-")+to_string(bin_num))/norm[1][bin_num].Y(),"3He+pi0")
-	.Hist(Hist(MC,"He3pi0pi0",histpath_central_reconstr,string("InvMass2Gamma-Bin-")+to_string(bin_num))/norm[2][bin_num].Y(),"3He+2pi0")
-	.Hist(Hist(MC,"He3pi0pi0pi0",histpath_central_reconstr,string("InvMass2Gamma-Bin-")+to_string(bin_num))/norm[3][bin_num].Y(),"3He+3pi0")
-	<<"set log y"<<"set key on"<<"set title '"+Qmsg+"'"<<"set xlabel 'MM, GeV'";
+	.Hist(Hist(MC,"He3eta",histpath_central_reconstr,string("InvMass2GammaAfter-Bin-")+to_string(bin_num))/norm[0][bin_num].Y(),"3He+eta")
+	.Hist(Hist(MC,"He3pi0",histpath_central_reconstr,string("InvMass2GammaAfter-Bin-")+to_string(bin_num))/norm[1][bin_num].Y(),"3He+pi0")
+	.Hist(Hist(MC,"He3pi0pi0",histpath_central_reconstr,string("InvMass2GammaAfter-Bin-")+to_string(bin_num))/norm[2][bin_num].Y(),"3He+2pi0")
+	.Hist(Hist(MC,"He3pi0pi0pi0",histpath_central_reconstr,string("InvMass2GammaAfter-Bin-")+to_string(bin_num))/norm[3][bin_num].Y(),"3He+3pi0")
+	<<"set log y"<<"set key on"<<"set xlabel 'MM, GeV'"
+	<< "set title '2Gamma inv. mass (Monte Carlo, "+Qmsg+")'";
     }
 }

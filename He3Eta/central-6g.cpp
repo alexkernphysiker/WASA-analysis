@@ -21,33 +21,37 @@ using namespace GnuplotWrap;
 int main(){
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_central_6gamma");
     vector<string> histpath_central_reconstr={"Histograms","CentralGammas"};
-    vector<string> reaction={"He3eta6g","He3pi06g"};
+    vector<string> reaction={"He3eta","He3pi0pi0pi0"};
     vector<hist<double>> norm;
-    Plotter::Instance()<<"set log y";
     {
-	Plot<double> mc_ncd;
-	for(const string& r:reaction){
-	    mc_ncd.Hist(Hist(MC,r,histpath_central_reconstr,"neutral_tracks_count"));
-	    norm.push_back(Hist(MC,r,histpath_central_reconstr,"0-Reference"));
-	}
+	Plot<double> mc_ncd,ref;
 	mc_ncd<<"set key on";
-	Plot<double>().Hist(Hist(DATA,"",histpath_central_reconstr,"neutral_tracks_count"))<<"set key on";
+	ref<<"set key on";
+	for(const string& r:reaction){
+	    const auto N=Hist(MC,r,histpath_central_reconstr,"0-Reference");
+	    mc_ncd.Hist(Hist(MC,r,histpath_central_reconstr,"GammaCount")/N.TotalSum(),r);
+	    ref.Hist(N,r);
+	    norm.push_back(N);
+	}
+	mc_ncd.Hist(
+	    Hist(DATA,"",histpath_central_reconstr,"GammaCount")
+	    /
+	    Hist(DATA,"",histpath_central_reconstr,"0-Reference").TotalSum()
+	,"DATA");
     }
-    Plotter::Instance()<<"unset log y";
-    Plot<double>()
-    .Hist(norm[0],"3He+eta")
-    .Hist(norm[1],"3He+3pi0")
-    <<"set key on";
+    const auto runs=PresentRuns("");
     for(size_t bin_num=0,bin_count=norm[0].size();bin_num<bin_count;bin_num++){
 	auto Q=norm[0][bin_num].X();
 	string Qmsg="Q in ["+to_string(norm[0][bin_num].X().min())+":"+to_string(norm[0][bin_num].X().max())+"] MeV";
 	Plot<double>()
-	.Hist(Hist(DATA,"",histpath_central_reconstr,string("InvMass6Gamma-Bin-")+to_string(bin_num)),"DATA")
-	<<"set log y"<<"set key on"<<"set title '"+Qmsg+"'"<<"set xlabel 'MM, GeV'";
+	.Hist(Hist(DATA,"",histpath_central_reconstr,string("InvMass3PairsAfter-Bin-")+to_string(bin_num)),"DATA")
+	<<"set key on"<<"set xlabel 'MM, GeV'"
+	<< "set title '3pi0 inv. mass ("+to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs, "+Qmsg+")'";
 	Plot<double>()
-	.Hist(Hist(MC,"He3eta",histpath_central_reconstr,string("InvMass6Gamma-Bin-")+to_string(bin_num))/norm[0][bin_num].Y(),"3He+eta")
-	.Hist(Hist(MC,"He3pi0",histpath_central_reconstr,string("InvMass6Gamma-Bin-")+to_string(bin_num))/norm[1][bin_num].Y(),"3He+3pi0")
-	<<"set log y"<<"set key on"<<"set title '"+Qmsg+"'"<<"set xlabel 'MM, GeV'";
+	.Hist(Hist(MC,reaction[0],histpath_central_reconstr,string("InvMass3PairsAfter-Bin-")+to_string(bin_num))/norm[0][bin_num].Y(),reaction[0])
+	.Hist(Hist(MC,reaction[1],histpath_central_reconstr,string("InvMass3PairsAfter-Bin-")+to_string(bin_num))/norm[1][bin_num].Y(),reaction[1])
+	<<"set key on"<<"set xlabel 'MM, GeV'"
+	<< "set title '3pi0 inv. mass (Monte Carlo, "+Qmsg+")'";
     }
 }
 
