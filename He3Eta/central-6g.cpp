@@ -45,12 +45,12 @@ int main(){
 	string Qmsg="Q in ["+to_string(norm[0][bin_num].X().min())+":"+to_string(norm[0][bin_num].X().max())+"] MeV";
 	Plot<double>()
 	.Hist(Hist(DATA,"",histpath_central_reconstr,string("InvMass3PairsAfter-Bin-")+to_string(bin_num)),"DATA")
-	<<"set key on"<<"set xlabel 'MM, GeV'"
+	<<"set key on"<<"set xlabel 'MM, GeV'"<<"set xrange [0.4:0.7]"<< "set yrange [0:]"
 	<< "set title '3pi0 inv. mass ("+to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs, "+Qmsg+")'";
 	Plot<double>()
 	.Hist(Hist(MC,reaction[0],histpath_central_reconstr,string("InvMass3PairsAfter-Bin-")+to_string(bin_num))/norm[0][bin_num].Y(),reaction[0])
 	.Hist(Hist(MC,reaction[1],histpath_central_reconstr,string("InvMass3PairsAfter-Bin-")+to_string(bin_num))/norm[1][bin_num].Y(),reaction[1])
-	<<"set key on"<<"set xlabel 'MM, GeV'"
+	<<"set key on"<<"set xlabel 'MM, GeV'"<<"set xrange [0.4:0.7]"<< "set yrange [0:]"
 	<< "set title '3pi0 inv. mass (Monte Carlo, "+Qmsg+")'";
     }
 }

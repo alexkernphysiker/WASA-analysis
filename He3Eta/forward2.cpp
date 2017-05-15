@@ -34,8 +34,8 @@ int main(){
 	    string Qmsg="Q in ["+to_string(Q.min())+":"+to_string(Q.max())+"] MeV";
 	    const hist<double> data=Hist(DATA,"",histpath_forward_reconstr,
 		string("MissingMass-Bin-")+to_string(bin_num)
-	    ).XRange(0.52,0.57);
-	    const auto chain=ChainWithStep(0.52,0.002,0.57);
+	    ).XRange(0.535,0.565);
+	    const auto chain=ChainWithStep(0.535,0.002,0.565);
 	    const hist<double> mc=Hist(MC,"He3eta",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num))/N;
 	    const LinearInterpolation<double> fg=mc.toLine();
 	    const auto&data_count=data.TotalSum().val();
@@ -43,13 +43,17 @@ int main(){
 		const double res=data_count*Polynom(X[0],P,3,2);
 		return (res>0)?res:0.0;
 	    };
-	    Fit<AbsoluteMutations<DifferentialMutations<Uncertainty>>>
-	    FIT(make_shared<FitPoints>(data),
+	    Fit<AbsoluteMutations<DifferentialMutations<Uncertainty>>> FIT(
+		make_shared<FitPoints>(data),
 		[&fg,BG](const ParamSet&X,const ParamSet&P){
 		    return P[0]*fg(X[0]+P[1])+BG(X,P);
 		}
 	    );
-	    FIT.SetFilter([BG](const ParamSet&P){
+	    FIT
+	    .SetAbsoluteMutationCoefficients({1.,0.0001,0.1,0.1,0.1,0.1})
+	    .SetAbsoluteMutationsProbability(0.2)
+	    .SetUncertaintyCalcDeltas({0.1,0.0001,0.1,0.1,0.1,0.1})
+	    .SetFilter([BG](const ParamSet&P){
 		return (P[0]>0)&&(BG({-P[3]/(2.0*P[4])},P)>0)
 		    &&(P[2]<0)&&(P[3]>0)&&(P[4]<0)&&(P[5]<0);
 	    });
@@ -61,9 +65,6 @@ int main(){
 		<<make_shared<DistribGauss>(-5,5)
 		<<make_shared<DistribGauss>(-3,2)
 	    ;
-	    FIT.SetAbsoluteMutationCoefficients({1.,0.0001,1.,1.,1.,1.});
-	    FIT.SetAbsoluteMutationsProbability(0.2);
-	    FIT.SetUncertaintyCalcDeltas({0.1,0.0001,0.01,0.01,0.01,0.001});
 	    FIT.Init(800,init,r_eng);
 
 	    cout<<endl;
@@ -113,7 +114,7 @@ int main(){
 	    hist<double> clean=data-bg;
 	    Plot<double> subplot;
 	    subplot.Object("0 title \"\"").Hist(clean);
-	    subplot.Hist(clean=clean.XRange(0.540,0.556))
+	    subplot.Hist(clean=clean.XRange(0.541,0.556))
 	    << "set key on"<< "set title '"+Qmsg+"'"
 	    << "set xlabel 'Missing mass, GeV'"
 	    << "set ylabel 'counts'"
@@ -132,14 +133,13 @@ int main(){
 	Plot<double>().Hist(parhists[i])
 	<< "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'parameter"+to_string(i)+"'";
-
     Plot<double>().Hist(data_chi_sq)
     << "set xlabel 'Q, MeV'" 
     << "set ylabel 'chi^2/d, n.d.'" 
     << "set yrange [0:]"<<"unset log y";
 
     Plot<double>()
-    .Hist(hist<double>(he3eta_sigma().func(),BinsByStep(5.0,2.5,30.0)))
+    .Hist(hist<double>(he3eta_sigma().func(),BinsByStep(2.5,2.5,30.0)))
     .Hist(he3eta_sigma(),"Data from other experiments")
     << "set title 'Cross section of He3eta used in the calculations'"
     << "set key on" << "set xlabel 'Q, MeV'" 

@@ -36,7 +36,7 @@ int main(){
 	fit_params.push_back(hist<double>());
     RANDOM r_eng;
     for(size_t bin_num=0,bin_count=norm[0].size();bin_num<bin_count;bin_num++)
-	if(norm[0][bin_num].X()>10.0){
+	if(norm[0][bin_num].X()>2.5){
 	    const auto&Q=norm[0][bin_num].X();
 	    string Qmsg="Q in ["+to_string(Q.min())+":"+to_string(Q.max())+"] MeV";
 	    auto transform=[](hist<double>&h){h=h.XRange(0.42,0.58);};
