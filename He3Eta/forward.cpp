@@ -48,7 +48,7 @@ int main(){
 	    << "set key on"<< "set title '"+Qmsg+"'"
 	    << "set xlabel 'Missing mass, GeV'"
 	    << "set ylabel 'counts'"
-	    << "set yrange [0:]"<<"unset log y";
+	    << "set yrange [0:1500]"<<"unset log y";
 	    vector<hist<double>> theory;{
 		Plot<double> th_plot;
 		th_plot<< "set key on"<< "set xlabel 'Missing mass, MeV'"
@@ -104,7 +104,7 @@ int main(){
 		.Line(hist<double>(theory[1]*P[1]+theory[2]*P[2]+theory[3]*P[3]).toLine(),"Background")
 		.Line(hist<double>(theory[1]*P[1]).toLine(),reaction[1])
 		.Line(hist<double>(theory[2]*P[2]).toLine(),reaction[2])
-		.Line(hist<double>(theory[3]*P[3]).toLine(),reaction[3])
+		//.Line(hist<double>(theory[3]*P[3]).toLine(),reaction[3])
 	    ;
 	    luminosity << point<value<double>>(Q,
 	       (P[0]/he3eta_sigma()(Q))

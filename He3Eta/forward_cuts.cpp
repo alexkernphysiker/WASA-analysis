@@ -25,7 +25,7 @@ int main(){
 			.Line(Hist(HS,R,{"Histograms","He3Forward_Reconstruction"},"2-ThetaIsAccepted").toLine(),"Reconstructable forward tracks")
 			.Line(Hist(HS,R,{"Histograms","He3Forward_Reconstruction"},"4-GeomCut").toLine(),"identified as ^3He")
 			<< "set key on"<< "set title '"+title+"'"
-			<< "set yrange [0:]"
+			<< "set yrange [0:4000000]"
 			<< "set xlabel 'Q, MeV'"
 			<< "set ylabel 'Events count'";
 		}

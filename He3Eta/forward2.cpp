@@ -28,14 +28,14 @@ int main(){
     vector<hist<double>> parhists;
     RANDOM r_eng;
     for(size_t bin_num=0,bin_count=norm.size();bin_num<bin_count;bin_num++)
-	if(norm[bin_num].X()>2.5){
+	if(norm[bin_num].X()>5.0){
 	    const auto&Q=norm[bin_num].X();
 	    const auto&N=norm[bin_num].Y();
 	    string Qmsg="Q in ["+to_string(Q.min())+":"+to_string(Q.max())+"] MeV";
 	    const hist<double> data=Hist(DATA,"",histpath_forward_reconstr,
 		string("MissingMass-Bin-")+to_string(bin_num)
-	    ).XRange(0.535,0.565);
-	    const auto chain=ChainWithStep(0.535,0.002,0.565);
+	    ).XRange(0.520,0.570);
+	    const auto chain=ChainWithStep(0.520,0.002,0.570);
 	    const hist<double> mc=Hist(MC,"He3eta",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num))/N;
 	    const LinearInterpolation<double> fg=mc.toLine();
 	    const auto&data_count=data.TotalSum().val();
@@ -50,7 +50,7 @@ int main(){
 		}
 	    );
 	    FIT
-	    .SetAbsoluteMutationCoefficients({1.,0.0001,0.1,0.1,0.1,0.1})
+	    .SetAbsoluteMutationCoefficients({1.,0.0001,1.0,1.0,1.0,1.0})
 	    .SetAbsoluteMutationsProbability(0.2)
 	    .SetUncertaintyCalcDeltas({0.1,0.0001,0.1,0.1,0.1,0.1})
 	    .SetFilter([BG](const ParamSet&P){
@@ -114,7 +114,7 @@ int main(){
 	    hist<double> clean=data-bg;
 	    Plot<double> subplot;
 	    subplot.Object("0 title \"\"").Hist(clean);
-	    subplot.Hist(clean=clean.XRange(0.541,0.556))
+	    subplot.Hist(clean=clean.XRange(0.538,0.561))
 	    << "set key on"<< "set title '"+Qmsg+"'"
 	    << "set xlabel 'Missing mass, GeV'"
 	    << "set ylabel 'counts'"
@@ -139,7 +139,7 @@ int main(){
     << "set yrange [0:]"<<"unset log y";
 
     Plot<double>()
-    .Hist(hist<double>(he3eta_sigma().func(),BinsByStep(2.5,2.5,30.0)))
+    .Hist(hist<double>(he3eta_sigma().func(),BinsByStep(5.0,2.5,30.0)))
     .Hist(he3eta_sigma(),"Data from other experiments")
     << "set title 'Cross section of He3eta used in the calculations'"
     << "set key on" << "set xlabel 'Q, MeV'" 
