@@ -45,17 +45,17 @@ int main(){
     Plot<double>()
     .Hist(Hist(MC,"He3eta",histpath_central_reconstr,"GammaEnergy6After"),"3He+eta")
     .Hist(Hist(MC,"He3pi0pi0pi0",histpath_central_reconstr,"GammaEnergy6After"),"3He+3pi0")
-    <<"set title 'Gamma pair total energy, Monte Carlo'"<<"set key on";
+    <<"set title '6 Gamma total energy, Monte Carlo'"<<"set key on";
     Plot<double>()
     .Hist(Hist(DATA,"",histpath_central_reconstr,"GammaEnergy6After"))
-    <<"set title 'Gamma pair total energy, DATA ("+runmsg+")'";
+    <<"set title '6 Gamma total energy, DATA ("+runmsg+")'";
     Plot<double>()
     .Hist(Hist(MC,"He3eta",histpath_central_reconstr,"InvMass3PairsAfter-AllBins"),"3He+eta")
     .Hist(Hist(MC,"He3pi0pi0pi0",histpath_central_reconstr,"InvMass3PairsAfter-AllBins"),"3He+3pi0")
-    <<"set title 'Gamma pair invariant mass, Monte Carlo'"<<"set key on"<<"set xrange [0.4:0.7]";
+    <<"set title '6 Gamma invariant mass, Monte Carlo'"<<"set key on"<<"set xrange [0.4:0.7]";
     Plot<double>()
     .Hist(Hist(DATA,"",histpath_central_reconstr,"InvMass3PairsAfter-AllBins"))
-    <<"set title 'Gamma pair invariant mass, DATA ("+runmsg+")'"<<"set xrange [0.4:0.7]";
+    <<"set title '6 Gamma invariant mass, DATA ("+runmsg+")'"<<"set xrange [0.4:0.7]";
 
     
     vector<hist<double>> norm;
