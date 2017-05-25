@@ -43,7 +43,7 @@ int main(){
 		const double res=data_count*Polynom(X[0],P,3,0);
 		return (res>0)?res:0.0;
 	    };
-	    auto data_bg=make_shared<FitPoints>(data.XExclude(0.54,0.556))<<data.XRange(0.54,0.556).YRange(-1,50);
+	    auto data_bg=make_shared<FitPoints>(data.XExclude(0.540,0.557))<<data.XRange(0.54,0.557).YRange(-1,50);
 	    Fit<AbsoluteMutations<DifferentialMutations<Uncertainty>>> FIT(data_bg,BG);
 	    FIT
 	    .SetAbsoluteMutationCoefficients({1.0,1.0,1.0,1.0})
@@ -104,7 +104,7 @@ int main(){
 	    hist<double> clean=data-bg;
 	    Plot<double> subplot;
 	    subplot.Object("0 title \"\"").Hist(clean);
-	    subplot.Hist(clean=clean.XRange(0.539,0.557))
+	    subplot.Hist(clean=clean.XRange(0.538,0.557))
 	    << "set key on"<< "set title '"+Qmsg+"'"
 	    << "set xlabel 'Missing mass, GeV'"
 	    << "set ylabel 'counts'"
