@@ -42,10 +42,10 @@ int main(){
 			<< "set xlabel 'Phi, deg'"<<"set xrange [-180:180]"
 			<< "set ylabel 'events, count'"<< "set yrange [0:]";
 		};
-		string fpc="set title 'FPC condition "+title+"'";
+		string fpc="set title 'Reconstructable tracks. "+title+"'";
 		SP2().Distr(Hist2d(HS,R,{"Histograms","He3Forward_Reconstruction"},string("2-ThetaIsAccepted-FTH1-vs-FRH1")).Scale(3,3))<<fpc;
 		THD().Hist(Hist(HS,R,{"Histograms","He3Forward_Debug"},"2-PhiDistribution-AllBins").Scale(30))<<fpc;
-		string cut="set title 'E_{dep} cut "+title+"'";
+		string cut="set title 'Identified as 3He. "+title+"'";
 		SP2().Distr(Hist2d(HS,R,{"Histograms","He3Forward_Reconstruction"},string("4-GeomCut-FTH1-vs-FRH1")).Scale(3,3))<<cut;
 		THD().Hist(Hist(HS,R,{"Histograms","He3Forward_Debug"},"4-PhiDistribution-AllBins").Scale(30))<<cut;
 	};

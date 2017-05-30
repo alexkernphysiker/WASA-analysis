@@ -1,6 +1,7 @@
 // this file is distributed under 
 // GPL license
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <sstream>
 #include <memory>
@@ -21,6 +22,8 @@ using namespace MathTemplates;
 using namespace GnuplotWrap;
 int main(){
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward");
+    const auto runs=PresentRuns("");
+    const string runmsg=to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs";
     vector<string> histpath_forward_reconstr={"Histograms","He3Forward_Reconstruction"};
     vector<string> reaction={"He3eta","He3pi0pi0pi0","He3pi0pi0","He3pi0"};
     vector<hist<double>> norm;
@@ -38,14 +41,22 @@ int main(){
     for(size_t bin_num=0,bin_count=norm[0].size();bin_num<bin_count;bin_num++)
 	if(norm[0][bin_num].X()>2.5){
 	    const auto&Q=norm[0][bin_num].X();
-	    string Qmsg="Q in ["+to_string(Q.min())+":"+to_string(Q.max())+"] MeV";
+	    const string Qmsg=static_cast<stringstream&>(stringstream()
+		<<"Q in ["<<setprecision(3)
+		<<Q.min()<<"; "<<Q.max()<<"] MeV"
+	    ).str();
 	    auto transform=[](hist<double>&h){h=h.XRange(0.42,0.58);};
 
 	    hist<double> data=Hist(DATA,"",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
 	    transform(data);
+	    Plot<double>().Hist(data)
+	    << "set key on"<< "set title '"+Qmsg+", "+runmsg+"'"
+	    << "set xlabel 'Missing mass, GeV'"
+	    << "set ylabel 'counts'"
+	    << "set yrange [0:]"<<"unset log y";
 	    Plot<double> exp_plot;
 	    exp_plot.Hist(data,"DATA")
-	    << "set key on"<< "set title '"+Qmsg+"'"
+	    << "set key on"<< "set title '"+Qmsg+", "+runmsg+"'"
 	    << "set xlabel 'Missing mass, GeV'"
 	    << "set ylabel 'counts'"
 	    << "set yrange [0:1500]"<<"unset log y";
@@ -104,7 +115,6 @@ int main(){
 		.Line(hist<double>(theory[1]*P[1]+theory[2]*P[2]+theory[3]*P[3]).toLine(),"Background")
 		.Line(hist<double>(theory[1]*P[1]).toLine(),reaction[1])
 		.Line(hist<double>(theory[2]*P[2]).toLine(),reaction[2])
-		//.Line(hist<double>(theory[3]*P[3]).toLine(),reaction[3])
 	    ;
 	    luminosity << point<value<double>>(Q,
 	       (P[0]/he3eta_sigma()(Q))
@@ -118,8 +128,7 @@ int main(){
 
     {//Plot acceptance
 	Plot<double> acc,par;
-	acc << "set key on" 
-	<< "set title 'Acceptance'"
+	acc << "set key on"
 	<< "set yrange [0:1.0]"<<"unset log y"
 	<< "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'Acceptance, n.d.'";
@@ -142,9 +151,8 @@ int main(){
     << "set ylabel 'sigma(^3He eta), nb'"<<"unset log y"
     << "set xrange [0:45]"<< "set yrange [0:600]";
 
-    const auto runs=PresentRuns("");
     Plot<double>().Hist(luminosity) 
-    << "set title 'Integral luminosity estimation ("+to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs)'"
+    << "set title 'Integral luminosity estimation ("+runmsg+")'"
     << "set key on" << "set xlabel 'Q, MeV'" 
     << "set ylabel 'Integral luminosity, nb^{-1}'" 
     << "set xrange [0:45]"<< "set yrange [0:]";
