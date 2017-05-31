@@ -12,7 +12,6 @@
 #include <Experiment/experiment_conv.h>
 #include <Experiment/str_get.h>
 #include <Experiment/gethist.h>
-#include "he3eta.h"
 using namespace std;
 using namespace ROOT_data;
 using namespace Genetic;
