@@ -152,8 +152,8 @@ int main(){
     << "set xrange [0:45]"<< "set yrange [0:600]";
 
     Plot<double>().Hist(luminosity) 
-    << "set title 'Integral luminosity estimation ("+runmsg+")'"
+    << "set title 'Integrated luminosity estimation ("+runmsg+")'"
     << "set key on" << "set xlabel 'Q, MeV'" 
-    << "set ylabel 'Integral luminosity, nb^{-1}'" 
+    << "set ylabel 'Integrated luminosity, nb^{-1}'" 
     << "set xrange [0:45]"<< "set yrange [0:]";
 }
