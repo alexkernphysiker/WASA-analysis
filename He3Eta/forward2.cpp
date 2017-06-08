@@ -24,14 +24,14 @@ using namespace GnuplotWrap;
 int main(){
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_luminosity");
     vector<string> histpath_forward_reconstr={"Histograms","He3Forward_Reconstruction"};
-    const auto runs=PresentRuns("");
+    const auto runs=PresentRuns("L");
     const string runmsg=to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs";
     hist<double> norm=Hist(MC,"He3eta",histpath_forward_reconstr,"0-Reference");
     hist<double> luminosity,data_chi_sq;
     vector<hist<double>> parhists;
     RANDOM r_eng;
     for(size_t bin_num=0,bin_count=norm.size();bin_num<bin_count;bin_num++)
-	if(norm[bin_num].X()>5.0){
+	if(norm[bin_num].X()>2.5){
 	    const auto&Q=norm[bin_num].X();
 	    const auto&N=norm[bin_num].Y();
 	    const string Qmsg=static_cast<stringstream&>(stringstream()
@@ -40,8 +40,9 @@ int main(){
 	    ).str();
 	    const hist<double> data=Hist(DATA,"L",histpath_forward_reconstr,
 		string("MissingMass-Bin-")+to_string(bin_num)
-	    ).XRange(0.525,0.570);
-	    const auto chain=ChainWithStep(0.525,0.001,0.570);
+	    ).XRange(0.520,0.580);
+	    const auto chain=ChainWithStep(0.520,0.001,0.580);
+	    const auto cut=make_pair(0.539,0.556);
 	    const hist<double> mc=Hist(MC,"He3eta",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num))/N;
 	    const LinearInterpolation<double> fg=mc.toLine();
 	    const auto&data_count=data.TotalSum().val();
@@ -49,13 +50,15 @@ int main(){
 		const double res=data_count*Polynom(X[0],P,3,0);
 		return (res>0)?res:0.0;
 	    };
-	    auto data_bg=make_shared<FitPoints>(data.XExclude(0.541,0.555))<<data.XRange(0.545,0.555).YRange(-1,50);
+	    const auto zerorange=data.XRange(cut.first,cut.second).YRange(-1,50);
+	    const auto data_bg=make_shared<FitPoints>(data.XExclude(cut.first,cut.second))<<zerorange;
+	    const auto marker=(zerorange.size()>0)?zerorange.left().X().min():cut.second;
 	    Fit<AbsoluteMutations<DifferentialMutations<Uncertainty>>> FIT(data_bg,BG);
 	    FIT
 	    .SetAbsoluteMutationCoefficients({1.0,1.0,1.0,1.0})
 	    .SetAbsoluteMutationsProbability(0.2)
 	    .SetUncertaintyCalcDeltas({0.1,0.1,0.1,0.1})
-	    .SetFilter([BG](const ParamSet&P){return BG({0.53},P)>0;});
+	    .SetFilter([BG,marker](const ParamSet&P){return BG({marker},P)>0;});
 	    auto init=make_shared<InitialDistributions>()
 		<<make_shared<DistribGauss>(0,100)
 		<<make_shared<DistribGauss>(0,100)
@@ -110,7 +113,7 @@ int main(){
 	    hist<double> clean=data-bg;
 	    Plot<double> subplot;
 	    subplot.Hist(clean);
-	    subplot.Hist(clean=clean.XRange(0.541,0.555)).Object("0 title \"\"")
+	    subplot.Hist(clean=clean.XRange(cut.first,cut.second)).Object("0 title \"\"")
 	    << "set key on"<< "set title '"+Qmsg+", "+runmsg+"'"
 	    << "set xlabel 'Missing mass, GeV'"
 	    << "set ylabel 'counts'"
@@ -131,7 +134,7 @@ int main(){
     << "set yrange [0:]"<<"unset log y";
 
     Plot<double>()
-    .Hist(hist<double>(he3eta_sigma().func(),BinsByStep(5.0,2.5,30.0)))
+    .Hist(hist<double>(he3eta_sigma().func(),BinsByStep(2.5,2.5,30.0)))
     .Hist(he3eta_sigma(),"Data from other experiments")
     << "set title 'Cross section of He3eta used in the calculations'"
     << "set key on" << "set xlabel 'Q, MeV'" 
