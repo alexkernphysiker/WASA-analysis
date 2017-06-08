@@ -38,7 +38,7 @@ int main(){
 		<<"Q in ["<<setprecision(3)
 		<<Q.min()<<"; "<<Q.max()<<"] MeV"
 	    ).str();
-	    const hist<double> data=Hist(DATA,"",histpath_forward_reconstr,
+	    const hist<double> data=Hist(DATA,"L",histpath_forward_reconstr,
 		string("MissingMass-Bin-")+to_string(bin_num)
 	    ).XRange(0.525,0.570);
 	    const auto chain=ChainWithStep(0.525,0.001,0.570);

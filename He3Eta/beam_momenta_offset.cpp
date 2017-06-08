@@ -44,7 +44,7 @@ int main(){
 	<<"set ylabel 'theta, deg'"
 	<< "set xrange [0.2:0.4]"
 	<<"set title 'Monte Caro, "+Qmsg+"'";
-	auto data_hist=Hist2d(DATA,"",
+	auto data_hist=Hist2d(DATA,"L",
 	    {"Histograms","He3Forward_Reconstruction"},
 	    string("Kinematic-reconstructed-Bin-")+to_string(bin_num)
 	).Scale(5,5);
