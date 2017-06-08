@@ -31,7 +31,7 @@ int main(){
     .Line(Hist(MC,"He3pi0pi0pi0",histpath_central_reconstr,"GammaCount").toLine(),"3He+3pi0")
     <<"set title 'Gamma quanta count, Monte Carlo'"<<"set key on";
     Plot<double>()
-    .Hist(Hist(DATA,"",histpath_central_reconstr,"GammaCount"))
+    .Hist(Hist(DATA,"R",histpath_central_reconstr,"GammaCount"))
     <<"set title 'Gamma quanta count, DATA ("+runmsg+")'";
 
     Plot<double>()
@@ -41,7 +41,7 @@ int main(){
     .Hist(Hist(MC,"He3pi0pi0pi0",histpath_central_reconstr,"MMass2GammaBefore-AllBins"),"3He+3pi0")
     <<"set title 'Gamma pair missing mass, Monte Carlo'"<<"set key on"<<"set xrange [2:3]";
     Plot<double>()
-    .Hist(Hist(DATA,"",histpath_central_reconstr,"MMass2GammaBefore-AllBins"))
+    .Hist(Hist(DATA,"R",histpath_central_reconstr,"MMass2GammaBefore-AllBins"))
     <<"set title 'Gamma pair missing mass, DATA ("+runmsg+")'"<<"set xrange [2:3]";
     Plot<double>()
     .Hist(Hist(MC,"He3eta",histpath_central_reconstr,"InvMass2GammaBefore-AllBins"),"3He+eta")
@@ -50,26 +50,7 @@ int main(){
     .Hist(Hist(MC,"He3pi0pi0pi0",histpath_central_reconstr,"InvMass2GammaBefore-AllBins"),"3He+3pi0")
     <<"set title 'Gamma pair invariant mass, Monte Carlo'"<<"set key on"<<"set xrange [0.0:0.8]";
     Plot<double>()
-    .Hist(Hist(DATA,"",histpath_central_reconstr,"InvMass2GammaBefore-AllBins"))
-    <<"set title 'Gamma pair invariant mass, DATA ("+runmsg+")'"<<"set xrange [0.0:0.8]";
-
-    Plot<double>()
-    .Hist(Hist(MC,"He3eta",histpath_central_reconstr,"MMass2GammaAfter-AllBins"),"3He+eta")
-    .Hist(Hist(MC,"He3pi0",histpath_central_reconstr,"MMass2GammaAfter-AllBins"),"3He+pi0")
-    .Hist(Hist(MC,"He3pi0pi0",histpath_central_reconstr,"MMass2GammaAfter-AllBins"),"3He+2pi0")
-    .Hist(Hist(MC,"He3pi0pi0pi0",histpath_central_reconstr,"MMass2GammaAfter-AllBins"),"3He+3pi0")
-    <<"set title 'Gamma pair missing mass, Monte Carlo'"<<"set key on"<<"set xrange [2:3]";
-    Plot<double>()
-    .Hist(Hist(DATA,"",histpath_central_reconstr,"MMass2GammaAfter-AllBins"))
-    <<"set title 'Gamma pair missing mass, DATA ("+runmsg+")'"<<"set xrange [2:3]";
-    Plot<double>()
-    .Hist(Hist(MC,"He3eta",histpath_central_reconstr,"InvMass2GammaAfter-AllBins"),"3He+eta")
-    .Hist(Hist(MC,"He3pi0",histpath_central_reconstr,"InvMass2GammaAfter-AllBins"),"3He+pi0")
-    .Hist(Hist(MC,"He3pi0pi0",histpath_central_reconstr,"InvMass2GammaAfter-AllBins"),"3He+2pi0")
-    .Hist(Hist(MC,"He3pi0pi0pi0",histpath_central_reconstr,"InvMass2GammaAfter-AllBins"),"3He+3pi0")
-    <<"set title 'Gamma pair invariant mass, Monte Carlo'"<<"set key on"<<"set xrange [0.0:0.8]";
-    Plot<double>()
-    .Hist(Hist(DATA,"",histpath_central_reconstr,"InvMass2GammaAfter-AllBins"))
+    .Hist(Hist(DATA,"R",histpath_central_reconstr,"InvMass2GammaBefore-AllBins"))
     <<"set title 'Gamma pair invariant mass, DATA ("+runmsg+")'"<<"set xrange [0.0:0.8]";
 
 
