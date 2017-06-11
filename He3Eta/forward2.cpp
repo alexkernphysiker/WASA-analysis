@@ -42,23 +42,24 @@ int main(){
 		string("MissingMass-Bin-")+to_string(bin_num)
 	    ).XRange(0.520,0.580);
 	    const auto chain=ChainWithStep(0.520,0.001,0.580);
-	    const auto cut=make_pair(0.539,0.556);
+	    const auto cut=make_pair(0.540,0.556);
 	    const hist<double> mc=Hist(MC,"He3eta",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num))/N;
 	    const LinearInterpolation<double> fg=mc.toLine();
 	    const auto&data_count=data.TotalSum().val();
-	    auto BG=[&data_count](const ParamSet&X,const ParamSet&P){
+	    const auto BG=[&data_count](const ParamSet&X,const ParamSet&P){
 		const double res=data_count*Polynom(X[0],P,3,0);
 		return (res>0)?res:0.0;
 	    };
-	    const auto zerorange=data.XRange(cut.first,cut.second).YRange(-1,50);
-	    const auto data_bg=make_shared<FitPoints>(data.XExclude(cut.first,cut.second))<<zerorange;
-	    const auto marker=(zerorange.size()>0)?zerorange.left().X().min():cut.second;
-	    Fit<AbsoluteMutations<DifferentialMutations<Uncertainty>>> FIT(data_bg,BG);
+	    const auto peak_reg= data.XRange(cut.first,cut.second);
+	    const auto addrange= peak_reg.YRange(-1.,peak_reg.TransponateAndSort().right().X().max()/15.);
+	    const auto marker= (addrange.size()>0)?addrange.left().X().min():cut.second;
+	    const auto data_bg= data.XExclude(cut.first,marker);
+	    Fit<AbsoluteMutations<DifferentialMutations<Uncertainty>>> FIT(make_shared<FitPoints>(data_bg),BG);
 	    FIT
 	    .SetAbsoluteMutationCoefficients({1.0,1.0,1.0,1.0})
 	    .SetAbsoluteMutationsProbability(0.2)
 	    .SetUncertaintyCalcDeltas({0.1,0.1,0.1,0.1})
-	    .SetFilter([BG,marker](const ParamSet&P){return BG({marker},P)>0;});
+	    .SetFilter([BG,marker](const ParamSet&P){return BG({marker-0.001},P)>0;});
 	    auto init=make_shared<InitialDistributions>()
 		<<make_shared<DistribGauss>(0,100)
 		<<make_shared<DistribGauss>(0,100)
@@ -87,7 +88,7 @@ int main(){
 	    data_chi_sq << point<value<double>>(Q,FIT.Optimality()/(data.size()-FIT.ParamCount()));
 	    cout<<endl;
 	    Plot<double> exp_plot;
-	    exp_plot.Hist(data).Hist(data_bg->Hist1(0))
+	    exp_plot.Hist(data).Hist(data_bg)
 	    << "set key on"<< "set title '"+Qmsg+", "+runmsg+"'"
 	    << "set xlabel 'Missing mass, GeV'"
 	    << "set ylabel 'counts'"
@@ -113,7 +114,7 @@ int main(){
 	    hist<double> clean=data-bg;
 	    Plot<double> subplot;
 	    subplot.Hist(clean);
-	    subplot.Hist(clean=clean.XRange(cut.first,cut.second)).Object("0 title \"\"")
+	    subplot.Hist(clean=clean.XRange(cut.first,marker)).Object("0 title \"\"")
 	    << "set key on"<< "set title '"+Qmsg+", "+runmsg+"'"
 	    << "set xlabel 'Missing mass, GeV'"
 	    << "set ylabel 'counts'"
