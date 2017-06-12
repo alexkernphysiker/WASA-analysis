@@ -42,7 +42,7 @@ int main(){
 		string("MissingMass-Bin-")+to_string(bin_num)
 	    ).XRange(0.520,0.580);
 	    const auto chain=ChainWithStep(0.520,0.001,0.580);
-	    const auto cut=make_pair(0.540,0.556);
+	    const auto cut=make_pair(0.540,0.557);
 	    const hist<double> mc=Hist(MC,"He3eta",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num))/N;
 	    const LinearInterpolation<double> fg=mc.toLine();
 	    const auto&data_count=data.TotalSum().val();
@@ -51,7 +51,7 @@ int main(){
 		return (res>0)?res:0.0;
 	    };
 	    const auto peak_reg= data.XRange(cut.first,cut.second);
-	    const auto addrange= peak_reg.YRange(-1.,peak_reg.TransponateAndSort().right().X().max()/15.);
+	    const auto addrange= peak_reg.YRange(-1.,peak_reg.TransponateAndSort().right().X().max()/15.0);
 	    const auto marker= (addrange.size()>0)?addrange.left().X().min():cut.second;
 	    const auto data_bg= data.XExclude(cut.first,marker);
 	    Fit<AbsoluteMutations<DifferentialMutations<Uncertainty>>> FIT(make_shared<FitPoints>(data_bg),BG);
