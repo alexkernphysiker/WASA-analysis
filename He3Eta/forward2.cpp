@@ -40,42 +40,39 @@ int main(){
 	    ).str();
 	    const hist<double> data=Hist(DATA,"L",histpath_forward_reconstr,
 		string("MissingMass-Bin-")+to_string(bin_num)
-	    ).XRange(0.520,0.580);
-	    const auto chain=ChainWithStep(0.520,0.0001,0.580);
-	    const auto cut=make_pair(0.539,0.556);
+	    ).XRange(0.53,0.57);
+	    const auto chain=ChainWithStep(0.53,0.0001,0.57);
+	    const auto cut=make_pair(0.540,0.555);
 	    const hist<double> mc=Hist(MC,"He3eta",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num))/N;
 	    const LinearInterpolation<double> fg=mc.toLine();
 	    const auto&data_count=data.TotalSum().val();
 	    const auto BG=[&data_count](const ParamSet&X,const ParamSet&P){
-		const double res=data_count*Polynom(X[0],P,3,0);
+		const double res=data_count*Polynom(X[0],P,2,0);
 		return (res>0)?res:0.0;
 	    };
 	    const auto peak_reg= data.XRange(cut.first,cut.second);
 	    const auto data_bg= data.XExclude(cut.first,cut.second);
 	    Fit<AbsoluteMutations<DifferentialMutations<Uncertainty>>> FIT(make_shared<FitPoints>(data_bg),BG);
 	    FIT
-	    .SetAbsoluteMutationCoefficients({1.0,1.0,1.0,1.0})
+	    .SetAbsoluteMutationCoefficients({1.0,1.0,1.0})
 	    .SetAbsoluteMutationsProbability(0.2)
-	    .SetUncertaintyCalcDeltas({0.1,0.1,0.1,0.1})
+	    .SetUncertaintyCalcDeltas({0.1,0.1,0.1})
 	    .SetFilter([BG,&peak_reg](const ParamSet&P){
-		if(BG({peak_reg.left().X().val()},P)>0){
-		    for(const auto&p:peak_reg)
-		        if(p.Y().max()<BG({p.X().val()},P))return false;
-		    return true;
-		}else return false;
+		bool valid=(BG({peak_reg.left().X().val()},P)>0.0);
+		if(valid)for(const auto&p:peak_reg){
+		    valid&=(p.Y().max()>BG({p.X().val()},P));
+		}
+		return valid;
 	    });
 	    auto init=make_shared<InitialDistributions>()
-		<<make_shared<DistribGauss>(0,100)
-		<<make_shared<DistribGauss>(0,100)
-		<<make_shared<DistribGauss>(0,100)
-		<<make_shared<DistribGauss>(0,100)
+		<<make_shared<DistribGauss>(0,5)
+		<<make_shared<DistribGauss>(0,5)
+		<<make_shared<DistribGauss>(0,5)
 	    ;
-	    FIT.Init(100,init,r_eng);
+	    FIT.Init(300,init,r_eng);
 
 	    cout<<endl;
-	    while(
-		!FIT.AbsoluteOptimalityExitCondition(0.0000001)
-	    ){
+	    while(!FIT.AbsoluteOptimalityExitCondition(0.0000001)){
 		FIT.Iterate(r_eng);
 		cout<<"Fitting: "<<FIT.iteration_count()<<" iterations; "
 		<<FIT.Optimality()<<"<chi^2<"
