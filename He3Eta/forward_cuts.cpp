@@ -46,7 +46,7 @@ int main(){
 		SP2().Distr(Hist2d(HS,R,{"Histograms","He3Forward_Reconstruction"},string("2-ThetaIsAccepted-FTH1-vs-FRH1")).Scale(3,3))<<fpc;
 		THD().Hist(Hist(HS,R,{"Histograms","He3Forward_Debug"},"2-PhiDistribution-AllBins").Scale(30))<<fpc;
 		string cut="set title 'Identified as 3He. "+title+"'";
-		SP2().Distr(Hist2d(HS,R,{"Histograms","He3Forward_Reconstruction"},string("4-GeomCut-FTH1-vs-FRH1")).Scale(3,3))<<cut;
+		SP2().Distr(Hist2d(HS,R,{"Histograms","He3Forward_Reconstruction"},string("4-GeomCut-FTH1-vs-FRH1")).Scale(3,3))<<cut<<"set zrange [1:]";
 		THD().Hist(Hist(HS,R,{"Histograms","He3Forward_Debug"},"4-PhiDistribution-AllBins").Scale(30))<<cut;
 	};
 	MakePlots(MC,"He3eta",500000);
