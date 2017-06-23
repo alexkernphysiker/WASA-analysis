@@ -116,7 +116,7 @@ int main(){
 	    hist<double> clean=data-bg;
 	    Plot<double> subplot;
 	    subplot.Hist(clean);
-	    subplot.Hist(clean=clean.XRange(cut.first-0.002,cut.second+0.002)).Object("0 title \"\"")
+	    subplot.Hist(clean=clean.XRange(cut.first-0.003,cut.second+0.003)).Object("0 title \"\"")
 	    << "set key on"<< "set title '"+Qmsg+", "+runmsg+"'"
 	    << "set xlabel 'Missing mass, GeV'"
 	    << "set ylabel 'counts'"
