@@ -93,6 +93,13 @@ int main(){
     Plot<double>()
     .Hist(Hist(DATA,"L",{"Histograms","elastic"},"theta_sum_32-AllBins"))
     <<"set title 'Data "+runmsg+"'"<<"set key on"<<"set yrange [0:]"<<"set xrange [0:300]"<<"set xlabel "+thth;
+    Plot<double>()
+    .Hist(Hist(MC,"pd",{"Histograms","elastic"},"pair_phi_diff_32"),"pd")
+    .Hist(Hist(MC,"ppn_qf",{"Histograms","elastic"},"pair_phi_diff_32"),"ppn_{sp}")<<"set key on"
+    <<"set title 'Cut2. MC'"<<"set yrange [0:]"<<"set xlabel "+planarity;
+    Plot<double>()
+    .Hist(Hist(DATA,"L",{"Histograms","elastic"},"pair_phi_diff_32"))
+    <<"set title 'Cut2. Data "+runmsg+"'"<<"set yrange [0:]"<<"set xlabel "+planarity;
 
     const hist<double> norm=Hist(MC,"ppn_qf",{"Histograms","elastic"},"0-Reference");
     const hist<double> norm_pd=Hist(MC,"pd",{"Histograms","elastic"},"0-Reference");
