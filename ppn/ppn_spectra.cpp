@@ -19,14 +19,16 @@ int main(){
     const string runmsg=to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs";
     const string th1="'Theta_1, deg'",th2="'Theta_2, deg'",e1="'Edep_1, GeV'",e2="'Edep_2, GeV'",
     thth="'Theta_1+1.6Theta_2, deg'",planarity="'|Phi_1-Phi_2-180^o|, deg'";
+    const hist<double> norm=Hist(MC,"ppn_qf",{"Histograms","elastic"},"0-Reference");
+    const hist<double> norm_pd=Hist(MC,"pd",{"Histograms","elastic"},"0-Reference");
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"ppn");
     Plot<double>()
-    .Hist(Hist(MC,"pd",{"Histograms","elastic"},"pair_phi_diff_0"),"pd")
-    .Hist(Hist(MC,"ppn_qf",{"Histograms","elastic"},"pair_phi_diff_0"),"ppn_{sp}")<<"set key on"
+    .Hist(Hist(MC,"pd",{"Histograms","elastic"},"pair_phi_diff_0")/norm_pd.TotalSum().val(),"pd")
+    .Hist(Hist(MC,"ppn_qf",{"Histograms","elastic"},"pair_phi_diff_0")/norm.TotalSum().val(),"ppn_{sp}")<<"set key on"
     <<"set title 'Planarity. MC'"<<"set yrange [0:]"<<"set xlabel "+planarity;
     Plot<double>()
-    .Hist(Hist(MC,"pd",{"Histograms","elastic"},"pair_phi_diff_1"),"pd")
-    .Hist(Hist(MC,"ppn_qf",{"Histograms","elastic"},"pair_phi_diff_1"),"ppn_{sp}")<<"set key on"
+    .Hist(Hist(MC,"pd",{"Histograms","elastic"},"pair_phi_diff_1")/norm_pd.TotalSum().val(),"pd")
+    .Hist(Hist(MC,"ppn_qf",{"Histograms","elastic"},"pair_phi_diff_1")/norm.TotalSum().val(),"ppn_{sp}")<<"set key on"
     <<"set title 'Planarity. MC. Cut'"<<"set yrange [0:]"<<"set xlabel "+planarity;
     Plot<double>()
     .Hist(Hist(DATA,"L",{"Histograms","elastic"},"pair_phi_diff_0"))
@@ -60,8 +62,8 @@ int main(){
     PlotHist2d<double>(sp2).Distr(Hist2d(DATA,"L",{"Histograms","elastic"},"e_vs_e_22"))
     <<"set zrange [0:]"<<"set title 'Cut1. Data "+runmsg+"'"<<"set xlabel "+e1<<"set ylabel "+e2;
     Plot<double>()
-    .Line(Hist(MC,"pd",{"Histograms","elastic"},"theta_sum_22-AllBins").toLine(),"pd")
-    .Line(Hist(MC,"ppn_qf",{"Histograms","elastic"},"theta_sum_22-AllBins").toLine(),"ppn_{sp}")
+    .Line(Hist(MC,"pd",{"Histograms","elastic"},"theta_sum_22-AllBins").toLine()/norm_pd.TotalSum().val(),"pd")
+    .Line(Hist(MC,"ppn_qf",{"Histograms","elastic"},"theta_sum_22-AllBins").toLine()/norm.TotalSum().val(),"ppn_{sp}")
     <<"set title 'MC'"<<"set key on"<<"set yrange [0:]"<<"set xrange [0:300]"<<"set xlabel "+thth;
     Plot<double>()
     .Hist(Hist(DATA,"L",{"Histograms","elastic"},"theta_sum_22-AllBins"))
@@ -87,22 +89,20 @@ int main(){
     PlotHist2d<double>(sp2).Distr(Hist2d(DATA,"L",{"Histograms","elastic"},"e_vs_e_32"))
     <<"set zrange [0:]"<<"set title 'Cut2. Data "+runmsg+"'"<<"set xlabel "+e1<<"set ylabel "+e2;
     Plot<double>()
-    .Line(Hist(MC,"pd",{"Histograms","elastic"},"theta_sum_32-AllBins").toLine(),"pd")
-    .Line(Hist(MC,"ppn_qf",{"Histograms","elastic"},"theta_sum_32-AllBins").toLine(),"ppn_{sp}")
+    .Line(Hist(MC,"pd",{"Histograms","elastic"},"theta_sum_32-AllBins").toLine()/norm_pd.TotalSum().val(),"pd")
+    .Line(Hist(MC,"ppn_qf",{"Histograms","elastic"},"theta_sum_32-AllBins").toLine()/norm.TotalSum().val(),"ppn_{sp}")
     <<"set title 'MC'"<<"set key on"<<"set yrange [0:]"<<"set xrange [0:300]"<<"set xlabel "+thth;
     Plot<double>()
     .Hist(Hist(DATA,"L",{"Histograms","elastic"},"theta_sum_32-AllBins"))
     <<"set title 'Data "+runmsg+"'"<<"set key on"<<"set yrange [0:]"<<"set xrange [0:300]"<<"set xlabel "+thth;
     Plot<double>()
-    .Hist(Hist(MC,"pd",{"Histograms","elastic"},"pair_phi_diff_32"),"pd")
-    .Hist(Hist(MC,"ppn_qf",{"Histograms","elastic"},"pair_phi_diff_32"),"ppn_{sp}")<<"set key on"
+    .Hist(Hist(MC,"pd",{"Histograms","elastic"},"pair_phi_diff_32")/norm_pd.TotalSum().val(),"pd")
+    .Hist(Hist(MC,"ppn_qf",{"Histograms","elastic"},"pair_phi_diff_32")/norm.TotalSum().val(),"ppn_{sp}")<<"set key on"
     <<"set title 'Cut2. MC'"<<"set yrange [0:]"<<"set xlabel "+planarity;
     Plot<double>()
     .Hist(Hist(DATA,"L",{"Histograms","elastic"},"pair_phi_diff_32"))
     <<"set title 'Cut2. Data "+runmsg+"'"<<"set yrange [0:]"<<"set xlabel "+planarity;
 
-    const hist<double> norm=Hist(MC,"ppn_qf",{"Histograms","elastic"},"0-Reference");
-    const hist<double> norm_pd=Hist(MC,"pd",{"Histograms","elastic"},"0-Reference");
     Plot<double>().Hist(norm,"ppn_{sp}").Hist(norm_pd,"pd")<<"set key on"
     <<"set title 'Simulated events'"<<"set yrange [0:]"<<"set xlabel 'Q, MeV'";
 
