@@ -70,41 +70,6 @@ int main(){
     <<"set title 'Data "+runmsg+"'"<<"set key on"<<"set yrange [0:]"<<"set xrange [0:300]"<<"set xlabel "+thth;
 
 
-    PlotHist2d<>(sp2).Distr(Hist2d(MC,"pd",{"Histograms","elastic"},"t_vs_t_32"))
-    <<"set zrange [0:]"<<"set title 'Cut2. MC pd'"<<"set xlabel "+th1<<"set ylabel "+th2;
-    PlotHist2d<>(sp2).Distr(Hist2d(MC,"ppn_qf",{"Histograms","elastic"},"t_vs_t_32"))
-    <<"set zrange [0:]"<<"set title 'Cut2. MC ppn_{sp}'"<<"set xlabel "+th1<<"set ylabel "+th2;
-    PlotHist2d<>(sp2).Distr(Hist2d(DATA,"L",{"Histograms","elastic"},"t_vs_t_32"))
-    <<"set zrange [0:]"<<"set title 'Cut2. Data "+runmsg+"'"<<"set xlabel "+th1<<"set ylabel "+th2;
-    PlotHist2d<>(sp2).Distr(Hist2d(MC,"pd",{"Histograms","elastic"},"t_vs_e_32"))
-    <<"set zrange [0:]"<<"set title 'Cut2. MC pd'"<<"set xlabel "+th1<<"set ylabel "+e1;
-    PlotHist2d<>(sp2).Distr(Hist2d(MC,"ppn_qf",{"Histograms","elastic"},"t_vs_e_32"))
-    <<"set zrange [0:]"<<"set title 'Cut2. MC ppn_{sp}'"<<"set xlabel "+th1<<"set ylabel "+e1;
-    PlotHist2d<>(sp2).Distr(Hist2d(DATA,"L",{"Histograms","elastic"},"t_vs_e_32"))
-    <<"set zrange [0:]"<<"set title 'Cut2. Data "+runmsg+"'"<<"set xlabel "+th1<<"set ylabel "+e1;
-    PlotHist2d<>(sp2).Distr(Hist2d(MC,"pd",{"Histograms","elastic"},"e_vs_e_32"))
-    <<"set zrange [0:]"<<"set title 'Cut2. MC pd'"<<"set xlabel "+e1<<"set ylabel "+e2;
-    PlotHist2d<>(sp2).Distr(Hist2d(MC,"ppn_qf",{"Histograms","elastic"},"e_vs_e_32"))
-    <<"set zrange [0:]"<<"set title 'Cut2. MC ppn_{sp}'"<<"set xlabel "+e1<<"set ylabel "+e2;
-    PlotHist2d<>(sp2).Distr(Hist2d(DATA,"L",{"Histograms","elastic"},"e_vs_e_32"))
-    <<"set zrange [0:]"<<"set title 'Cut2. Data "+runmsg+"'"<<"set xlabel "+e1<<"set ylabel "+e2;
-    Plot<>()
-    .Line(Hist(MC,"pd",{"Histograms","elastic"},"theta_sum_32-AllBins").toLine()/norm_pd.TotalSum().val(),"pd")
-    .Line(Hist(MC,"ppn_qf",{"Histograms","elastic"},"theta_sum_32-AllBins").toLine()/norm.TotalSum().val(),"ppn_{sp}")
-    <<"set title 'MC'"<<"set key on"<<"set yrange [0:]"<<"set xrange [0:300]"<<"set xlabel "+thth;
-    Plot<>()
-    .Hist(Hist(DATA,"L",{"Histograms","elastic"},"theta_sum_32-AllBins"))
-    <<"set title 'Data "+runmsg+"'"<<"set key on"<<"set yrange [0:]"<<"set xrange [0:300]"<<"set xlabel "+thth;
-    Plot<>()
-    .Hist(Hist(MC,"pd",{"Histograms","elastic"},"pair_phi_diff_32")/norm_pd.TotalSum().val(),"pd")
-    .Hist(Hist(MC,"ppn_qf",{"Histograms","elastic"},"pair_phi_diff_32")/norm.TotalSum().val(),"ppn_{sp}")<<"set key on"
-    <<"set title 'Cut2. MC'"<<"set yrange [0:]"<<"set xlabel "+planarity;
-    Plot<>()
-    .Hist(Hist(DATA,"L",{"Histograms","elastic"},"pair_phi_diff_32"))
-    <<"set title 'Cut2. Data "+runmsg+"'"<<"set yrange [0:]"<<"set xlabel "+planarity;
-
-    Plot<>().Hist(norm,"ppn_{sp}").Hist(norm_pd,"pd")<<"set key on"
-    <<"set title 'Simulated events'"<<"set yrange [0:]"<<"set xlabel 'Q, MeV'";
 
     hist<> acceptance,acceptance_pd;
     for(size_t bin_num=0,bin_count=norm.size();bin_num<bin_count;bin_num++){
@@ -116,13 +81,13 @@ int main(){
 	    <<Q.min()<<"; "<<Q.max()<<"] MeV"
 	).str();
 
-	const hist<> mc_ppn=Hist(MC,"ppn_qf",{"Histograms","elastic"},string("theta_sum_32-Bin-")+to_string(bin_num));
-	const hist<> mc_pd=Hist(MC,"pd",{"Histograms","elastic"},string("theta_sum_32-Bin-")+to_string(bin_num));
+	const hist<> mc_ppn=Hist(MC,"ppn_qf",{"Histograms","elastic"},string("theta_sum_22-Bin-")+to_string(bin_num));
+	const hist<> mc_pd=Hist(MC,"pd",{"Histograms","elastic"},string("theta_sum_22-Bin-")+to_string(bin_num));
 	const hist<> nmc_ppn=mc_ppn/(N*mc_ppn[0].X().uncertainty()*2.);
 	const hist<> nmc_pd=mc_pd/(N_pd*mc_pd[0].X().uncertainty()*2.);
 	acceptance<<point<value<>>(Q,mc_ppn.TotalSum()/N);
 	acceptance_pd<<point<value<>>(Q,mc_pd.TotalSum()/N_pd);
-	const hist<> data=Hist(DATA,"L",{"Histograms","elastic"},string("theta_sum_32-Bin-")+to_string(bin_num));
+	const hist<> data=Hist(DATA,"L",{"Histograms","elastic"},string("theta_sum_22-Bin-")+to_string(bin_num));
 
 	Plot<>().Hist(nmc_ppn,"ppn_{sp}").Hist(nmc_pd,"pd")
 	<<"set key on"<<"set title 'MC "+Qmsg+"'"<<"set yrange [0:0.008]"
