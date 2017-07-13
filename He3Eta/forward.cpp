@@ -47,7 +47,7 @@ int main(){
 	    ).str();
 	    auto transform=[](hist<double>&h){h=h.XRange(0.42,0.58);};
 
-	    hist<double> data=Hist(DATA,"L",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
+	    hist<double> data=Hist(DATA,"F",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
 	    transform(data);
 	    Plot<double>().Hist(data)
 	    << "set key on"<< "set title '"+Qmsg+", "+runmsg+"'"

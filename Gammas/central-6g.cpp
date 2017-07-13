@@ -29,14 +29,14 @@ int main(){
     .Hist(Hist(MC,"He3pi0pi0pi0",histpath_central_reconstr,"GammaEnergy"),"3He+3pi0")
     <<"set title 'Gamma quanta energy, Monte Carlo'"<<"set key on";
     Plot<double>()
-    .Hist(Hist(DATA,"R",histpath_central_reconstr,"GammaEnergy"))
+    .Hist(Hist(DATA,"C",histpath_central_reconstr,"GammaEnergy"))
     <<"set title 'Gamma quanta energy, DATA ("+runmsg+")'";
     Plot<double>()
     .Line(Hist(MC,"He3eta",histpath_central_reconstr,"GammaCount").toLine(),"3He+eta")
     .Line(Hist(MC,"He3pi0pi0pi0",histpath_central_reconstr,"GammaCount").toLine(),"3He+3pi0")
     <<"set title 'Gamma quanta count, Monte Carlo'"<<"set key on";
     Plot<double>()
-    .Hist(Hist(DATA,"R",histpath_central_reconstr,"GammaCount"))
+    .Hist(Hist(DATA,"C",histpath_central_reconstr,"GammaCount"))
     <<"set title 'Gamma quanta count, DATA ("+runmsg+")'";
 
 
@@ -45,14 +45,14 @@ int main(){
     .Hist(Hist(MC,"He3pi0pi0pi0",histpath_central_reconstr,"MMass3PairsBefore-AllBins"),"3He+3pi0")
     <<"set title '6 Gamma missing mass, Monte Carlo'"<<"set key on"<<"set xrange [1:3]";
     Plot<double>()
-    .Hist(Hist(DATA,"R",histpath_central_reconstr,"MMass3PairsBefore-AllBins"))
+    .Hist(Hist(DATA,"C",histpath_central_reconstr,"MMass3PairsBefore-AllBins"))
     <<"set title '6 Gamma missing mass, DATA ("+runmsg+")'"<<"set xrange [1:3]";
     Plot<double>()
     .Hist(Hist(MC,"He3eta",histpath_central_reconstr,"InvMass3PairsBefore-AllBins"),"3He+eta")
     .Hist(Hist(MC,"He3pi0pi0pi0",histpath_central_reconstr,"InvMass3PairsBefore-AllBins"),"3He+3pi0")
     <<"set title '6 Gamma invariant mass, Monte Carlo'"<<"set key on"<<"set xrange [0.3:0.7]";
     Plot<double>()
-    .Hist(Hist(DATA,"R",histpath_central_reconstr,"InvMass3PairsBefore-AllBins"))
+    .Hist(Hist(DATA,"C",histpath_central_reconstr,"InvMass3PairsBefore-AllBins"))
     <<"set title '6 Gamma invariant mass, DATA ("+runmsg+")'"<<"set xrange [0.3:0.7]";
 
     vector<hist<double>> norm;
