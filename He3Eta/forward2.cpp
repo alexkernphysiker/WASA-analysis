@@ -24,7 +24,7 @@ using namespace GnuplotWrap;
 int main(){
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_luminosity");
     vector<string> histpath_forward_reconstr={"Histograms","He3Forward_Reconstruction"};
-    const auto runs=PresentRuns("L");
+    const auto runs=PresentRuns("F");
     const string runmsg=to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs";
     hist<double> norm=Hist(MC,"He3eta",histpath_forward_reconstr,"0-Reference");
     hist<double> luminosity,data_chi_sq;

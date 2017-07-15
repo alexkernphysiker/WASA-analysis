@@ -21,7 +21,7 @@ int main(){
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_central_6gamma");
     vector<string> histpath_central_reconstr={"Histograms","CentralGammas"};
     vector<string> reaction={"He3eta","He3pi0pi0pi0"};
-    const auto runs=PresentRuns("R");
+    const auto runs=PresentRuns("C");
     const string runmsg=to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs";
 
     Plot<double>()

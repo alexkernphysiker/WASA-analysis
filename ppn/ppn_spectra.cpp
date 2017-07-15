@@ -15,7 +15,7 @@ using namespace ROOT_data;
 using namespace MathTemplates;
 using namespace GnuplotWrap;
 int main(){
-    const auto runs=PresentRuns("L");
+    const auto runs=PresentRuns("E");
     const string runmsg=to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs";
     const string th1="'Theta_1, deg'",th2="'Theta_2, deg'",e1="'Edep_1, GeV'",e2="'Edep_2, GeV'",
     thth="'Theta_1+1.6Theta_2, deg'",planarity="'|Phi_1-Phi_2-180^o|, deg'";
