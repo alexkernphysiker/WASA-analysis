@@ -90,7 +90,7 @@ int main(){
 	const hist<> data=Hist(DATA,"E",{"Histograms","elastic"},string("theta_sum_22-Bin-")+to_string(bin_num));
 
 	Plot<>().Hist(nmc_ppn,"ppn_{sp}").Hist(nmc_pd,"pd")
-	<<"set key on"<<"set title 'MC "+Qmsg+"'"<<"set yrange [0:0.008]"
+	<<"set key on"<<"set title 'MC "+Qmsg+"'"<<"set yrange [0:0.015]"
 	<<"set xlabel "+thth<<"set ylabel 'Differential acceptance, deg^{-1}'";
 	Plot<>()
 	.Hist(data,"data")
