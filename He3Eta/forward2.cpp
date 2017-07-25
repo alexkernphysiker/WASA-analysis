@@ -148,6 +148,6 @@ int main(){
     << "set title 'Integrated luminosity estimation, "+runmsg+"'"
     << "set key on" << "set xlabel 'Q, MeV'" 
     << "set ylabel 'Integrated luminosity, nb^{-1}'" 
-    << "set xrange [0:45]"<< "set yrange [0:]";
+    << "set xrange [0:30]"<< "set yrange [0:]";
 }
 

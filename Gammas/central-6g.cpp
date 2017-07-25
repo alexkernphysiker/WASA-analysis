@@ -50,10 +50,10 @@ int main(){
     Plot<double>()
     .Hist(Hist(MC,"He3eta",histpath_central_reconstr,"InvMass3PairsBefore-AllBins"),"3He+eta")
     .Hist(Hist(MC,"He3pi0pi0pi0",histpath_central_reconstr,"InvMass3PairsBefore-AllBins"),"3He+3pi0")
-    <<"set title '6 Gamma invariant mass, Monte Carlo'"<<"set key on"<<"set xrange [0.3:0.7]";
+    <<"set title '6 Gamma invariant mass, Monte Carlo'"<<"set key on"<<"set xrange [0.3:0.9]";
     Plot<double>()
     .Hist(Hist(DATA,"C",histpath_central_reconstr,"InvMass3PairsBefore-AllBins"))
-    <<"set title '6 Gamma invariant mass, DATA ("+runmsg+")'"<<"set xrange [0.3:0.7]";
+    <<"set title '6 Gamma invariant mass, DATA ("+runmsg+")'"<<"set xrange [0.3:0.9]";
 
     vector<hist<double>> norm;
     {
