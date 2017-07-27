@@ -32,11 +32,11 @@ int main(){
     .Hist(Hist(DATA,"C",histpath_central_reconstr,"GammaEnergy"))
     <<"set title 'Gamma quanta energy, DATA ("+runmsg+")'";
     Plot<double>()
-    .Line(Hist(MC,"He3eta",histpath_central_reconstr,"GammaCount").toLine(),"3He+eta")
-    .Line(Hist(MC,"He3pi0pi0pi0",histpath_central_reconstr,"GammaCount").toLine(),"3He+3pi0")
+    .Line(Hist(MC,"He3eta",histpath_central_reconstr,"GammaCount6").toLine(),"3He+eta")
+    .Line(Hist(MC,"He3pi0pi0pi0",histpath_central_reconstr,"GammaCount6").toLine(),"3He+3pi0")
     <<"set title 'Gamma quanta count, Monte Carlo'"<<"set key on";
     Plot<double>()
-    .Hist(Hist(DATA,"C",histpath_central_reconstr,"GammaCount"))
+    .Hist(Hist(DATA,"C",histpath_central_reconstr,"GammaCount6"))
     <<"set title 'Gamma quanta count, DATA ("+runmsg+")'";
 
 
@@ -62,12 +62,12 @@ int main(){
 	ref<<"set key on";
 	for(const string& r:reaction){
 	    const auto N=Hist(MC,r,histpath_central_reconstr,"0-Reference");
-	    mc_ncd.Hist(Hist(MC,r,histpath_central_reconstr,"GammaCount")/N.TotalSum(),r);
+	    mc_ncd.Hist(Hist(MC,r,histpath_central_reconstr,"GammaCount6")/N.TotalSum(),r);
 	    ref.Hist(N,r);
 	    norm.push_back(N);
 	}
 	mc_ncd.Hist(
-	    Hist(DATA,"",histpath_central_reconstr,"GammaCount")
+	    Hist(DATA,"",histpath_central_reconstr,"GammaCount6")
 	    /
 	    Hist(DATA,"",histpath_central_reconstr,"0-Reference").TotalSum()
 	,"DATA");
