@@ -25,11 +25,11 @@ int main(){
     const string runmsg=to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs";
 
     Plot<double>()
-    .Hist(Hist(MC,"He3eta",histpath_central_reconstr,"GammaEnergy"),"3He+eta")
-    .Hist(Hist(MC,"He3pi0pi0pi0",histpath_central_reconstr,"GammaEnergy"),"3He+3pi0")
+    .Hist(Hist(MC,"He3eta",histpath_central_reconstr,"GammaEnergy6"),"3He+eta")
+    .Hist(Hist(MC,"He3pi0pi0pi0",histpath_central_reconstr,"GammaEnergy6"),"3He+3pi0")
     <<"set title 'Gamma quanta energy, Monte Carlo'"<<"set key on";
     Plot<double>()
-    .Hist(Hist(DATA,"C",histpath_central_reconstr,"GammaEnergy"))
+    .Hist(Hist(DATA,"C",histpath_central_reconstr,"GammaEnergy6"))
     <<"set title 'Gamma quanta energy, DATA ("+runmsg+")'";
     Plot<double>()
     .Line(Hist(MC,"He3eta",histpath_central_reconstr,"GammaCount6").toLine(),"3He+eta")
@@ -38,6 +38,14 @@ int main(){
     Plot<double>()
     .Hist(Hist(DATA,"C",histpath_central_reconstr,"GammaCount6"))
     <<"set title 'Gamma quanta count, DATA ("+runmsg+")'";
+
+    Plot<double>()
+    .Line(Hist(MC,"He3eta",histpath_central_reconstr,"Diff3PairsBefore-AllBins").toLine(),"3He+eta")
+    .Line(Hist(MC,"He3pi0pi0pi0",histpath_central_reconstr,"Diff3PairsBefore-AllBins").toLine(),"3He+3pi0")
+    <<"set title 'Difference, Monte Carlo'"<<"set key on";
+    Plot<double>()
+    .Hist(Hist(DATA,"C",histpath_central_reconstr,"Diff3PairsBefore-AllBins"))
+    <<"set title 'Difference, DATA ("+runmsg+")'";
 
 
     Plot<double>()
