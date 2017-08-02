@@ -107,7 +107,7 @@ int main(){
     RANDOM r_eng;
     hist<> acceptance,acceptance_pd,chi_sq,chi_sq_mc,luminosity;
     vector<hist<>> fit_params_mc{hist<>(),hist<>(),hist<>()};
-    vector<hist<>> fit_params{hist<>(),hist<>(),hist<>(),hist<>(),hist<>(),hist<>()};
+    vector<hist<>> fit_params{hist<>(),hist<>(),hist<>(),hist<>(),hist<>(),hist<>(),hist<>()};
     const auto diff_cs=ReadCrossSection();
     PlotHist2d<>(sp2).Surface(diff_cs.Clone().FullCycleVar([](double&z){z=log10(z);}));
     const auto p_cs=IntegrateCrossSection(diff_cs);
@@ -134,7 +134,7 @@ int main(){
 	acceptance<<point<value<>>(Q,mc_ppn.TotalSum()/N);
 	acceptance_pd<<point<value<>>(Q,mc_pd.TotalSum()/N_pd);
 	const hist<> data=Hist(DATA,"E",{"Histograms","elastic"},string("theta_sum_22-Bin-")+to_string(bin_num)).Scale(5).XRange(50,250);
-	
+	cout<<Q<<endl;
 	typedef Mul<Par<0>,Func3<Gaussian,Arg<0>,Par<1>,Par<2>>> Foreground;
 	FitFunction<DifferentialMutations<Uncertainty>,Foreground> 
 	FitMC(make_shared<FitPoints>(nmc_ppn));
@@ -142,7 +142,7 @@ int main(){
 	    return (P[0]>0)&&(P[2]>0);
 	});
 	FitMC.Init(100,make_shared<InitialDistributions>()
-	    <<make_shared<DistribUniform>(0,50)
+	    <<make_shared<DistribUniform>(0.8,1.2)
 	    <<make_shared<DistribUniform>(100,120)
 	    <<make_shared<DistribUniform>(10,20)
 	    ,r_eng
@@ -164,12 +164,13 @@ int main(){
 	.Line(SortedPoints<>([&FitMC](double x){return FitMC({x});},ChainWithStep(50.,1.,250.)),"fit")
 	<<"set key on"<<"set title 'MC "+Qmsg+"'"<<"set yrange [0:]"
 	<<"set xlabel "+thth<<"set ylabel 'counts normalized'";
-	typedef Mul<Add<Par<3>,Mul<Par<4>,Arg<0>>>,Func3<Gaussian,Arg<0>,Par<5>,Par<6>>> BackGround;
+	typedef Mul<Add<Par<3>,Mul<Par<4>,Arg<0>>>,Func3<FermiFunc,Arg<0>,Par<5>,Par<6>>> BackGround;
 	const auto&data_count=data.TotalSum().val();
 	FitFunction<DifferentialMutations<Uncertainty>,Add<Foreground,BackGround>> 
 	FitData(make_shared<FitPoints>(data));
 	FitData.SetFilter([](const ParamSet&P){
-	    return (P[0]>0)&&(P[2]>0)&&(P[3]<90)&&(P[4]<0)&&(P[6]<0);
+	    return (P[0]>0)&&(P[1]>100)&&(P[1]<120)&&(P[2]>0)
+	    &&(P[3]>0)&&(P[4]<0)&&(P[5]>50)&&(P[5]<80)&&(P[6]<0)&&(P[6]>-10);
 	});
 	FitData.Init(200,make_shared<InitialDistributions>()
 	    <<make_shared<DistribUniform>(0,data_count)
