@@ -106,8 +106,8 @@ int main(){
 
     RANDOM r_eng;
     hist<> acceptance,acceptance_pd,chi_sq,chi_sq_mc,luminosity;
-    vector<hist<>> fit_params_mc{hist<>(),hist<>(),hist<>()};
-    vector<hist<>> fit_params{hist<>(),hist<>(),hist<>(),hist<>(),hist<>(),hist<>(),hist<>()};
+    vector<hist<>> fit_params_mc;
+    vector<hist<>> fit_params;
     const auto diff_cs=ReadCrossSection();
     PlotHist2d<>(sp2).Surface(diff_cs.Clone().FullCycleVar([](double&z){z=log10(z);}));
     const auto p_cs=IntegrateCrossSection(diff_cs);
@@ -127,14 +127,14 @@ int main(){
 	    <<Q.min()<<"; "<<Q.max()<<"] MeV"
 	).str();
 
-	const hist<> mc_ppn=Hist(MC,"ppn_qf",{"Histograms","elastic"},string("theta_sum_22-Bin-")+to_string(bin_num)).Scale(5).XRange(50,250);
-	const hist<> mc_pd=Hist(MC,"pd",{"Histograms","elastic"},string("theta_sum_22-Bin-")+to_string(bin_num)).Scale(5).XRange(50,250);
+	const hist<> mc_ppn=Hist(MC,"ppn_qf",{"Histograms","elastic"},string("theta_sum_22-Bin-")+to_string(bin_num)).Scale(3).XRange(50,250);
+	const hist<> mc_pd=Hist(MC,"pd",{"Histograms","elastic"},string("theta_sum_22-Bin-")+to_string(bin_num)).Scale(3).XRange(50,250);
 	const hist<> nmc_ppn=mc_ppn/N;
 	const hist<> nmc_pd=mc_pd/N_pd;
-	acceptance<<point<value<>>(Q,mc_ppn.TotalSum()/N);
-	acceptance_pd<<point<value<>>(Q,mc_pd.TotalSum()/N_pd);
-	const hist<> data=Hist(DATA,"E",{"Histograms","elastic"},string("theta_sum_22-Bin-")+to_string(bin_num)).Scale(5).XRange(50,250);
-	cout<<Q<<endl;
+	acceptance<<point<value<>>(Q,nmc_ppn.TotalSum());
+	acceptance_pd<<point<value<>>(Q,nmc_pd.TotalSum());
+	const hist<> data=Hist(DATA,"E",{"Histograms","elastic"},string("theta_sum_22-Bin-")+to_string(bin_num)).Scale(3).XRange(50,250);
+	cout<<endl<<Qmsg<<endl;
 	typedef Mul<Par<0>,Func3<Gaussian,Arg<0>,Par<1>,Par<2>>> Foreground;
 	FitFunction<DifferentialMutations<Uncertainty>,Foreground> 
 	FitMC(make_shared<FitPoints>(nmc_ppn));
@@ -147,7 +147,7 @@ int main(){
 	    <<make_shared<DistribUniform>(10,20)
 	    ,r_eng
 	);
-	FitMC.SetUncertaintyCalcDeltas({0.01,0.01,0.01});
+	FitMC.SetUncertaintyCalcDeltas(parEq(Foreground::ParamCount,0.05));
 	while(!FitMC.AbsoluteOptimalityExitCondition(0.000001)){
 	    FitMC.Iterate(r_eng);
 	    cout<<"MC: "<<FitMC.iteration_count()<<" iterations; "
@@ -156,7 +156,8 @@ int main(){
 	    <<"          \r";
 	}
 	const auto&P0=FitMC.ParametersWithUncertainties();
-	for(size_t i=0;i<fit_params_mc.size();i++){
+	for(size_t i=0;i<Foreground::ParamCount;i++){
+	    if(fit_params_mc.size()==i)fit_params_mc.push_back(hist<>());
 	    fit_params_mc[i]<<point<value<>>(Q,P0[i]);
 	}
 	cout<<endl;
@@ -164,25 +165,29 @@ int main(){
 	.Line(SortedPoints<>([&FitMC](double x){return FitMC({x});},ChainWithStep(50.,1.,250.)),"fit")
 	<<"set key on"<<"set title 'MC "+Qmsg+"'"<<"set yrange [0:]"
 	<<"set xlabel "+thth<<"set ylabel 'counts normalized'";
-	typedef Mul<Add<Par<3>,Mul<Par<4>,Arg<0>>>,Func3<FermiFunc,Arg<0>,Par<5>,Par<6>>> BackGround;
+	static const size_t fgp=Foreground::ParamCount;
+	typedef Mul<
+	    Func3<FermiFunc,Arg<0>,Par<fgp+0>,Par<fgp+1>>,
+	    PolynomFunc<Arg<0>,fgp+2,1>
+	>BackGround;
 	const auto&data_count=data.TotalSum().val();
 	FitFunction<DifferentialMutations<Uncertainty>,Add<Foreground,BackGround>> 
 	FitData(make_shared<FitPoints>(data));
 	FitData.SetFilter([](const ParamSet&P){
 	    return (P[0]>0)&&(P[1]>100)&&(P[1]<120)&&(P[2]>0)
-	    &&(P[3]>0)&&(P[4]<0)&&(P[5]>50)&&(P[5]<80)&&(P[6]<0)&&(P[6]>-10);
+	    &&(P[fgp+0]>50)&&(P[fgp+0]<80)&&(P[fgp+1]<0);
 	});
 	FitData.Init(200,make_shared<InitialDistributions>()
 	    <<make_shared<DistribUniform>(0,data_count)
 	    <<make_shared<DistribUniform>(100,120)
 	    <<make_shared<DistribUniform>(10,20)
-	    <<make_shared<DistribUniform>(0,data_count)
-	    <<make_shared<DistribUniform>(-5,0)
 	    <<make_shared<DistribUniform>(60,70)
 	    <<make_shared<DistribUniform>(-5,0)
+	    <<make_shared<DistribUniform>(0,0.01*data_count)
+	    <<make_shared<DistribUniform>(-100,0)
 	    ,r_eng
 	);
-	FitData.SetUncertaintyCalcDeltas({0.01,0.01,0.01,0.01,0.01,0.01,0.01});
+	FitData.SetUncertaintyCalcDeltas(parEq(Foreground::ParamCount,0.05));
 	while(!FitData.AbsoluteOptimalityExitCondition(0.000001)){
 	    FitData.Iterate(r_eng);
 	    cout<<"DATA: "<<FitData.iteration_count()<<" iterations; "
@@ -192,7 +197,8 @@ int main(){
 	}
 	const auto&P1=FitData.ParametersWithUncertainties();
 	const auto&p1=FitData.Parameters();
-	for(size_t i=0;i<fit_params.size();i++){
+	for(size_t i=0;i<BackGround::ParamCount;i++){
+	    if(fit_params.size()==i)fit_params.push_back(hist<>());
 	    fit_params[i]<<point<value<>>(Q,P1[i]);
 	}
 	Plot<>().Hist(data,"DATA")
@@ -203,7 +209,6 @@ int main(){
 	
 	chi_sq_mc<<point<value<>>(Q,FitMC.Optimality()/(nmc_ppn.size()-FitMC.ParamCount()));
 	chi_sq<<point<value<>>(Q,FitData.Optimality()/(data.size()-FitData.ParamCount()));
-
 	luminosity << point<value<>>(Q,
 	    (P1[0]/P0[0]/SIGMA[bin_num].Y())*double(trigger_elastic.scaling)
 	);

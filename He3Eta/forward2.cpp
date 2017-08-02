@@ -71,7 +71,6 @@ int main(){
 		<<make_shared<DistribGauss>(0,5)
 	    ;
 	    FIT.Init(300,init,r_eng);
-
 	    cout<<endl;
 	    while(!FIT.AbsoluteOptimalityExitCondition(0.0000001)){
 		FIT.Iterate(r_eng);
@@ -98,7 +97,6 @@ int main(){
 	    const SortedPoints<double>
 		background([&FIT,BG](double x)->double{return BG({x},FIT.Parameters());},chain);
 	    exp_plot.Line(background,"background");
-
 	    hist<double> bg;
 	    for(const auto&po:data){
 		const double&x=po.X().val();
@@ -124,7 +122,7 @@ int main(){
 
 	    luminosity << point<value<double>>(Q,
 		((clean.TotalSum()/mc.TotalSum())/he3eta_sigma()(Q))
-		*double(trigger_he3_forward.scaling)
+		* double(trigger_he3_forward.scaling)
 	    );
 	}
     for(size_t i=0;i<parhists.size();i++)
