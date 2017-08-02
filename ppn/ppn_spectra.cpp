@@ -12,6 +12,7 @@
 #include <Genetic/initialconditions.h>
 #include <Genetic/filter.h>
 #include <Genetic/parabolic.h>
+#include <Genetic/fit.h>
 #include <Experiment/experiment_conv.h>
 #include <Experiment/str_get.h>
 #include <Experiment/gethist.h>
@@ -104,8 +105,9 @@ int main(){
 
 
     RANDOM r_eng;
-    hist<> acceptance,acceptance_pd,chi_sq,luminosity,luminosity2;
-    vector<hist<>> fit_params{hist<>(),hist<>(),hist<>(),hist<>()};
+    hist<> acceptance,acceptance_pd,chi_sq,chi_sq_mc,luminosity;
+    vector<hist<>> fit_params_mc{hist<>(),hist<>(),hist<>()};
+    vector<hist<>> fit_params{hist<>(),hist<>(),hist<>(),hist<>(),hist<>(),hist<>()};
     const auto diff_cs=ReadCrossSection();
     PlotHist2d<>(sp2).Surface(diff_cs.Clone().FullCycleVar([](double&z){z=log10(z);}));
     const auto p_cs=IntegrateCrossSection(diff_cs);
@@ -125,83 +127,104 @@ int main(){
 	    <<Q.min()<<"; "<<Q.max()<<"] MeV"
 	).str();
 
-	const hist<> mc_ppn=Hist(MC,"ppn_qf",{"Histograms","elastic"},string("theta_sum_22-Bin-")+to_string(bin_num)).Scale(4).XRange(80,225);
-	const hist<> mc_pd=Hist(MC,"pd",{"Histograms","elastic"},string("theta_sum_22-Bin-")+to_string(bin_num)).Scale(4).XRange(80,225);
+	const hist<> mc_ppn=Hist(MC,"ppn_qf",{"Histograms","elastic"},string("theta_sum_22-Bin-")+to_string(bin_num)).Scale(5).XRange(50,250);
+	const hist<> mc_pd=Hist(MC,"pd",{"Histograms","elastic"},string("theta_sum_22-Bin-")+to_string(bin_num)).Scale(5).XRange(50,250);
 	const hist<> nmc_ppn=mc_ppn/N;
 	const hist<> nmc_pd=mc_pd/N_pd;
 	acceptance<<point<value<>>(Q,mc_ppn.TotalSum()/N);
 	acceptance_pd<<point<value<>>(Q,mc_pd.TotalSum()/N_pd);
-	const hist<> data=Hist(DATA,"E",{"Histograms","elastic"},string("theta_sum_22-Bin-")+to_string(bin_num)).Scale(4).XRange(80,225);
-	Plot<>().Hist(nmc_ppn/(mc_ppn[0].X().uncertainty()*2.),"ppn_{sp}")
-	.Hist(nmc_pd/(mc_pd[0].X().uncertainty()*2.),"pd")
-	<<"set key on"<<"set title 'MC "+Qmsg+"'"<<"set yrange [0:0.015]"
-	<<"set xlabel "+thth<<"set ylabel 'Differential acceptance, deg^{-1}'";
+	const hist<> data=Hist(DATA,"E",{"Histograms","elastic"},string("theta_sum_22-Bin-")+to_string(bin_num)).Scale(5).XRange(50,250);
 	
-	SearchMin<DifferentialMutations<Uncertainty>>
-	fit([&nmc_pd,&nmc_ppn,&data](const ParamSet&P){
-	    double res=0;
-	    for(size_t i=1,n=data.size();i<n;i++){
-		const value<double> exp_p=data[i].Y(),
-		the_p=nmc_ppn[i].Y()*P[0]+nmc_pd[i].Y()*P[1]+P[2]+data[i].X().val()*P[3];
-		res+=exp_p.NumCompare(the_p);
-	    }
-	    return res;
+	typedef Mul<Par<0>,Func3<Gaussian,Arg<0>,Par<1>,Par<2>>> Foreground;
+	FitFunction<DifferentialMutations<Uncertainty>,Foreground> 
+	FitMC(make_shared<FitPoints>(nmc_ppn));
+	FitMC.SetFilter([](const ParamSet&P){
+	    return (P[0]>0)&&(P[2]>0);
 	});
-	fit.SetMutationCoefficient(0.8);
-	fit.SetFilter([](const ParamSet&P)->bool{return (P[0]>0)&&(P[1]>0);});
-	const auto&data_count=data.TotalSum().val();
-	fit.Init(100,
-	    make_shared<InitialDistributions>()
-		<<make_shared<DistribUniform>(0.0,2.0*data_count)
-		<<make_shared<DistribUniform>(0.0,2.0*data_count)
-		<<make_shared<DistribGauss>(0.0,0.02*data_count)
-		<<make_shared<DistribGauss>(0.0,0.02*data_count)
+	FitMC.Init(100,make_shared<InitialDistributions>()
+	    <<make_shared<DistribUniform>(0,50)
+	    <<make_shared<DistribUniform>(100,120)
+	    <<make_shared<DistribUniform>(10,20)
 	    ,r_eng
 	);
-	while(!fit.AbsoluteOptimalityExitCondition(0.000000000001)){
-	    fit.Iterate(r_eng);
-	    cout<<fit.iteration_count()<<" iterations; "
-	    <<fit.Optimality()<<"<chi^2<"
-	    <<fit.Optimality(fit.PopulationSize()-1)
+	FitMC.SetUncertaintyCalcDeltas({0.01,0.01,0.01});
+	while(!FitMC.AbsoluteOptimalityExitCondition(0.000001)){
+	    FitMC.Iterate(r_eng);
+	    cout<<"MC: "<<FitMC.iteration_count()<<" iterations; "
+	    <<FitMC.Optimality()<<"<chi^2<"
+	    <<FitMC.Optimality(FitMC.PopulationSize()-1)
 	    <<"          \r";
 	}
-	fit.SetUncertaintyCalcDeltas({0.1,0.1,0.1,0.1});
-	const auto&P=fit.ParametersWithUncertainties();
-	for(size_t i=0;i<fit_params.size();i++){
-	    fit_params[i]<< point<value<>>(Q,P[i]);
+	const auto&P0=FitMC.ParametersWithUncertainties();
+	for(size_t i=0;i<fit_params_mc.size();i++){
+	    fit_params_mc[i]<<point<value<>>(Q,P0[i]);
 	}
-	chi_sq << point<value<>>(Q,fit.Optimality()/(data.size()-fit.ParamCount()));
-	const hist<> 
-	PPN=nmc_ppn*P[0],PD=nmc_pd*P[1],
-	BG=data.Clone().Transform([&P](const value<>&x,const value<>&){return P[2]+P[3]*x.val();});
-	Plot<>().Hist(data,"data").Line(hist<>(PPN+PD+BG).toLine(),"ppn+pd+bg")
-	.Line(BG.toLine(),"bg").Line(hist<>(PPN+BG).toLine(),"ppn+bg")
-	<<"set key on"<<"set title 'Data "+Qmsg+" "+runmsg+"'"<<"set yrange [0:]"
-	<<"set xlabel "+thth<<"set ylabel 'Count'";
-	luminosity << point<value<>>(Q,(P[0]/SIGMA[bin_num].Y())*double(trigger_elastic.scaling));
-	const hist<> FG=data-BG-PD;
-	Plot<>().Hist(FG)
-	<<"set key on"<<"set title 'Foreground estimation "+Qmsg+" "+runmsg+"'"<<"set yrange [0:]"
-	<<"set xlabel "+thth<<"set ylabel 'Count'";
-	luminosity2 << point<value<>>(Q,(FG.TotalSum()/nmc_ppn.TotalSum()/SIGMA[bin_num].Y()) * trigger_elastic.scaling);
+	cout<<endl;
+	Plot<>().Hist(nmc_ppn,"MC")
+	.Line(SortedPoints<>([&FitMC](double x){return FitMC({x});},ChainWithStep(50.,1.,250.)),"fit")
+	<<"set key on"<<"set title 'MC "+Qmsg+"'"<<"set yrange [0:]"
+	<<"set xlabel "+thth<<"set ylabel 'counts normalized'";
+	typedef Mul<Add<Par<3>,Mul<Par<4>,Arg<0>>>,Func3<Gaussian,Arg<0>,Par<5>,Par<6>>> BackGround;
+	const auto&data_count=data.TotalSum().val();
+	FitFunction<DifferentialMutations<Uncertainty>,Add<Foreground,BackGround>> 
+	FitData(make_shared<FitPoints>(data));
+	FitData.SetFilter([](const ParamSet&P){
+	    return (P[0]>0)&&(P[2]>0)&&(P[3]<90)&&(P[4]<0)&&(P[6]<0);
+	});
+	FitData.Init(200,make_shared<InitialDistributions>()
+	    <<make_shared<DistribUniform>(0,data_count)
+	    <<make_shared<DistribUniform>(100,120)
+	    <<make_shared<DistribUniform>(10,20)
+	    <<make_shared<DistribUniform>(0,data_count)
+	    <<make_shared<DistribUniform>(-5,0)
+	    <<make_shared<DistribUniform>(60,70)
+	    <<make_shared<DistribUniform>(-5,0)
+	    ,r_eng
+	);
+	FitData.SetUncertaintyCalcDeltas({0.01,0.01,0.01,0.01,0.01,0.01,0.01});
+	while(!FitData.AbsoluteOptimalityExitCondition(0.000001)){
+	    FitData.Iterate(r_eng);
+	    cout<<"DATA: "<<FitData.iteration_count()<<" iterations; "
+	    <<FitData.Optimality()<<"<chi^2<"
+	    <<FitData.Optimality(FitData.PopulationSize()-1)
+	    <<"          \r";
+	}
+	const auto&P1=FitData.ParametersWithUncertainties();
+	const auto&p1=FitData.Parameters();
+	for(size_t i=0;i<fit_params.size();i++){
+	    fit_params[i]<<point<value<>>(Q,P1[i]);
+	}
+	Plot<>().Hist(data,"DATA")
+	.Line(SortedPoints<>([&FitData](double x){return FitData({x});},ChainWithStep(50.,1.,250.)),"fit")
+	.Line(SortedPoints<>([&p1](double x){return BackGround()({x},p1);},ChainWithStep(50.,1.,250.)),"bg")
+	<<"set key on"<<"set title 'Data "+Qmsg+"'"<<"set yrange [0:]"
+	<<"set xlabel "+thth<<"set ylabel 'counts'";
+	
+	chi_sq_mc<<point<value<>>(Q,FitMC.Optimality()/(nmc_ppn.size()-FitMC.ParamCount()));
+	chi_sq<<point<value<>>(Q,FitData.Optimality()/(data.size()-FitData.ParamCount()));
+
+	luminosity << point<value<>>(Q,
+	    (P1[0]/P0[0]/SIGMA[bin_num].Y())*double(trigger_elastic.scaling)
+	);
     }
     Plot<>().Hist(acceptance,"ppn_{sp}").Hist(acceptance_pd,"pd")<<"set key on"
     <<"set title 'Acceptance'"<<"set yrange [0:]"<<"set xlabel 'Q, MeV'"<<"set ylabel 'Acceptance, n.d.'";
-    for(size_t i=0;i<fit_params.size();i++)
+    for(size_t i=0;i<fit_params_mc.size();i++){
+	Plot<double>().Hist(fit_params_mc[i])
+	<< "set xlabel 'Q, MeV'" 
+	<< "set ylabel 'mc parameter"+to_string(i)+"'";
+    }
+    for(size_t i=0;i<fit_params.size();i++){
 	Plot<double>().Hist(fit_params[i])
 	<< "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'parameter"+to_string(i)+"'";
-    Plot<double>().Hist(chi_sq)
-    << "set xlabel 'Q, MeV'" 
+    }
+    Plot<double>().Hist(chi_sq_mc,"MC").Hist(chi_sq,"DATA")
+    << "set xlabel 'Q, MeV'" <<"set key on"
     << "set ylabel 'chi^2/d, n.d.'" 
     << "set yrange [0:]"<<"unset log y";
 
     Plot<double>().Hist(luminosity) 
-    << "set title 'Integrated luminosity estimation ("+runmsg+")'"
-    << "set key on" << "set xlabel 'Q, MeV'" 
-    << "set ylabel 'Integrated luminosity, nb^{-1}'" 
-    << "set xrange [-70:30]"<< "set yrange [0:]";
-    Plot<double>().Hist(luminosity2) 
     << "set title 'Integrated luminosity estimation ("+runmsg+")'"
     << "set key on" << "set xlabel 'Q, MeV'" 
     << "set ylabel 'Integrated luminosity, nb^{-1}'" 
