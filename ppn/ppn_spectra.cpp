@@ -58,12 +58,12 @@ int main(){
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"ppn");
     Plot<>()
     .Hist(Hist(MC,"pd",{"Histograms","elastic"},"pair_phi_diff_0")/norm_pd.TotalSum().val(),"pd")
-    .Hist(Hist(MC,"ppn_qf",{"Histograms","elastic"},"pair_phi_diff_0")/norm.TotalSum().val(),"ppn_{sp}")<<"set key on"
-    <<"set title 'Planarity. MC'"<<"set yrange [0:]"<<"set xlabel "+planarity;
+    .Hist(Hist(MC,"ppn_qf",{"Histograms","elastic"},"pair_phi_diff_0")/norm.TotalSum().val(),"ppn_{sp}")
+    <<"set key on"<<"set title 'Planarity. MC'"<<"set yrange [0:]"<<"set xlabel "+planarity;
     Plot<>()
     .Hist(Hist(MC,"pd",{"Histograms","elastic"},"pair_phi_diff_1")/norm_pd.TotalSum().val(),"pd")
-    .Hist(Hist(MC,"ppn_qf",{"Histograms","elastic"},"pair_phi_diff_1")/norm.TotalSum().val(),"ppn_{sp}")<<"set key on"
-    <<"set title 'Planarity. MC. Cut'"<<"set yrange [0:]"<<"set xlabel "+planarity;
+    .Hist(Hist(MC,"ppn_qf",{"Histograms","elastic"},"pair_phi_diff_1")/norm.TotalSum().val(),"ppn_{sp}")
+    <<"set key on"<<"set title 'Planarity. MC. Cut'"<<"set yrange [0:]"<<"set xlabel "+planarity;
     Plot<>()
     .Hist(Hist(DATA,"E",{"Histograms","elastic"},"pair_phi_diff_0"))
     .Hist(Hist(DATA,"E",{"Histograms","elastic"},"pair_phi_diff_1"))
@@ -127,15 +127,18 @@ int main(){
 	    <<Q.min()<<"; "<<Q.max()<<"] MeV"
 	).str();
 
-	const hist<> mc_ppn=Hist(MC,"ppn_qf",{"Histograms","elastic"},string("theta_sum_22-Bin-")+to_string(bin_num)).Scale(3).XRange(50,250);
-	const hist<> mc_pd=Hist(MC,"pd",{"Histograms","elastic"},string("theta_sum_22-Bin-")+to_string(bin_num)).Scale(3).XRange(50,250);
+	const hist<> mc_ppn=Hist(MC,"ppn_qf",{"Histograms","elastic"},string("theta_sum_22-Bin-")+to_string(bin_num))
+	.Scale(6).XRange(50,250);
+	const hist<> mc_pd=Hist(MC,"pd",{"Histograms","elastic"},string("theta_sum_22-Bin-")+to_string(bin_num))
+	.Scale(6).XRange(50,250);
+	const hist<> data=Hist(DATA,"E",{"Histograms","elastic"},string("theta_sum_22-Bin-")+to_string(bin_num))
+	.Scale(6).XRange(50,250);
 	const hist<> nmc_ppn=mc_ppn/N;
 	const hist<> nmc_pd=mc_pd/N_pd;
 	acceptance<<point<value<>>(Q,nmc_ppn.TotalSum());
 	acceptance_pd<<point<value<>>(Q,nmc_pd.TotalSum());
-	const hist<> data=Hist(DATA,"E",{"Histograms","elastic"},string("theta_sum_22-Bin-")+to_string(bin_num)).Scale(3).XRange(50,250);
 	cout<<endl<<Qmsg<<endl;
-	typedef Mul<Par<0>,Func3<Gaussian,Arg<0>,Par<1>,Par<2>>> Foreground;
+	typedef Mul<Par<0>,Func4<Novosibirsk,Arg<0>,Par<1>,Par<2>,Par<3>>> Foreground;
 	FitFunction<DifferentialMutations<Uncertainty>,Foreground> 
 	FitMC(make_shared<FitPoints>(nmc_ppn));
 	FitMC.SetFilter([](const ParamSet&P){
@@ -145,9 +148,10 @@ int main(){
 	    <<make_shared<DistribUniform>(0.8,1.2)
 	    <<make_shared<DistribUniform>(100,120)
 	    <<make_shared<DistribUniform>(10,20)
+	    <<make_shared<DistribGauss>(0,0.1)
 	    ,r_eng
 	);
-	FitMC.SetUncertaintyCalcDeltas(parEq(Foreground::ParamCount,0.05));
+	FitMC.SetUncertaintyCalcDeltas(parEq(Foreground::ParamCount,0.01));
 	while(!FitMC.AbsoluteOptimalityExitCondition(0.000001)){
 	    FitMC.Iterate(r_eng);
 	    cout<<"MC: "<<FitMC.iteration_count()<<" iterations; "
@@ -181,13 +185,14 @@ int main(){
 	    <<make_shared<DistribUniform>(0,data_count)
 	    <<make_shared<DistribUniform>(100,120)
 	    <<make_shared<DistribUniform>(10,20)
+	    <<make_shared<DistribGauss>(0,0.1)
 	    <<make_shared<DistribUniform>(60,70)
 	    <<make_shared<DistribUniform>(-5,0)
 	    <<make_shared<DistribUniform>(0,0.01*data_count)
 	    <<make_shared<DistribUniform>(-100,0)
 	    ,r_eng
 	);
-	FitData.SetUncertaintyCalcDeltas(parEq(Foreground::ParamCount,0.05));
+	FitData.SetUncertaintyCalcDeltas(parEq(BackGround::ParamCount,0.01));
 	while(!FitData.AbsoluteOptimalityExitCondition(0.000001)){
 	    FitData.Iterate(r_eng);
 	    cout<<"DATA: "<<FitData.iteration_count()<<" iterations; "
