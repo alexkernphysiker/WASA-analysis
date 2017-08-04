@@ -138,7 +138,8 @@ int main(){
 	acceptance<<point<value<>>(Q,nmc_ppn.TotalSum());
 	acceptance_pd<<point<value<>>(Q,nmc_pd.TotalSum());
 	cout<<endl<<Qmsg<<endl;
-	typedef Mul<Par<0>,Func4<Novosibirsk,Arg<0>,Par<1>,Par<2>,Par<3>>> Foreground;
+	typedef Func4<Novosibirsk,Arg<0>,Par<1>,Par<2>,Par<3>> ToIntegrate;
+	typedef Mul<Par<0>,ToIntegrate> Foreground;
 	FitFunction<DifferentialMutations<Uncertainty>,Foreground> 
 	FitMC(make_shared<FitPoints>(nmc_ppn));
 	FitMC.SetFilter([](const ParamSet&P){
@@ -148,7 +149,7 @@ int main(){
 	    <<make_shared<DistribUniform>(0.8,1.2)
 	    <<make_shared<DistribUniform>(100,120)
 	    <<make_shared<DistribUniform>(10,20)
-	    <<make_shared<DistribGauss>(0,0.1)
+	    <<make_shared<DistribGauss>(0,0.5)
 	    ,r_eng
 	);
 	FitMC.SetUncertaintyCalcDeltas(parEq(Foreground::ParamCount,0.01));
@@ -185,7 +186,7 @@ int main(){
 	    <<make_shared<DistribUniform>(0,data_count)
 	    <<make_shared<DistribUniform>(100,120)
 	    <<make_shared<DistribUniform>(10,20)
-	    <<make_shared<DistribGauss>(0,0.1)
+	    <<make_shared<DistribGauss>(0,0.5)
 	    <<make_shared<DistribUniform>(60,70)
 	    <<make_shared<DistribUniform>(-5,0)
 	    <<make_shared<DistribUniform>(0,0.01*data_count)
@@ -214,8 +215,11 @@ int main(){
 	
 	chi_sq_mc<<point<value<>>(Q,FitMC.Optimality()/(nmc_ppn.size()-FitMC.ParamCount()));
 	chi_sq<<point<value<>>(Q,FitData.Optimality()/(data.size()-FitData.ParamCount()));
+	const double 
+	I0=Sympson([&FitMC](const double&x){return ToIntegrate()({x},FitMC.Parameters());},50.,250.,0.001),
+	I1=Sympson([&FitData](const double&x){return ToIntegrate()({x},FitData.Parameters());},50.,250.,0.001);
 	luminosity << point<value<>>(Q,
-	    (P1[0]/P0[0]/SIGMA[bin_num].Y())*double(trigger_elastic.scaling)
+	    ((P1[0]*I1)/(P0[0]*I0)/SIGMA[bin_num].Y())*double(trigger_elastic1.scaling)
 	);
     }
     Plot<>().Hist(acceptance,"ppn_{sp}").Hist(acceptance_pd,"pd")<<"set key on"
@@ -230,6 +234,16 @@ int main(){
 	<< "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'parameter"+to_string(i)+"'";
     }
+    Plot<>().Hist(fit_params[1],"DATA").Hist(fit_params_mc[1],"MC")
+    << "set xlabel 'Q, MeV'"<< "set ylabel 'Position'"<<"set key on"
+    <<"set yrange [50:150]";
+    Plot<>().Hist(fit_params[2],"DATA").Hist(fit_params_mc[2],"MC")
+    << "set xlabel 'Q, MeV'"<< "set ylabel 'Width'"<<"set key on"
+    <<"set yrange [0:30]";
+    Plot<>().Hist(fit_params[3],"DATA").Hist(fit_params_mc[3],"MC")
+    << "set xlabel 'Q, MeV'"<< "set ylabel 'Asymmetry'"<<"set key on"
+    <<"set yrange [-0.2:1.0]";
+    
     Plot<double>().Hist(chi_sq_mc,"MC").Hist(chi_sq,"DATA")
     << "set xlabel 'Q, MeV'" <<"set key on"
     << "set ylabel 'chi^2/d, n.d.'" 
