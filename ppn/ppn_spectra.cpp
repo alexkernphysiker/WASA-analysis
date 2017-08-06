@@ -105,8 +105,7 @@ int main(){
 
 
     RANDOM r_eng;
-    hist<> acceptance,acceptance_pd,chi_sq,chi_sq_mc,luminosity;
-    vector<hist<>> fit_params_mc;
+    hist<> acceptance,acceptance_pd,chi_sq,luminosity;
     vector<hist<>> fit_params;
     const auto diff_cs=ReadCrossSection();
     PlotHist2d<>(sp2).Surface(diff_cs.Clone().FullCycleVar([](double&z){z=log10(z);}));
@@ -138,113 +137,78 @@ int main(){
 	acceptance<<point<value<>>(Q,nmc_ppn.TotalSum());
 	acceptance_pd<<point<value<>>(Q,nmc_pd.TotalSum());
 	cout<<endl<<Qmsg<<endl;
-	typedef Func4<Novosibirsk,Arg<0>,Par<1>,Par<2>,Par<3>> ToIntegrate;
-	typedef Mul<Par<0>,ToIntegrate> Foreground;
-	FitFunction<DifferentialMutations<Uncertainty>,Foreground> 
-	FitMC(make_shared<FitPoints>(nmc_ppn));
-	FitMC.SetFilter([](const ParamSet&P){
-	    return (P[0]>0)&&(P[2]>0);
-	});
-	FitMC.Init(100,make_shared<InitialDistributions>()
-	    <<make_shared<DistribUniform>(0.8,1.2)
-	    <<make_shared<DistribUniform>(100,120)
-	    <<make_shared<DistribUniform>(10,20)
-	    <<make_shared<DistribGauss>(0,0.5)
-	    ,r_eng
-	);
-	FitMC.SetUncertaintyCalcDeltas(parEq(Foreground::ParamCount,0.01));
-	while(!FitMC.AbsoluteOptimalityExitCondition(0.000001)){
-	    FitMC.Iterate(r_eng);
-	    cout<<"MC: "<<FitMC.iteration_count()<<" iterations; "
-	    <<FitMC.Optimality()<<"<chi^2<"
-	    <<FitMC.Optimality(FitMC.PopulationSize()-1)
-	    <<"          \r";
-	}
-	const auto&P0=FitMC.ParametersWithUncertainties();
-	for(size_t i=0;i<Foreground::ParamCount;i++){
-	    if(fit_params_mc.size()==i)fit_params_mc.push_back(hist<>());
-	    fit_params_mc[i]<<point<value<>>(Q,P0[i]);
-	}
-	cout<<endl;
-	Plot<>().Hist(nmc_ppn,"MC")
-	.Line(SortedPoints<>([&FitMC](double x){return FitMC({x});},ChainWithStep(50.,1.,250.)),"fit")
+	Plot<>().Hist(nmc_ppn,"ppn_{sp}").Hist(nmc_pd,"pd")
 	<<"set key on"<<"set title 'MC "+Qmsg+"'"<<"set yrange [0:]"
 	<<"set xlabel "+thth<<"set ylabel 'counts normalized'";
-	static const size_t fgp=Foreground::ParamCount;
-	typedef Mul<
-	    Func3<FermiFunc,Arg<0>,Par<fgp+0>,Par<fgp+1>>,
-	    PolynomFunc<Arg<0>,fgp+2,1>
-	>BackGround;
+	cout<<endl;
+	const std::function<const double(const double&,const ParamSet&)> 
+	BG=[](const double&x,const ParamSet&P){
+	    return FermiFunc(x,P[2],P[3])*Polynom(x,P,1,4);
+	};
 	const auto&data_count=data.TotalSum().val();
-	FitFunction<DifferentialMutations<Uncertainty>,Add<Foreground,BackGround>> 
-	FitData(make_shared<FitPoints>(data));
-	FitData.SetFilter([](const ParamSet&P){
-	    return (P[0]>0)&&(P[1]>100)&&(P[1]<120)&&(P[2]>0)
-	    &&(P[fgp+0]>50)&&(P[fgp+0]<80)&&(P[fgp+1]<0);
+	SearchMin<DifferentialMutations<Uncertainty>> 
+	FitData([&data,&nmc_ppn,&nmc_pd,BG](const ParamSet&P){
+	    double res=0;
+	    for(size_t i=0;i<data.size();i++){
+		const double x=data[i].X().val();
+		const auto practic=data[i].Y();
+		const auto theor=nmc_ppn[i].Y()*P[0]
+		+nmc_pd[i].Y()*P[1]+BG(x,P);
+		res+=practic.NumCompare(theor);
+	    }
+	    return res;
 	});
-	FitData.Init(200,make_shared<InitialDistributions>()
+	FitData.SetFilter([](const ParamSet&P){
+	    return (P[0]>0)&&(P[1]>0)
+	    &&(P[2]>50)&&(P[2]<80)&&(P[3]<0);
+	});
+	FitData.Init(100,make_shared<InitialDistributions>()
 	    <<make_shared<DistribUniform>(0,data_count)
-	    <<make_shared<DistribUniform>(100,120)
-	    <<make_shared<DistribUniform>(10,20)
-	    <<make_shared<DistribGauss>(0,0.5)
+	    <<make_shared<DistribUniform>(0,data_count)
 	    <<make_shared<DistribUniform>(60,70)
 	    <<make_shared<DistribUniform>(-5,0)
 	    <<make_shared<DistribUniform>(0,0.01*data_count)
 	    <<make_shared<DistribUniform>(-100,0)
 	    ,r_eng
 	);
-	FitData.SetUncertaintyCalcDeltas(parEq(BackGround::ParamCount,0.01));
-	while(!FitData.AbsoluteOptimalityExitCondition(0.000001)){
+	FitData.SetUncertaintyCalcDeltas(parEq(FitData.ParamCount(),0.1));
+	while(!FitData.AbsoluteOptimalityExitCondition(0.0000001)){
 	    FitData.Iterate(r_eng);
 	    cout<<"DATA: "<<FitData.iteration_count()<<" iterations; "
 	    <<FitData.Optimality()<<"<chi^2<"
 	    <<FitData.Optimality(FitData.PopulationSize()-1)
 	    <<"          \r";
 	}
-	const auto&P1=FitData.ParametersWithUncertainties();
-	const auto&p1=FitData.Parameters();
-	for(size_t i=0;i<BackGround::ParamCount;i++){
+	const auto&P=FitData.ParametersWithUncertainties();
+	const auto&p=FitData.Parameters();
+	for(size_t i=0;i<P.size();i++){
 	    if(fit_params.size()==i)fit_params.push_back(hist<>());
-	    fit_params[i]<<point<value<>>(Q,P1[i]);
+	    fit_params[i]<<point<value<>>(Q,P[i]);
 	}
+	const SortedPoints<>
+	PPN=nmc_ppn.toLine()*p[0],PD=nmc_pd.toLine()*p[1],
+	BackGround=data.toLine().Clone().Transform([BG,&p](const double&x,const double&){return BG(x,p);});
 	Plot<>().Hist(data,"DATA")
-	.Line(SortedPoints<>([&FitData](double x){return FitData({x});},ChainWithStep(50.,1.,250.)),"fit")
-	.Line(SortedPoints<>([&p1](double x){return BackGround()({x},p1);},ChainWithStep(50.,1.,250.)),"bg")
+	.Line(PPN+PD+BackGround,"fit").Line(PD+BackGround,"pd+background").Line(BackGround,"background")
 	<<"set key on"<<"set title 'Data "+Qmsg+"'"<<"set yrange [0:]"
 	<<"set xlabel "+thth<<"set ylabel 'counts'";
 	
-	chi_sq_mc<<point<value<>>(Q,FitMC.Optimality()/(nmc_ppn.size()-FitMC.ParamCount()));
 	chi_sq<<point<value<>>(Q,FitData.Optimality()/(data.size()-FitData.ParamCount()));
-	const double 
-	I0=Sympson([&FitMC](const double&x){return ToIntegrate()({x},FitMC.Parameters());},50.,250.,0.001),
-	I1=Sympson([&FitData](const double&x){return ToIntegrate()({x},FitData.Parameters());},50.,250.,0.001);
+
 	luminosity << point<value<>>(Q,
-	    ((P1[0]*I1)/(P0[0]*I0)/SIGMA[bin_num].Y())*double(trigger_elastic1.scaling)
+	    (P[0]/SIGMA[bin_num].Y())*double(trigger_elastic1.scaling)
 	);
     }
     Plot<>().Hist(acceptance,"ppn_{sp}").Hist(acceptance_pd,"pd")<<"set key on"
     <<"set title 'Acceptance'"<<"set yrange [0:]"<<"set xlabel 'Q, MeV'"<<"set ylabel 'Acceptance, n.d.'";
-    for(size_t i=0;i<fit_params_mc.size();i++){
-	Plot<double>().Hist(fit_params_mc[i])
-	<< "set xlabel 'Q, MeV'" 
-	<< "set ylabel 'mc parameter"+to_string(i)+"'";
-    }
+
     for(size_t i=0;i<fit_params.size();i++){
 	Plot<double>().Hist(fit_params[i])
 	<< "set xlabel 'Q, MeV'" 
 	<< "set ylabel 'parameter"+to_string(i)+"'";
     }
-    Plot<>().Hist(fit_params[1],"DATA").Hist(fit_params_mc[1],"MC")
-    << "set xlabel 'Q, MeV'"<< "set ylabel 'Position'"<<"set key on"
-    <<"set yrange [50:150]";
-    Plot<>().Hist(fit_params[2],"DATA").Hist(fit_params_mc[2],"MC")
-    << "set xlabel 'Q, MeV'"<< "set ylabel 'Width'"<<"set key on"
-    <<"set yrange [0:30]";
-    Plot<>().Hist(fit_params[3],"DATA").Hist(fit_params_mc[3],"MC")
-    << "set xlabel 'Q, MeV'"<< "set ylabel 'Asymmetry'"<<"set key on"
-    <<"set yrange [-0.2:1.0]";
-    
-    Plot<double>().Hist(chi_sq_mc,"MC").Hist(chi_sq,"DATA")
+
+    Plot<double>().Hist(chi_sq,"DATA")
     << "set xlabel 'Q, MeV'" <<"set key on"
     << "set ylabel 'chi^2/d, n.d.'" 
     << "set yrange [0:]"<<"unset log y";
