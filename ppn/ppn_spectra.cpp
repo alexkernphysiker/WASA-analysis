@@ -254,4 +254,10 @@ int main(){
     << "set key on" << "set xlabel 'Q, MeV'" 
     << "set ylabel 'Integrated luminosity, nb^{-1}'" 
     << "set xrange [-70:30]"<< "set yrange [0:]";
+    Plot<double>().Hist(luminosity*runs.second/runs.first)
+    << "set title 'Integrated luminosity estimation, all runs'"
+    << "set key on" << "set xlabel 'Q, MeV'" 
+    << "set ylabel 'Integrated luminosity, nb^{-1}'" 
+    << "set xrange [-70:30]"<< "set yrange [0:]";
+
 }
