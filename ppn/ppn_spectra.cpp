@@ -59,15 +59,15 @@ int main(){
     Plot<>()
     .Hist(Hist(MC,"pd",{"Histograms","elastic"},"pair_phi_diff_0")/norm_pd.TotalSum().val(),"pd")
     .Hist(Hist(MC,"ppn_qf",{"Histograms","elastic"},"pair_phi_diff_0")/norm.TotalSum().val(),"ppn_{sp}")
-    <<"set key on"<<"set title 'Complanarity. MC'"<<"set yrange [0:]"<<"set xlabel "+planarity;
+    <<"set key on"<<"set title 'Coplanarity. MC'"<<"set yrange [0:]"<<"set xlabel "+planarity;
     Plot<>()
     .Hist(Hist(MC,"pd",{"Histograms","elastic"},"pair_phi_diff_1")/norm_pd.TotalSum().val(),"pd")
     .Hist(Hist(MC,"ppn_qf",{"Histograms","elastic"},"pair_phi_diff_1")/norm.TotalSum().val(),"ppn_{sp}")
-    <<"set key on"<<"set title 'Complanarity. MC. Cut'"<<"set yrange [0:]"<<"set xlabel "+planarity;
+    <<"set key on"<<"set title 'Coplanarity. MC. Cut'"<<"set yrange [0:]"<<"set xlabel "+planarity;
     Plot<>()
     .Hist(Hist(DATA,"E",{"Histograms","elastic"},"pair_phi_diff_0"))
     .Hist(Hist(DATA,"E",{"Histograms","elastic"},"pair_phi_diff_1"))
-    <<"set title 'Complanarity. Data "+runmsg+"'"<<"set yrange [0:]"<<"set xlabel "+planarity;
+    <<"set title 'Coplanarity. Data "+runmsg+"'"<<"set yrange [0:]"<<"set xlabel "+planarity;
 
     PlotHist2d<>(sp2).Distr(Hist2d(MC,"pd",{"Histograms","elastic"},"t_vs_t_1"))
     <<"set zrange [0:]"<<"set title 'MC pd'"<<"set xlabel "+th1<<"set ylabel "+th2;
@@ -215,12 +215,12 @@ int main(){
     << "set yrange [0:3]"<<"unset log y";
 
     Plot<double>().Hist(luminosity) 
-    << "set title 'Integrated luminosity estimation ("+runmsg+")'"
+    << "set title 'Integrated luminosity ("+runmsg+")'"
     << "set key on" << "set xlabel 'Q, MeV'" 
     << "set ylabel 'Integrated luminosity, nb^{-1}'" 
     << "set xrange [-70:30]"<< "set yrange [0:]";
     Plot<double>().Hist(luminosity*runs.second/runs.first)
-    << "set title 'Integrated luminosity estimation, all runs'"
+    << "set title 'Integrated luminosity estimation for all runs'"
     << "set key on" << "set xlabel 'Q, MeV'" 
     << "set ylabel 'Integrated luminosity, nb^{-1}'" 
     << "set xrange [-70:30]"<< "set yrange [0:]";
