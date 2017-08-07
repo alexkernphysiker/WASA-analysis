@@ -115,7 +115,7 @@ int main(){
 	    hist<double> clean=data-bg;
 	    Plot<double> subplot;
 	    subplot.Hist(clean);
-	    subplot.Hist(clean=clean.XRange(cut.first-0.001,cut.second+0.001)).Object("0 title \"\"")
+	    subplot.Hist(clean=clean.XRange(cut.first,cut.second)).Object("0 title \"\"")
 	    << "set key on"<< "set title '"+Qmsg+", "+runmsg+"'"
 	    << "set xlabel 'Missing mass, GeV'"
 	    << "set ylabel 'counts'"
@@ -133,7 +133,7 @@ int main(){
     Plot<double>().Hist(data_chi_sq)
     << "set xlabel 'Q, MeV'" 
     << "set ylabel 'chi^2/d, n.d.'" 
-    << "set yrange [0:]"<<"unset log y";
+    << "set yrange [0:3]"<<"unset log y";
 
     Plot<double>()
     .Hist(hist<double>(he3eta_sigma().func(),BinsByStep(2.5,2.5,30.0)))

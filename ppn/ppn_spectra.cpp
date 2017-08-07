@@ -59,15 +59,15 @@ int main(){
     Plot<>()
     .Hist(Hist(MC,"pd",{"Histograms","elastic"},"pair_phi_diff_0")/norm_pd.TotalSum().val(),"pd")
     .Hist(Hist(MC,"ppn_qf",{"Histograms","elastic"},"pair_phi_diff_0")/norm.TotalSum().val(),"ppn_{sp}")
-    <<"set key on"<<"set title 'Planarity. MC'"<<"set yrange [0:]"<<"set xlabel "+planarity;
+    <<"set key on"<<"set title 'Complanarity. MC'"<<"set yrange [0:]"<<"set xlabel "+planarity;
     Plot<>()
     .Hist(Hist(MC,"pd",{"Histograms","elastic"},"pair_phi_diff_1")/norm_pd.TotalSum().val(),"pd")
     .Hist(Hist(MC,"ppn_qf",{"Histograms","elastic"},"pair_phi_diff_1")/norm.TotalSum().val(),"ppn_{sp}")
-    <<"set key on"<<"set title 'Planarity. MC. Cut'"<<"set yrange [0:]"<<"set xlabel "+planarity;
+    <<"set key on"<<"set title 'Complanarity. MC. Cut'"<<"set yrange [0:]"<<"set xlabel "+planarity;
     Plot<>()
     .Hist(Hist(DATA,"E",{"Histograms","elastic"},"pair_phi_diff_0"))
     .Hist(Hist(DATA,"E",{"Histograms","elastic"},"pair_phi_diff_1"))
-    <<"set title 'Planarity. Data "+runmsg+"'"<<"set yrange [0:]"<<"set xlabel "+planarity;
+    <<"set title 'Complanarity. Data "+runmsg+"'"<<"set yrange [0:]"<<"set xlabel "+planarity;
 
     PlotHist2d<>(sp2).Distr(Hist2d(MC,"pd",{"Histograms","elastic"},"t_vs_t_1"))
     <<"set zrange [0:]"<<"set title 'MC pd'"<<"set xlabel "+th1<<"set ylabel "+th2;
@@ -78,23 +78,23 @@ int main(){
 
 
     PlotHist2d<>(sp2).Distr(Hist2d(MC,"pd",{"Histograms","elastic"},"t_vs_t_22"))
-    <<"set zrange [0:]"<<"set title 'Cut1. MC pd'"<<"set xlabel "+th1<<"set ylabel "+th2;
+    <<"set zrange [0:]"<<"set title 'MC pd'"<<"set xlabel "+th1<<"set ylabel "+th2;
     PlotHist2d<>(sp2).Distr(Hist2d(MC,"ppn_qf",{"Histograms","elastic"},"t_vs_t_22"))
-    <<"set zrange [0:]"<<"set title 'Cut1. MC ppn_{sp}'"<<"set xlabel "+th1<<"set ylabel "+th2;
+    <<"set zrange [0:]"<<"set title 'MC ppn_{sp}'"<<"set xlabel "+th1<<"set ylabel "+th2;
     PlotHist2d<>(sp2).Distr(Hist2d(DATA,"E",{"Histograms","elastic"},"t_vs_t_22"))
-    <<"set zrange [0:]"<<"set title 'Cut1. Data "+runmsg+"'"<<"set xlabel "+th1<<"set ylabel "+th2;
+    <<"set zrange [0:]"<<"set title 'Data "+runmsg+"'"<<"set xlabel "+th1<<"set ylabel "+th2;
     PlotHist2d<>(sp2).Distr(Hist2d(MC,"pd",{"Histograms","elastic"},"t_vs_e_22"))
-    <<"set zrange [0:]"<<"set title 'Cut1. MC pd'"<<"set xlabel "+th1<<"set ylabel "+e1;
+    <<"set zrange [0:]"<<"set title 'MC pd'"<<"set xlabel "+th1<<"set ylabel "+e1;
     PlotHist2d<>(sp2).Distr(Hist2d(MC,"ppn_qf",{"Histograms","elastic"},"t_vs_e_22"))
-    <<"set zrange [0:]"<<"set title 'Cut1 MC ppn_{sp}'"<<"set xlabel "+th1<<"set ylabel "+e1;
+    <<"set zrange [0:]"<<"set title 'MC ppn_{sp}'"<<"set xlabel "+th1<<"set ylabel "+e1;
     PlotHist2d<>(sp2).Distr(Hist2d(DATA,"E",{"Histograms","elastic"},"t_vs_e_22"))
-    <<"set zrange [0:]"<<"set title 'Cut1. Data "+runmsg+"'"<<"set xlabel "+th1<<"set ylabel "+e1;
+    <<"set zrange [0:]"<<"set title 'Data "+runmsg+"'"<<"set xlabel "+th1<<"set ylabel "+e1;
     PlotHist2d<>(sp2).Distr(Hist2d(MC,"pd",{"Histograms","elastic"},"e_vs_e_22"))
-    <<"set zrange [0:]"<<"set title 'Cut1. MC pd'"<<"set xlabel "+e1<<"set ylabel "+e2;
+    <<"set zrange [0:]"<<"set title 'MC pd'"<<"set xlabel "+e1<<"set ylabel "+e2;
     PlotHist2d<>(sp2).Distr(Hist2d(MC,"ppn_qf",{"Histograms","elastic"},"e_vs_e_22"))
-    <<"set zrange [0:]"<<"set title 'Cut1. MC ppn_{sp}'"<<"set xlabel "+e1<<"set ylabel "+e2;
+    <<"set zrange [0:]"<<"set title 'MC ppn_{sp}'"<<"set xlabel "+e1<<"set ylabel "+e2;
     PlotHist2d<>(sp2).Distr(Hist2d(DATA,"E",{"Histograms","elastic"},"e_vs_e_22"))
-    <<"set zrange [0:]"<<"set title 'Cut1. Data "+runmsg+"'"<<"set xlabel "+e1<<"set ylabel "+e2;
+    <<"set zrange [0:]"<<"set title 'Data "+runmsg+"'"<<"set xlabel "+e1<<"set ylabel "+e2;
     Plot<>()
     .Line(Hist(MC,"pd",{"Histograms","elastic"},"theta_sum_22-AllBins").toLine()/norm_pd.TotalSum().val(),"pd")
     .Line(Hist(MC,"ppn_qf",{"Histograms","elastic"},"theta_sum_22-AllBins").toLine()/norm.TotalSum().val(),"ppn_{sp}")
@@ -105,7 +105,7 @@ int main(){
 
 
     RANDOM r_eng;
-    hist<> acceptance,acceptance_pd,chi_sq,luminosity;
+    hist<> acceptance,acceptance_pd,chi_sq,luminosity,el_cs;
     vector<hist<>> fit_params;
     const auto diff_cs=ReadCrossSection();
     PlotHist2d<>(sp2).Surface(diff_cs.Clone().FullCycleVar([](double&z){z=log10(z);}));
@@ -162,7 +162,7 @@ int main(){
 	    return (P[0]>0)&&(P[1]>0)
 	    &&(P[2]>50)&&(P[2]<80)&&(P[3]<0);
 	});
-	FitData.Init(100,make_shared<InitialDistributions>()
+	FitData.Init(200,make_shared<InitialDistributions>()
 	    <<make_shared<DistribUniform>(0,data_count)
 	    <<make_shared<DistribUniform>(0,data_count)
 	    <<make_shared<DistribUniform>(60,70)
@@ -172,7 +172,7 @@ int main(){
 	    ,r_eng
 	);
 	FitData.SetUncertaintyCalcDeltas(parEq(FitData.ParamCount(),0.1));
-	while(!FitData.AbsoluteOptimalityExitCondition(0.0000001)){
+	while(!FitData.AbsoluteOptimalityExitCondition(0.0000000001)){
 	    FitData.Iterate(r_eng);
 	    cout<<"DATA: "<<FitData.iteration_count()<<" iterations; "
 	    <<FitData.Optimality()<<"<chi^2<"
@@ -190,14 +190,15 @@ int main(){
 	BackGround=data.toLine().Clone().Transform([BG,&p](const double&x,const double&){return BG(x,p);});
 	Plot<>().Hist(data,"DATA")
 	.Line(PPN+PD+BackGround,"fit").Line(PD+BackGround,"pd+background").Line(BackGround,"background")
-	<<"set key on"<<"set title 'Data "+Qmsg+"'"<<"set yrange [0:]"
+	<<"set key on"<<"set title 'Data "+Qmsg+"("+runmsg+")'"<<"set yrange [0:]"
 	<<"set xlabel "+thth<<"set ylabel 'counts'";
 	
 	chi_sq<<point<value<>>(Q,FitData.Optimality()/(data.size()-FitData.ParamCount()));
 
-	luminosity << point<value<>>(Q,
-	    (P[0]/SIGMA[bin_num].Y())*double(trigger_elastic1.scaling)
-	);
+	const auto L=(P[0]/SIGMA[bin_num].Y())*double(trigger_elastic1.scaling);
+	const auto EL=(P[1]/L)*double(trigger_elastic1.scaling);
+	luminosity << point<value<>>(Q,L);
+	el_cs<< point<value<>>(Q,EL);
     }
     Plot<>().Hist(acceptance,"ppn_{sp}").Hist(acceptance_pd,"pd")<<"set key on"
     <<"set title 'Acceptance'"<<"set yrange [0:]"<<"set xlabel 'Q, MeV'"<<"set ylabel 'Acceptance, n.d.'";
@@ -211,7 +212,7 @@ int main(){
     Plot<double>().Hist(chi_sq,"DATA")
     << "set xlabel 'Q, MeV'" <<"set key on"
     << "set ylabel 'chi^2/d, n.d.'" 
-    << "set yrange [0:]"<<"unset log y";
+    << "set yrange [0:3]"<<"unset log y";
 
     Plot<double>().Hist(luminosity) 
     << "set title 'Integrated luminosity estimation ("+runmsg+")'"
@@ -222,6 +223,12 @@ int main(){
     << "set title 'Integrated luminosity estimation, all runs'"
     << "set key on" << "set xlabel 'Q, MeV'" 
     << "set ylabel 'Integrated luminosity, nb^{-1}'" 
+    << "set xrange [-70:30]"<< "set yrange [0:]";
+
+    Plot<double>().Hist(SIGMA,"ppn_{sp}(assumed)").Hist(el_cs,"pd(obtained)") 
+    << "set title '("+runmsg+")'"
+    << "set key on" << "set xlabel 'Q, MeV'" 
+    << "set ylabel 'Cross section, nb'" 
     << "set xrange [-70:30]"<< "set yrange [0:]";
 
 }
