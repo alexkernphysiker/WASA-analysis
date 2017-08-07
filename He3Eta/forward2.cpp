@@ -42,7 +42,7 @@ int main(){
 		string("MissingMass-Bin-")+to_string(bin_num)
 	    ).XRange(0.53,0.57);
 	    const auto chain=ChainWithStep(0.53,0.0001,0.57);
-	    const auto cut=make_pair(0.543,0.553);
+	    const auto cut=make_pair(0.541,0.554);
 	    const hist<double> mc=Hist(MC,"He3eta",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num))/N;
 	    const LinearInterpolation<double> fg=mc.toLine();
 	    const auto&data_count=data.TotalSum().val();
@@ -52,6 +52,7 @@ int main(){
 	    };
 	    const auto peak_reg= data.XRange(cut.first,cut.second);
 	    const auto data_bg= data.XExclude(cut.first,cut.second);
+	    cout<<endl<<Qmsg<<endl<<endl;
 	    Fit<AbsoluteMutations<DifferentialMutations<Uncertainty>>> FIT(make_shared<FitPoints>(data_bg),BG);
 	    FIT
 	    .SetAbsoluteMutationCoefficients({1.0,1.0,1.0,1.0})
@@ -114,7 +115,7 @@ int main(){
 	    hist<double> clean=data-bg;
 	    Plot<double> subplot;
 	    subplot.Hist(clean);
-	    subplot.Hist(clean=clean.XRange(cut.first-0.003,cut.second+0.003)).Object("0 title \"\"")
+	    subplot.Hist(clean=clean.XRange(cut.first-0.001,cut.second+0.001)).Object("0 title \"\"")
 	    << "set key on"<< "set title '"+Qmsg+", "+runmsg+"'"
 	    << "set xlabel 'Missing mass, GeV'"
 	    << "set ylabel 'counts'"
