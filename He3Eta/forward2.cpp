@@ -31,7 +31,7 @@ int main(){
     vector<hist<double>> parhists;
     RANDOM r_eng;
     for(size_t bin_num=0,bin_count=norm.size();bin_num<bin_count;bin_num++)
-	if(norm[bin_num].X()>2.5){
+	if(norm[bin_num].X()>5.0){
 	    const auto&Q=norm[bin_num].X();
 	    const auto&N=norm[bin_num].Y();
 	    const string Qmsg=static_cast<stringstream&>(stringstream()
@@ -136,7 +136,7 @@ int main(){
     << "set yrange [0:3]"<<"unset log y";
 
     Plot<double>()
-    .Hist(hist<double>(he3eta_sigma().func(),BinsByStep(2.5,2.5,30.0)))
+    .Hist(hist<double>(he3eta_sigma().func(),BinsByStep(5.0,2.5,30.0)))
     .Hist(he3eta_sigma(),"Data from other experiments")
     << "set title 'Cross section of He3eta used in the calculations'"
     << "set key on" << "set xlabel 'Q, MeV'" 
