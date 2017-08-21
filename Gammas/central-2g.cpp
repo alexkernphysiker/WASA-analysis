@@ -45,7 +45,7 @@ int main(){
 	const hist<double> mc=Hist(MC,reaction[0],histpath_central_reconstr,string("GIMDiff-Bin-")+to_string(bin_num)),
 	mc2=Hist(MC,reaction[1],histpath_central_reconstr,string("GIMDiff-Bin-")+to_string(bin_num)),
 	data=Hist(DATA,"C",histpath_central_reconstr,string("GIMDiff-Bin-")+to_string(bin_num)),
-	MC=mc.XRange(0,0.06),MC2=mc2.XRange(0,0.06),DATA=data.XRange(0,0.06);
+	MC=mc.XRange(0,0.1),MC2=mc2.XRange(0,0.1),DATA=data.XRange(0,0.1);
 	Plot<>().Hist(data).Hist(DATA)<<"set title '"+Qmsg+";"+runmsg+"'"<< "set yrange [0:]";
 	Plot<>().Hist(mc).Hist(MC)<<"set title '"+Qmsg+";MC "+reaction[0]+"'"<< "set yrange [0:]";
 	acceptance<<point<value<double>>(Q,MC.TotalSum()/N);
