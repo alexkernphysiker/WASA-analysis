@@ -133,7 +133,7 @@ int main(){
     Plot<double>().Hist(data_chi_sq)
     << "set xlabel 'Q, MeV'" 
     << "set ylabel 'chi^2/d, n.d.'" 
-    << "set yrange [0:3]"<<"unset log y";
+    << "set yrange [0:]"<<"unset log y";
 
     Plot<double>()
     .Hist(hist<double>(he3eta_sigma().func(),BinsByStep(5.0,2.5,30.0)))

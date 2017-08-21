@@ -212,7 +212,7 @@ int main(){
     Plot<double>().Hist(chi_sq,"DATA")
     << "set xlabel 'Q, MeV'" <<"set key on"
     << "set ylabel 'chi^2/d, n.d.'" 
-    << "set yrange [0:3]"<<"unset log y";
+    << "set yrange [0:]"<<"unset log y";
 
     Plot<double>().Hist(luminosity) 
     << "set title 'Integrated luminosity ("+runmsg+")'"
