@@ -47,7 +47,7 @@ int main(){
 	    const auto&N=Norm[bin_num].Y();
 	    if(N.Above(0)){
 		const hist<> h=Hist(MC,r,histpath_central_reconstr,string("GIMDiff-Bin-")+to_string(bin_num)),
-		H=h.XRange(0,0.1);
+		H=h.XRange(0,0.05);
 		const auto C=H.TotalSum();
 		if(C.Above(0)){
 		    Plot<>().Hist(h).Hist(H)<<"set title '"+Qmsg+";MC "+r+"'"<< "set yrange [0:]";
@@ -56,7 +56,7 @@ int main(){
 	    }
 	}
 	const hist<> data=Hist(DATA,"C",histpath_central_reconstr,string("GIMDiff-Bin-")+to_string(bin_num)),
-	DATA=data.XRange(0,0.1);
+	DATA=data.XRange(0,0.05);
 	Plot<>().Hist(data).Hist(DATA)<<"set title '"+Qmsg+";"+runmsg+"'"<< "set yrange [0:]";
 	ev_am<<point<value<double>>(Q,DATA.TotalSum());
     }

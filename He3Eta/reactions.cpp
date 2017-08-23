@@ -21,7 +21,7 @@ using namespace Genetic;
 using namespace MathTemplates;
 using namespace GnuplotWrap;
 int main(){
-    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_forward");
+    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"background-reactions-forward");
     const auto runs=PresentRuns("F");
     const string runmsg=to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs";
     vector<string> histpath_forward_reconstr={"Histograms","He3Forward_Reconstruction"};
@@ -30,10 +30,10 @@ int main(){
     for(const string& r:reaction)
 	norm.push_back(Hist(MC,r,histpath_forward_reconstr,"0-Reference"));
 
-    vector<hist<double>> acceptance;
-    for(size_t i=0;i<norm.size();i++)
-	acceptance.push_back(hist<double>());
-    hist<double> luminosity,bg_chi_sq;
+    const hist<> luminosity=Plotter::Instance().GetPoints4("LUMINOSITYc");
+    vector<hist<double>> acceptance,cross_section;
+    for(size_t i=0;i<norm.size();i++){acceptance.push_back(hist<double>());}
+    hist<double> bg_chi_sq;
     vector<hist<double>> fit_params;
     for(size_t i=0;i<reaction.size();i++)
 	fit_params.push_back(hist<double>());
@@ -117,10 +117,6 @@ int main(){
 		.Line(hist<double>(theory[2]*P[2]).toLine(),reaction[2])
 		.Line(hist<double>(theory[3]*P[3]).toLine(),reaction[3])
 	    ;
-	    luminosity << point<value<double>>(Q,
-	       (P[0]/he3eta_sigma()(Q))
-	       *double(trigger_he3_forward.scaling)
-	    );
 	}
     Plot<double>().Hist(bg_chi_sq) 
     << "set xlabel 'Q, MeV'" 
@@ -143,18 +139,4 @@ int main(){
 	    par.Hist(fit_params[i],reaction[i]);
 	}
     }
-
-    Plot<double>()
-    .Hist(hist<double>(he3eta_sigma().func(),BinsByStep(5.0,2.5,30.0)))
-    .Hist(he3eta_sigma(),"Data from other experiments")
-    << "set title 'Cross section of "+reaction[0]+" used in the calculations'"
-    << "set key on" << "set xlabel 'Q, MeV'" 
-    << "set ylabel 'sigma(^3He eta), nb'"<<"unset log y"
-    << "set xrange [0:45]"<< "set yrange [0:600]";
-
-    Plot<double>().Hist(luminosity) 
-    << "set title 'Integrated luminosity estimation ("+runmsg+")'"
-    << "set key on" << "set xlabel 'Q, MeV'" 
-    << "set ylabel 'Integrated luminosity, nb^{-1}'" 
-    << "set xrange [0:30]"<< "set yrange [0:]";
 }

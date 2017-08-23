@@ -22,12 +22,12 @@ using namespace Genetic;
 using namespace MathTemplates;
 using namespace GnuplotWrap;
 int main(){
-    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"he3eta_luminosity");
+    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"luminosity-forward");
     vector<string> histpath_forward_reconstr={"Histograms","He3Forward_Reconstruction"};
     const auto runs=PresentRuns("F");
     const string runmsg=to_string(int(runs.first))+" of "+to_string(int(runs.second))+" runs";
-    hist<double> norm=Hist(MC,"He3eta",histpath_forward_reconstr,"0-Reference");
-    hist<double> luminosity,data_chi_sq;
+    const hist<> norm=Hist(MC,"He3eta",histpath_forward_reconstr,"0-Reference");
+    hist<> luminosity,data_chi_sq,acceptance;
     vector<hist<double>> parhists;
     RANDOM r_eng;
     for(size_t bin_num=0,bin_count=norm.size();bin_num<bin_count;bin_num++)
@@ -43,7 +43,9 @@ int main(){
 	    ).XRange(0.53,0.57);
 	    const auto chain=ChainWithStep(0.53,0.0001,0.57);
 	    const auto cut=make_pair(0.541,0.554);
-	    const hist<double> mc=Hist(MC,"He3eta",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num))/N;
+	    const hist<> mc_unnorm=Hist(MC,"He3eta",histpath_forward_reconstr,string("MissingMass-Bin-")+to_string(bin_num));
+	    acceptance << point<value<double>>(Q,mc_unnorm.TotalSum()/N);
+	    const hist<> mc=mc_unnorm/N;
 	    const LinearInterpolation<double> fg=mc.toLine();
 	    const auto&data_count=data.TotalSum().val();
 	    const auto BG=[&data_count](const ParamSet&X,const ParamSet&P){
@@ -143,16 +145,24 @@ int main(){
     << "set ylabel 'sigma(^3He eta), nb'"
     << "set xrange [0:45]"<< "set yrange [0:600]";
 
+    Plot<double>().Hist(acceptance)
+    << "set title '3He+eta acceptance'"
+    << "set key on" << "set xlabel 'Q, MeV'" 
+    << "set ylabel 'acceptance, n.d.'" 
+    << "set xrange [0:30]"<< "set yrange [0:1]";
+
     Plot<double>().Hist(luminosity)
     << "set title 'Integrated luminosity ("+runmsg+")'"
     << "set key on" << "set xlabel 'Q, MeV'" 
     << "set ylabel 'Integrated luminosity, nb^{-1}'" 
     << "set xrange [0:30]"<< "set yrange [0:]";
 
-    Plot<double>().Hist(luminosity*runs.second/runs.first)
+    Plot<double>()
+    .Hist(luminosity*runs.second/runs.first,"3He+eta","LUMINOSITYf")
+    .Hist(Plotter::Instance().GetPoints4("LUMINOSITYc"),"ppn_{sp}")
     << "set title 'Integrated luminosity estimation for all runs'"
     << "set key on" << "set xlabel 'Q, MeV'" 
     << "set ylabel 'Integrated luminosity, nb^{-1}'" 
-    << "set xrange [0:30]"<< "set yrange [0:]";
+    << "set xrange [-70:30]"<< "set yrange [0:]";
 }
 

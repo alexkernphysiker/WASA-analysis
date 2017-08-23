@@ -55,7 +55,7 @@ int main(){
     thth="'Theta_1+1.6Theta_2, deg'",planarity="'|Phi_1-Phi_2-180^o|, deg'";
     const hist<> norm=Hist(MC,"ppn_qf",{"Histograms","elastic"},"0-Reference");
     const hist<> norm_pd=Hist(MC,"pd",{"Histograms","elastic"},"0-Reference");
-    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"ppn");
+    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"luminosity-central");
     Plot<>()
     .Hist(Hist(MC,"pd",{"Histograms","elastic"},"pair_phi_diff_0")/norm_pd.TotalSum().val(),"pd")
     .Hist(Hist(MC,"ppn_qf",{"Histograms","elastic"},"pair_phi_diff_0")/norm.TotalSum().val(),"ppn_{sp}")
@@ -219,7 +219,7 @@ int main(){
     << "set key on" << "set xlabel 'Q, MeV'" 
     << "set ylabel 'Integrated luminosity, nb^{-1}'" 
     << "set xrange [-70:30]"<< "set yrange [0:]";
-    Plot<double>().Hist(luminosity*runs.second/runs.first)
+    Plot<double>().Hist(luminosity*runs.second/runs.first,"","LUMINOSITYc")
     << "set title 'Integrated luminosity estimation for all runs'"
     << "set key on" << "set xlabel 'Q, MeV'" 
     << "set ylabel 'Integrated luminosity, nb^{-1}'" 
