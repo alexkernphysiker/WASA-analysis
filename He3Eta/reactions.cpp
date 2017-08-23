@@ -114,7 +114,7 @@ int main(){
 	    <<fit.Optimality(fit.PopulationSize()-1)
 	    <<"          \r";
 	}
-	fit.SetUncertaintyCalcDeltas({0.1,0.1,0.1,0.1});
+	fit.SetUncertaintyCalcDeltas({0.01,0.01,0.01,0.01});
 	const auto&P=fit.ParametersWithUncertainties();
 	for(size_t i=0;i<reaction.size();i++)
 	    fit_params[i]<< point<value<double>>(Q,P[i]);
