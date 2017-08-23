@@ -137,7 +137,8 @@ int main(){
 	acceptance<<point<value<>>(Q,nmc_ppn.TotalSum());
 	acceptance_pd<<point<value<>>(Q,nmc_pd.TotalSum());
 	cout<<endl<<Qmsg<<endl;
-	Plot<>().Hist(nmc_ppn,"ppn_{sp}").Hist(nmc_pd,"pd")
+	Plot<>(Q.Contains(21)?"ppn-above-mc":(Q.Contains(-39)?"ppn-below-mc":""))
+	.Hist(nmc_ppn,"ppn_{sp}").Hist(nmc_pd,"pd")
 	<<"set key on"<<"set title 'MC "+Qmsg+"'"<<"set yrange [0:]"
 	<<"set xlabel "+thth<<"set ylabel 'counts normalized'";
 	cout<<endl;
@@ -188,7 +189,8 @@ int main(){
 	const SortedPoints<>
 	PPN=nmc_ppn.toLine()*p[0],PD=nmc_pd.toLine()*p[1],
 	BackGround=data.toLine().Clone().Transform([BG,&p](const double&x,const double&){return BG(x,p);});
-	Plot<>().Hist(data,"DATA")
+	Plot<>(Q.Contains(21)?"ppn-above-fit":(Q.Contains(-39)?"ppn-below-fit":""))
+	.Hist(data,"DATA")
 	.Line(PPN+PD+BackGround,"fit").Line(PD+BackGround,"pd+background").Line(BackGround,"background")
 	<<"set key on"<<"set title 'Data "+Qmsg+"("+runmsg+")'"<<"set yrange [0:]"
 	<<"set xlabel "+thth<<"set ylabel 'counts'";
@@ -200,7 +202,7 @@ int main(){
 	luminosity << point<value<>>(Q,L);
 	el_cs<< point<value<>>(Q,EL);
     }
-    Plot<>().Hist(acceptance,"ppn_{sp}").Hist(acceptance_pd,"pd")<<"set key on"
+    Plot<>("ppn-acceptance").Hist(acceptance,"ppn_{sp}").Hist(acceptance_pd,"pd")<<"set key on"
     <<"set title 'Acceptance'"<<"set yrange [0:]"<<"set xlabel 'Q, MeV'"<<"set ylabel 'Acceptance, n.d.'";
 
     for(size_t i=0;i<fit_params.size();i++){
@@ -209,12 +211,12 @@ int main(){
 	<< "set ylabel 'parameter"+to_string(i)+"'";
     }
 
-    Plot<double>().Hist(chi_sq,"DATA")
+    Plot<double>("ppn-chisq").Hist(chi_sq,"DATA")
     << "set xlabel 'Q, MeV'" <<"set key on"
     << "set ylabel 'chi^2/d, n.d.'" 
     << "set yrange [0:]"<<"unset log y";
 
-    Plot<double>().Hist(luminosity) 
+    Plot<double>("ppn-luminosity").Hist(luminosity) 
     << "set title 'Integrated luminosity ("+runmsg+")'"
     << "set key on" << "set xlabel 'Q, MeV'" 
     << "set ylabel 'Integrated luminosity, nb^{-1}'" 
@@ -225,7 +227,8 @@ int main(){
     << "set ylabel 'Integrated luminosity, nb^{-1}'" 
     << "set xrange [-70:30]"<< "set yrange [0:]";
 
-    Plot<double>().Hist(SIGMA,"ppn_{sp}(assumed)").Hist(el_cs,"pd(obtained)") 
+    Plot<double>("ppn-pd-cross-section")
+    .Hist(SIGMA,"ppn_{sp}(assumed)","CS-ppn-assumed").Hist(el_cs,"pd(obtained)","CS-pd") 
     << "set title '("+runmsg+")'"
     << "set key on" << "set xlabel 'Q, MeV'" 
     << "set ylabel 'Cross section, nb'" 
