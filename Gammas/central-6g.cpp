@@ -20,7 +20,7 @@ using namespace MathTemplates;
 using namespace GnuplotWrap;
 int main()
 {
-    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "he3eta_central_6gamma");
+    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-6gamma");
     vector<string> histpath_central_reconstr = {"Histograms", "CentralGammas6"};
     vector<string> reaction = {"bound1-6g", "He3eta", "He3pi0", "He3pi0pi0", "He3pi0pi0pi0"};
     hist<double> norm = Hist(MC, reaction[0], {"Histograms", "CentralGammas"}, "0-Reference");

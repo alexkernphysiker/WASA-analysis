@@ -31,7 +31,7 @@ int main()
     for (const string &r : reaction)
         norm.push_back(Hist(MC, r, histpath_forward_reconstr, "0-Reference"));
 
-    const hist<> luminosity = Plotter::Instance().GetPoints4("LUMINOSITYc");
+    const auto luminosity = Plotter::Instance().GetPoints4("LUMINOSITYc");
     vector<hist<>> acceptance, true_events;
     for (size_t i = 0; i < norm.size(); i++) {
         acceptance.push_back(hist<>());
