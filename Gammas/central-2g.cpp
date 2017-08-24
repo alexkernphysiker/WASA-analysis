@@ -53,9 +53,9 @@ int main()
                 const auto C = H.TotalSum();
                 if (C.Above(0)) {
                     Plot<>(
-                        Q.Contains(21) ? "He3gg-above-mc"+r : (
-                            Q.Contains(-39) ? "He3gg-below-mc"+r : (
-                                Q.Contains(-3) ? "He3gg-thr-mc"+r : ""
+                        Q.Contains(21) ? "He3gg-above-mc" + r : (
+                            Q.Contains(-39) ? "He3gg-below-mc" + r : (
+                                Q.Contains(-3) ? "He3gg-thr-mc" + r : ""
                             )
                         )
                     )
@@ -88,7 +88,8 @@ int main()
     }
     const auto luminosity = Plotter::Instance().GetPoints4("LUMINOSITYc");
     Plot<>().Hist(ev_am) << "set title 'Data events'" << "set yrange [0:]";
-    Plot<>("He3gg-cs").Hist((ev_am / acceptance[0] / luminosity)*trigger_he3_forward.scaling,"","CS-He3gg")
+    Plot<>("He3gg-cs").Hist((ev_am / acceptance[0] / luminosity)
+                            *trigger_he3_forward.scaling, "", "CS-He3gg")
             << "set xlabel 'Q, MeV'"
             << "set ylabel 'cross section, nb'"
             << "set title 'Events norm'" << "set yrange [0:]";

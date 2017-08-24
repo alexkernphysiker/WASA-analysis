@@ -23,17 +23,17 @@ int main()
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-6gamma");
     vector<string> histpath_central_reconstr = {"Histograms", "CentralGammas6"};
     vector<string> reaction = {"bound1-6g", "He3eta", "He3pi0", "He3pi0pi0", "He3pi0pi0pi0"};
-    hist<double> norm = Hist(MC, reaction[0], {"Histograms", "CentralGammas"}, "0-Reference");
+    hist<> norm = Hist(MC, reaction[0], {"Histograms", "CentralGammas"}, "0-Reference");
     const auto runs = PresentRuns("C");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
-    Plot<> theory, experiment;
+    Plot<> theory("He3gggggg-mc"), experiment("He3gggggg-data");
     for (const auto &r : reaction) {
         theory.Line(Hist(MC, r, histpath_central_reconstr, "GIMTDiff-AllBins").toLine(), r);
     }
     theory << "set key on" << "set yrange [0:]";
     experiment.Hist(Hist(DATA, "C", histpath_central_reconstr, "GIMTDiff-AllBins"), "DATA")
             << "set key on" << "set title '" + runmsg + "'" << "set yrange [0:]";
-    hist<double> ev_am;
+    hist<> ev_am;
     vector<hist<>> acceptance;
     for (size_t i = 0; i < reaction.size(); i++) {
         acceptance.push_back(hist<>());
@@ -53,7 +53,14 @@ int main()
                              H = h.XRange(0, 0.2);
                 const auto C = H.TotalSum();
                 if (C.Above(0)) {
-                    Plot<>().Hist(h).Hist(H) << "set title '" + Qmsg + ";MC " + r + "'" << "set yrange [0:]";
+                    Plot<>(
+                        Q.Contains(21) ? "He3gggggg-above-mc" + r : (
+                            Q.Contains(-39) ? "He3gggggg-below-mc" + r : (
+                                Q.Contains(-3) ? "He3gggggg-thr-mc" + r : ""
+                            )
+                        )
+                    )
+                    .Hist(h).Hist(H) << "set title '" + Qmsg + ";MC " + r + "'" << "set yrange [0:]";
                     acceptance[i] << point<value<double>>(Q, C / N);
                 }
             }
@@ -61,17 +68,31 @@ int main()
         const hist<>
         data = Hist(DATA, "C", histpath_central_reconstr, string("GIMTDiff-Bin-") + to_string(bin_num)),
         DATA = data.XRange(0, 0.2);
-        Plot<>().Hist(data).Hist(DATA) << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]";
+        Plot<>(
+            Q.Contains(21) ? "He3gggggg-above-data" : (
+                Q.Contains(-39) ? "He3gggggg-below-data" : (
+                    Q.Contains(-3) ? "He3gggggg-thr-data" : ""
+                )
+            )
+        )
+        .Hist(data).Hist(DATA) << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]";
         ev_am << point<value<double>>(Q, DATA.TotalSum());
     }
-    Plot<> accplot;
-    accplot << "set title 'Acceptance'" << "set yrange [0:]" << "set key on";
+    Plot<> accplot("He3gggggg-acceptance");
+    accplot << "set title 'Acceptance'"
+            << "set xlabel 'Q, MeV'"
+            << "set ylabel 'Acceptance, n.d.'"
+            << "set yrange [0:]" << "set key on";
     for (size_t i = 0; i < reaction.size(); i++) {
         if (acceptance[i].size() > 0) {
             accplot.Hist(acceptance[i], reaction[i]);
         }
     }
     Plot<>().Hist(ev_am) << "set title 'Data events'" << "set yrange [0:]";
-    Plot<>().Hist((ev_am / acceptance[0])*trigger_he3_forward.scaling) << "set title 'Events norm'" << "set yrange [0:]";
+    Plot<>("He3gggggg-cs").Hist((ev_am / acceptance[0])
+                                *trigger_he3_forward.scaling)
+            << "set xlabel 'Q, MeV'"
+            << "set ylabel 'cross section, nb'"
+            << "set title 'Events norm'" << "set yrange [0:]";
 }
 

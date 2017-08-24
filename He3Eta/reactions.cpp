@@ -95,7 +95,7 @@ int main()
         fit([&theory, &data](const ParamSet & P) {
             double res = 0;
             for (size_t i = 1, n = data.size(); i < n; i++) {
-                value<double> exp_p = data[i].Y(), the_p = 0;
+                value<> exp_p = data[i].Y(), the_p = 0;
                 for (size_t j = 0, n = theory.size() - 1; j < n; j++)
                     the_p += theory[j][i].Y() * P[j];
                 res += exp_p.NumCompare(the_p);
@@ -123,22 +123,22 @@ int main()
         fit.SetUncertaintyCalcDeltas({0.01, 0.01, 0.01, 0.01});
         const auto &P = fit.ParametersWithUncertainties();
         for (size_t i = 0; i < reaction.size(); i++)
-            fit_params[i] << point<value<double>>(Q, P[i]);
-        bg_chi_sq << point<value<double>>(Q, fit.Optimality() / (data.size() - 2));
+            fit_params[i] << point<value<>>(Q, P[i]);
+        bg_chi_sq << point<value<>>(Q, fit.Optimality() / (data.size() - 2));
         exp_plot
         .Hist(theory[1]*P[1] + theory[2]*P[2], "Background")
         .Hist(theory[1]*P[1], reaction[1])
         .Hist(theory[2]*P[2], reaction[2])
         ;
         for (size_t i = 0; i < reaction.size(); i++)
-            true_events[i] << point<value<double>>(Q, P[i]*double(trigger_he3_forward.scaling));
+            true_events[i] << point<value<>>(Q, P[i]*trigger_he3_forward.scaling);
     }
-    Plot<double>("He3forward-chisq").Hist(bg_chi_sq)
+    Plot<>("He3forward-chisq").Hist(bg_chi_sq)
             << "set xlabel 'Q, MeV'"
             << "set ylabel 'chi^2/d, n.d.'"
             << "set yrange [0:]" << "unset log y";
 
-    Plot<double> acc("He3forward-acceptance"), par, cs("He3forward-bg-cs");
+    Plot<> acc("He3forward-acceptance"), par, cs("He3forward-bg-cs");
     acc << "set key on"
         << "set yrange [0:1.0]" << "unset log y"
         << "set xlabel 'Q, MeV'"
