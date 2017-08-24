@@ -124,7 +124,7 @@ int main()
                 bg << point<value<double>>(po.X(), {v, sqrt(u)});
             }
             hist<double> clean = data - bg;
-            Plot<double> subplot(Q.Contains(21) ? "He3eta-substract" : "");
+            Plot<double> subplot(Q.Contains(21) ? "He3eta-subtract" : "");
             subplot.Hist(clean);
             subplot.Hist(clean = clean.XRange(cut.first, cut.second)).Object("0 title \"\"")
                     << "set key on" << "set title '" + Qmsg + ", " + runmsg + "'"
