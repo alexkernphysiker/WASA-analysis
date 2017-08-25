@@ -15,7 +15,7 @@ using namespace GnuplotWrap;
 RANDOM engine;
 int main()
 {
-    Plotter::Instance().SetOutput(SimulationDataProcess::SimulationDataPath(), "He3Ekin");
+    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"He3-reconstruction");
 
     SimulationDataProcess::ForwardEkinReconstructionFit(
         "He3.E.FRH1", make_shared<He3EnergyFRH1>(),
