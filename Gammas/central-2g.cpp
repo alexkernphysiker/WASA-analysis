@@ -20,7 +20,7 @@ using namespace MathTemplates;
 using namespace GnuplotWrap;
 int main()
 {
-    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-2gamma");
+    Plotter<>::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-2gamma");
     vector<string> histpath_central_reconstr = {"Histograms", "CentralGammas2"};
     vector<string> reaction = {"bound1-2g", "He3eta", "He3pi0", "He3pi0pi0", "He3pi0pi0pi0"};
     const auto runs = PresentRuns("C");
@@ -86,7 +86,7 @@ int main()
             accplot.Hist(acceptance[i], reaction[i]);
         }
     }
-    const auto luminosity = Plotter::Instance().GetPoints4("LUMINOSITYc");
+    const auto luminosity = Plotter<>::Instance().GetPoints4("LUMINOSITYc");
     Plot<>().Hist(ev_am) << "set title 'Data events'" << "set yrange [0:]";
     Plot<>("He3gg-cs").Hist((ev_am / acceptance[0] / luminosity)
                             *trigger_he3_forward.scaling, "", "CS-He3gg")

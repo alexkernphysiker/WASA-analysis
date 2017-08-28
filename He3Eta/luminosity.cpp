@@ -23,7 +23,7 @@ using namespace MathTemplates;
 using namespace GnuplotWrap;
 int main()
 {
-    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "luminosity-forward");
+    Plotter<>::Instance().SetOutput(ENV(OUTPUT_PLOTS), "luminosity-forward");
     vector<string> histpath_forward_reconstr = {"Histograms", "He3Forward_Reconstruction"};
     const auto runs = PresentRuns("F");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
@@ -169,7 +169,7 @@ int main()
 
     Plot<>("luminosity-compare")
     .Hist(luminosity * runs.second / runs.first, "3He+eta", "LUMINOSITYf")
-    .Hist(Plotter::Instance().GetPoints4("LUMINOSITYc"), "ppn_{sp}")
+    .Hist(Plotter<>::Instance().GetPoints4("LUMINOSITYc"), "ppn_{sp}")
             << "set title 'Integrated luminosity estimation for all runs'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"

@@ -22,7 +22,7 @@ using namespace MathTemplates;
 using namespace GnuplotWrap;
 int main()
 {
-    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "background-reactions-forward");
+    Plotter<>::Instance().SetOutput(ENV(OUTPUT_PLOTS), "background-reactions-forward");
     const auto runs = PresentRuns("F");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
     vector<string> histpath_forward_reconstr = {"Histograms", "He3Forward_Reconstruction"};
@@ -31,7 +31,7 @@ int main()
     for (const string &r : reaction)
         norm.push_back(Hist(MC, r, histpath_forward_reconstr, "0-Reference"));
 
-    const auto luminosity = Plotter::Instance().GetPoints4("LUMINOSITYc");
+    const auto luminosity = Plotter<>::Instance().GetPoints4("LUMINOSITYc");
     vector<hist<>> acceptance, true_events;
     for (size_t i = 0; i < norm.size(); i++) {
         acceptance.push_back(hist<>());

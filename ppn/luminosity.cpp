@@ -61,7 +61,7 @@ int main()
                  thth = "'Theta_1+1.6Theta_2, deg'", planarity = "'|Phi_1-Phi_2-180^o|, deg'";
     const hist<> norm = Hist(MC, "ppn_qf", {"Histograms", "elastic"}, "0-Reference");
     const hist<> norm_pd = Hist(MC, "pd", {"Histograms", "elastic"}, "0-Reference");
-    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "luminosity-central");
+    Plotter<>::Instance().SetOutput(ENV(OUTPUT_PLOTS), "luminosity-central");
     Plot<>("ppn-copl-mc")
     .Hist(Hist(MC, "pd", {"Histograms", "elastic"}, "pair_phi_diff_0") / norm_pd.TotalSum().val(), "pd")
     .Hist(Hist(MC, "ppn_qf", {"Histograms", "elastic"}, "pair_phi_diff_0") / norm.TotalSum().val(), "ppn_{sp}")

@@ -19,7 +19,7 @@ using namespace MathTemplates;
 using namespace GnuplotWrap;
 int main()
 {
-    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "he3-forward-kinematics");
+    Plotter<>::Instance().SetOutput(ENV(OUTPUT_PLOTS), "he3-forward-kinematics");
     const string He3eta_msg = "He3eta";
     auto QBins = Hist(MC, He3eta_msg, {"Histograms", "He3Forward_Reconstruction"}, "0-Reference");
     for (size_t bin_num = 0, bin_count = QBins.size(); bin_num < bin_count; bin_num++) {

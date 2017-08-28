@@ -16,7 +16,7 @@ using namespace MathTemplates;
 using namespace GnuplotWrap;
 int main()
 {
-    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "he3eta-forward-cuts");
+    Plotter<>::Instance().SetOutput(ENV(OUTPUT_PLOTS), "he3eta-forward-cuts");
     auto MakePlots = [](const histsource HS, const string & R, const uint max_z) {
         string title = "Data";
         if (HS == MC) {
