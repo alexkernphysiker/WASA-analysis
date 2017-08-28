@@ -122,7 +122,7 @@ int main()
     const auto p_cs = IntegrateCrossSection(diff_cs);
     Plot<>().Line(p_cs);
     const auto SIGMA = ConvertCrossSections(p_cs);
-    Plot<double>().Hist(SIGMA)
+    Plot<>().Hist(SIGMA)
             << "set title 'ppn_{sp} cross section'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'cross section, nb'"
@@ -218,28 +218,28 @@ int main()
             << "set title 'Acceptance'" << "set yrange [0:]" << "set xlabel 'Q, MeV'" << "set ylabel 'Acceptance, n.d.'";
 
     for (size_t i = 0; i < fit_params.size(); i++) {
-        Plot<double>().Hist(fit_params[i])
+        Plot<>().Hist(fit_params[i])
                 << "set xlabel 'Q, MeV'"
                 << "set ylabel 'parameter" + to_string(i) + "'";
     }
 
-    Plot<double>("ppn-chisq").Hist(chi_sq, "DATA")
+    Plot<>("ppn-chisq").Hist(chi_sq, "DATA")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'chi^2/d, n.d.'"
             << "set yrange [0:]" << "unset log y";
 
-    Plot<double>("ppn-luminosity").Hist(luminosity)
+    Plot<>("ppn-luminosity").Hist(luminosity)
             << "set title 'Integrated luminosity (" + runmsg + ")'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:]";
-    Plot<double>().Hist(luminosity * runs.second / runs.first, "", "LUMINOSITYc")
+    Plot<>().Hist(luminosity * runs.second / runs.first, "", "LUMINOSITYc")
             << "set title 'Integrated luminosity estimation for all runs'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:]";
 
-    Plot<double>("ppn-pd-cross-section")
+    Plot<>("ppn-pd-cross-section")
     .Hist(SIGMA, "ppn_{sp}(assumed)", "CS-ppn-assumed").Hist(el_cs, "pd(obtained)", "CS-pd")
             << "set title '(" + runmsg + ")'"
             << "set key on" << "set xlabel 'Q, MeV'"
