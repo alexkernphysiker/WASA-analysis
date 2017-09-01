@@ -21,17 +21,18 @@ using namespace GnuplotWrap;
 int main()
 {
     Plotter<>::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-6gamma");
-    vector<string> histpath_central_reconstr = {"Histograms", "CentralGammas6"};
+    vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas6"};
     vector<string> reaction = {"bound1-6g", "He3eta", "He3pi0", "He3pi0pi0", "He3pi0pi0pi0"};
-    hist<> norm = Hist(MC, reaction[0], {"Histograms", "CentralGammas"}, "0-Reference");
+    hist<> norm = Hist(MC, reaction[0], {"Histograms", "He3nCentralGammas"}, "0-Reference");
     const auto runs = PresentRuns("C");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
-    Plot<> theory("He3gggggg-mc"), experiment("He3gggggg-data");
+    Plot<> theory("He3gggggg-IMDiff-mc"), experiment("He3gggggg-IMDiff-data");
     for (const auto &r : reaction) {
-        theory.Line(Hist(MC, r, histpath_central_reconstr, "GIMTDiff-AllBins").toLine(), r);
+        theory.Line(Hist(MC, r, histpath_central_reconstr, "GIMDiff1").toLine(), r);
     }
     theory << "set key on" << "set yrange [0:]";
-    experiment.Hist(Hist(DATA, "C", histpath_central_reconstr, "GIMTDiff-AllBins"), "DATA")
+    experiment
+    .Hist(Hist(DATA, "C", histpath_central_reconstr, "GIMDiff1"), "DATA")
             << "set key on" << "set title '" + runmsg + "'" << "set yrange [0:]";
     hist<> ev_am;
     vector<hist<>> acceptance;
@@ -44,30 +45,27 @@ int main()
                             << "Q in [" << setprecision(3)
                             << Q.min() << "; " << Q.max() << "] MeV"
                                                        ).str();
+        Plot<> mc_plot(
+            Q.Contains(21) ? "He3gggggg-above-mc": (
+                Q.Contains(-39) ? "He3gggggg-below-mc": (
+                    Q.Contains(-3) ? "He3gggggg-thr-mc": ""
+                )
+            )
+        );
+        mc_plot << "set key on" << "set title '" + Qmsg + ";MC'" << "set yrange [0:]";
         for (size_t i = 0; i < reaction.size(); i++) {
             const auto &r = reaction[i];
-            hist<double> Norm = Hist(MC, r, {"Histograms", "CentralGammas"}, "0-Reference");
+            hist<double> Norm = Hist(MC, r, {"Histograms", "He3nCentralGammas"}, "0-Reference");
             const auto &N = Norm[bin_num].Y();
             if (N.Above(0)) {
-                const hist<> h = Hist(MC, r, histpath_central_reconstr, string("GIMTDiff-Bin-") + to_string(bin_num)),
-                             H = h.XRange(0, 0.2);
-                const auto C = H.TotalSum();
-                if (C.Above(0)) {
-                    Plot<>(
-                        Q.Contains(21) ? "He3gggggg-above-mc" + r : (
-                            Q.Contains(-39) ? "He3gggggg-below-mc" + r : (
-                                Q.Contains(-3) ? "He3gggggg-thr-mc" + r : ""
-                            )
-                        )
-                    )
-                    .Hist(h).Hist(H) << "set title '" + Qmsg + ";MC " + r + "'" << "set yrange [0:]";
-                    acceptance[i] << point<value<double>>(Q, C / N);
-                }
+                const hist<> h = Hist(MC, r, histpath_central_reconstr, string("GIM1-Bin-") + to_string(bin_num));
+                const auto C = h.TotalSum();
+                mc_plot.Hist(h / N, r);
+                acceptance[i] << point<value<double>>(Q, C / N);
             }
         }
         const hist<>
-        data = Hist(DATA, "C", histpath_central_reconstr, string("GIMTDiff-Bin-") + to_string(bin_num)),
-        DATA = data.XRange(0, 0.2);
+        data = Hist(DATA, "C", histpath_central_reconstr, string("GIM1-Bin-") + to_string(bin_num));
         Plot<>(
             Q.Contains(21) ? "He3gggggg-above-data" : (
                 Q.Contains(-39) ? "He3gggggg-below-data" : (
@@ -75,8 +73,8 @@ int main()
                 )
             )
         )
-        .Hist(data).Hist(DATA) << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]";
-        ev_am << point<value<double>>(Q, DATA.TotalSum());
+        .Hist(data) << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]";
+        ev_am << point<value<double>>(Q, data.TotalSum());
     }
     Plot<> accplot("He3gggggg-acceptance");
     accplot << "set title 'Acceptance'"
@@ -95,4 +93,3 @@ int main()
             << "set ylabel 'cross section, nb'"
             << "set title 'Events norm'" << "set yrange [0:]";
 }
-
