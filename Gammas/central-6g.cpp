@@ -20,10 +20,11 @@ using namespace MathTemplates;
 using namespace GnuplotWrap;
 int main()
 {
-    Plotter<>::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-6gamma");
+    Plotter<>::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-6gamma-with-3he");
+    vector<string> histpath_reconstr = {"Histograms", "He3nCentralGammas"};
     vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas6"};
-    vector<string> reaction = {"bound1-6g", "He3eta", "He3pi0", "He3pi0pi0", "He3pi0pi0pi0"};
-    hist<> norm = Hist(MC, reaction[0], {"Histograms", "He3nCentralGammas"}, "0-Reference");
+    vector<string> reaction = {"bound1-6g", "He3eta", "He3pi0pi0pi0"};
+    hist<> norm = Hist(MC, reaction[0], histpath_reconstr, "0-Reference");
     const auto runs = PresentRuns("C");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
     Plot<> theory("He3gggggg-IMDiff-mc"), experiment("He3gggggg-IMDiff-data");
@@ -46,16 +47,16 @@ int main()
                             << Q.min() << "; " << Q.max() << "] MeV"
                                                        ).str();
         Plot<> mc_plot(
-            Q.Contains(21) ? "He3gggggg-above-mc": (
-                Q.Contains(-39) ? "He3gggggg-below-mc": (
-                    Q.Contains(-3) ? "He3gggggg-thr-mc": ""
+            Q.Contains(21) ? "He3gggggg-above-mc" : (
+                Q.Contains(-39) ? "He3gggggg-below-mc" : (
+                    Q.Contains(-3) ? "He3gggggg-thr-mc" : ""
                 )
             )
         );
         mc_plot << "set key on" << "set title '" + Qmsg + ";MC'" << "set yrange [0:]";
         for (size_t i = 0; i < reaction.size(); i++) {
             const auto &r = reaction[i];
-            hist<double> Norm = Hist(MC, r, {"Histograms", "He3nCentralGammas"}, "0-Reference");
+            hist<double> Norm = Hist(MC, r, histpath_reconstr, "0-Reference");
             const auto &N = Norm[bin_num].Y();
             if (N.Above(0)) {
                 const hist<> h = Hist(MC, r, histpath_central_reconstr, string("GIM1-Bin-") + to_string(bin_num));

@@ -21,10 +21,11 @@ using namespace GnuplotWrap;
 int main()
 {
     Plotter<>::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-2gamma");
+    vector<string> histpath_reconstr = {"Histograms", "He3nCentralGammas"};
     vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas2"};
-    vector<string> reaction = {"bound1-2g", "He3eta", "He3pi0", "He3pi0pi0", "He3pi0pi0pi0"};
+    vector<string> reaction = {"bound1-2g","bound1-6g", "He3eta", "He3pi0", "He3pi0pi0", "He3pi0pi0pi0"};
     const auto runs = PresentRuns("C");
-    hist<> norm = Hist(MC, reaction[0], {"Histograms", "He3nCentralGammas"}, "0-Reference");
+    hist<> norm = Hist(MC, reaction[0], histpath_reconstr, "0-Reference");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
     Plot<> theory("He3gg-IMDiff-mc"), experiment("He3gg-IMDiff-data");
     for (const auto &r : reaction) {
@@ -45,23 +46,59 @@ int main()
         const string Qmsg = static_cast<stringstream &>(stringstream()
                             << "Q in [" << setprecision(3)
                             << Q.min() << "; " << Q.max() << "] MeV").str();
-        Plot<> mc_plot(
-            Q.Contains(21) ? "He3gg-above-mc": (
-                Q.Contains(-39) ? "He3gg-below-mc": (
-                    Q.Contains(-3) ? "He3gg-thr-mc": ""
+        Plot<>(
+            Q.Contains(21) ? "He3gg-above-he3mm-bound-mc" : (
+                Q.Contains(-39) ? "He3gg-below-he3mm-bound-mc" : (
+                    Q.Contains(-3) ? "He3gg-thr-he3mm-bound-mc" : ""
+                )
+            )
+        )
+        .Hist(Hist(MC, reaction[0], histpath_reconstr, string("He3MM0-Bin-") + to_string(bin_num)), "All")
+        .Hist(Hist(MC, reaction[0], histpath_reconstr, string("He3MM1-Bin-") + to_string(bin_num)), "Cut1")
+        .Hist(Hist(MC, reaction[0], histpath_central_reconstr, string("He3MM0-Bin-") + to_string(bin_num)), "With 2 gammas")
+        .Hist(Hist(MC, reaction[0], histpath_central_reconstr, string("He3MM1-Bin-") + to_string(bin_num)), "Cut2")
+                << "set key on" << "set title '" + Qmsg + ";MC "+reaction[0]+"'" << "set yrange [0:]"
+                << "set xlabel '3He missing mass, GeV'";
+        Plot<> he3_plot(
+            Q.Contains(21) ? "He3gg-above-he3mm-mc" : (
+                Q.Contains(-39) ? "He3gg-below-he3mm-mc" : (
+                    Q.Contains(-3) ? "He3gg-thr-he3mm-mc" : ""
                 )
             )
         );
-        mc_plot << "set key on" << "set title '" + Qmsg + ";MC'" << "set yrange [0:]";
+        he3_plot << "set key on" << "set title '" + Qmsg + ";MC'" << "set yrange [0:]"
+                 << "set xlabel '3He missing mass, GeV'";
+        Plot<> mc_plot(
+            Q.Contains(21) ? "He3gg-above-im-mc" : (
+                Q.Contains(-39) ? "He3gg-below-im-mc" : (
+                    Q.Contains(-3) ? "He3gg-thr-im-mc" : ""
+                )
+            )
+        );
+        mc_plot << "set key on" << "set title '" + Qmsg + ";MC'" << "set yrange [0:]"
+                << "set xlabel 'gamma-gamma invariant mass, GeV'";
         for (size_t i = 0; i < reaction.size(); i++) {
             const auto &r = reaction[i];
-            hist<> Norm = Hist(MC, r, {"Histograms", "He3nCentralGammas"}, "0-Reference");
+            hist<> Norm = Hist(MC, r, histpath_reconstr, "0-Reference");
             const auto &N = Norm[bin_num].Y();
             if (N.Above(0)) {
                 const hist<> h = Hist(MC, r, histpath_central_reconstr, string("GIM1-Bin-") + to_string(bin_num));
+                const hist<> he3 = Hist(MC, r, histpath_central_reconstr, string("He3MM1-Bin-") + to_string(bin_num));
                 const auto C = h.TotalSum();
-                mc_plot.Hist(h/N,r);
+                mc_plot.Hist(h / N, r);
+                he3_plot.Hist(he3 / N, r);
                 acceptance[i] << point<value<double>>(Q, C / N);
+                Plot<>(
+                    Q.Contains(21) ? "He3gg-above-ggim-mc" + r : (
+                        Q.Contains(-39) ? "He3gg-below-bound-ggim-mc" + r : (
+                            Q.Contains(-3) ? "He3gg-thr-ggim-mc" + r : ""
+                        )
+                    )
+                )
+                .Hist(Hist(MC, r, histpath_central_reconstr, string("GIM0-Bin-") + to_string(bin_num)), "3He with 2 gammas")
+                .Hist(Hist(MC, r, histpath_central_reconstr, string("GIM1-Bin-") + to_string(bin_num)), "Cut2")
+                        << "set key on" << "set title '" + Qmsg + ";MC " + r + "'" << "set yrange [0:]"
+                        << "set xlabel 'gamma-gamma invariant mass, GeV'";
             }
         }
         const hist<> data = Hist(DATA, "C", histpath_central_reconstr, string("GIM1-Bin-") + to_string(bin_num));
