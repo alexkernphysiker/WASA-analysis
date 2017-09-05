@@ -23,7 +23,7 @@ int main()
     Plotter<>::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-2gamma");
     vector<string> histpath_reconstr = {"Histograms", "He3nCentralGammas"};
     vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas2"};
-    vector<string> reaction = {"bound1-2g","bound1-6g", "He3eta", "He3pi0", "He3pi0pi0", "He3pi0pi0pi0"};
+    vector<string> reaction = {"bound1-2g","He3eta","He3pi0pi0", "bound1-6g","He3pi0pi0pi0", "He3pi0"};
     const auto runs = PresentRuns("C");
     hist<> norm = Hist(MC, reaction[0], histpath_reconstr, "0-Reference");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
@@ -57,7 +57,7 @@ int main()
         .Hist(Hist(MC, reaction[0], histpath_reconstr, string("He3MM1-Bin-") + to_string(bin_num)), "Cut1")
         .Hist(Hist(MC, reaction[0], histpath_central_reconstr, string("He3MM0-Bin-") + to_string(bin_num)), "With 2 gammas")
         .Hist(Hist(MC, reaction[0], histpath_central_reconstr, string("He3MM1-Bin-") + to_string(bin_num)), "Cut2")
-                << "set key on" << "set title '" + Qmsg + ";MC "+reaction[0]+"'" << "set yrange [0:]"
+                << "set key on" << "set title '" + Qmsg + ";MC " + reaction[0] + "'" << "set yrange [0:]"
                 << "set xlabel '3He missing mass, GeV'";
         Plot<> he3_plot(
             Q.Contains(21) ? "He3gg-above-he3mm-mc" : (
@@ -84,10 +84,10 @@ int main()
             if (N.Above(0)) {
                 const hist<> h = Hist(MC, r, histpath_central_reconstr, string("GIM1-Bin-") + to_string(bin_num));
                 const hist<> he3 = Hist(MC, r, histpath_central_reconstr, string("He3MM1-Bin-") + to_string(bin_num));
-                const auto C = h.TotalSum();
+                const auto C = value<>::std_error(h.TotalSum().val());
                 mc_plot.Hist(h / N, r);
                 he3_plot.Hist(he3 / N, r);
-                acceptance[i] << point<value<double>>(Q, C / N);
+                acceptance[i] << point<value<>>(Q, C / N);
                 Plot<>(
                     Q.Contains(21) ? "He3gg-above-ggim-mc" + r : (
                         Q.Contains(-39) ? "He3gg-below-bound-ggim-mc" + r : (
@@ -99,6 +99,8 @@ int main()
                 .Hist(Hist(MC, r, histpath_central_reconstr, string("GIM1-Bin-") + to_string(bin_num)), "Cut2")
                         << "set key on" << "set title '" + Qmsg + ";MC " + r + "'" << "set yrange [0:]"
                         << "set xlabel 'gamma-gamma invariant mass, GeV'";
+            } else {
+                acceptance[i] << point<value<>>(Q, 0.0);
             }
         }
         const hist<> data = Hist(DATA, "C", histpath_central_reconstr, string("GIM1-Bin-") + to_string(bin_num));
@@ -110,7 +112,7 @@ int main()
             )
         )
         .Hist(data) << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]";
-        ev_am << point<value<double>>(Q, data.TotalSum());
+        ev_am << point<value<>>(Q, value<>::std_error(data.TotalSum().val()));
     }
     Plot<> accplot("He3gg-acceptance");
     accplot << "set title 'Acceptance'"
@@ -118,15 +120,19 @@ int main()
             << "set ylabel 'Acceptance, n.d.'"
             << "set yrange [0:]" << "set key on";
     for (size_t i = 0; i < reaction.size(); i++) {
-        if (acceptance[i].size() > 0) {
-            accplot.Hist(acceptance[i], reaction[i]);
+        const auto acc = acceptance[i].YRange(0.0005, INFINITY);
+        if (acc.size() > 0) {
+            accplot.Hist(acc, reaction[i]);
         }
     }
     const auto luminosity = Plotter<>::Instance().GetPoints4("LUMINOSITYc");
-    Plot<>().Hist(ev_am) << "set title 'Data events'" << "set yrange [0:]";
-    Plot<>("He3gg-cs").Hist((ev_am / acceptance[0] / luminosity)
-                            *trigger_he3_forward.scaling, "", "CS-He3gg")
-            << "set xlabel 'Q, MeV'"
-            << "set ylabel 'cross section, nb'"
-            << "set title 'Events norm'" << "set yrange [0:]";
+    const auto he3etacs = Plotter<>::Instance().GetPoints4("CS-He3eta-assumed");
+    const hist<> known_events =
+        luminosity * (runs.first / runs.second)/double(trigger_he3_forward.scaling)
+        * (he3etacs * acceptance[1]);
+    Plot<>("He3gg-events").Hist(ev_am, "data", "EVENTS-He3gg")
+        .Hist(ev_am-known_events, "data-(3He+eta)")
+            << "set xlabel 'Q, MeV'" << "set key on"
+            << "set ylabel 'events, n.d.'"
+            << "set title 'Events 3He+2gamma'" << "set yrange [0:]";
 }

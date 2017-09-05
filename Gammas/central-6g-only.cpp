@@ -44,8 +44,7 @@ int main()
         const auto &Q = norm[bin_num].X();
         const string Qmsg = static_cast<stringstream &>(stringstream()
                             << "Q in [" << setprecision(3)
-                            << Q.min() << "; " << Q.max() << "] MeV"
-                                                       ).str();
+                            << Q.min() << "; " << Q.max() << "] MeV").str();
         Plot<> mc_plot(
             Q.Contains(21) ? "gggggg-above-mc" : (
                 Q.Contains(-39) ? "gggggg-below-mc" : (
@@ -56,13 +55,15 @@ int main()
         mc_plot << "set key on" << "set title '" + Qmsg + ";MC'" << "set yrange [0:]";
         for (size_t i = 0; i < reaction.size(); i++) {
             const auto &r = reaction[i];
-            hist<double> Norm = Hist(MC,r,histpath_reconstr, "0-Reference");
+            hist<double> Norm = Hist(MC, r, histpath_reconstr, "0-Reference");
             const auto &N = Norm[bin_num].Y();
             if (N.Above(0)) {
                 const hist<> h = Hist(MC, r, histpath_central_reconstr, string("GIM1-Bin-") + to_string(bin_num));
                 const auto C = h.TotalSum();
                 mc_plot.Hist(h / N, r);
                 acceptance[i] << point<value<double>>(Q, C / N);
+            } else {
+                acceptance[i] << point<value<>>(Q, 0.0);
             }
         }
         const hist<>
@@ -75,7 +76,7 @@ int main()
             )
         )
         .Hist(data) << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]";
-        ev_am << point<value<double>>(Q, data.TotalSum());
+        ev_am << point<value<>>(Q, value<>::std_error(data.TotalSum().val()));
     }
     Plot<> accplot("gggggg-acceptance");
     accplot << "set title 'Acceptance'"
@@ -83,14 +84,19 @@ int main()
             << "set ylabel 'Acceptance, n.d.'"
             << "set yrange [0:]" << "set key on";
     for (size_t i = 0; i < reaction.size(); i++) {
-        if (acceptance[i].size() > 0) {
-            accplot.Hist(acceptance[i], reaction[i]);
+        const auto acc = acceptance[i].YRange(0.0001, INFINITY);
+        if (acc.size() > 0) {
+            accplot.Hist(acc, reaction[i]);
         }
     }
-    Plot<>().Hist(ev_am) << "set title 'Data events'" << "set yrange [0:]";
-    Plot<>("gggggg-cs").Hist((ev_am / acceptance[0])
-                                *trigger_he3_forward.scaling)
-            << "set xlabel 'Q, MeV'"
-            << "set ylabel 'cross section, nb'"
-            << "set title 'Events norm'" << "set yrange [0:]";
+    const auto luminosity = Plotter<>::Instance().GetPoints4("LUMINOSITYc");
+    const auto he3etacs = Plotter<>::Instance().GetPoints4("CS-He3eta-assumed");
+    const hist<> known_events =
+        luminosity * (runs.first / runs.second) / double(trigger_he3_forward.scaling)
+        * (he3etacs * acceptance[1]);
+    Plot<>("gggggg-events").Hist(ev_am , "data", "EVENTS-gggggg")
+    .Hist(ev_am - known_events, "data-(3He+eta)")
+            << "set xlabel 'Q, MeV'" << "set key on"
+            << "set ylabel 'events, n.d.'"
+            << "set title 'Events 6gamma'" << "set yrange [0:]";
 }
