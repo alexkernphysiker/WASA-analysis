@@ -183,13 +183,11 @@ int main()
                      , r_eng
                     );
         FitData.SetUncertaintyCalcDeltas(parEq(FitData.ParamCount(), 0.1));
-        while (!FitData.AbsoluteOptimalityExitCondition(0.0000000001)) {
-            FitData.Iterate(r_eng);
-            cout << "DATA: " << FitData.iteration_count() << " iterations; "
-                 << FitData.Optimality() << "<chi^2<"
-                 << FitData.Optimality(FitData.PopulationSize() - 1)
-                 << "          \r";
-        }
+        while (!FitData.AbsoluteOptimalityExitCondition(0.0000000001)) FitData.Iterate(r_eng);
+        cout << "DATA: " << FitData.iteration_count() << " iterations; "
+            << FitData.Optimality() << "<chi^2<"
+            << FitData.Optimality(FitData.PopulationSize() - 1)
+            << endl;
         const auto &P = FitData.ParametersWithUncertainties();
         const auto &p = FitData.Parameters();
         for (size_t i = 0; i < P.size(); i++) {

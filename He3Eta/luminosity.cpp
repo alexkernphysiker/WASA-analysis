@@ -40,22 +40,21 @@ int main()
                                 << Q.min() << "; " << Q.max() << "] MeV"
                                                            ).str();
             const hist<> data = Hist(DATA, "F", histpath_forward_reconstr,
-                                           string("MissingMass-Bin-") + to_string(bin_num)
-                                          ).XRange(0.53, 0.57);
+                                     string("MissingMass-Bin-") + to_string(bin_num)
+                                    ).XRange(0.53, 0.57);
             const auto chain = ChainWithStep(0.53, 0.0001, 0.57);
             const auto cut = make_pair(0.541, 0.554);
             const hist<> mc_unnorm = Hist(MC, "He3eta", histpath_forward_reconstr,
                                           string("MissingMass-Bin-") + to_string(bin_num)
                                          ).XRange(0.53, 0.57);
-            acceptance << point<value<>>(Q, mc_unnorm.TotalSum() / N);
+            const hist<> mc = mc_unnorm / N;
+            acceptance << point<value<>>(Q, mc.TotalSum());
             Plot<>(Q.Contains(21) ? "He3eta-mc" : "")
-            .Hist(mc_unnorm)
+            .Hist(mc)
                     << "set key on" << "set title '" + Qmsg + ",3He+eta MC'"
                     << "set xlabel 'Missing mass, GeV'"
-                    << "set ylabel 'counts'"
+                    << "set ylabel 'acceptance density, GeV^{-1}'"
                     << "set yrange [0:]" << "unset log y";
-            const hist<> mc = mc_unnorm / N;
-            const LinearInterpolation<> fg = mc.toLine();
             const auto &data_count = data.TotalSum().val();
             const auto BG = [&data_count](const ParamSet & X, const ParamSet & P) {
                 const double res = data_count * Polynom(X[0], P, 3, 0);
@@ -84,13 +83,11 @@ int main()
                         ;
             FIT.Init(300, init, r_eng);
             cout << endl;
-            while (!FIT.AbsoluteOptimalityExitCondition(0.0000001)) {
-                FIT.Iterate(r_eng);
-                cout << "Fitting: " << FIT.iteration_count() << " iterations; "
-                     << FIT.Optimality() << "<chi^2<"
-                     << FIT.Optimality(FIT.PopulationSize() - 1)
-                     << "          \r";
-            }
+            while (!FIT.AbsoluteOptimalityExitCondition(0.0000001))FIT.Iterate(r_eng);
+            cout << "Fitting: " << FIT.iteration_count() << " iterations; "
+                 << FIT.Optimality() << "<chi^2<"
+                 << FIT.Optimality(FIT.PopulationSize() - 1)
+                 << endl;
             const auto &P = FIT.ParametersWithUncertainties();
             if (parhists.size() == 0) {
                 for (size_t i = 0; i < P.size(); i++)
@@ -107,7 +104,9 @@ int main()
                     << "set ylabel 'counts'"
                     << "set yrange [-200:]" << "unset log y";
             const SortedPoints<>
-            background([&FIT, BG](double x){return BG({x}, FIT.Parameters());}, chain);
+            background([&FIT, BG](double x) {
+                return BG({x}, FIT.Parameters());
+            }, chain);
             exp_plot.Line(background, "background");
             hist<> bg;
             for (const auto &po : data) {
@@ -155,7 +154,7 @@ int main()
             << "set ylabel 'sigma(^3He eta), nb'"
             << "set xrange [-20:45]" << "set yrange [0:600]";
 
-    Plot<>().Hist(acceptance)
+    Plot<>("He3eta-acceptance").Hist(acceptance)
             << "set title '3He+eta acceptance'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'acceptance, n.d.'"
