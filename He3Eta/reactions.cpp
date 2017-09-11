@@ -108,12 +108,12 @@ int main()
     }
     const auto luminosity = Plotter<>::Instance().GetPoints4("LUMINOSITYc");
     const auto he3etacs = Plotter<>::Instance().GetPoints4("CS-He3eta-assumed");
-    const auto he3pi0pi0pi0cs = Plotter<>::Instance().GetPoints4("CS-He3pi0pi0pi0");
+    //const auto he3pi0pi0pi0cs = Plotter<>::Instance().GetPoints4("CS-He3pi0pi0pi0");
     const hist<> he3eta_events = luminosity * (runs.first / runs.second) / double(trigger_he3_forward.scaling) * (he3etacs * acceptance2[0]);
-    const hist<> he3pi0pi0pi0_events = luminosity * (runs.first / runs.second) / double(trigger_he3_forward.scaling) * (he3pi0pi0pi0cs * acceptance2[1]);
+    //const hist<> he3pi0pi0pi0_events = luminosity * (runs.first / runs.second) / double(trigger_he3_forward.scaling) * (he3pi0pi0pi0cs * acceptance2[1]);
     Plot<>("He3forward-events")
     .Hist(he3eta_events, "3He+eta")
-    .Hist(he3eta_events + he3pi0pi0pi0_events, "3He+eta and 3He+3pi0")
+    //.Hist(he3eta_events + he3pi0pi0pi0_events, "3He+eta and 3He+3pi0")
     .Hist(events_count, "data")
             << "set key on"
             << "set yrange [0:]" << "unset log y"

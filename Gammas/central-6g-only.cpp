@@ -25,7 +25,7 @@ int main()
     vector<string> histpath_central_reconstr = {"Histograms", "OnlyCentralGammas6"};
     vector<string> reaction = {"bound1-6g", "He3eta", "He3pi0pi0pi0"};
     const hist<> norm = Hist(MC, reaction[0], histpath_reconstr, "0-Reference");
-    const auto runs = PresentRuns("C");
+    const auto runs = PresentRuns("CC");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
     Plot<> theory("gggggg-IMDiff0-mc"),theory1("gggggg-IMDiff1-mc"), experiment("gggggg-IMDiff-data");
     for (const auto &r : reaction) {
@@ -35,8 +35,8 @@ int main()
     theory << "set key on" << "set yrange [0:]";
     theory1 << "set key on" << "set yrange [0:]";
     experiment
-    .Hist(Hist(DATA, "C", histpath_central_reconstr, "GMMPDiff0"))
-    .Hist(Hist(DATA, "C", histpath_central_reconstr, "GMMPDiff1"))
+    .Hist(Hist(DATA, "CC", histpath_central_reconstr, "GMMPDiff0"))
+    .Hist(Hist(DATA, "CC", histpath_central_reconstr, "GMMPDiff1"))
             << "set key on" << "set title '" + runmsg + "'" << "set yrange [0:]";
     hist<> ev_am;
     vector<hist<>> acceptance;
@@ -70,7 +70,7 @@ int main()
             }
         }
         const hist<>
-        data = Hist(DATA, "C", histpath_central_reconstr, string("GIM1-Bin-") + to_string(bin_num));
+        data = Hist(DATA, "CC", histpath_central_reconstr, string("GIM1-Bin-") + to_string(bin_num));
         Plot<>(
             Q.Contains(21) ? "gggggg-above-data" : (
                 Q.Contains(-39) ? "gggggg-below-data" : (
