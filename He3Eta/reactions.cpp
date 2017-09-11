@@ -119,9 +119,4 @@ int main()
             << "set yrange [0:]" << "unset log y"
             << "set xlabel 'Q, MeV'"
             << "set ylabel 'events count'";
-    //Plot<>("He3forward-cross-section")
-    //        << "set key on"
-    //        << "set yrange [0:]" << "unset log y"
-    //        << "set xlabel 'Q, MeV'"
-    //        << "set ylabel 'cross section, nb'";
 }

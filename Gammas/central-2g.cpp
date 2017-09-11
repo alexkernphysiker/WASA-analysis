@@ -25,7 +25,7 @@ int main()
     vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas2"};
     vector<string> reaction = {"bound1-2g","He3eta","He3pi0pi0", "bound1-6g","He3pi0pi0pi0", "He3pi0"};
     const auto runs = PresentRuns("C");
-    hist<> norm = Hist(MC, reaction[0], histpath_reconstr, "0-Reference");
+    const hist<> norm = Hist(MC, reaction[0], histpath_reconstr, "0-Reference");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
     Plot<> theory("He3gg-IMDiff-mc"), experiment("He3gg-IMDiff-data");
     for (const auto &r : reaction) {
@@ -111,7 +111,8 @@ int main()
                 )
             )
         )
-        .Hist(data) << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]";
+        .Hist(data) << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
+        << "set xlabel 'gamma-gamma invariant mass, GeV'";
         ev_am << point<value<>>(Q, value<>::std_error(data.TotalSum().val()));
     }
     Plot<> accplot("He3gg-acceptance");
@@ -130,9 +131,10 @@ int main()
     const hist<> known_events =
         luminosity * (runs.first / runs.second)/double(trigger_he3_forward.scaling)
         * (he3etacs * acceptance[1]);
-    Plot<>("He3gg-events").Hist(ev_am, "data", "EVENTS-He3gg")
+    Plot<>("He3gg-events")
         .Hist(ev_am-known_events, "data-(3He+eta)")
+        .Hist(ev_am, "data", "EVENTS-He3gg")
             << "set xlabel 'Q, MeV'" << "set key on"
-            << "set ylabel 'events, n.d.'"
-            << "set title 'Events 3He+2gamma'" << "set yrange [0:]";
+            << "set ylabel 'events, n.d.'"<< "set yrange [0:]"
+            << "set title '" + runmsg + "'";
 }

@@ -27,13 +27,15 @@ int main()
     hist<> norm = Hist(MC, reaction[0], histpath_reconstr, "0-Reference");
     const auto runs = PresentRuns("C");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
-    Plot<> theory("He3gggggg-IMDiff-mc"), experiment("He3gggggg-IMDiff-data");
+    Plot<> theory("He3gggggg-IMDiff0-mc"),theory1("He3gggggg-IMDiff1-mc"), experiment("He3gggggg-IMDiff-data");
     for (const auto &r : reaction) {
-        theory.Line(Hist(MC, r, histpath_central_reconstr, "GIMDiff1").toLine(), r);
+        theory.Line(Hist(MC, r, histpath_central_reconstr, "GMMPDiff0").toLine(), r);
+        theory1.Line(Hist(MC, r, histpath_central_reconstr, "GMMPDiff1").toLine(), r);
     }
     theory << "set key on" << "set yrange [0:]";
     experiment
-    .Hist(Hist(DATA, "C", histpath_central_reconstr, "GIMDiff1"), "DATA")
+    .Hist(Hist(DATA, "C", histpath_central_reconstr, "GMMPDiff0"))
+    .Hist(Hist(DATA, "C", histpath_central_reconstr, "GMMPDiff1"))
             << "set key on" << "set title '" + runmsg + "'" << "set yrange [0:]";
     hist<> ev_am;
     vector<hist<>> acceptance;
@@ -52,7 +54,8 @@ int main()
                 )
             )
         );
-        mc_plot << "set key on" << "set title '" + Qmsg + ";MC'" << "set yrange [0:]";
+        mc_plot << "set key on" << "set title '" + Qmsg + ";MC'" << "set yrange [0:]"
+        << "set xlabel 'pi0+pi0+pi0 invariant mass, GeV'";
         for (size_t i = 0; i < reaction.size(); i++) {
             const auto &r = reaction[i];
             hist<double> Norm = Hist(MC, r, histpath_reconstr, "0-Reference");
@@ -75,7 +78,8 @@ int main()
                 )
             )
         )
-        .Hist(data) << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]";
+        .Hist(data) << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
+        << "set xlabel 'pi0+pi0+pi0 invariant mass, GeV'";
         ev_am << point<value<>>(Q, value<>::std_error(data.TotalSum().val()));
     }
     Plot<> accplot("He3gggggg-acceptance");
@@ -94,9 +98,10 @@ int main()
     const hist<> known_events =
         luminosity * (runs.first / runs.second) / double(trigger_he3_forward.scaling)
         * (he3etacs * acceptance[1]);
-    Plot<>("He3gggggg-events").Hist(ev_am, "data", "EVENTS-He3gggggg")
+    Plot<>("He3gggggg-events")
     .Hist(ev_am - known_events, "data-(3He+eta)")
+    .Hist(ev_am, "data", "EVENTS-He3gggggg")
             << "set xlabel 'Q, MeV'" << "set key on"
-            << "set ylabel 'events, n.d.'"
-            << "set title 'Events 3He+6gamma'" << "set yrange [0:]";
+            << "set ylabel 'events, n.d.'"<< "set yrange [0:]"
+            << "set title '" + runmsg + "'";
 }

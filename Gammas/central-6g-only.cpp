@@ -107,8 +107,6 @@ int main()
         * (runs.second / runs.first) / luminosity;
     Plot<>("gggggg-cross-section")
     .Hist(cross_section , "data")
-    //ToDo: provide some better cross section estimation
-    .Hist((cross_section-value<>(200000,5000))*[](const value<>&Q)->const value<>{return Q.Below(-25)?0.0:1.0;} , "He3+3pi0 estimation","CS-He3pi0pi0pi0")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'cross section, nb'"
             << "set title 'He3+3pi0'" << "set yrange [0:]";
