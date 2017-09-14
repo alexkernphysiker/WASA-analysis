@@ -93,8 +93,8 @@ int main()
             accplot.Hist(acc, reaction[i]);
         }
     }
-    const auto luminosity = Plotter<>::Instance().GetPoints4("LUMINOSITYc");
-    const auto he3etacs = Plotter<>::Instance().GetPoints4("CS-He3eta-assumed");
+    const hist<> luminosity = Plotter<>::Instance().GetPoints<value<>>("LUMINOSITYc");
+    const hist<> he3etacs = Plotter<>::Instance().GetPoints<value<>>("CS-He3eta-assumed");
     const hist<> known_events =
         luminosity * (runs.first / runs.second) / double(trigger_he3_forward.scaling)
         * (he3etacs * acceptance[1]);

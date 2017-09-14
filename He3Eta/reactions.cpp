@@ -106,9 +106,8 @@ int main()
         acc.Hist(acceptance[i], reaction[i]);
         acc2.Hist(acceptance2[i], reaction[i]);
     }
-    const auto luminosity = Plotter<>::Instance().GetPoints4("LUMINOSITYc");
-    const auto he3etacs = Plotter<>::Instance().GetPoints4("CS-He3eta-assumed");
-    //const auto he3pi0pi0pi0cs = Plotter<>::Instance().GetPoints4("CS-He3pi0pi0pi0");
+    const hist<> luminosity = Plotter<>::Instance().GetPoints<value<>>("LUMINOSITYc");
+    const hist<> he3etacs = Plotter<>::Instance().GetPoints<value<>>("CS-He3eta-assumed");
     const hist<> he3eta_events = luminosity * (runs.first / runs.second) / double(trigger_he3_forward.scaling) * (he3etacs * acceptance2[0]);
     //const hist<> he3pi0pi0pi0_events = luminosity * (runs.first / runs.second) / double(trigger_he3_forward.scaling) * (he3pi0pi0pi0cs * acceptance2[1]);
     Plot<>("He3forward-events")
