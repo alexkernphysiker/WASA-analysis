@@ -37,6 +37,18 @@ int main()
     .Hist(Hist(DATA, "C", histpath_central_reconstr, "GMMPDiff0"))
     .Hist(Hist(DATA, "C", histpath_central_reconstr, "GMMPDiff1"))
             << "set key on" << "set title '" + runmsg + "'" << "set yrange [0:]";
+    Plot<> mm_theory("He3gggggg-MM0-mc"),mm_theory1("He3gggggg-MM1-mc"), mm_experiment("He3gggggg-MM-data");
+    for (const auto &r : reaction) {
+        mm_theory.Line(Hist(MC, r, histpath_central_reconstr, "GMM0").toLine(), r);
+        mm_theory1.Line(Hist(MC, r, histpath_central_reconstr, "GMM1").toLine(), r);
+    }
+    mm_theory << "set key on" << "set yrange [0:]";
+    mm_theory1 << "set key on" << "set yrange [0:]";
+    mm_experiment
+    .Hist(Hist(DATA, "C", histpath_central_reconstr, "GMM0"))
+    .Hist(Hist(DATA, "C", histpath_central_reconstr, "GMM1"))
+            << "set key on" << "set title '" + runmsg + "'" << "set yrange [0:]";
+
     hist<> ev_am;
     vector<hist<>> acceptance;
     for (size_t i = 0; i < reaction.size(); i++) {
@@ -100,7 +112,7 @@ int main()
         * (he3etacs * acceptance[1]);
     Plot<>("He3gggggg-events")
     .Hist(ev_am - known_events, "data-(3He+eta)")
-    .Hist(ev_am, "data", "EVENTS-He3gggggg")
+    .Hist(ev_am, "data")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'"<< "set yrange [0:]"
             << "set title '" + runmsg + "'";

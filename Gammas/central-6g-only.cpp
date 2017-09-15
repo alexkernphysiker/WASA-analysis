@@ -38,6 +38,17 @@ int main()
     .Hist(Hist(DATA, "CC", histpath_central_reconstr, "GMMPDiff0"))
     .Hist(Hist(DATA, "CC", histpath_central_reconstr, "GMMPDiff1"))
             << "set key on" << "set title '" + runmsg + "'" << "set yrange [0:]";
+    Plot<> mm_theory("gggggg-MM0-mc"),mm_theory1("gggggg-MM1-mc"), mm_experiment("gggggg-MM-data");
+    for (const auto &r : reaction) {
+        mm_theory.Line(Hist(MC, r, histpath_central_reconstr, "GMM0").toLine(), r);
+        mm_theory1.Line(Hist(MC, r, histpath_central_reconstr, "GMM1").toLine(), r);
+    }
+    mm_theory << "set key on" << "set yrange [0:]";
+    mm_theory1 << "set key on" << "set yrange [0:]";
+    mm_experiment
+    .Hist(Hist(DATA, "CC", histpath_central_reconstr, "GMM0"))
+    .Hist(Hist(DATA, "CC", histpath_central_reconstr, "GMM1"))
+            << "set key on" << "set title '" + runmsg + "'" << "set yrange [0:]";
     hist<> ev_am;
     vector<hist<>> acceptance;
     for (size_t i = 0; i < reaction.size(); i++) {
