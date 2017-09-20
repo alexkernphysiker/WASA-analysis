@@ -27,26 +27,37 @@ int main()
     hist<> norm = Hist(MC, reaction[0], histpath_reconstr, "0-Reference");
     const auto runs = PresentRuns("C");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
-    Plot<> theory("He3gggggg-IMDiff0-mc"),theory1("He3gggggg-IMDiff1-mc"), experiment("He3gggggg-IMDiff-data");
+    Plot<> theory("He3gggggg-IMDiff0-mc"),theory1("He3gggggg-IMDiff1-mc"),
+    //theory2("He3gggggg-IMDiff2-mc"), 
+    experiment("He3gggggg-IMDiff-data");
     for (const auto &r : reaction) {
-        theory.Line(Hist(MC, r, histpath_central_reconstr, "GMMPDiff0").toLine(), r);
-        theory1.Line(Hist(MC, r, histpath_central_reconstr, "GMMPDiff1").toLine(), r);
+        theory.Line(Hist(MC, r, histpath_central_reconstr, "GIMDiff2").toLine(), r);
+        theory1.Line(Hist(MC, r, histpath_central_reconstr, "GIMDiff3").toLine(), r);
+        //theory2.Line(Hist(MC, r, histpath_central_reconstr, "GIMDiff4").toLine(), r);
     }
     theory << "set key on" << "set yrange [0:]";
+    theory1 << "set key on" << "set yrange [0:]";
+    //theory2 << "set key on" << "set yrange [0:]";
     experiment
-    .Hist(Hist(DATA, "C", histpath_central_reconstr, "GMMPDiff0"))
-    .Hist(Hist(DATA, "C", histpath_central_reconstr, "GMMPDiff1"))
+    .Hist(Hist(DATA, "C", histpath_central_reconstr, "GIMDiff2"),"3He 6gamma")
+    .Hist(Hist(DATA, "C", histpath_central_reconstr, "GIMDiff3"),"3He 3pi^0")
+    //.Hist(Hist(DATA, "C", histpath_central_reconstr, "GIMDiff4"),"3pi^0 MM cut")
             << "set key on" << "set title '" + runmsg + "'" << "set yrange [0:]";
-    Plot<> mm_theory("He3gggggg-MM0-mc"),mm_theory1("He3gggggg-MM1-mc"), mm_experiment("He3gggggg-MM-data");
+    Plot<> mm_theory("He3gggggg-MM0-mc"),mm_theory1("He3gggggg-MM1-mc")
+    //,mm_theory2("He3gggggg-MM2-mc")
+    ,mm_experiment("He3gggggg-MM-data");
     for (const auto &r : reaction) {
-        mm_theory.Line(Hist(MC, r, histpath_central_reconstr, "GMM0").toLine(), r);
-        mm_theory1.Line(Hist(MC, r, histpath_central_reconstr, "GMM1").toLine(), r);
+        mm_theory.Line(Hist(MC, r, histpath_central_reconstr, "GMM2").toLine(), r);
+        mm_theory1.Line(Hist(MC, r, histpath_central_reconstr, "GMM3").toLine(), r);
+    //    mm_theory2.Line(Hist(MC, r, histpath_central_reconstr, "GMM4").toLine(), r);
     }
     mm_theory << "set key on" << "set yrange [0:]";
     mm_theory1 << "set key on" << "set yrange [0:]";
+    //mm_theory2 << "set key on" << "set yrange [0:]";
     mm_experiment
-    .Hist(Hist(DATA, "C", histpath_central_reconstr, "GMM0"))
-    .Hist(Hist(DATA, "C", histpath_central_reconstr, "GMM1"))
+    .Hist(Hist(DATA, "C", histpath_central_reconstr, "GMM2"),"3He 6gamma")
+    .Hist(Hist(DATA, "C", histpath_central_reconstr, "GMM3"),"3He 3pi^0")
+    //.Hist(Hist(DATA, "C", histpath_central_reconstr, "GMM4"),"3pi^0 MM cut")
             << "set key on" << "set title '" + runmsg + "'" << "set yrange [0:]";
 
     hist<> ev_am;
@@ -68,21 +79,44 @@ int main()
         );
         mc_plot << "set key on" << "set title '" + Qmsg + ";MC'" << "set yrange [0:]"
         << "set xlabel 'pi0+pi0+pi0 invariant mass, GeV'";
+        Plot<> mc_plot1(
+            Q.Contains(21) ? "He3gggggg-above-mc" : (
+                Q.Contains(-39) ? "He3gggggg-below-mc" : (
+                    Q.Contains(-3) ? "He3gggggg-thr-mc" : ""
+                )
+            )
+        );
+        mc_plot1 << "set key on" << "set title '" + Qmsg + ";MC'" << "set yrange [0:]"
+        << "set xlabel 'pi0+pi0+pi0 invariant mass, GeV'";
+//         Plot<> mc_plot2(
+//             Q.Contains(21) ? "He3gggggg-above-mc" : (
+//                 Q.Contains(-39) ? "He3gggggg-below-mc" : (
+//                     Q.Contains(-3) ? "He3gggggg-thr-mc" : ""
+//                 )
+//             )
+//         );
+//         mc_plot2 << "set key on" << "set title '" + Qmsg + ";MC'" << "set yrange [0:]"
+//         << "set xlabel 'pi0+pi0+pi0 invariant mass, GeV'";
         for (size_t i = 0; i < reaction.size(); i++) {
             const auto &r = reaction[i];
             hist<double> Norm = Hist(MC, r, histpath_reconstr, "0-Reference");
             const auto &N = Norm[bin_num].Y();
             if (N.Above(0)) {
-                const hist<> h = Hist(MC, r, histpath_central_reconstr, string("GIM1-Bin-") + to_string(bin_num));
-                const auto C = h.TotalSum();
+                const hist<> h = Hist(MC, r, histpath_central_reconstr, string("GIM2-Bin-") + to_string(bin_num));
+                const hist<> h1 = Hist(MC, r, histpath_central_reconstr, string("GIM3-Bin-") + to_string(bin_num));
+                //const hist<> h2 = Hist(MC, r, histpath_central_reconstr, string("GIM4-Bin-") + to_string(bin_num));
+                const auto C = h1.TotalSum();
                 mc_plot.Hist(h / N, r);
+                mc_plot1.Hist(h1 / N, r);
+                //mc_plot2.Hist(h2 / N, r);
                 acceptance[i] << point<value<double>>(Q, C / N);
             } else {
                 acceptance[i] << point<value<>>(Q, 0.0);
             }
         }
-        const hist<>
-        data = Hist(DATA, "C", histpath_central_reconstr, string("GIM1-Bin-") + to_string(bin_num));
+        const hist<> data = Hist(DATA, "C", histpath_central_reconstr, string("GIM2-Bin-") + to_string(bin_num));
+        const hist<> data1 = Hist(DATA, "C", histpath_central_reconstr, string("GIM3-Bin-") + to_string(bin_num));
+        //const hist<> data2 = Hist(DATA, "C", histpath_central_reconstr, string("GIM4-Bin-") + to_string(bin_num));
         Plot<>(
             Q.Contains(21) ? "He3gggggg-above-data" : (
                 Q.Contains(-39) ? "He3gggggg-below-data" : (
@@ -90,9 +124,10 @@ int main()
                 )
             )
         )
-        .Hist(data) << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
+        .Hist(data,"3He 6gamma") .Hist(data1,"3He 3pi^0")//.Hist(data2,"3pi^0 cut") 
+        << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
         << "set xlabel 'pi0+pi0+pi0 invariant mass, GeV'";
-        ev_am << point<value<>>(Q, value<>::std_error(data.TotalSum().val()));
+        ev_am << point<value<>>(Q, value<>::std_error(data1.TotalSum().val()));
     }
     Plot<> accplot("He3gggggg-acceptance");
     accplot << "set title 'Acceptance'"
