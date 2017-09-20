@@ -27,7 +27,7 @@ int main()
     const hist<> norm = Hist(MC, reaction[0], histpath_reconstr, "0-Reference");
     const auto runs = PresentRuns("CC");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
-    Plot<> theory("gggggg-IMDiff0-mc"),theory1("gggggg-IMDiff1-mc"),theory2("gggggg-IMDiff2-mc"), experiment("gggggg-IMDiff-data");
+    Plot<> theory("gggggg-IMDiff0-mc"), theory1("gggggg-IMDiff1-mc"), theory2("gggggg-IMDiff2-mc"), experiment("gggggg-IMDiff-data");
     for (const auto &r : reaction) {
         theory.Line(Hist(MC, r, histpath_central_reconstr, "GIMPDiff0").toLine(), r);
         theory1.Line(Hist(MC, r, histpath_central_reconstr, "GIMPDiff1").toLine(), r);
@@ -41,7 +41,7 @@ int main()
     .Hist(Hist(DATA, "CC", histpath_central_reconstr, "GIMPDiff1"))
     .Hist(Hist(DATA, "CC", histpath_central_reconstr, "GIMPDiff2"))
             << "set key on" << "set title '" + runmsg + "'" << "set yrange [0:]";
-    Plot<> mm_theory("gggggg-MM0-mc"),mm_theory1("gggggg-MM1-mc"),mm_theory2("gggggg-MM1-mc"), mm_experiment("gggggg-MM-data");
+    Plot<> mm_theory("gggggg-MM0-mc"), mm_theory1("gggggg-MM1-mc"), mm_theory2("gggggg-MM1-mc"), mm_experiment("gggggg-MM-data");
     for (const auto &r : reaction) {
         mm_theory.Line(Hist(MC, r, histpath_central_reconstr, "GMM0").toLine(), r);
         mm_theory1.Line(Hist(MC, r, histpath_central_reconstr, "GMM1").toLine(), r);
@@ -51,9 +51,9 @@ int main()
     mm_theory1 << "set key on" << "set yrange [0:]";
     mm_theory2 << "set key on" << "set yrange [0:]";
     mm_experiment
-    .Hist(Hist(DATA, "CC", histpath_central_reconstr, "GMM0"),"6gamma")
-    .Hist(Hist(DATA, "CC", histpath_central_reconstr, "GMM1"),"3pi^0")
-    .Hist(Hist(DATA, "CC", histpath_central_reconstr, "GMM2"),"MM cut")
+    .Hist(Hist(DATA, "CC", histpath_central_reconstr, "GMM0"), "6gamma")
+    .Hist(Hist(DATA, "CC", histpath_central_reconstr, "GMM1"), "3pi^0")
+    .Hist(Hist(DATA, "CC", histpath_central_reconstr, "GMM2"), "MM cut")
             << "set key on" << "set title '" + runmsg + "'" << "set yrange [0:]";
     hist<> ev_am;
     vector<hist<>> acceptance;
@@ -116,8 +116,8 @@ int main()
                 )
             )
         )
-        .Hist(data,"All").Hist(data1,"3pi^0").Hist(data2,"MM cut")
-        << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"<<"set key on";
+        .Hist(data, "All").Hist(data1, "3pi^0").Hist(data2, "MM cut")
+                << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]" << "set key on";
         ev_am << point<value<>>(Q, value<>::std_error(data2.TotalSum().val()));
     }
     Plot<> accplot("gggggg-acceptance");
@@ -141,9 +141,9 @@ int main()
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'"
             << "set title 'Events 6gamma'" << "set yrange [0:]";
-    const hist<> cross_section = (ev_am - he3eta_events)/acceptance[2]
-        * double(trigger_gammas_central.scaling) 
-        * (runs.second / runs.first) / luminosity;
+    const hist<> cross_section = (ev_am - he3eta_events) / acceptance[2]
+                                 * double(trigger_gammas_central.scaling)
+                                 * (runs.second / runs.first) / luminosity;
     Plot<>("gggggg-cross-section")
     .Hist(cross_section , "data")
             << "set xlabel 'Q, MeV'" << "set key on"
