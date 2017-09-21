@@ -23,7 +23,7 @@ int main()
     Plotter<>::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-6gamma-only");
     vector<string> histpath_reconstr = {"Histograms", "OnlyCentralGammas"};
     vector<string> histpath_central_reconstr = {"Histograms", "OnlyCentralGammas6"};
-    vector<string> reaction = {"bound1-6g", "He3eta", "He3pi0pi0pi0"};
+    vector<string> reaction = {"He3eta", "He3pi0pi0pi0"};
     const hist<> norm = Hist(MC, reaction[0], histpath_reconstr, "0-Reference");
     const auto runs = PresentRuns("CC");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
@@ -134,18 +134,20 @@ int main()
     }
     const hist<> luminosity = Plotter<>::Instance().GetPoints<value<>>("LUMINOSITYc");
     const hist<> he3etacs = Plotter<>::Instance().GetPoints<value<>>("CS-He3eta-assumed");
-    const hist<> he3eta_events = luminosity * (runs.first / runs.second) / double(trigger_gammas_central.scaling) * (he3etacs * acceptance[1]);
+    const hist<> he3eta_events = luminosity * (runs.first / runs.second) 
+            / double(trigger_gammas_central.scaling) 
+            * (he3etacs * acceptance[0]);
     Plot<>("gggggg-events")
-    .Hist(he3eta_events, "3He+eta")
     .Hist(ev_am , "data")
+    .Line(he3eta_events.toLine(), "3He+eta")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'"
             << "set title 'Events 6gamma'" << "set yrange [0:]";
-    const hist<> cross_section = (ev_am - he3eta_events) / acceptance[2]
+    const hist<> cross_section = (ev_am - he3eta_events) / acceptance[1]
                                  * double(trigger_gammas_central.scaling)
                                  * (runs.second / runs.first) / luminosity;
     Plot<>("gggggg-cross-section")
-    .Hist(cross_section , "data")
+    .Hist(cross_section , "data","CS-He3pi0pi0pi0")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'cross section, nb'"
             << "set title 'He3+3pi0'" << "set yrange [0:]";

@@ -182,7 +182,7 @@ int main()
         * (he3etacs * acceptance[1]);
     Plot<>("He3gg-events")
     .Hist(ev_am, "data")
-    .Hist(known_events, "3He+eta estimated")
+    .Line(known_events.toLine(), "3He+eta estimated")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '" + runmsg + "'";

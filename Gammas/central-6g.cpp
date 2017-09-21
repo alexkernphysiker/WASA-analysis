@@ -30,18 +30,30 @@ int main()
     Plot<> theory("He3gggggg-IMDiff0-mc"), theory1("He3gggggg-IMDiff1-mc"),
          experiment("He3gggggg-IMDiff-data");
     for (const auto &r : reaction) {
-        theory.Line(Hist(MC, r, histpath_central_reconstr, "GIMDiff2").toLine(), r);
-        theory1.Line(Hist(MC, r, histpath_central_reconstr, "GIMDiff3").toLine(), r);
+        if (r == reaction[0]) {
+            Plot<>("He3gggggg-IMDiff-mc")
+            .Hist(Hist(MC, r, histpath_central_reconstr, "GMMPDiff2"), "3He 6gamma")
+            .Hist(Hist(MC, r, histpath_central_reconstr, "GMMPDiff3"), "3He 3pi^0")
+                    << "set key on" << "set yrange [0:]";
+        }
+        theory.Line(Hist(MC, r, histpath_central_reconstr, "GMMPDiff2").toLine(), r);
+        theory1.Line(Hist(MC, r, histpath_central_reconstr, "GMMPDiff3").toLine(), r);
     }
     theory << "set key on" << "set yrange [0:]";
     theory1 << "set key on" << "set yrange [0:]";
     experiment
-    .Hist(Hist(DATA, "C", histpath_central_reconstr, "GIMDiff2"), "3He 6gamma")
-    .Hist(Hist(DATA, "C", histpath_central_reconstr, "GIMDiff3"), "3He 3pi^0")
+    .Hist(Hist(DATA, "C", histpath_central_reconstr, "GMMPDiff2"), "3He 6gamma")
+    .Hist(Hist(DATA, "C", histpath_central_reconstr, "GMMPDiff3"), "3He 3pi^0")
             << "set key on" << "set title '" + runmsg + "'" << "set yrange [0:]";
     Plot<> mm_theory("He3gggggg-MM0-mc"), mm_theory1("He3gggggg-MM1-mc")
     , mm_experiment("He3gggggg-MM-data");
     for (const auto &r : reaction) {
+        if (r == reaction[0]) {
+            Plot<>("He3gggggg-MM-mc")
+            .Hist(Hist(MC, r, histpath_central_reconstr, "GMM2"), "3He 3pi^0")
+            .Hist(Hist(MC, r, histpath_central_reconstr, "GMM3"), "MM cut")
+                    << "set key on" << "set yrange [0:]";
+        }
         mm_theory.Line(Hist(MC, r, histpath_central_reconstr, "GMM2").toLine(), r);
         mm_theory1.Line(Hist(MC, r, histpath_central_reconstr, "GMM3").toLine(), r);
     }
@@ -62,19 +74,53 @@ int main()
         const string Qmsg = static_cast<stringstream &>(stringstream()
                             << "Q in [" << setprecision(3)
                             << Q.min() << "; " << Q.max() << "] MeV").str();
-        Plot<> mc_plot(
+                Plot<>(
+            Q.Contains(21) ? "He3gggggg-above-he3mm-bound-mc" : (
+                Q.Contains(-39) ? "He3gggggg-below-he3mm-bound-mc" : (
+                    Q.Contains(-3) ? "He3gggggg-thr-he3mm-bound-mc" : ""
+                )
+            )
+        )
+        .Hist(Hist(MC, reaction[0], histpath_reconstr, string("He3MM0-Bin-") + to_string(bin_num)), "3He")
+        .Hist(Hist(MC, reaction[0], histpath_reconstr, string("He3MM1-Bin-") + to_string(bin_num)), "3He MM cut")
+                << "set key on" << "set title '" + Qmsg + ";MC " + reaction[0] + "'" << "set yrange [0:]"
+                << "set xlabel '3He missing mass, GeV'";
+        Plot<>(
+            Q.Contains(21) ? "He3gggggg-above-he3mm-data" : (
+                Q.Contains(-39) ? "He3gggggg-below-he3mm-data" : (
+                    Q.Contains(-3) ? "He3gggggg-thr-he3mm-data" : ""
+                )
+            )
+        )
+        .Hist(Hist(DATA, "C", histpath_reconstr, string("He3MM0-Bin-") + to_string(bin_num)), "3He")
+        .Hist(Hist(DATA, "C", histpath_reconstr, string("He3MM1-Bin-") + to_string(bin_num)), "3He MM cut")
+                << "set key on" << "set title '" + Qmsg + ";MC " + reaction[0] + "'" << "set yrange [0:]"
+                << "set xlabel '3He missing mass, GeV'";
+
+        Plot<>(
             Q.Contains(21) ? "He3gggggg-above-mc" : (
                 Q.Contains(-39) ? "He3gggggg-below-mc" : (
                     Q.Contains(-3) ? "He3gggggg-thr-mc" : ""
+                )
+            )
+        )
+        .Hist(Hist(MC, reaction[0], histpath_central_reconstr, string("GIM2-Bin-") + to_string(bin_num)),"3He 3pi^0")
+        .Hist(Hist(MC, reaction[0], histpath_central_reconstr, string("GIM3-Bin-") + to_string(bin_num)),"MM cut")
+                << "set key on" << "set title '" + Qmsg + ";MC'" << "set yrange [0:]"
+                << "set xlabel 'pi0+pi0+pi0 invariant mass, GeV'";
+        Plot<> mc_plot(
+            Q.Contains(21) ? "He3gggggg-above-mc1" : (
+                Q.Contains(-39) ? "He3gggggg-below-mc1" : (
+                    Q.Contains(-3) ? "He3gggggg-thr-mc1" : ""
                 )
             )
         );
         mc_plot << "set key on" << "set title '" + Qmsg + ";MC'" << "set yrange [0:]"
                 << "set xlabel 'pi0+pi0+pi0 invariant mass, GeV'";
         Plot<> mc_plot1(
-            Q.Contains(21) ? "He3gggggg-above-mc" : (
-                Q.Contains(-39) ? "He3gggggg-below-mc" : (
-                    Q.Contains(-3) ? "He3gggggg-thr-mc" : ""
+            Q.Contains(21) ? "He3gggggg-above-mc2" : (
+                Q.Contains(-39) ? "He3gggggg-below-mc2" : (
+                    Q.Contains(-3) ? "He3gggggg-thr-mc2" : ""
                 )
             )
         );
@@ -122,12 +168,18 @@ int main()
     }
     const hist<> luminosity = Plotter<>::Instance().GetPoints<value<>>("LUMINOSITYc");
     const hist<> he3etacs = Plotter<>::Instance().GetPoints<value<>>("CS-He3eta-assumed");
-    const hist<> known_events =
+    const hist<> he3etaev =
         luminosity * (runs.first / runs.second) / double(trigger_he3_forward.scaling)
         * (he3etacs * acceptance[1]);
+    const hist<> he3pi0pi0pi0cs = Plotter<>::Instance().GetPoints<value<>>("CS-He3pi0pi0pi0");
+    const hist<> he3pi0pi0pi0ev =
+        luminosity * (runs.first / runs.second) / double(trigger_he3_forward.scaling)
+        * (he3pi0pi0pi0cs * acceptance[2]);
     Plot<>("He3gggggg-events")
-    .Hist(ev_am - known_events, "data-(3He+eta)")
     .Hist(ev_am, "data")
+    .Line(he3etaev.toLine(), "3He+eta estimated")
+    //.Line(he3pi0pi0pi0ev.toLine(), "3He+3pi^0 estimated")
+    //.Line(hist<>(he3etaev+he3pi0pi0pi0ev).toLine())
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '" + runmsg + "'";
