@@ -144,8 +144,8 @@ int main()
                             .Scale(6).XRange(50, 250);
         const hist<> nmc_ppn = mc_ppn / N;
         const hist<> nmc_pd = mc_pd / N_pd;
-        acceptance << point<value<>>(Q, nmc_ppn.TotalSum());
-        acceptance_pd << point<value<>>(Q, nmc_pd.TotalSum());
+        acceptance << make_point(Q, nmc_ppn.TotalSum());
+        acceptance_pd << make_point(Q, nmc_pd.TotalSum());
         cout << endl << Qmsg << endl;
         Plot<>(Q.Contains(21) ? "ppn-above-mc" : (Q.Contains(-39) ? "ppn-below-mc" : ""))
         .Hist(nmc_ppn, "ppn_{sp}").Hist(nmc_pd, "pd")
