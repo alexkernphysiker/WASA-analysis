@@ -8,6 +8,7 @@
 #include <fstream>
 #include <gnuplot_wrap.h>
 #include <math_h/interpolate.h>
+#include <math_h/vectors.h>
 #include <Genetic/searchmin.h>
 #include <Genetic/initialconditions.h>
 #include <Genetic/filter.h>
@@ -35,12 +36,42 @@ const BiSortedPoints<> ReadCrossSection()
 const SortedPoints<> IntegrateCrossSection(const BiSortedPoints<> &angular)
 {
     SortedPoints<> result;
+    result<<make_point(0.0,0.0)<<make_point(angular.Y()[0]-0.001,0.0);
+    result<<make_point(5.0,0.0)<<make_point(angular.Y()[angular.Y().size()-1]+0.001,0.0);
     for (size_t index = 0; index < angular.Y().size(); index++) {
         const auto &E = angular.Y()[index];
-        const auto IntT = Int_Trapez_Table(angular.CutX(index) * [](const double & th) {
-            return sin(th);
-        });
-        result << point<>(E, IntT[IntT.size() - 1].Y());
+        const auto IntT = Int_Trapez_Table(angular.CutX(index) * [](const double & th) {return sin(th);});
+        result << make_point(E, IntT[IntT.size() - 1].Y());
+    }
+    return result;
+}
+const Points<> ReadPf()
+{
+    Points<> result;
+    ifstream file("crosssections/pfermi.txt");
+    for(double P=0,D=0; (file>>P>>D);result.push_back(make_point(P,D)));
+    file.close();
+    return result;
+}
+const double Calculate_pp2ppn(const double&pbeam,const function<double(double)>&pp){
+    double res=0;
+    const size_t count=1000;
+    RANDOM R;
+    static const RandomValueTableDistr<> PF=ReadPf();
+    const auto Pt=lorentz_byPM(Z<>()*pbeam,Particle::p().mass()),
+    T=lorentz_byPM(Zero<>(),Particle::d().mass());
+    for(size_t i=0;i<count;i++){
+        const auto
+        nt=lorentz_byPM(RandomIsotropicDirection3<>(R)*PF(R),Particle::n().mass()),pt=T-nt;
+        res+=pp(Pt.Lorentz(pt.Beta()).space_component().mag());
+    }
+    return res/count;
+}
+const SortedPoints<> pp2ppn(const LinearInterpolation<> &pp_cs)
+{
+    SortedPoints<> result;
+    for(double p=1.0;p<2.0;p+=0.001) {
+        result<<make_point(p,Calculate_pp2ppn(p,pp_cs.func()));
     }
     return result;
 }
@@ -121,6 +152,8 @@ int main()
     }));
     const auto p_cs = IntegrateCrossSection(diff_cs);
     Plot<>().Line(p_cs);
+    const auto ppn_cs = pp2ppn(p_cs);
+    Plot<>().Line(ppn_cs);
     const auto SIGMA = ConvertCrossSections(p_cs);
     Plot<>().Hist(SIGMA)
             << "set title 'ppn_{sp} cross section'"
@@ -205,12 +238,12 @@ int main()
                 << "set key on" << "set title 'Data " + Qmsg + "(" + runmsg + ")'" << "set yrange [0:]"
                 << "set xlabel " + thth << "set ylabel 'counts'";
 
-        chi_sq << point<value<>>(Q, FitData.Optimality() / (data.size() - FitData.ParamCount()));
+        chi_sq << make_point(Q, FitData.Optimality() / (data.size() - FitData.ParamCount()));
 
         const auto L = (P[0] / SIGMA[bin_num].Y()) * double(trigger_elastic1.scaling);
         const auto EL = (P[1] / L) * double(trigger_elastic1.scaling);
-        luminosity << point<value<>>(Q, L);
-        el_cs << point<value<>>(Q, EL);
+        luminosity << make_point(Q, L);
+        el_cs << make_point(Q, EL);
     }
     Plot<>("ppn-acceptance").Hist(acceptance, "ppn_{sp}").Hist(acceptance_pd, "pd") << "set key on"
             << "set title 'Acceptance'" << "set yrange [0:]" << "set xlabel 'Q, MeV'" << "set ylabel 'Acceptance, n.d.'";
