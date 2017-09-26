@@ -55,7 +55,7 @@ const Points<> ReadPf()
 }
 const double Calculate_pp2ppn(const double&pbeam,const function<double(double)>&pp){
     double res=0;
-    const size_t count=1000;
+    const size_t count=2000;
     RANDOM R;
     static const RandomValueTableDistr<> PF=ReadPf();
     const auto Pt=lorentz_byPM(Z<>()*pbeam,Particle::p().mass()),
@@ -63,7 +63,7 @@ const double Calculate_pp2ppn(const double&pbeam,const function<double(double)>&
     for(size_t i=0;i<count;i++){
         const auto
         nt=lorentz_byPM(RandomIsotropicDirection3<>(R)*PF(R),Particle::n().mass()),pt=T-nt;
-        res+=pp(Pt.Lorentz(pt.Beta()).space_component().mag());
+        res+=pp(Pt.Transform(pt.Beta()).S().M());
     }
     return res/count;
 }
