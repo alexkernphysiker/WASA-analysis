@@ -62,7 +62,7 @@ const double Calculate_pp2ppn(const double&pbeam,const function<double(double)>&
     T=lorentz_byPM(Zero<>(),Particle::d().mass());
     for(size_t i=0;i<count;i++){
         const auto
-        nt=lorentz_byPM(RandomIsotropicDirection3<>(R)*PF(R),Particle::n().mass()),pt=T-nt;
+        nt=lorentz_byPM(randomIsotropic<3>(R)*PF(R),Particle::n().mass()),pt=T-nt;
         res+=pp(Pt.Transform(pt.Beta()).S().M());
     }
     return res/count;
