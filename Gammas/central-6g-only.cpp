@@ -137,18 +137,17 @@ int main()
     const hist<> he3eta_events = luminosity * (runs.first / runs.second) 
             / double(trigger_gammas_central.scaling) 
             * (he3etacs * acceptance[0]);
+    const hist<> he3pi0pi0pi0_events = luminosity * (runs.first / runs.second) 
+            / double(trigger_gammas_central.scaling) 
+            * (acceptance[1]*value<>(115,25));
     Plot<>("gggggg-events")
     .Hist(ev_am , "data")
     .Line(he3eta_events.toLine(), "3He+eta")
+    .Line(he3pi0pi0pi0_events.toLine(), "3He+3pi0")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'"
             << "set title 'Events 6gamma'" << "set yrange [0:]";
     const hist<> cross_section = (ev_am - he3eta_events) / acceptance[1]
                                  * double(trigger_gammas_central.scaling)
                                  * (runs.second / runs.first) / luminosity;
-    Plot<>("gggggg-cross-section")
-    .Hist(cross_section , "data","CS-He3pi0pi0pi0")
-            << "set xlabel 'Q, MeV'" << "set key on"
-            << "set ylabel 'cross section, nb'"
-            << "set title 'He3+3pi0'" << "set yrange [0:]";
 }

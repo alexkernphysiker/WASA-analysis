@@ -171,15 +171,14 @@ int main()
     const hist<> he3etaev =
         luminosity * (runs.first / runs.second) / double(trigger_he3_forward.scaling)
         * (he3etacs * acceptance[1]);
-    const hist<> he3pi0pi0pi0cs = Plotter<>::Instance().GetPoints<value<>>("CS-He3pi0pi0pi0");
-    const hist<> he3pi0pi0pi0ev =
-        luminosity * (runs.first / runs.second) / double(trigger_he3_forward.scaling)
-        * (he3pi0pi0pi0cs * acceptance[2]);
+    const hist<> he3pi0pi0pi0_events = luminosity * (runs.first / runs.second) 
+            / double(trigger_gammas_central.scaling) 
+            * (acceptance[2]*value<>(115,25));
     Plot<>("He3gggggg-events")
     .Hist(ev_am, "data")
     .Line(he3etaev.toLine(), "3He+eta estimated")
-    //.Line(he3pi0pi0pi0ev.toLine(), "3He+3pi^0 estimated")
-    //.Line(hist<>(he3etaev+he3pi0pi0pi0ev).toLine())
+    .Line(he3pi0pi0pi0_events.toLine(), "3He+3pi^0 estimated")
+    .Line(hist<>(he3etaev+he3pi0pi0pi0_events).toLine())
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '" + runmsg + "'";
