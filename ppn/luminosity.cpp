@@ -25,8 +25,8 @@ using namespace MathTemplates;
 using namespace GnuplotWrap;
 const BiSortedPoints<> ReadCrossSection()
 {
-    BiSortedPoints<> result(ChainWithCount(181, 0., PI<>()), ChainWithCount(13, 1.000, 2.200));
-    for (size_t degree = 0; degree <= 180; degree++) {
+    BiSortedPoints<> result(ChainWithCount(91, 0., PI<>() / 2.0), ChainWithCount(13, 1.000, 2.200));
+    for (size_t degree = 0; degree <= 90; degree++) {
         ifstream file("crosssections/Theta_" + to_string(degree) + ".txt");
         for (double E = 0, C = 0; (file >> E >> C); result.Bin(degree, (size_t(E) - 1000) / 100) = C);
         file.close();
@@ -36,12 +36,15 @@ const BiSortedPoints<> ReadCrossSection()
 const SortedPoints<> IntegrateCrossSection(const BiSortedPoints<> &angular)
 {
     SortedPoints<> result;
-    result<<make_point(0.0,0.0)<<make_point(angular.Y()[0]-0.001,0.0);
-    result<<make_point(5.0,0.0)<<make_point(angular.Y()[angular.Y().size()-1]+0.001,0.0);
+    result << make_point(0.0, 0.0) << make_point(angular.Y()[0] - 0.001, 0.0);
+    result << make_point(5.0, 0.0) << make_point(angular.Y()[angular.Y().size() - 1] + 0.001, 0.0);
     for (size_t index = 0; index < angular.Y().size(); index++) {
         const auto &E = angular.Y()[index];
-        const auto IntT = Int_Trapez_Table(angular.CutX(index) * [](const double & th) {return sin(th);});
-        result << make_point(E, IntT[IntT.size() - 1].Y());
+        const auto IntT = Int_Trapez_Table(angular.CutX(index)
+        * [](const double & th) {
+            return sin(th);
+        });
+        result << make_point(E, IntT[IntT.size() - 1].Y() * 2.0 * PI());
     }
     return result;
 }
@@ -49,29 +52,31 @@ const Points<> ReadPf()
 {
     Points<> result;
     ifstream file("crosssections/pfermi.txt");
-    for(double P=0,D=0; (file>>P>>D);result.push_back(make_point(P,D)));
+    for (double P = 0, D = 0; (file >> P >> D); result.push_back(make_point(P, D)));
     file.close();
     return result;
 }
-const double Calculate_pp2ppn(const double&pbeam,const function<double(double)>&pp){
-    double res=0;
-    const size_t count=2000;
+const double Calculate_pp2ppn(const double &pbeam, const function<double(double)> &pp)
+{
+    static const RandomValueTableDistr<> PF = ReadPf();
     RANDOM R;
-    static const RandomValueTableDistr<> PF=ReadPf();
-    const auto Pt=lorentz_byPM(Z<>()*pbeam,Particle::p().mass()),
-    T=lorentz_byPM(Zero<>(),Particle::d().mass());
-    for(size_t i=0;i<count;i++){
+    double res = 0;
+    const size_t count = 10000;
+    const auto Pt = lorentz_byPM(Z<>() * pbeam, Particle::p().mass()),
+               T = lorentz_byPM(Zero<>(), Particle::d().mass());
+    for (size_t i = 0; i < count; i++) {
         const auto
-        nt=lorentz_byPM(randomIsotropic<3>(R)*PF(R),Particle::n().mass()),pt=T-nt;
-        res+=pp(Pt.Transform(pt.Beta()).S().M());
+        nt = lorentz_byPM(randomIsotropic<3>(R) * PF(R), Particle::n().mass()),
+        pt = T - nt;
+        res += pp(Pt.Transform(pt.Beta()).S().M());
     }
-    return res/count;
+    return res / count;
 }
 const SortedPoints<> pp2ppn(const LinearInterpolation<> &pp_cs)
 {
     SortedPoints<> result;
-    for(double p=1.0;p<2.0;p+=0.001) {
-        result<<make_point(p,Calculate_pp2ppn(p,pp_cs.func()));
+    for (double p = 1.0; p < 2.0; p += 0.001) {
+        result << make_point(p, Calculate_pp2ppn(p, pp_cs.func()));
     }
     return result;
 }
@@ -86,7 +91,7 @@ const SortedPoints<value<>> ConvertCrossSections(const SortedPoints<> &momentum)
 }
 int main()
 {
-    const string ppn_reaction="ppn_qf";
+    const string ppn_reaction = "ppn_qf_";
     const auto runs = PresentRuns("E");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
     const string th1 = "'Theta_1, deg'", th2 = "'Theta_2, deg'", e1 = "'Edep_1, GeV'", e2 = "'Edep_2, GeV'",
@@ -165,20 +170,25 @@ int main()
         const auto &Q = norm[bin_num].X();
         const auto &N = norm[bin_num].Y();
         const auto &N_pd = norm_pd[bin_num].Y();
-        const string Qmsg = static_cast<stringstream &>(stringstream()
-                            << "Q in [" << setprecision(3)
-                            << Q.min() << "; " << Q.max() << "] MeV"
-                                                       ).str();
+        const string Qmsg =
+            static_cast<stringstream &>(stringstream()
+                                        << "Q in [" << setprecision(3)
+                                        << Q.min() << "; " << Q.max() << "] MeV"
+                                       ).str();
 
-        const hist<> mc_ppn = Hist(MC, ppn_reaction, {"Histograms", "elastic"}, string("theta_sum_22-Bin-") + to_string(bin_num))
-                              .Scale(6).XRange(50, 250);
-        const hist<> mc_pd = Hist(MC, "pd", {"Histograms", "elastic"}, string("theta_sum_22-Bin-") + to_string(bin_num))
-                             .Scale(6).XRange(50, 250);
-        const hist<> data = Hist(DATA, "E", {"Histograms", "elastic"}, string("theta_sum_22-Bin-") + to_string(bin_num))
-                            .Scale(6).XRange(50, 250);
+        const hist<> mc_ppn =
+            Hist(MC, ppn_reaction, {"Histograms", "elastic"}, string("theta_sum_22-Bin-") + to_string(bin_num))
+            .Scale(1).XRange(50, 200);
+        const hist<> mc_pd =
+            Hist(MC, "pd", {"Histograms", "elastic"}, string("theta_sum_22-Bin-") + to_string(bin_num))
+            .Scale(1).XRange(50, 200);
+        const hist<> data =
+            Hist(DATA, "E", {"Histograms", "elastic"}, string("theta_sum_22-Bin-") + to_string(bin_num))
+            .Scale(1).XRange(50, 200);
         const hist<> nmc_ppn = mc_ppn / N;
         const hist<> nmc_pd = mc_pd / N_pd;
-        acceptance << make_point(Q, nmc_ppn.TotalSum());
+        const auto epsilon = nmc_ppn.TotalSum();
+        acceptance << make_point(Q, epsilon);
         acceptance_pd << make_point(Q, nmc_pd.TotalSum());
         cout << endl << Qmsg << endl;
         Plot<>(Q.Contains(21) ? "ppn-above-mc" : (Q.Contains(-39) ? "ppn-below-mc" : ""))
@@ -188,7 +198,7 @@ int main()
         cout << endl;
         const std::function<const double(const double &, const ParamSet &)>
         BG = [](const double & x, const ParamSet & P) {
-            return FermiFunc(x, P[2], P[3]) * Polynom(x, P, 1, 4);
+            return FermiFunc(x, P[2], P[3]) * P[4];
         };
         const auto &data_count = data.TotalSum().val();
         SearchMin<DifferentialMutations<Uncertainty>>
@@ -197,31 +207,33 @@ int main()
             for (size_t i = 0; i < data.size(); i++) {
                 const double x = data[i].X().val();
                 const auto practic = data[i].Y();
-                const auto theor = nmc_ppn[i].Y() * P[0]
-                                   + nmc_pd[i].Y() * P[1] + BG(x, P);
+                const auto theor =
+                    nmc_ppn[i].Y() * P[0]
+                    + nmc_pd[i].Y() * P[1]
+                    + BG(x, P);
                 res += practic.NumCompare(theor);
             }
             return res;
         });
         FitData.SetFilter([](const ParamSet & P) {
             return (P[0] > 0) && (P[1] > 0)
-                   && (P[2] > 50) && (P[2] < 80) && (P[3] < 0);
+                   && (P[2] > 50) && (P[2] < 80)
+                   && (P[3] < 0) && (P[4] > 0);
         });
-        FitData.Init(300, make_shared<InitialDistributions>()
-                     << make_shared<DistribUniform>(0, data_count)
+        FitData.Init(200, make_shared<InitialDistributions>()
+                     << make_shared<DistribUniform>(0, 10.0 * data_count)
                      << make_shared<DistribUniform>(0, data_count)
                      << make_shared<DistribUniform>(60, 70)
                      << make_shared<DistribUniform>(-5, 0)
                      << make_shared<DistribUniform>(0, 0.01 * data_count)
-                     << make_shared<DistribUniform>(-100, 0)
                      , r_eng
                     );
         FitData.SetUncertaintyCalcDeltas(parEq(FitData.ParamCount(), 0.1));
         while (!FitData.AbsoluteOptimalityExitCondition(0.0000000001)) FitData.Iterate(r_eng);
         cout << "DATA: " << FitData.iteration_count() << " iterations; "
-            << FitData.Optimality() << "<chi^2<"
-            << FitData.Optimality(FitData.PopulationSize() - 1)
-            << endl;
+             << FitData.Optimality() << "<chi^2<"
+             << FitData.Optimality(FitData.PopulationSize() - 1)
+             << endl;
         const auto &P = FitData.ParametersWithUncertainties();
         const auto &p = FitData.Parameters();
         for (size_t i = 0; i < P.size(); i++) {
@@ -235,14 +247,28 @@ int main()
         });
         Plot<>(Q.Contains(21) ? "ppn-above-fit" : (Q.Contains(-39) ? "ppn-below-fit" : ""))
         .Hist(data, "DATA")
-        .Line(PPN + PD + BackGround, "fit").Line(PD + BackGround, "pd+background").Line(BackGround, "background")
+        .Line(PPN + PD + BackGround, "total fit")
+        .Line(PD + BackGround, "pd+background")
+        .Line(BackGround, "background")
                 << "set key on" << "set title 'Data " + Qmsg + "(" + runmsg + ")'" << "set yrange [0:]"
                 << "set xlabel " + thth << "set ylabel 'counts'";
 
         chi_sq << make_point(Q, FitData.Optimality() / (data.size() - FitData.ParamCount()));
 
-        const auto L = (P[0] / SIGMA[bin_num].Y()) * double(trigger_elastic1.scaling);
-        const auto EL = (P[1] / L) * double(trigger_elastic1.scaling);
+        const auto pd = nmc_pd * P[1],
+        background = data.Clone().Transform([BG, &P](const value<> &x, const value<> &) {
+            return P[4] * FermiFunc(x.val(), P[2].val(), P[3].val());
+        });
+        const hist<> foreground = data - pd - background;
+        Plot<>(Q.Contains(21) ? "ppn-above-subtr" : (Q.Contains(-39) ? "ppn-below-subtr" : ""))
+        .Hist(foreground).Line(Points<> {{50, 0}, {200, 0}})
+                << "set title 'Subtracted background " + Qmsg + "(" + runmsg + ")'";
+        const auto L =
+            P[0] / SIGMA[bin_num].Y()
+            * double(trigger_elastic1.scaling);
+        const auto EL =
+            P[1] / L
+            * double(trigger_elastic1.scaling);
         luminosity << make_point(Q, L);
         el_cs << make_point(Q, EL);
     }
@@ -265,17 +291,37 @@ int main()
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:]";
-    Plot<>().Hist(luminosity * runs.second / runs.first, "", "LUMINOSITYc")
+    const hist<> prev_luminosity = Plotter<>::Instance().GetPoints<value<>>("LUMINOSITYf");
+    const hist<> estimate_full_luminosity=luminosity * runs.second / runs.first;
+    Plot<>("luminosity-compare")
+    .Hist(estimate_full_luminosity, "ppn_{sp}")
+    .Hist(prev_luminosity, "3He+eta")
             << "set title 'Integrated luminosity estimation for all runs'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:]";
-
-    Plot<>("ppn-pd-cross-section")
-    .Hist(SIGMA, "ppn_{sp}(assumed)", "CS-ppn-assumed").Hist(el_cs, "pd(obtained)", "CS-pd")
-            << "set title '(" + runmsg + ")'"
+    SearchMin<DifferentialMutations<Uncertainty>> Shadowing([&estimate_full_luminosity,&prev_luminosity](const ParamSet&P){
+        double res=0;
+        for(size_t i=0;i<prev_luminosity.size();i++){
+            const size_t ii=estimate_full_luminosity.size()-(prev_luminosity.size()-i);
+            res+=(estimate_full_luminosity[ii].Y()*P[0]).NumCompare(prev_luminosity[i].Y());
+        }
+        return res;
+    });
+    Shadowing.SetFilter([](const ParamSet&P){return P[0]>0;});
+    Shadowing.Init(10,make_shared<InitialDistributions>()<<make_shared<DistribUniform>(0.9,1.4),r_eng);
+    while(!Shadowing.AbsoluteOptimalityExitCondition(0.0000000001))Shadowing.Iterate(r_eng);
+    Shadowing.SetUncertaintyCalcDeltas({0.001});
+    cout<<"Shadowing effect coefficient: "<<Shadowing.ParametersWithUncertainties()[0]<<endl;
+    cout<<"chi^2/d: "<<Shadowing.Optimality()/(prev_luminosity.size()-Shadowing.ParamCount())<<endl;
+    const hist<> full_luminosity=estimate_full_luminosity*Shadowing.ParametersWithUncertainties()[0];
+    Plot<>("luminosity-compare-with-shadowing")
+    .Hist(full_luminosity, "ppn_{sp}", "LUMINOSITYc")
+    .Hist(prev_luminosity, "3He+eta")
+            << "set title 'Taking shadowing effect into account'"
             << "set key on" << "set xlabel 'Q, MeV'"
-            << "set ylabel 'Cross section, nb'"
+            << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:]";
-
 }
+
+

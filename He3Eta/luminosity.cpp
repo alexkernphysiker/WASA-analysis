@@ -64,7 +64,7 @@ int main()
             const auto data_bg = data.XExclude(cut.first, cut.second);
             cout << endl << Qmsg << endl << endl;
             Fit<AbsoluteMutations<DifferentialMutations<Uncertainty>>> FIT(
-                make_shared<FitPoints>()<<data_bg, BG
+                make_shared<FitPoints>() << data_bg, BG
             );
             FIT
             .SetAbsoluteMutationCoefficients({1.0, 1.0, 1.0, 1.0})
@@ -126,7 +126,7 @@ int main()
             }
             hist<> clean = data - bg;
             Plot<> subplot(Q.Contains(21) ? "He3eta-subtract" : "");
-            subplot.Hist(clean).Line({point<>(clean.left().X().min(),0.0),point<>(clean.right().X().max(),0.0)});
+            subplot.Hist(clean).Line({point<>(clean.left().X().min(), 0.0), point<>(clean.right().X().max(), 0.0)});
             subplot.Hist(clean = clean.XRange(cut.first, cut.second))
                     << "set key on" << "set title '" + Qmsg + ", " + runmsg + "'"
                     << "set xlabel 'Missing mass, GeV'"
@@ -167,10 +167,8 @@ int main()
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [0:30]" << "set yrange [0:]";
-    const hist<> prev_luminosity=Plotter<>::Instance().GetPoints<value<>>("LUMINOSITYc");
-    Plot<>("luminosity-compare")
+    Plot<>("")
     .Hist(luminosity * runs.second / runs.first, "3He+eta", "LUMINOSITYf")
-    .Hist(prev_luminosity, "ppn_{sp}")
             << "set title 'Integrated luminosity estimation for all runs'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"

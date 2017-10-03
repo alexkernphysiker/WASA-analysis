@@ -74,7 +74,7 @@ int main()
         const string Qmsg = static_cast<stringstream &>(stringstream()
                             << "Q in [" << setprecision(3)
                             << Q.min() << "; " << Q.max() << "] MeV").str();
-                Plot<>(
+        Plot<>(
             Q.Contains(21) ? "He3gggggg-above-he3mm-bound-mc" : (
                 Q.Contains(-39) ? "He3gggggg-below-he3mm-bound-mc" : (
                     Q.Contains(-3) ? "He3gggggg-thr-he3mm-bound-mc" : ""
@@ -104,8 +104,8 @@ int main()
                 )
             )
         )
-        .Hist(Hist(MC, reaction[0], histpath_central_reconstr, string("GIM2-Bin-") + to_string(bin_num)),"3He 3pi^0")
-        .Hist(Hist(MC, reaction[0], histpath_central_reconstr, string("GIM3-Bin-") + to_string(bin_num)),"MM cut")
+        .Hist(Hist(MC, reaction[0], histpath_central_reconstr, string("GIM2-Bin-") + to_string(bin_num)), "3He 3pi^0")
+        .Hist(Hist(MC, reaction[0], histpath_central_reconstr, string("GIM3-Bin-") + to_string(bin_num)), "MM cut")
                 << "set key on" << "set title '" + Qmsg + ";MC'" << "set yrange [0:]"
                 << "set xlabel 'pi0+pi0+pi0 invariant mass, GeV'";
         Plot<> mc_plot(
@@ -169,16 +169,18 @@ int main()
     const hist<> luminosity = Plotter<>::Instance().GetPoints<value<>>("LUMINOSITYc");
     const hist<> he3etacs = Plotter<>::Instance().GetPoints<value<>>("CS-He3eta-assumed");
     const hist<> he3etaev =
-        luminosity * (runs.first / runs.second) / double(trigger_he3_forward.scaling)
+        luminosity * (runs.first / runs.second)
+        / double(trigger_he3_forward.scaling)
         * (he3etacs * acceptance[1]);
-    const hist<> he3pi0pi0pi0_events = luminosity * (runs.first / runs.second) 
-            / double(trigger_gammas_central.scaling) 
-            * (acceptance[2]*value<>(115,25));
+    const hist<> he3pi0pi0pi0_events =
+        luminosity * (runs.first / runs.second)
+        / double(trigger_gammas_central.scaling)
+        * (acceptance[2] * value<>(115, 25));
     Plot<>("He3gggggg-events")
     .Hist(ev_am, "data")
     .Line(he3etaev.toLine(), "3He+eta estimated")
     .Line(he3pi0pi0pi0_events.toLine(), "3He+3pi^0 estimated")
-    .Line(hist<>(he3etaev+he3pi0pi0pi0_events).toLine())
+    .Line(hist<>(he3etaev + he3pi0pi0pi0_events).toLine())
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '" + runmsg + "'";

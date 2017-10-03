@@ -165,9 +165,9 @@ int main()
             << "set yrange [0:]" << "set key on";
     Plot<> accplot2("He3gg-acceptance2");
     accplot2 << "set title 'Acceptance'"
-            << "set xlabel 'Q, MeV'"
-            << "set ylabel 'Acceptance, n.d.'"
-            << "set yrange [0:0.001]" << "set key on";
+             << "set xlabel 'Q, MeV'"
+             << "set ylabel 'Acceptance, n.d.'"
+             << "set yrange [0:0.001]" << "set key on";
     for (size_t i = 0; i < reaction.size(); i++) {
         const auto acc = acceptance[i].YRange(0.000, INFINITY);
         if (acc.size() > 0) {
@@ -178,7 +178,8 @@ int main()
     const hist<> luminosity = Plotter<>::Instance().GetPoints<value<>>("LUMINOSITYc");
     const hist<> he3etacs = Plotter<>::Instance().GetPoints<value<>>("CS-He3eta-assumed");
     const hist<> known_events =
-        luminosity * (runs.first / runs.second) / double(trigger_he3_forward.scaling)
+        luminosity * (runs.first / runs.second)
+        / double(trigger_he3_forward.scaling)
         * (he3etacs * acceptance[1]);
     Plot<>("He3gg-events")
     .Hist(ev_am, "data")

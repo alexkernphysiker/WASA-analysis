@@ -134,12 +134,14 @@ int main()
     }
     const hist<> luminosity = Plotter<>::Instance().GetPoints<value<>>("LUMINOSITYc");
     const hist<> he3etacs = Plotter<>::Instance().GetPoints<value<>>("CS-He3eta-assumed");
-    const hist<> he3eta_events = luminosity * (runs.first / runs.second) 
-            / double(trigger_gammas_central.scaling) 
-            * (he3etacs * acceptance[0]);
-    const hist<> he3pi0pi0pi0_events = luminosity * (runs.first / runs.second) 
-            / double(trigger_gammas_central.scaling) 
-            * (acceptance[1]*value<>(115,25));
+    const hist<> he3eta_events =
+        luminosity * (runs.first / runs.second)
+        / double(trigger_gammas_central.scaling)
+        * (he3etacs * acceptance[0]);
+    const hist<> he3pi0pi0pi0_events =
+        luminosity * (runs.first / runs.second)
+        / double(trigger_gammas_central.scaling)
+        * (acceptance[1] * value<>(115, 25));
     Plot<>("gggggg-events")
     .Hist(ev_am , "data")
     .Line(he3eta_events.toLine(), "3He+eta")
@@ -147,7 +149,8 @@ int main()
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'"
             << "set title 'Events 6gamma'" << "set yrange [0:]";
-    const hist<> cross_section = (ev_am - he3eta_events) / acceptance[1]
-                                 * double(trigger_gammas_central.scaling)
-                                 * (runs.second / runs.first) / luminosity;
+    const hist<> cross_section =
+        (ev_am - he3eta_events) / acceptance[1]
+        * double(trigger_gammas_central.scaling)
+        * (runs.second / runs.first) / luminosity;
 }
