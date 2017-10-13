@@ -25,7 +25,7 @@ using namespace MathTemplates;
 using namespace GnuplotWrap;
 const BiSortedPoints<> ReadCrossSection()
 {
-    BiSortedPoints<> result(ChainWithCount(91, 0., PI<>() / 2.0), ChainWithCount(13, 1.000, 2.200));
+    BiSortedPoints<> result(ChainWithCount(91, 0., PI<>()/2.0), ChainWithCount(13, 1.000, 2.200));
     for (size_t degree = 0; degree <= 90; degree++) {
         ifstream file("crosssections/Theta_" + to_string(degree) + ".txt");
         for (double E = 0, C = 0; (file >> E >> C); result.Bin(degree, (size_t(E) - 1000) / 100) = C);
@@ -39,12 +39,12 @@ const SortedPoints<> IntegrateCrossSection(const BiSortedPoints<> &angular)
     result << make_point(0.0, 0.0) << make_point(angular.Y()[0] - 0.001, 0.0);
     result << make_point(5.0, 0.0) << make_point(angular.Y()[angular.Y().size() - 1] + 0.001, 0.0);
     for (size_t index = 0; index < angular.Y().size(); index++) {
-        const auto &E = angular.Y()[index];
+        const auto &P = angular.Y()[index];
         const auto IntT = Int_Trapez_Table(angular.CutX(index)
         * [](const double & th) {
             return sin(th);
         });
-        result << make_point(E, IntT[IntT.size() - 1].Y() * 2.0 * PI());
+        result << make_point(P, IntT[IntT.size() - 1].Y() * PI()*2.0);
     }
     return result;
 }
@@ -75,7 +75,7 @@ const double Calculate_pp2ppn(const double &pbeam, const function<double(double)
 const SortedPoints<> pp2ppn(const LinearInterpolation<> &pp_cs)
 {
     SortedPoints<> result;
-    for (double p = 1.0; p < 2.0; p += 0.001) {
+    for (double p = 1.0; p <= 2.1; p += 0.001) {
         result << make_point(p, Calculate_pp2ppn(p, pp_cs.func()));
     }
     return result;
@@ -153,15 +153,12 @@ int main()
     hist<> acceptance, acceptance_pd, chi_sq, luminosity, el_cs;
     vector<hist<>> fit_params;
     const auto diff_cs = ReadCrossSection();
-    PlotHist2d<>(sp2).Surface(diff_cs.Clone().FullCycleVar([](double & z) {
-        z = log10(z);
-    }));
     const auto p_cs = IntegrateCrossSection(diff_cs);
-    Plot<>().Line(p_cs);
+    Plot<>("pp-integrated").Line(p_cs) << "set title 'pp->pp'";
     const auto ppn_cs = pp2ppn(p_cs);
-    Plot<>().Line(ppn_cs);
-    const auto SIGMA = ConvertCrossSections(p_cs);
-    Plot<>().Hist(SIGMA)
+    const auto SIGMA = ConvertCrossSections(ppn_cs);
+    Plot<>("ppn-integrated").Line(ppn_cs) << "set title 'pd->pp+n_{sp}'";
+    Plot<>("ppn-sigma").Hist(SIGMA)
             << "set title 'ppn_{sp} cross section'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'cross section, nb'"
@@ -178,13 +175,13 @@ int main()
 
         const hist<> mc_ppn =
             Hist(MC, ppn_reaction, {"Histograms", "elastic"}, string("theta_sum_22-Bin-") + to_string(bin_num))
-            .Scale(1).XRange(50, 200);
+            .Scale(2).XRange(50, 200);
         const hist<> mc_pd =
             Hist(MC, "pd", {"Histograms", "elastic"}, string("theta_sum_22-Bin-") + to_string(bin_num))
-            .Scale(1).XRange(50, 200);
+            .Scale(2).XRange(50, 200);
         const hist<> data =
             Hist(DATA, "E", {"Histograms", "elastic"}, string("theta_sum_22-Bin-") + to_string(bin_num))
-            .Scale(1).XRange(50, 200);
+            .Scale(2).XRange(50, 200);
         const hist<> nmc_ppn = mc_ppn / N;
         const hist<> nmc_pd = mc_pd / N_pd;
         const auto epsilon = nmc_ppn.TotalSum();
@@ -221,8 +218,8 @@ int main()
                    && (P[3] < 0) && (P[4] > 0);
         });
         FitData.Init(200, make_shared<InitialDistributions>()
-                     << make_shared<DistribUniform>(0, 10.0 * data_count)
-                     << make_shared<DistribUniform>(0, data_count)
+                     << make_shared<DistribUniform>(0, 10.*data_count)
+                     << make_shared<DistribUniform>(0, 10.*data_count)
                      << make_shared<DistribUniform>(60, 70)
                      << make_shared<DistribUniform>(-5, 0)
                      << make_shared<DistribUniform>(0, 0.01 * data_count)
@@ -292,7 +289,7 @@ int main()
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:]";
     const hist<> prev_luminosity = Plotter<>::Instance().GetPoints<value<>>("LUMINOSITYf");
-    const hist<> estimate_full_luminosity=luminosity * runs.second / runs.first;
+    const hist<> estimate_full_luminosity = luminosity * runs.second / runs.first;
     Plot<>("luminosity-compare")
     .Hist(estimate_full_luminosity, "ppn_{sp}")
     .Hist(prev_luminosity, "3He+eta")
@@ -300,21 +297,23 @@ int main()
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:]";
-    SearchMin<DifferentialMutations<Uncertainty>> Shadowing([&estimate_full_luminosity,&prev_luminosity](const ParamSet&P){
-        double res=0;
-        for(size_t i=0;i<prev_luminosity.size();i++){
-            const size_t ii=estimate_full_luminosity.size()-(prev_luminosity.size()-i);
-            res+=(estimate_full_luminosity[ii].Y()*P[0]).NumCompare(prev_luminosity[i].Y());
+    SearchMin<DifferentialMutations<Uncertainty>> Shadowing([&estimate_full_luminosity, &prev_luminosity](const ParamSet & P) {
+        double res = 0;
+        for (size_t i = 0; i < prev_luminosity.size(); i++) {
+            const size_t ii = estimate_full_luminosity.size() - (prev_luminosity.size() - i);
+            res += (estimate_full_luminosity[ii].Y() * P[0]).NumCompare(prev_luminosity[i].Y());
         }
         return res;
     });
-    Shadowing.SetFilter([](const ParamSet&P){return P[0]>0;});
-    Shadowing.Init(10,make_shared<InitialDistributions>()<<make_shared<DistribUniform>(0.9,1.4),r_eng);
-    while(!Shadowing.AbsoluteOptimalityExitCondition(0.0000000001))Shadowing.Iterate(r_eng);
+    Shadowing.SetFilter([](const ParamSet & P) {
+        return P[0] > 0;
+    });
+    Shadowing.Init(10, make_shared<InitialDistributions>() << make_shared<DistribUniform>(1.0, 2.0), r_eng);
+    while (!Shadowing.AbsoluteOptimalityExitCondition(0.0000000001))Shadowing.Iterate(r_eng);
     Shadowing.SetUncertaintyCalcDeltas({0.001});
-    cout<<"Shadowing effect coefficient: "<<Shadowing.ParametersWithUncertainties()[0]<<endl;
-    cout<<"chi^2/d: "<<Shadowing.Optimality()/(prev_luminosity.size()-Shadowing.ParamCount())<<endl;
-    const hist<> full_luminosity=estimate_full_luminosity*Shadowing.ParametersWithUncertainties()[0];
+    cout << "Shadowing effect coefficient: " << Shadowing.ParametersWithUncertainties()[0] << endl;
+    cout << "chi^2/d: " << Shadowing.Optimality() / (prev_luminosity.size() - Shadowing.ParamCount()) << endl;
+    const hist<> full_luminosity = estimate_full_luminosity * Shadowing.ParametersWithUncertainties()[0];
     Plot<>("luminosity-compare-with-shadowing")
     .Hist(full_luminosity, "ppn_{sp}", "LUMINOSITYc")
     .Hist(prev_luminosity, "3He+eta")
