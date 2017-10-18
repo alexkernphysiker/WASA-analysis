@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(WASAatCOSY_etamesic_3He_search_analysis)
-set(CMAKE_CXX_FLAGS "-std=gnu++11")
+add_definitions(-pthread)
+add_definitions(-std=c++1z)
 add_subdirectory(math_h)
 add_subdirectory(FitGen)
 include_directories(${MATH_H_INC})
