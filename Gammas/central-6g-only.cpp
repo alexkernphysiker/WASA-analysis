@@ -118,7 +118,7 @@ int main()
         )
         .Hist(data, "All").Hist(data1, "3pi^0").Hist(data2, "MM cut")
                 << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]" << "set key on";
-        ev_am << point<value<>>(Q, value<>::std_error(data2.TotalSum().val()));
+        ev_am << point<value<>>(Q, std_error(data2.TotalSum().val()));
     }
     Plot<> accplot("gggggg-acceptance");
     accplot

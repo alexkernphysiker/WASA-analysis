@@ -123,7 +123,7 @@ int main()
             if (N.Above(0)) {
                 const hist<> h = Hist(MC, r, histpath_central_reconstr, string("GIM4-Bin-") + to_string(bin_num));
                 const hist<> he3 = Hist(MC, r, histpath_central_reconstr, string("He3MM4-Bin-") + to_string(bin_num));
-                const auto C = value<>::std_error(h.TotalSum().val());
+                const auto C = std_error(h.TotalSum().val());
                 mc_plot.Hist(h / N, r);
                 he3_plot.Hist(he3 / N, r);
                 acceptance[i] << point<value<>>(Q, C / N);
@@ -156,7 +156,7 @@ int main()
         .Hist(data1, "All").Hist(data2, "3pi^0").Hist(data3, "MM cut")
                 << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
                 << "set xlabel 'gamma-gamma invariant mass, GeV'";
-        ev_am << point<value<>>(Q, value<>::std_error(data3.TotalSum().val()));
+        ev_am << point<value<>>(Q, std_error(data3.TotalSum().val()));
     }
     Plot<> accplot("He3gg-acceptance");
     accplot << "set title 'Acceptance'"

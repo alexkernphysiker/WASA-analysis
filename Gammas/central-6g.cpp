@@ -153,7 +153,7 @@ int main()
         .Hist(data, "3He 6gamma") .Hist(data1, "3He 3pi^0") //.Hist(data2,"3pi^0 cut")
                 << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
                 << "set xlabel 'pi0+pi0+pi0 invariant mass, GeV'";
-        ev_am << point<value<>>(Q, value<>::std_error(data1.TotalSum().val()));
+        ev_am << point<value<>>(Q, std_error(data1.TotalSum().val()));
     }
     Plot<> accplot("He3gggggg-acceptance");
     accplot << "set title 'Acceptance'"

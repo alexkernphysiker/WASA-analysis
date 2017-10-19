@@ -1,13 +1,15 @@
 cmake_minimum_required(VERSION 3.0)
 project(WASAatCOSY_etamesic_3He_search_analysis)
 add_definitions(-pthread)
-add_definitions(-std=c++1z)
+add_definitions(-std=c++17)
+
 add_subdirectory(math_h)
 add_subdirectory(FitGen)
 include_directories(${MATH_H_INC})
 include_directories(${FITGEN_INC})
 add_subdirectory(WASA-libs)
 include_directories(${WASA_LIBS_INC})
+
 add_executable(reconstruction reconstruction.cpp)
 target_link_libraries(reconstruction ${ROOT_LIBRARIES} reconstructionfit experiment kinematics)
 add_subdirectory(He3Eta)

@@ -7,7 +7,7 @@ All files are distributed under GPL license
 Required software
 =================
 	ROOT 
-framework for calulations
+framework for calulations that is required to read the input data
 
 	gnuplot
 software for plotting. Is used by some applications performing final analysis.

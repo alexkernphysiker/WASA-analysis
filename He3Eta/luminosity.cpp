@@ -32,7 +32,7 @@ int main()
     vector<hist<>> parhists;
     RANDOM r_eng;
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++)
-        if (norm[bin_num].X() > 5.0) {
+        if (norm[bin_num].X() > 2.5) {
             const auto &Q = norm[bin_num].X();
             const auto &N = norm[bin_num].Y();
             const string Qmsg = static_cast<stringstream &>(stringstream()
@@ -83,7 +83,7 @@ int main()
                         << make_shared<DistribGauss>(0, 5)
                         << make_shared<DistribGauss>(0, 5)
                         ;
-            FIT.Init(300, init, r_eng);
+            FIT.Init(400, init, r_eng);
             cout << endl;
             while (!FIT.AbsoluteOptimalityExitCondition(0.0000001))FIT.Iterate(r_eng);
             cout << "Fitting: " << FIT.iteration_count() << " iterations; "
