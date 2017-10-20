@@ -108,7 +108,7 @@ int main()
     Plot<>("ppn-copl-data")
     .Hist(Hist(DATA, "E", {"Histograms", "elastic"}, "pair_phi_diff_0"))
     .Hist(Hist(DATA, "E", {"Histograms", "elastic"}, "pair_phi_diff_1"))
-    .Hist(Hist(DATA, "E", {"Histograms", "elastic"}, "pair_phi_diff_24"))
+    .Hist(Hist(DATA, "E", {"Histograms", "elastic"}, "pair_phi_diff_24-AllBins"))
             << "set title 'Coplanarity. Data " + runmsg + "'" << "set yrange [0:]" << "set xlabel " + planarity;
 
     PlotHist2d<>(sp2).Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "t_vs_t_1"))
@@ -220,12 +220,12 @@ int main()
             Hist(DATA, "E", {"Histograms", "elastic"}, string("theta_s_24-Bin-") + to_string(bin_num))
             .Scale(2).XRange(20, 110);
 
-        const hist<> mc_ppn_l = mc_ppn.XRange(0,70);
-        const hist<> mc_pd_l = mc_pd.XRange(0,70);
-        const hist<> data_l = data.XRange(0,70);
-        const hist<> mc_ppn_r = mc_ppn.XRange(70,180);
-        const hist<> mc_pd_r = mc_pd.XRange(70,180);
-        const hist<> data_r = data.XRange(70,180);
+        const hist<> mc_ppn_l = mc_ppn.XRange(0,80);
+        const hist<> mc_pd_l = mc_pd.XRange(0,80);
+        const hist<> data_l = data.XRange(0,80);
+        const hist<> mc_ppn_r = mc_ppn.XRange(80,180);
+        const hist<> mc_pd_r = mc_pd.XRange(80,180);
+        const hist<> data_r = data.XRange(80,180);
 
         const auto epsilon_l = std_error(mc_ppn_l.TotalSum().val())/N;
         const auto epsilon2_l = std_error(mc_pd_l.TotalSum().val())/N_pd;
