@@ -177,13 +177,15 @@ int main()
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + e1 << "set ylabel " + e2;
 
     Plot<>("ppn-theta2-mc")
-    .Line(Hist(MC, "pd", {"Histograms", "elastic"}, "theta_s_24-AllBins").toLine() / norm_pd.TotalSum().val(), "pd")
-    .Line(Hist(MC, ppn_reaction, {"Histograms", "elastic"}, "theta_s_24-AllBins").toLine() / norm.TotalSum().val(), "ppn_{sp}")
+    .Line(Hist(MC, "pd", {"Histograms", "elastic"}, "theta_s_24-AllBins").Scale(2).toLine() 
+        / norm_pd.TotalSum().val(), "pd")
+    .Line(Hist(MC, ppn_reaction, {"Histograms", "elastic"}, "theta_s_24-AllBins").Scale(2).toLine() 
+        / norm.TotalSum().val(), "ppn_{sp}")
             << "set title 'MC'" << "set key on"
             << "set yrange [0:]" << "set xlabel " + th2
             << "set ylabel 'counts normalized'";
     Plot<>("ppn-theta2-data")
-    .Hist(Hist(DATA, "E", {"Histograms", "elastic"}, "theta_s_24-AllBins"))
+    .Hist(Hist(DATA, "E", {"Histograms", "elastic"}, "theta_s_24-AllBins").Scale(2))
             << "set title 'Data " + runmsg + "'" << "set key on" << "set yrange [0:]" << "set xlabel " + th2;
 
 
@@ -219,6 +221,14 @@ int main()
         const hist<> data =
             Hist(DATA, "E", {"Histograms", "elastic"}, string("theta_s_24-Bin-") + to_string(bin_num))
             .Scale(2).XRange(20, 110);
+        const hist<> data_copl=
+            Hist(DATA,"E",{"Histograms","elastic"},string("pair_phi_diff_24-Bin-") + to_string(bin_num)).XRange(0,20);
+
+        const hist<> data_bg_estimation=data_copl.Clone().FillWithValues(data_copl.right().Y());
+        Plot<>(Q.Contains(21) ? "ppn-above-data-copl" : (Q.Contains(-39) ? "ppn-below-data-copl" : ""))
+            .Hist(data_copl,"Data").Line(data_bg_estimation.toLine(),"background estimation")
+                << "set title 'Coplanarity. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
+                << "set yrange [0:]" << "set xlabel " + planarity;
 
         const hist<> mc_ppn_l = mc_ppn.XRange(0,80);
         const hist<> mc_pd_l = mc_pd.XRange(0,80);
@@ -238,11 +248,13 @@ int main()
 
         const auto events_l = std_error(data_l.TotalSum().val());
         const auto events_r = std_error(data_r.TotalSum().val());
+        const auto BG=data_copl.right().Y()*data_copl.size();
 
         cout << endl << Qmsg << endl;
         Plot<>(Q.Contains(21) ? "ppn-above-mc" : (Q.Contains(-39) ? "ppn-below-mc" : ""))
-        .Hist(mc_ppn / N, "ppn_{sp}")
-        .Line(mc_pd.toLine()/N_pd.val(),"pd left").Line(mc_pd_r.toLine()/N_pd.val(),"pd right")
+            .Hist(mc_ppn_l / N, "ppn_{sp}").Hist(mc_ppn_r / N)
+            .Line(mc_pd.toLine()/N_pd.val(),"pd left")
+            .Line(mc_pd_r.toLine()/N_pd.val(),"pd right")
                 << "set key on" << "set title 'MC " + Qmsg + "'" << "set yrange [0:]"
                 << "set xlabel " + th2 << "set ylabel 'counts normalized'";
         Plot<>(Q.Contains(21) ? "ppn-above-data" : (Q.Contains(-39) ? "ppn-below-data" : ""))
@@ -259,10 +271,10 @@ int main()
         const auto expected_count=(events_l+events_r).val();
         solver.SetFilter([](const ParamSet&E){return (E[0]>0)&&(E[1]>0);})
         .Init(
-            200,
+            80,
             make_shared<InitialDistributions>()
-                << make_shared<DistribUniform>(0, expected_count*50.)
-                << make_shared<DistribUniform>(0, expected_count*5),
+                << make_shared<DistribUniform>(expected_count*50.,expected_count*100.)
+                << make_shared<DistribUniform>(0, expected_count*10.),
             r_eng
         );
         while (!solver.AbsoluteOptimalityExitCondition(0.0000000001))
@@ -282,17 +294,21 @@ int main()
     Plot<>("ppn-acceptance")
     .Line(acceptance_l.toLine(), "ppn_{sp} left").Line(acceptance_pd_l.toLine(), "pd left")
     .Line(acceptance_r.toLine(), "ppn_{sp} right").Line(acceptance_pd_r.toLine(), "pd right")
-            << "set key on" << "set title 'Acceptance'" << "set yrange [0:]" << "set xlabel 'Q, MeV'" << "set ylabel 'Acceptance, n.d.'";
+            << "set key on" << "set title 'Acceptance'" << "set yrange [0:]" 
+            << "set xlabel 'Q, MeV'" << "set ylabel 'Acceptance, n.d.'";
     Plot<>("ppn-chisq")
     .Hist(chi_sq)
-            << "set key on" << "set title 'chi^2'" << "set yrange [0:]" << "set xlabel 'Q, MeV'" << "set ylabel 'chi^2, n.d.'";
+            << "set key on" << "set title 'chi^2'" << "set yrange [0:]" 
+            << "set xlabel 'Q, MeV'" << "set ylabel 'chi^2, n.d.'";
     Plot<>("ppn-events-lr")
     .Hist(eventsl, "left").Hist(eventsr, "right")
     .Line(evl.toLine()).Line(evr.toLine())
-            << "set key on" << "set title 'Registered events count'" << "set yrange [0:]" << "set xlabel 'Q, MeV'" << "set ylabel 'count, n.d.'";
+            << "set key on" << "set title 'Registered events count'" << "set yrange [0:]" 
+            << "set xlabel 'Q, MeV'" << "set ylabel 'count, n.d.'";
     Plot<>("ppn-events")
     .Hist(events1, "ppn_{sp}").Hist(events2, "pd")
-            << "set key on" << "set title 'True events count'" << "set yrange [0:]" << "set xlabel 'Q, MeV'" << "set ylabel 'count, n.d.'";
+            << "set key on" << "set title 'True events count'" << "set yrange [0:]" 
+            << "set xlabel 'Q, MeV'" << "set ylabel 'count, n.d.'";
     const auto luminosity=events1/SIGMA;
     Plot<>("ppn-luminosity").Hist(luminosity)
             << "set title 'Integrated luminosity (" + runmsg + ")'"
