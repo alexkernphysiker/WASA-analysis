@@ -222,8 +222,8 @@ int main()
     Plot<>("He36g-events")
     .Hist(ev_am, "data")
     .Line(he3etaev.toLine(), "3He+eta estimated")
-    .Line(he3pi0pi0pi0_events.toLine(), "3He+3pi^0 estimated")
-    .Line(hist<>(he3etaev + he3pi0pi0pi0_events).toLine())
+    //.Line(he3pi0pi0pi0_events.toLine(), "3He+3pi^0 estimated")
+    //.Line(hist<>(he3etaev + he3pi0pi0pi0_events).toLine())
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '" + runmsg + "'";
