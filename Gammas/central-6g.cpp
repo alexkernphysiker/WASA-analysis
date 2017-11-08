@@ -20,7 +20,7 @@ using namespace MathTemplates;
 using namespace GnuplotWrap;
 int main()
 {
-    Plotter<>::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-6gamma-with-3he");
+    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-6gamma-with-3he");
     vector<string> histpath_reconstr = {"Histograms", "He3nCentralGammas"};
     vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas6"};
     vector<string> reaction = {"bound1-6g", "He3eta", "He3pi0pi0pi0"};
@@ -28,7 +28,7 @@ int main()
     const auto runs = PresentRuns("C");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
 
-    Plot<> gE("He36g-gamma-energy-theory"), gEc("He36g-gamma-energy-theory-cut"),
+    Plot gE("He36g-gamma-energy-theory"), gEc("He36g-gamma-energy-theory-cut"),
          gEd("He36g-gamma-energy-data");
     gE << "set key on" << "set title 'Gamma energy. MC'"
        << "set yrange [0:]" << "set xlabel 'gamma energy, GeV'";
@@ -50,11 +50,11 @@ int main()
     gEd.Hist(Hist(DATA, "C", histpath_reconstr, "GammaEnergy")).Hist(Hist(DATA, "C", histpath_reconstr, "GammaEnergy6"));
 
 
-    Plot<> theory("He36g-IMPiDiff0-mc"), theory1("He36g-IMPiDiff1-mc"),
+    Plot theory("He36g-IMPiDiff0-mc"), theory1("He36g-IMPiDiff1-mc"),
          experiment("He36g-IMPiDiff-data");
     for (const auto &r : reaction) {
         if (r == reaction[0]) {
-            Plot<>("He36g-IMPiDiff-bound-mc")
+            Plot("He36g-IMPiDiff-bound-mc")
             .Hist(Hist(MC, r, histpath_central_reconstr, "GMMPDiff3"), "3He 6gamma")
             .Hist(Hist(MC, r, histpath_central_reconstr, "GMMPDiff4"), "3He 3pi^0")
                     << "set key on" << "set yrange [0:]";
@@ -81,7 +81,7 @@ int main()
                             << Q.min() << "; " << Q.max() << "] MeV").str();
         for (size_t i = 0; i < reaction.size(); i++) {
             const auto &r = reaction[i];
-            Plot<>(
+            Plot(
                 Q.Contains(21) ? "He36g-above-he3mm-mc-" + r : (
                     Q.Contains(-39) ? "He36g-below-he3mm-mc-" + r : (
                         Q.Contains(-3) ? "He36g-thr-he3mm-mc-" + r : ""
@@ -93,7 +93,7 @@ int main()
             .Hist(Hist(MC, r, histpath_central_reconstr, string("He3MM2-Bin-") + to_string(bin_num)), "3He+6gamma")
                     << "set key on" << "set title '" + Qmsg + ";MC " + r + "'" << "set yrange [0:]"
                     << "set xlabel '3He missing mass, GeV'";
-            Plot<>(
+            Plot(
                 Q.Contains(21) ? "He36g-above-ggmm-mc" + r : (
                     Q.Contains(-39) ? "He36g-below-ggmm-mc" + r : (
                         Q.Contains(-3) ? "He36g-thr-ggmm-mc" + r : ""
@@ -106,7 +106,7 @@ int main()
             .Hist(Hist(MC, r, histpath_central_reconstr, string("GMM5-Bin-") + to_string(bin_num)), "3 cut")
                     << "set key on" << "set title '" + Qmsg + ";MC " + r + "'" << "set yrange [0:]"
                     << "set xlabel '6gamma missing mass, GeV'";
-            Plot<>(
+            Plot(
                 Q.Contains(21) ? "He3gg-above-ggim-mc" + r : (
                     Q.Contains(-39) ? "He3gg-below-ggim-mc" + r : (
                         Q.Contains(-3) ? "He3gg-thr-ggim-mc" + r : ""
@@ -120,7 +120,7 @@ int main()
                     << "set key on" << "set title '" + Qmsg + ";MC " + r + "'" << "set yrange [0:]"
                     << "set xlabel '6gamma invariant mass, GeV'";
         }{
-            Plot<>(
+            Plot(
                 Q.Contains(21) ? "He36g-above-he3mm-data" : (
                     Q.Contains(-39) ? "He36g-below-he3mm-data" : (
                         Q.Contains(-3) ? "He36g-thr-he3mm-data" : ""
@@ -132,7 +132,7 @@ int main()
             .Hist(Hist(DATA, "C", histpath_central_reconstr, string("He3MM2-Bin-") + to_string(bin_num)), "3He+6gamma")
                     << "set key on" << "set title '" + Qmsg + ";Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '3He missing mass, GeV'";
-            Plot<>(
+            Plot(
                 Q.Contains(21) ? "He36g-above-ggmm-data" : (
                     Q.Contains(-39) ? "He36g-below-ggmm-data" : (
                         Q.Contains(-3) ? "He36g-thr-ggmm-data" : ""
@@ -145,7 +145,7 @@ int main()
             .Hist(Hist(DATA, "C", histpath_central_reconstr, string("GMM5-Bin-") + to_string(bin_num)), "3 cut")
                     << "set key on" << "set title '" + Qmsg + ";Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '6gamma missing mass, GeV'";
-            Plot<>(
+            Plot(
                 Q.Contains(21) ? "He36g-above-ggim-data" : (
                     Q.Contains(-39) ? "He36g-below-ggim-data" : (
                         Q.Contains(-3) ? "He36g-thr-ggim-data" : ""
@@ -160,7 +160,7 @@ int main()
                     << "set xlabel '6gamma invariant mass, GeV'";
         }
         {
-            Plot<> mc_plot(
+            Plot mc_plot(
                 Q.Contains(21) ? "He36g-above-im-mc" : (
                     Q.Contains(-39) ? "He36g-below-im-mc" : (
                         Q.Contains(-3) ? "He36g-thr-im-mc" : ""
@@ -184,7 +184,7 @@ int main()
             }
         }
         const hist<> data = Hist(DATA, "C", histpath_central_reconstr, string("GIM4-Bin-") + to_string(bin_num));
-        Plot<>(
+        Plot(
             Q.Contains(21) ? "He36g-above-data" : (
                 Q.Contains(-39) ? "He36g-below-data" : (
                     Q.Contains(-3) ? "He36g-thr-data" : ""
@@ -198,7 +198,7 @@ int main()
         ev_am << point<value<>>(Q, std_error(data.TotalSum().val()));
 
     }
-    Plot<> accplot("He36g-acceptance");
+    Plot accplot("He36g-acceptance");
     accplot << "set title 'Acceptance'"
             << "set xlabel 'Q, MeV'"
             << "set ylabel 'Acceptance, n.d.'"
@@ -209,21 +209,22 @@ int main()
             accplot.Hist(acc, reaction[i]);
         }
     }
-    const hist<> luminosity = Plotter<>::Instance().GetPoints<value<>>("LUMINOSITYc");
-    const hist<> he3etacs = Plotter<>::Instance().GetPoints<value<>>("CS-He3eta-assumed");
+    const hist<> luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYc");
+    const hist<> he3etacs = Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed");
+    const value<> he3pi0pi0pi0cs={100,25};
     const hist<> he3etaev =
         luminosity * (runs.first / runs.second)
         / double(trigger_he3_forward.scaling)
-        * (he3etacs * acceptance[1]);
+        * (acceptance[1]*he3etacs);
     const hist<> he3pi0pi0pi0_events =
         luminosity * (runs.first / runs.second)
-        / double(trigger_gammas_central.scaling)
-        * (acceptance[2] * value<>(115, 25));
-    Plot<>("He36g-events")
+        / double(trigger_he3_forward.scaling)
+        * (acceptance[2]*he3pi0pi0pi0cs);
+    Plot("He36g-events")
     .Hist(ev_am, "data")
     .Line(he3etaev.toLine(), "3He+eta estimated")
-    //.Line(he3pi0pi0pi0_events.toLine(), "3He+3pi^0 estimated")
-    //.Line(hist<>(he3etaev + he3pi0pi0pi0_events).toLine())
+    .Line(he3pi0pi0pi0_events.toLine(), "3He+3pi^0 estimated")
+    .Line(hist<>(he3etaev + he3pi0pi0pi0_events).toLine())
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '" + runmsg + "'";

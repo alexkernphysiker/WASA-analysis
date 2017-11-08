@@ -23,7 +23,7 @@ using namespace MathTemplates;
 using namespace GnuplotWrap;
 int main()
 {
-    Plotter<>::Instance().SetOutput(ENV(OUTPUT_PLOTS), "luminosity-forward");
+    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "luminosity-forward");
     vector<string> histpath_forward_reconstr = {"Histograms", "He3Forward_Reconstruction"};
     const auto runs = PresentRuns("F");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
@@ -49,7 +49,7 @@ int main()
                                          ).XRange(0.53, 0.57);
             const hist<> mc = mc_unnorm / N;
             acceptance << point<value<>>(Q, mc.TotalSum());
-            Plot<>(Q.Contains(21) ? "He3eta-mc" : "")
+            Plot(Q.Contains(21) ? "He3eta-mc" : "")
             .Hist(mc)
                     << "set key on" << "set title '" + Qmsg + ",3He+eta MC'"
                     << "set xlabel 'Missing mass, GeV'"
@@ -99,7 +99,7 @@ int main()
                 parhists[i] << point<value<>>(Q, P[i]);
             data_chi_sq << point<value<>>(Q, FIT.Optimality() / (data.size() - FIT.ParamCount()));
             cout << endl;
-            Plot<> exp_plot(Q.Contains(21) ? "He3eta-fit" : "");
+            Plot exp_plot(Q.Contains(21) ? "He3eta-fit" : "");
             exp_plot.Hist(data).Hist(data_bg)
                     << "set key on" << "set title '" + Qmsg + ", " + runmsg + "'"
                     << "set xlabel 'Missing mass, GeV'"
@@ -125,7 +125,7 @@ int main()
                 bg << point<value<>>(po.X(), {v, sqrt(u)});
             }
             hist<> clean = data - bg;
-            Plot<> subplot(Q.Contains(21) ? "He3eta-subtract" : "");
+            Plot subplot(Q.Contains(21) ? "He3eta-subtract" : "");
             subplot.Hist(clean).Line({point<>(clean.left().X().min(), 0.0), point<>(clean.right().X().max(), 0.0)});
             subplot.Hist(clean = clean.XRange(cut.first, cut.second))
                     << "set key on" << "set title '" + Qmsg + ", " + runmsg + "'"
@@ -140,15 +140,15 @@ int main()
                                         );
         }
     for (size_t i = 0; i < parhists.size(); i++)
-        Plot<>().Hist(parhists[i])
+        Plot().Hist(parhists[i])
                 << "set xlabel 'Q, MeV'"
                 << "set ylabel 'parameter" + to_string(i) + "'";
-    Plot<>("He3eta-chisq").Hist(data_chi_sq)
+    Plot("He3eta-chisq").Hist(data_chi_sq)
             << "set xlabel 'Q, MeV'"
             << "set ylabel 'chi^2/d, n.d.'"
             << "set yrange [0:]" << "unset log y";
 
-    Plot<>("He3eta-cross-section")
+    Plot("He3eta-cross-section")
     .Hist(he3eta_sigma(), "Data from other experiments")
     .Hist(hist<>(he3eta_sigma().func(), BinsByStep(-70.0, 2.5, 30.0)), "Interpolation", "CS-He3eta-assumed")
             << "set title 'Cross section of He3eta used in the calculations'"
@@ -156,18 +156,18 @@ int main()
             << "set ylabel 'sigma(^3He eta), nb'"
             << "set xrange [-20:45]" << "set yrange [0:600]";
 
-    Plot<>("He3eta-acceptance").Hist(acceptance)
+    Plot("He3eta-acceptance").Hist(acceptance)
             << "set title '3He+eta acceptance'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'acceptance, n.d.'"
             << "set xrange [0:30]" << "set yrange [0:1]";
 
-    Plot<>("He3eta-luminosity").Hist(luminosity)
+    Plot("He3eta-luminosity").Hist(luminosity)
             << "set title 'Integrated luminosity (" + runmsg + ")'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [0:30]" << "set yrange [0:]";
-    Plot<>("")
+    Plot("")
     .Hist(luminosity * runs.second / runs.first, "3He+eta", "LUMINOSITYf")
             << "set title 'Integrated luminosity estimation for all runs'"
             << "set key on" << "set xlabel 'Q, MeV'"

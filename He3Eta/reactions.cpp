@@ -22,7 +22,7 @@ using namespace MathTemplates;
 using namespace GnuplotWrap;
 int main()
 {
-    Plotter<>::Instance().SetOutput(ENV(OUTPUT_PLOTS), "background-reactions-forward");
+    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "background-reactions-forward");
     const auto runs = PresentRuns("F");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
     vector<string> histpath_forward_reconstr = {"Histograms", "He3Forward_Reconstruction"};
@@ -51,19 +51,19 @@ int main()
             return h.XRange(0.4, 0.6);
         };
         const hist<> data = transform(Hist(DATA, "F", histpath_forward_reconstr, string("MissingMass-Bin-") + to_string(bin_num)));
-        Plot<>(Q.Contains(21) ? "He3forward-above-mm" : (Q.Contains(-39) ? "He3forward-below-mm" : "")).Hist(data)
+        Plot(Q.Contains(21) ? "He3forward-above-mm" : (Q.Contains(-39) ? "He3forward-below-mm" : "")).Hist(data)
                 << "set key on" << "set title '" + Qmsg + ", " + runmsg + "'"
                 << "set xlabel 'Missing mass, GeV'"
                 << "set ylabel 'counts'"
                 << "set yrange [0:]" << "unset log y";
         const hist<> data2 = transform2(data);
-        Plot<>(Q.Contains(21) ? "He3forward-above-mm2" : (Q.Contains(-39) ? "He3forward-below-mm" : "")).Hist(data2)
+        Plot(Q.Contains(21) ? "He3forward-above-mm2" : (Q.Contains(-39) ? "He3forward-below-mm" : "")).Hist(data2)
                 << "set key on" << "set title '" + Qmsg + ", " + runmsg + "'"
                 << "set xlabel 'Missing mass, GeV'"
                 << "set ylabel 'counts'"
                 << "set yrange [0:]" << "unset log y";
         {
-            Plot<> th_plot(Q.Contains(21) ? "He3forward-above-mc" : (Q.Contains(-39) ? "He3forward-below-mc" : "")),
+            Plot th_plot(Q.Contains(21) ? "He3forward-above-mc" : (Q.Contains(-39) ? "He3forward-below-mc" : "")),
                  th_plot2(Q.Contains(21) ? "He3forward-above-mc2" : (Q.Contains(-39) ? "He3forward-below-mc2" : ""));
             th_plot << "set key on" << "set xlabel 'Missing mass, MeV'"
                     << "set title '" + Qmsg + "'"
@@ -93,7 +93,7 @@ int main()
         cout << endl << Qmsg << endl << endl;
         events_count << point<value<>>(Q, value<>::std_error(data2.TotalSum().val()));
     }
-    Plot<> acc("He3forward-acceptance"), acc2("He3forward-acceptance2");
+    Plot acc("He3forward-acceptance"), acc2("He3forward-acceptance2");
     acc << "set key on"
         << "set yrange [0:1.0]" << "unset log y"
         << "set xlabel 'Q, MeV'"
@@ -106,8 +106,8 @@ int main()
         acc.Hist(acceptance[i], reaction[i]);
         acc2.Hist(acceptance2[i], reaction[i]);
     }
-    const hist<> luminosity = Plotter<>::Instance().GetPoints<value<>>("LUMINOSITYc");
-    const hist<> he3etacs = Plotter<>::Instance().GetPoints<value<>>("CS-He3eta-assumed");
+    const hist<> luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYc");
+    const hist<> he3etacs = Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed");
     const hist<> he3eta_events =
         luminosity * (runs.first / runs.second)
         / double(trigger_he3_forward.scaling)
@@ -116,7 +116,7 @@ int main()
         luminosity * (runs.first / runs.second)
         / double(trigger_he3_forward.scaling)
         * (acceptance2[1] * value<>(115, 25));
-    Plot<>("He3forward-events")
+    Plot("He3forward-events")
     .Hist(he3eta_events, "3He+eta")
     .Hist(he3eta_events + he3pi0pi0pi0_events, "3He+eta and 3He+3pi0")
     .Hist(events_count, "data")

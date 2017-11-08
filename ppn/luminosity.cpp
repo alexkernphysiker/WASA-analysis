@@ -96,105 +96,105 @@ int main()
                  thth = "'Theta_1+1.6Theta_2, deg'", planarity = "'|Phi_1-Phi_2-180^o|, deg'";
     const hist<> norm = Hist(MC, ppn_reaction, {"Histograms", "elastic"}, "0-Reference");
     const hist<> norm_pd = Hist(MC, "pd", {"Histograms", "elastic"}, "0-Reference");
-    Plotter<>::Instance().SetOutput(ENV(OUTPUT_PLOTS), "luminosity-central");
-    Plot<>("ppn-copl-mc")
+    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "luminosity-central");
+    Plot("ppn-copl-mc")
     .Hist(Hist(MC, "pd", {"Histograms", "elastic"}, "pair_phi_diff_0") / norm_pd.TotalSum().val(), "pd")
     .Hist(Hist(MC, ppn_reaction, {"Histograms", "elastic"}, "pair_phi_diff_0") / norm.TotalSum().val(), "ppn_{sp}")
             << "set key on" << "set title 'Coplanarity. MC'" << "set yrange [0:]" << "set xlabel " + planarity;
-    Plot<>()
+    Plot()
     .Hist(Hist(MC, "pd", {"Histograms", "elastic"}, "pair_phi_diff_1") / norm_pd.TotalSum().val(), "pd")
     .Hist(Hist(MC, ppn_reaction, {"Histograms", "elastic"}, "pair_phi_diff_1") / norm.TotalSum().val(), "ppn_{sp}")
             << "set key on" << "set title 'Coplanarity. MC. Cut'" << "set yrange [0:]" << "set xlabel " + planarity;
-    Plot<>("ppn-copl-data")
+    Plot("ppn-copl-data")
     .Hist(Hist(DATA, "E", {"Histograms", "elastic"}, "pair_phi_diff_0"))
     .Hist(Hist(DATA, "E", {"Histograms", "elastic"}, "pair_phi_diff_1"))
             << "set title 'Coplanarity. Data " + runmsg + "'" << "set yrange [0:]" << "set xlabel " + planarity;
 
-    PlotHist2d<>(sp2).Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "t_vs_t_1"))
+    PlotHist2d(sp2).Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "t_vs_t_1"))
             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d<>(sp2).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_t_1"))
+    PlotHist2d(sp2).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_t_1"))
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d<>(sp2).Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_t_1"))
+    PlotHist2d(sp2).Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_t_1"))
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + th2;
 
 
-    PlotHist2d<>(sp2, "pd-tvt-mc-0").Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "t_vs_t_21"))
+    PlotHist2d(sp2, "pd-tvt-mc-0").Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "t_vs_t_21"))
             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d<>(sp2, "ppn-tvt-mc-0").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_t_21"))
+    PlotHist2d(sp2, "ppn-tvt-mc-0").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_t_21"))
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d<>(sp2, "ppn-tvt-data-0").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_t_21"))
+    PlotHist2d(sp2, "ppn-tvt-data-0").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_t_21"))
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d<>(sp2).Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "t_vs_e_21"))
+    PlotHist2d(sp2).Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "t_vs_e_21"))
             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + e1;
-    PlotHist2d<>(sp2).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_e_21"))
+    PlotHist2d(sp2).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_e_21"))
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + e1;
-    PlotHist2d<>(sp2).Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_e_21"))
+    PlotHist2d(sp2).Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_e_21"))
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + e1;
-    PlotHist2d<>(sp2, "pd-eve-mc-0").Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "e_vs_e_21"))
+    PlotHist2d(sp2, "pd-eve-mc-0").Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "e_vs_e_21"))
             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + e1 << "set ylabel " + e2;
-    PlotHist2d<>(sp2, "ppn-eve-mc-0").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "e_vs_e_21"))
+    PlotHist2d(sp2, "ppn-eve-mc-0").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "e_vs_e_21"))
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + e1 << "set ylabel " + e2;
-    PlotHist2d<>(sp2, "ppn-eve-data-0").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "e_vs_e_21"))
+    PlotHist2d(sp2, "ppn-eve-data-0").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "e_vs_e_21"))
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + e1 << "set ylabel " + e2;
 
-    PlotHist2d<>(sp2, "pd-tvt-mc-1").Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "t_vs_t_22"))
+    PlotHist2d(sp2, "pd-tvt-mc-1").Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "t_vs_t_22"))
             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d<>(sp2, "ppn-tvt-mc-1").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_t_22"))
+    PlotHist2d(sp2, "ppn-tvt-mc-1").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_t_22"))
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d<>(sp2, "ppn-tvt-data-1").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_t_22"))
+    PlotHist2d(sp2, "ppn-tvt-data-1").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_t_22"))
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d<>(sp2).Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "t_vs_e_22"))
+    PlotHist2d(sp2).Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "t_vs_e_22"))
             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + e1;
-    PlotHist2d<>(sp2).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_e_22"))
+    PlotHist2d(sp2).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_e_22"))
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + e1;
-    PlotHist2d<>(sp2).Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_e_22"))
+    PlotHist2d(sp2).Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_e_22"))
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + e1;
-    PlotHist2d<>(sp2, "pd-eve-mc-1").Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "e_vs_e_22"))
+    PlotHist2d(sp2, "pd-eve-mc-1").Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "e_vs_e_22"))
             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + e1 << "set ylabel " + e2;
-    PlotHist2d<>(sp2, "ppn-eve-mc-1").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "e_vs_e_22"))
+    PlotHist2d(sp2, "ppn-eve-mc-1").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "e_vs_e_22"))
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + e1 << "set ylabel " + e2;
-    PlotHist2d<>(sp2, "ppn-eve-data-1").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "e_vs_e_22"))
+    PlotHist2d(sp2, "ppn-eve-data-1").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "e_vs_e_22"))
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + e1 << "set ylabel " + e2;
 
-    PlotHist2d<>(sp2, "pd-tvt-mc-2").Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "t_vs_t_23"))
+    PlotHist2d(sp2, "pd-tvt-mc-2").Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "t_vs_t_23"))
             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d<>(sp2, "ppn-tvt-mc-2").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_t_23"))
+    PlotHist2d(sp2, "ppn-tvt-mc-2").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_t_23"))
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d<>(sp2, "ppn-tvt-data-2").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_t_23"))
+    PlotHist2d(sp2, "ppn-tvt-data-2").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_t_23"))
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d<>(sp2).Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "t_vs_e_23"))
+    PlotHist2d(sp2).Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "t_vs_e_23"))
             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + e1;
-    PlotHist2d<>(sp2).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_e_23"))
+    PlotHist2d(sp2).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_e_23"))
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + e1;
-    PlotHist2d<>(sp2).Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_e_23"))
+    PlotHist2d(sp2).Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_e_23"))
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + e1;
-    PlotHist2d<>(sp2, "pd-eve-mc-2").Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "e_vs_e_23"))
+    PlotHist2d(sp2, "pd-eve-mc-2").Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "e_vs_e_23"))
             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + e1 << "set ylabel " + e2;
-    PlotHist2d<>(sp2, "ppn-eve-mc-2").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "e_vs_e_23"))
+    PlotHist2d(sp2, "ppn-eve-mc-2").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "e_vs_e_23"))
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + e1 << "set ylabel " + e2;
-    PlotHist2d<>(sp2, "ppn-eve-data-2").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "e_vs_e_23"))
+    PlotHist2d(sp2, "ppn-eve-data-2").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "e_vs_e_23"))
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + e1 << "set ylabel " + e2;
 
-    PlotHist2d<>(sp2, "pd-tvt-mc-3").Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "t_vs_t_24"))
+    PlotHist2d(sp2, "pd-tvt-mc-3").Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "t_vs_t_24"))
             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d<>(sp2, "ppn-tvt-mc-3").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_t_24"))
+    PlotHist2d(sp2, "ppn-tvt-mc-3").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_t_24"))
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d<>(sp2, "ppn-tvt-data-3").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_t_24"))
+    PlotHist2d(sp2, "ppn-tvt-data-3").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_t_24"))
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d<>(sp2).Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "t_vs_e_24"))
+    PlotHist2d(sp2).Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "t_vs_e_24"))
             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + e1;
-    PlotHist2d<>(sp2).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_e_24"))
+    PlotHist2d(sp2).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_e_24"))
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + e1;
-    PlotHist2d<>(sp2).Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_e_24"))
+    PlotHist2d(sp2).Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_e_24"))
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + e1;
-    PlotHist2d<>(sp2, "pd-eve-mc-3").Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "e_vs_e_24"))
+    PlotHist2d(sp2, "pd-eve-mc-3").Distr(Hist2d(MC, "pd", {"Histograms", "elastic"}, "e_vs_e_24"))
             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + e1 << "set ylabel " + e2;
-    PlotHist2d<>(sp2, "ppn-eve-mc-3").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "e_vs_e_24"))
+    PlotHist2d(sp2, "ppn-eve-mc-3").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "e_vs_e_24"))
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + e1 << "set ylabel " + e2;
-    PlotHist2d<>(sp2, "ppn-eve-data-3").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "e_vs_e_24"))
+    PlotHist2d(sp2, "ppn-eve-data-3").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "e_vs_e_24"))
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + e1 << "set ylabel " + e2;
 
-    Plot<>("ppn-theta2-mc")
+    Plot("ppn-theta2-mc")
     .Line(Hist(MC, "pd", {"Histograms", "elastic"}, "theta_s_24-AllBins").Scale(2).toLine() 
         / norm_pd.TotalSum().val(), "pd")
     .Line(Hist(MC, ppn_reaction, {"Histograms", "elastic"}, "theta_s_24-AllBins").Scale(2).toLine() 
@@ -202,7 +202,7 @@ int main()
             << "set title 'MC'" << "set key on"
             << "set yrange [0:]" << "set xlabel " + th2
             << "set ylabel 'counts normalized'";
-    Plot<>("ppn-theta2-data")
+    Plot("ppn-theta2-data")
     .Hist(Hist(DATA, "E", {"Histograms", "elastic"}, "theta_s_24-AllBins").Scale(2))
             << "set title 'Data " + runmsg + "'" << "set key on" << "set yrange [0:]" << "set xlabel " + th2;
 
@@ -210,11 +210,11 @@ int main()
     hist<> acceptance_l,acceptance_r, acceptance_pd_l,acceptance_pd_r,eventsl,eventsr,events1,evl,evr,events2,chi_sq;
     const auto diff_cs = ReadCrossSection();
     const auto p_cs = IntegrateCrossSection(diff_cs);
-    Plot<>("pp-integrated").Line(p_cs) << "set title 'pp->pp'";
+    Plot("pp-integrated").Line(p_cs) << "set title 'pp->pp'";
     const auto ppn_cs = pp2ppn(p_cs);
     const auto SIGMA = ConvertCrossSections(ppn_cs);
-    Plot<>("ppn-integrated").Line(ppn_cs.XRange(p_beam_low, p_beam_hi)) << "set title 'pd->pp+n_{sp}'";
-    Plot<>("ppn-sigma").Hist(SIGMA)
+    Plot("ppn-integrated").Line(ppn_cs.XRange(p_beam_low, p_beam_hi)) << "set title 'pd->pp+n_{sp}'";
+    Plot("ppn-sigma").Hist(SIGMA)
             << "set title 'ppn_{sp} cross section'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'cross section, nb'"
@@ -243,7 +243,7 @@ int main()
             Hist(DATA,"E",{"Histograms","elastic"},string("pair_phi_diff_24-Bin-") + to_string(bin_num)).XRange(0,20);
 
         const hist<> data_bg_estimation=data_copl.Clone().FillWithValues(data_copl.right().Y());
-        Plot<>(Q.Contains(21) ? "ppn-above-data-copl" : (Q.Contains(-39) ? "ppn-below-data-copl" : ""))
+        Plot(Q.Contains(21) ? "ppn-above-data-copl" : (Q.Contains(-39) ? "ppn-below-data-copl" : ""))
             .Hist(data_copl,"Data").Line(data_bg_estimation.toLine(),"background estimation")
                 << "set title 'Coplanarity. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
                 << "set yrange [0:]" << "set xlabel " + planarity;
@@ -269,13 +269,13 @@ int main()
         const auto BG=data_copl.right().Y()*data_copl.size();
 
         cout << endl << Qmsg << endl;
-        Plot<>(Q.Contains(21) ? "ppn-above-mc" : (Q.Contains(-39) ? "ppn-below-mc" : ""))
+        Plot(Q.Contains(21) ? "ppn-above-mc" : (Q.Contains(-39) ? "ppn-below-mc" : ""))
             .Hist(mc_ppn_l / N, "ppn_{sp}").Hist(mc_ppn_r / N)
             .Line(mc_pd.toLine()/N_pd.val(),"pd left")
             .Line(mc_pd_r.toLine()/N_pd.val(),"pd right")
                 << "set key on" << "set title 'MC " + Qmsg + "'" << "set yrange [0:]"
                 << "set xlabel " + th2 << "set ylabel 'counts normalized'";
-        Plot<>(Q.Contains(21) ? "ppn-above-data" : (Q.Contains(-39) ? "ppn-below-data" : ""))
+        Plot(Q.Contains(21) ? "ppn-above-data" : (Q.Contains(-39) ? "ppn-below-data" : ""))
         .Hist(data_l).Hist(data_r)
                 << "set key on" << "set title 'Data " + Qmsg+", "+runmsg + "'" << "set yrange [0:]"
                 << "set xlabel " + th2 << "set ylabel 'counts normalized'";
@@ -305,7 +305,7 @@ int main()
         const hist<> data_copl_after_cuts=Hist(DATA, "E", {"Histograms", "elastic"}, "pair_phi_diff_24-AllBins").Scale(2);
         const hist<> ppn_copl_after_cuts=Hist(MC, ppn_reaction, {"Histograms", "elastic"}, "pair_phi_diff_24-AllBins").Scale(2)/N;
         const hist<> pd_copl_after_cuts=Hist(MC, "pd", {"Histograms", "elastic"}, "pair_phi_diff_24-AllBins").Scale(2)/N_pd;
-        Plot<>(Q.Contains(21) ? "ppn-above-copl" : (Q.Contains(-39) ? "ppn-below-copl" : ""))
+        Plot(Q.Contains(21) ? "ppn-above-copl" : (Q.Contains(-39) ? "ppn-below-copl" : ""))
             .Hist(data_copl_after_cuts)
             .Line(ppn_copl_after_cuts.toLine()*e[0]+pd_copl_after_cuts.toLine()*e[1])
             << "set title 'Coplanarity after all cuts " + runmsg + "'" << "set yrange [0:]" << "set xlabel " + planarity;
@@ -318,33 +318,33 @@ int main()
         events1<<make_point(Q,E[0]* double(trigger_elastic1.scaling));
         events2<<make_point(Q,E[1]* double(trigger_elastic1.scaling));
     }
-    Plot<>("ppn-acceptance")
+    Plot("ppn-acceptance")
     .Line(acceptance_l.toLine(), "ppn_{sp} left").Line(acceptance_pd_l.toLine(), "pd left")
     .Line(acceptance_r.toLine(), "ppn_{sp} right").Line(acceptance_pd_r.toLine(), "pd right")
             << "set key on" << "set title 'Acceptance'" << "set yrange [0:]" 
             << "set xlabel 'Q, MeV'" << "set ylabel 'Acceptance, n.d.'";
-    Plot<>("ppn-chisq")
+    Plot("ppn-chisq")
     .Hist(chi_sq)
             << "set key on" << "set title 'chi^2'" << "set yrange [0:]" 
             << "set xlabel 'Q, MeV'" << "set ylabel 'chi^2, n.d.'";
-    Plot<>("ppn-events-lr")
+    Plot("ppn-events-lr")
     .Hist(eventsl, "left").Hist(eventsr, "right")
     .Line(evl.toLine()).Line(evr.toLine())
             << "set key on" << "set title 'Registered events count'" << "set yrange [0:]" 
             << "set xlabel 'Q, MeV'" << "set ylabel 'count, n.d.'";
-    Plot<>("ppn-events")
+    Plot("ppn-events")
     .Hist(events1, "ppn_{sp}").Hist(events2, "pd")
             << "set key on" << "set title 'True events count'" << "set yrange [0:]" 
             << "set xlabel 'Q, MeV'" << "set ylabel 'count, n.d.'";
     const auto luminosity=events1/SIGMA;
-    Plot<>("ppn-luminosity").Hist(luminosity)
+    Plot("ppn-luminosity").Hist(luminosity)
             << "set title 'Integrated luminosity (" + runmsg + ")'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:]";
-    const hist<> prev_luminosity = Plotter<>::Instance().GetPoints<value<>>("LUMINOSITYf");
+    const hist<> prev_luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYf");
     const hist<> estimate_full_luminosity = luminosity * runs.second / runs.first;
-    Plot<>("luminosity-compare")
+    Plot("luminosity-compare")
     .Hist(estimate_full_luminosity, "ppn_{sp}", "LUMINOSITYc")
     .Hist(prev_luminosity, "3He+eta")
             << "set title 'Integrated luminosity estimation for all runs'"

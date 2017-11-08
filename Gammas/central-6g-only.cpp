@@ -20,14 +20,14 @@ using namespace MathTemplates;
 using namespace GnuplotWrap;
 int main()
 {
-    Plotter<>::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-6gamma-only");
+    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-6gamma-only");
     vector<string> histpath_reconstr = {"Histograms", "OnlyCentralGammas"};
     vector<string> histpath_central_reconstr = {"Histograms", "OnlyCentralGammas6"};
     vector<string> reaction = {"He3eta", "He3pi0pi0pi0"};
     const hist<> norm = Hist(MC, reaction[0], histpath_reconstr, "0-Reference");
     const auto runs = PresentRuns("CC");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
-    Plot<> theory("gggggg-IMDiff0-mc"), theory1("gggggg-IMDiff1-mc"), theory2("gggggg-IMDiff2-mc"), experiment("gggggg-IMDiff-data");
+    Plot theory("gggggg-IMDiff0-mc"), theory1("gggggg-IMDiff1-mc"), theory2("gggggg-IMDiff2-mc"), experiment("gggggg-IMDiff-data");
     for (const auto &r : reaction) {
         theory.Line(Hist(MC, r, histpath_central_reconstr, "GIMPDiff0").toLine(), r);
         theory1.Line(Hist(MC, r, histpath_central_reconstr, "GIMPDiff1").toLine(), r);
@@ -41,7 +41,7 @@ int main()
     .Hist(Hist(DATA, "CC", histpath_central_reconstr, "GIMPDiff1"))
     .Hist(Hist(DATA, "CC", histpath_central_reconstr, "GIMPDiff2"))
             << "set key on" << "set title '" + runmsg + "'" << "set yrange [0:]";
-    Plot<> mm_theory("gggggg-MM0-mc"), mm_theory1("gggggg-MM1-mc"), mm_theory2("gggggg-MM1-mc"), mm_experiment("gggggg-MM-data");
+    Plot mm_theory("gggggg-MM0-mc"), mm_theory1("gggggg-MM1-mc"), mm_theory2("gggggg-MM1-mc"), mm_experiment("gggggg-MM-data");
     for (const auto &r : reaction) {
         mm_theory.Line(Hist(MC, r, histpath_central_reconstr, "GMM0").toLine(), r);
         mm_theory1.Line(Hist(MC, r, histpath_central_reconstr, "GMM1").toLine(), r);
@@ -65,21 +65,21 @@ int main()
         const string Qmsg = static_cast<stringstream &>(stringstream()
                             << "Q in [" << setprecision(3)
                             << Q.min() << "; " << Q.max() << "] MeV").str();
-        Plot<> mc_plot(
+        Plot mc_plot(
             Q.Contains(21) ? "gggggg-above-mc0" : (
                 Q.Contains(-39) ? "gggggg-below-mc0" : (
                     Q.Contains(-3) ? "gggggg-thr-mc0" : ""
                 )
             )
         );
-        Plot<> mc_plot1(
+        Plot mc_plot1(
             Q.Contains(21) ? "gggggg-above-mc1" : (
                 Q.Contains(-39) ? "gggggg-below-mc1" : (
                     Q.Contains(-3) ? "gggggg-thr-mc1" : ""
                 )
             )
         );
-        Plot<> mc_plot2(
+        Plot mc_plot2(
             Q.Contains(21) ? "gggggg-above-mc2" : (
                 Q.Contains(-39) ? "gggggg-below-mc2" : (
                     Q.Contains(-3) ? "gggggg-thr-mc2" : ""
@@ -109,7 +109,7 @@ int main()
         const hist<> data = Hist(DATA, "CC", histpath_central_reconstr, string("GIM0-Bin-") + to_string(bin_num));
         const hist<> data1 = Hist(DATA, "CC", histpath_central_reconstr, string("GIM1-Bin-") + to_string(bin_num));
         const hist<> data2 = Hist(DATA, "CC", histpath_central_reconstr, string("GIM2-Bin-") + to_string(bin_num));
-        Plot<>(
+        Plot(
             Q.Contains(21) ? "gggggg-above-data" : (
                 Q.Contains(-39) ? "gggggg-below-data" : (
                     Q.Contains(-3) ? "gggggg-thr-data" : ""
@@ -120,7 +120,7 @@ int main()
                 << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]" << "set key on";
         ev_am << point<value<>>(Q, std_error(data2.TotalSum().val()));
     }
-    Plot<> accplot("gggggg-acceptance");
+    Plot accplot("gggggg-acceptance");
     accplot
             << "set title 'Acceptance'"
             << "set xlabel 'Q, MeV'"
@@ -132,8 +132,8 @@ int main()
             accplot.Hist(acc, reaction[i]);
         }
     }
-    const hist<> luminosity = Plotter<>::Instance().GetPoints<value<>>("LUMINOSITYc");
-    const hist<> he3etacs = Plotter<>::Instance().GetPoints<value<>>("CS-He3eta-assumed");
+    const hist<> luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYc");
+    const hist<> he3etacs = Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed");
     const hist<> he3eta_events =
         luminosity * (runs.first / runs.second)
         / double(trigger_gammas_central.scaling)
@@ -142,7 +142,7 @@ int main()
         luminosity * (runs.first / runs.second)
         / double(trigger_gammas_central.scaling)
         * (acceptance[1] * value<>(115, 25));
-    Plot<>("gggggg-events")
+    Plot("gggggg-events")
     .Hist(ev_am , "data")
     .Line(he3eta_events.toLine(), "3He+eta")
     .Line(he3pi0pi0pi0_events.toLine(), "3He+3pi0")

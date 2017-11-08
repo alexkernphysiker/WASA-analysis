@@ -16,12 +16,12 @@ using namespace MathTemplates;
 using namespace GnuplotWrap;
 int main()
 {
-    Plotter<>::Instance().SetOutput(ENV(OUTPUT_PLOTS), "he3eta-forward-cuts");
+    Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "he3eta-forward-cuts");
     auto MakePlots = [](const histsource HS, const string & R, const uint max_z) {
         string title = "Data";
         if (HS == MC) {
             title = "Simulation " + R;
-            Plot<>()
+            Plot()
             .Line(Hist(HS, R, {"Histograms", "He3Forward_Reconstruction"}, "0-Reference").toLine(), "Simulated events")
             .Line(Hist(HS, R, {"Histograms", "He3Forward_Reconstruction"}, "2-ThetaIsAccepted").toLine(), "Reconstructable forward tracks")
             .Line(Hist(HS, R, {"Histograms", "He3Forward_Reconstruction"}, "4-GeomCut").toLine(), "identified as ^3He")
@@ -32,14 +32,14 @@ int main()
                     << "set ylabel 'Events count'";
         }
         auto SP2 = [max_z](const string &name = "") {
-            return PlotHist2d<> (sp2, name)
+            return PlotHist2d(sp2, name)
                    << "set key on"
                    << "set xrange [0:0.3]" << "set xlabel 'E_{FRH1}, GeV'"
                    << "set yrange [0:0.03]" << "set ylabel 'E_{FTH1}, GeV'"
                    << "set zrange [0:" + to_string(max_z) + "]";
         };
         auto THD = [](const string &name = "") {
-            return Plot<> (name)
+            return Plot(name)
                    << "set key on"
                    << "set xlabel 'Phi, deg'" << "set xrange [-180:180]"
                    << "set ylabel 'events, count'" << "set yrange [0:]";
