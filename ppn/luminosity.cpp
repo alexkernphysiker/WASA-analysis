@@ -66,7 +66,7 @@ const double Calculate_pp2ppn(const double &pbeam, const function<double(double)
         const auto
         nt = lorentz_byPM(randomIsotropic<3>(R) * PF(R), Particle::n().mass()),
         pt = T - nt;
-        res += pp(Pt.Transform(pt.Beta()).S().M());
+        res += pp(Pt.Transform(pt.Beta()).P().M());
     }
     return res / count;
 }
@@ -336,7 +336,7 @@ int main()
     .Hist(events1, "ppn_{sp}").Hist(events2, "pd")
             << "set key on" << "set title 'True events count'" << "set yrange [0:]" 
             << "set xlabel 'Q, MeV'" << "set ylabel 'count, n.d.'";
-    const auto luminosity=events1/SIGMA;
+    const auto luminosity=(events1/SIGMA)*1.04;
     Plot("ppn-luminosity").Hist(luminosity)
             << "set title 'Integrated luminosity (" + runmsg + ")'"
             << "set key on" << "set xlabel 'Q, MeV'"
