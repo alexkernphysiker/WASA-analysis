@@ -10,6 +10,7 @@ include_directories(${FITGEN_INC})
 add_subdirectory(WASA-libs)
 include_directories(${WASA_LIBS_INC})
 
+add_subdirectory(InputDataConvert)
 add_executable(reconstruction reconstruction.cpp)
 target_link_libraries(reconstruction ${ROOT_LIBRARIES} reconstructionfit experiment kinematics)
 add_subdirectory(He3Eta)

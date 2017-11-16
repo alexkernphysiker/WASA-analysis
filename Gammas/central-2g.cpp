@@ -22,7 +22,7 @@ int main()
 {
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-2gamma");
     vector<string> histpath_reconstr = {"Histograms", "He3nCentralGammas"};
-    vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas2_2"};
+    vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas2_1"};
     vector<string> reaction = {"bound1-2g", "He3eta", "He3pi0pi0", "bound1-6g", "He3pi0pi0pi0", "He3pi0"};
     const auto runs = PresentRuns("C");
     const hist<> norm = Hist(MC, reaction[0], histpath_reconstr, "0-Reference");
@@ -43,11 +43,12 @@ int main()
             / Hist(MC, r, histpath_reconstr, "0-Reference").TotalSum().val()
             , r);
         gEc.Hist(
-            Hist(MC, r, histpath_reconstr, "GammaEnergy22")
+            Hist(MC, r, histpath_reconstr, "GammaEnergy21")
             / Hist(MC, r, histpath_reconstr, "0-Reference").TotalSum().val()
             , r);
     }
-    gEd.Hist(Hist(DATA, "C", histpath_reconstr, "GammaEnergy")).Hist(Hist(DATA, "C", histpath_reconstr, "GammaEnergy22"));
+    gEd.Hist(Hist(DATA, "C", histpath_reconstr, "GammaEnergy")).Hist(Hist(DATA, "C", histpath_reconstr, "GammaEnergy21"));
+    Plot("He3gg-gamma-count").Hist(Hist(DATA, "C", histpath_reconstr, "GammaCount1For21"))<<"set log y">>"unset log y";
 
     hist<> ev_am;
     vector<hist<>> acceptance;
