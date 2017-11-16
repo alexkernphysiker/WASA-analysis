@@ -50,7 +50,7 @@ int main()
     fit.SetUncertaintyCalcDeltas(parEq(fit.ParamCount(), 0.01));
     for (const auto &P : fit.ParametersWithUncertainties())
         cout << P << endl;
-    cs_vs_t.Line(SortedPoints<>([&fit](double x){return fit({x});},ChainWithStep(0.0,0.001,0.45)),"chi^2/d="+to_string(chisq));
+    cs_vs_t.Line(SortedPoints<>([&fit](double x){return fit({x});},ChainWithStep(0.0,0.001,0.5)),"chi^2/d="+to_string(chisq));
     cs_vs_t<<"set xlabel 't,GeV/c'"<<"set ylabel 'sigma, ub/(GeV/c)'";
     t_vs_th<<"set xlabel 'theta_{p,CM},deg'"<<"set ylabel 't,GeV/c'"<<"set key on";
     t_vs_th_lp<<"set ylabel 'theta_{p,lab},deg'"<<"set xlabel 't,GeV/c'"<<"set key on";
@@ -67,7 +67,7 @@ int main()
             const auto p1=final_cm.first.Transform(beta);
             const auto d1=final_cm.second.Transform(beta);
             const auto t=d1.P().M();
-            if(t<0.45){
+            if(t<0.5){
                 out<<make_point(theta_cm*180/PI(),t);
                 const auto angles=make_pair(direction(p1.P()).phi()*180./PI(),direction(d1.P()).phi()*180./PI());
                 outlp<<make_point(t,abs(angles.first));
