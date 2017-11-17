@@ -1,26 +1,34 @@
 WASA Analysis
 =============
 Sources of my software used for analysis of data obtained from the experiment WASA-at-COSY on searching eta-mesic 3He in May 2014.
+This repository contains code that does not require RootSorter.
+
 All files are distributed under GPL license
 
 
 Required software
 =================
-	ROOT 
-framework for calulations that is required to read the input data
+
+Framework for calulations that is required to read the input data
+
+	ROOT
+
+Software for plotting. Is used by some applications performing final analysis.
 
 	gnuplot
-software for plotting. Is used by some applications performing final analysis.
 
+I compile this code with the version of gcc new enough to support C++17 standard.
 
 Needed environment variables
 ============================
 
-    WASA_OUTPUT_DATA
-path to store raw analysis results
+Path containing raw-data analysis results
 
-    POST_ANALYSIS_DATA
-path to store final results of analysis
+	WASA_OUTPUT_DATA
+
+Path to store final results of analysis
+
+	POST_ANALYSIS_DATA
 
 
 Compiling
