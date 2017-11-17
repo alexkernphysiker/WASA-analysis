@@ -22,7 +22,7 @@ I compile this code with the version of gcc new enough to support C++17 standard
 Needed environment variables
 ============================
 
-Path containing raw-data analysis results
+Path containing raw-data analysis results (https://github.com/alexkernphysiker/WASA-RawAnalysis)
 
 	WASA_OUTPUT_DATA
 
