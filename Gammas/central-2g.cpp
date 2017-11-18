@@ -22,7 +22,7 @@ int main()
 {
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-2gamma");
     vector<string> histpath_reconstr = {"Histograms", "He3nCentralGammas"};
-    vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas2_1"};
+    vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas2"};
     vector<string> reaction = {"bound1-2g", "He3eta", "He3pi0pi0", "bound1-6g", "He3pi0pi0pi0", "He3pi0"};
     const auto runs = PresentRuns("C");
     const hist<> norm = Hist(MC, reaction[0], histpath_reconstr, "0-Reference");
@@ -183,7 +183,7 @@ int main()
     accplot2 << "set title 'Acceptance'"
              << "set xlabel 'Q, MeV'"
              << "set ylabel 'Acceptance, n.d.'"
-             << "set yrange [0:0.001]" << "set key on";
+             << "set yrange [0:0.01]" << "set key on";
     for (size_t i = 0; i < reaction.size(); i++) {
         const auto acc = acceptance[i].YRange(0.000, INFINITY);
         if (acc.size() > 0) {

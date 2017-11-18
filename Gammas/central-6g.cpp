@@ -43,11 +43,11 @@ int main()
             / Hist(MC, r, histpath_reconstr, "0-Reference").TotalSum().val()
             , r);
         gEc.Hist(
-            Hist(MC, r, histpath_reconstr, "GammaEnergy6")
+            Hist(MC, r, histpath_reconstr, "GammaEnergyCut")
             / Hist(MC, r, histpath_reconstr, "0-Reference").TotalSum().val()
             , r);
     }
-    gEd.Hist(Hist(DATA, "C", histpath_reconstr, "GammaEnergy")).Hist(Hist(DATA, "C", histpath_reconstr, "GammaEnergy6"));
+    gEd.Hist(Hist(DATA, "C", histpath_reconstr, "GammaEnergy")).Hist(Hist(DATA, "C", histpath_reconstr, "GammaEnergyCut"));
 
 
     Plot theory("He36g-IMPiDiff0-mc"), theory1("He36g-IMPiDiff1-mc"),
