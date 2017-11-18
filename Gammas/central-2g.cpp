@@ -43,12 +43,12 @@ int main()
             / Hist(MC, r, histpath_reconstr, "0-Reference").TotalSum().val()
             , r);
         gEc.Hist(
-            Hist(MC, r, histpath_reconstr, "GammaEnergy21")
+            Hist(MC, r, histpath_reconstr, "GammaEnergyCut")
             / Hist(MC, r, histpath_reconstr, "0-Reference").TotalSum().val()
             , r);
     }
-    gEd.Hist(Hist(DATA, "C", histpath_reconstr, "GammaEnergy")).Hist(Hist(DATA, "C", histpath_reconstr, "GammaEnergy21"));
-    Plot("He3gg-gamma-count").Hist(Hist(DATA, "C", histpath_reconstr, "GammaCount1For21"))<<"set log y">>"unset log y";
+    gEd.Hist(Hist(DATA, "C", histpath_reconstr, "GammaEnergy")).Hist(Hist(DATA, "C", histpath_reconstr, "GammaEnergyCut"));
+    Plot("He3gg-gamma-count").Hist(Hist(DATA, "C", histpath_reconstr, "GammaCount"))<<"set log y">>"unset log y";
 
     hist<> ev_am;
     vector<hist<>> acceptance;
