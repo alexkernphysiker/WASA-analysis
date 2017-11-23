@@ -27,12 +27,12 @@ int main()
     vector<string> histpath_forward_reconstr = {"Histograms", "He3Forward_Reconstruction"};
     const auto runs = PresentRuns("F");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
-    const hist<> norm = Hist(MC, "He3eta", histpath_forward_reconstr, "0-Reference");
+    const hist<> norm = Hist(MC, "He3eta_gg", histpath_forward_reconstr, "0-Reference");
     hist<> luminosity, data_chi_sq, acceptance;
     vector<hist<>> parhists;
     RANDOM r_eng;
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++)
-        if (norm[bin_num].X() > 5.0) {
+        if (norm[bin_num].X() > 2.5) {
             const auto &Q = norm[bin_num].X();
             const auto &N = norm[bin_num].Y();
             const string Qmsg = static_cast<stringstream &>(stringstream()
@@ -44,7 +44,7 @@ int main()
                                     ).XRange(0.53, 0.57);
             const auto chain = ChainWithStep(0.53, 0.0001, 0.57);
             const auto cut = make_pair(0.541, 0.554);
-            const hist<> mc_unnorm = Hist(MC, "He3eta", histpath_forward_reconstr,
+            const hist<> mc_unnorm = Hist(MC, "He3eta_gg", histpath_forward_reconstr,
                                           string("MissingMass-Bin-") + to_string(bin_num)
                                          ).XRange(0.53, 0.57);
             const hist<> mc = mc_unnorm / N;
@@ -83,7 +83,7 @@ int main()
                         << make_shared<DistribGauss>(0, 5)
                         << make_shared<DistribGauss>(0, 5)
                         ;
-            FIT.Init(400, init, r_eng);
+            FIT.Init(500, init, r_eng);
             cout << endl;
             while (!FIT.AbsoluteOptimalityExitCondition(0.0000001))FIT.Iterate(r_eng);
             cout << "Fitting: " << FIT.iteration_count() << " iterations; "

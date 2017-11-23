@@ -175,30 +175,11 @@ int main()
     PlotHist2d(sp2, "ppn-eve-data-2").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "e_vs_e_23"))
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + e1 << "set ylabel " + e2;
 
-//     PlotHist2d(sp2, "pd-tvt-mc-3").Distr(Hist2d(MC, "pd_", {"Histograms", "elastic"}, "t_vs_t_24"))
-//             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + th2;
-//     PlotHist2d(sp2, "ppn-tvt-mc-3").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_t_24"))
-//             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + th2;
-//     PlotHist2d(sp2, "ppn-tvt-data-3").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_t_24"))
-//             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + th2;
-//     PlotHist2d(sp2).Distr(Hist2d(MC, "pd_", {"Histograms", "elastic"}, "t_vs_e_24"))
-//             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + e1;
-//     PlotHist2d(sp2).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_e_24"))
-//             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + e1;
-//     PlotHist2d(sp2).Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_e_24"))
-//             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + e1;
-//     PlotHist2d(sp2, "pd-eve-mc-3").Distr(Hist2d(MC, "pd_", {"Histograms", "elastic"}, "e_vs_e_24"))
-//             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + e1 << "set ylabel " + e2;
-//     PlotHist2d(sp2, "ppn-eve-mc-3").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "e_vs_e_24"))
-//             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + e1 << "set ylabel " + e2;
-//     PlotHist2d(sp2, "ppn-eve-data-3").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "e_vs_e_24"))
-//             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + e1 << "set ylabel " + e2;
-
     hist<> acceptance, acceptance_pd,events;
     const auto diff_cs = ReadCrossSection();
     const auto p_cs = IntegrateCrossSection(diff_cs);
     Plot("pp-integrated").Line(p_cs) << "set title 'pp->pp'";
-    const auto ppn_cs = pp2ppn(p_cs);
+    const auto ppn_cs = pp2ppn(p_cs)*0.96;
     const auto SIGMA = ConvertCrossSections(ppn_cs);
     Plot("ppn-integrated").Line(ppn_cs.XRange(p_beam_low, p_beam_hi)) << "set title 'pd->pp+n_{sp}'";
     Plot("ppn-sigma").Hist(SIGMA)
@@ -226,33 +207,41 @@ int main()
         const hist<> data =
             Hist(DATA, "E", {"Histograms", "elastic"}, string("theta_sum_23-Bin-") + to_string(bin_num))
             .Scale(2).XRange(40, 200);
-        const hist<> data_copl=//I've forgotten to give proper name for this histogram in raw analysis
-            Hist(DATA,"E",{"Histograms","elastic"},string("pair_phi_diff_0-Bin-") + to_string(bin_num)).XRange(0,20);
 
-        const hist<> data_bg_estimation=data_copl.Clone().FillWithValues(data_copl.right().Y());
-        Plot(Q.Contains(21) ? "ppn-above-data-copl" : (Q.Contains(-39) ? "ppn-below-data-copl" : ""))
-            .Hist(data_copl,"Data").Line(data_bg_estimation.toLine(),"background estimation")
-                << "set title 'Coplanarity. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
-                << "set yrange [0:]" << "set xlabel " + planarity;
+        const hist<> data_copl_l=//I've forgotten to give apropriate name for this histogram in raw analysis
+            Hist(DATA,"E",{"Histograms","elastic"},string("pair_phi_diff_0-Bin-") + to_string(bin_num))
+            .Scale(2).XRange(0,45);
+        const hist<> data_copl_r=
+            Hist(DATA,"E",{"Histograms","elastic"},string("pair_phi_diff_0-Bin-") + to_string(bin_num))
+            .Scale(2).XRange(45,90);
+        const hist<> data_copl_mc=
+            Hist(MC,"ppn_qf_",{"Histograms","elastic"},string("pair_phi_diff_0-Bin-") + to_string(bin_num))
+            .Scale(2).XRange(0,90);
 
         const auto epsilon = std_error(mc_ppn.TotalSum().val())/N;
         const auto epsilon2 = std_error(mc_pd.TotalSum().val())/N_pd;
         acceptance << make_point(Q, epsilon);
         acceptance_pd << make_point(Q, epsilon2);
-        events<<make_point(Q,std_error(data.TotalSum().val()));
 
-        const auto BG=data_copl.right().Y()*data_copl.size();
+        const auto ev=std_error(data_copl_l.TotalSum().val())-std_error(data_copl_r.TotalSum().val());
+        Plot(Q.Contains(21) ? "ppn-above-data-copl" : (Q.Contains(-39) ? "ppn-below-data-copl" : ""))
+            .Hist(data_copl_l).Hist(data_copl_r)
+            .Line(data_copl_mc.toLine()*ev.val()/N.val()/epsilon.val(),"MC")
+                << "set title 'Coplanarity. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
+                << "set yrange [0:]" << "set xlabel " + planarity;
+
+        events<<make_point(Q,ev);
 
         cout << endl << Qmsg << endl;
         Plot(Q.Contains(21) ? "ppn-above-mc" : (Q.Contains(-39) ? "ppn-below-mc" : ""))
             .Hist(mc_ppn / N, "ppn_{sp}")
             .Line(mc_pd.toLine()/N_pd.val(),"pd left")
                 << "set key on" << "set title 'MC " + Qmsg + "'" << "set yrange [0:]"
-                << "set xlabel " + th2 << "set ylabel 'counts normalized'";
+                << "set xlabel " + thth << "set ylabel 'counts normalized'";
         Plot(Q.Contains(21) ? "ppn-above-data" : (Q.Contains(-39) ? "ppn-below-data" : ""))
         .Hist(data)
                 << "set key on" << "set title 'Data " + Qmsg+", "+runmsg + "'" << "set yrange [0:]"
-                << "set xlabel " + th2 << "set ylabel 'counts normalized'";
+                << "set xlabel " + thth << "set ylabel 'counts normalized'";
         cout << endl;
     }
     Plot("ppn-acceptance")
@@ -261,9 +250,9 @@ int main()
             << "set xlabel 'Q, MeV'" << "set ylabel 'Acceptance, n.d.'";
     Plot("ppn-events")
     .Hist(events, "ppn_{sp}")
-            << "set key on" << "set title 'True events count'" << "set yrange [0:]" 
+            << "set key on" << "set title 'True events count "+runmsg+"'" << "set yrange [0:]" 
             << "set xlabel 'Q, MeV'" << "set ylabel 'count, n.d.'";
-    const auto luminosity=(events*double(trigger_elastic1.scaling)/SIGMA)*1.04;
+    const auto luminosity=(events*double(trigger_elastic1.scaling)/acceptance/SIGMA);
     Plot("ppn-luminosity").Hist(luminosity)
             << "set title 'Integrated luminosity (" + runmsg + ")'"
             << "set key on" << "set xlabel 'Q, MeV'"

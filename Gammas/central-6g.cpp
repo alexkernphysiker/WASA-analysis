@@ -23,7 +23,7 @@ int main()
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-6gamma-with-3he");
     vector<string> histpath_reconstr = {"Histograms", "He3nCentralGammas"};
     vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas6"};
-    vector<string> reaction = {"bound1-6g", "He3eta", "He3pi0pi0pi0"};
+    vector<string> reaction = {"bound1-6g", "He3eta_6g", "He3pi0pi0pi0"};
     hist<> norm = Hist(MC, reaction[0], histpath_reconstr, "0-Reference");
     const auto runs = PresentRuns("C");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
@@ -211,20 +211,19 @@ int main()
     }
     const hist<> luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYc");
     const hist<> he3etacs = Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed");
-    const value<> he3pi0pi0pi0cs={100,25};
     const hist<> he3etaev =
         luminosity * (runs.first / runs.second)
         / double(trigger_he3_forward.scaling)
-        * (acceptance[1]*he3etacs);
-    const hist<> he3pi0pi0pi0_events =
+        * (acceptance[1]*he3etacs*0.3);
+    const hist<> pi0_razy_drzwi =
         luminosity * (runs.first / runs.second)
         / double(trigger_he3_forward.scaling)
-        * (acceptance[2]*he3pi0pi0pi0cs);
+        * (acceptance[2]*100.);
     Plot("He36g-events")
     .Hist(ev_am, "data")
     .Line(he3etaev.toLine(), "3He+eta estimated")
-    .Line(he3pi0pi0pi0_events.toLine(), "3He+3pi^0 estimated")
-    .Line(hist<>(he3etaev + he3pi0pi0pi0_events).toLine())
+    .Line(pi0_razy_drzwi.toLine(), "background estimated")
+    .Line(hist<>(he3etaev + pi0_razy_drzwi).toLine())
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '" + runmsg + "'";
