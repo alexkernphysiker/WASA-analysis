@@ -32,21 +32,24 @@ int main()
     vector<hist<>> parhists;
     RANDOM r_eng;
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++)
-        if (norm[bin_num].X() > 2.5) {
+        if (norm[bin_num].X() > 5.) {
             const auto &Q = norm[bin_num].X();
             const auto &N = norm[bin_num].Y();
-            const string Qmsg = static_cast<stringstream &>(stringstream()
-                                << "Q in [" << setprecision(3)
-                                << Q.min() << "; " << Q.max() << "] MeV"
-                                                           ).str();
-            const hist<> data = Hist(DATA, "F", histpath_forward_reconstr,
-                                     string("MissingMass-Bin-") + to_string(bin_num)
-                                    ).XRange(0.53, 0.57);
+            const string Qmsg =
+                static_cast<stringstream &>(stringstream()
+                    << "Q in [" << setprecision(3)
+                    << Q.min() << "; " << Q.max() << "] MeV"
+                ).str();
+            const hist<> data = 
+                Hist(DATA, "F", histpath_forward_reconstr,
+                    string("MissingMass-Bin-") + to_string(bin_num)
+                ).XRange(0.532, 0.57);
             const auto chain = ChainWithStep(0.53, 0.0001, 0.57);
-            const auto cut = make_pair(0.541, 0.554);
-            const hist<> mc_unnorm = Hist(MC, "He3eta_gg", histpath_forward_reconstr,
-                                          string("MissingMass-Bin-") + to_string(bin_num)
-                                         ).XRange(0.53, 0.57);
+            const auto cut = make_pair(0.542,0.553);
+            const hist<> mc_unnorm = 
+                Hist(MC, "He3eta_gg", histpath_forward_reconstr,
+                    string("MissingMass-Bin-") + to_string(bin_num)
+                ).XRange(0.53, 0.57);
             const hist<> mc = mc_unnorm / N;
             acceptance << point<value<>>(Q, mc.TotalSum());
             Plot(Q.Contains(21) ? "He3eta-mc" : "")
@@ -73,8 +76,8 @@ int main()
             .SetFilter([BG, &peak_reg](const ParamSet & P) {
                 bool valid = (BG({peak_reg.left().X().val()}, P) > 0.0);
                 if (valid)for (const auto &p : peak_reg) {
-                        valid &= (p.Y().max() > BG({p.X().val()}, P));
-                    }
+                    valid &= (p.Y().max() > BG({p.X().val()}, P));
+                }
                 return valid;
             });
             auto init = make_shared<InitialDistributions>()
@@ -127,17 +130,18 @@ int main()
             hist<> clean = data - bg;
             Plot subplot(Q.Contains(21) ? "He3eta-subtract" : "");
             subplot.Hist(clean).Line({point<>(clean.left().X().min(), 0.0), point<>(clean.right().X().max(), 0.0)});
-            subplot.Hist(clean = clean.XRange(cut.first, cut.second))
+            subplot.Hist(clean = clean.XRange(cut.first-0.01, cut.second+0.01))
                     << "set key on" << "set title '" + Qmsg + ", " + runmsg + "'"
                     << "set xlabel 'Missing mass, GeV'"
                     << "set ylabel 'counts'"
                     << "set yrange [-200:]" << "unset log y";
 
-            luminosity << point<value<>>(Q,
-                                         ((clean.TotalSum() / mc.TotalSum())
-                                          *trigger_he3_forward.scaling
-                                          / he3eta_sigma()(Q))
-                                        );
+            luminosity << 
+            point<value<>>(Q,
+                ((clean.TotalSum() / mc.TotalSum())
+                    * trigger_he3_forward.scaling
+                    / he3eta_sigma()(Q))
+                );
         }
     for (size_t i = 0; i < parhists.size(); i++)
         Plot().Hist(parhists[i])
