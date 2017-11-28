@@ -226,18 +226,17 @@ int main()
     const hist<> known_events =
         luminosity * (runs.first / runs.second)
         / double(trigger_he3_forward.scaling)
-        * (he3etacs * 0.6 * acceptance[1]);
+        * (acceptance[1]*(he3etacs*0.4));
     const hist<> pi0_razy_drzwi =
         luminosity * (runs.first / runs.second)
         / double(trigger_he3_forward.scaling)
-        * (acceptance[2]*1000.);
+        * (acceptance[2]*100000.);
 
     Plot("He3gg-events")
     .Hist(ev_am, "data")
     .Line(known_events.toLine(), "3He+eta estimated")
     .Line(pi0_razy_drzwi.toLine(), "background estimated")
     .Line(hist<>(known_events + pi0_razy_drzwi).toLine())
-
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '" + runmsg + "'";
