@@ -199,23 +199,23 @@ int main()
             ).str();
 
         const hist<> mc_ppn =
-            Hist(MC, ppn_reaction, {"Histograms", "elastic"}, string("theta_sum_23-Bin-") + to_string(bin_num))
+            Hist(MC, ppn_reaction, {"Histograms", "elastic"}, string("theta_sum_21-Bin-") + to_string(bin_num))
             .Scale(2).XRange(40, 200);
         const hist<> mc_pd =
-            Hist(MC, "pd_", {"Histograms", "elastic"}, string("theta_sum_23-Bin-") + to_string(bin_num))
+            Hist(MC, "pd_", {"Histograms", "elastic"}, string("theta_sum_21-Bin-") + to_string(bin_num))
             .Scale(2).XRange(40, 200);
         const hist<> data =
-            Hist(DATA, "E", {"Histograms", "elastic"}, string("theta_sum_23-Bin-") + to_string(bin_num))
+            Hist(DATA, "E", {"Histograms", "elastic"}, string("theta_sum_21-Bin-") + to_string(bin_num))
             .Scale(2).XRange(40, 200);
 
-        const hist<> data_copl_l=//I've forgotten to give apropriate name for this histogram in raw analysis
-            Hist(DATA,"E",{"Histograms","elastic"},string("pair_phi_diff_0-Bin-") + to_string(bin_num))
+        const hist<> data_copl_l=
+            Hist(DATA,"E",{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
             .Scale(2).XRange(0,45);
         const hist<> data_copl_r=
-            Hist(DATA,"E",{"Histograms","elastic"},string("pair_phi_diff_0-Bin-") + to_string(bin_num))
+            Hist(DATA,"E",{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
             .Scale(2).XRange(45,90);
         const hist<> data_copl_mc=
-            Hist(MC,"ppn_qf_",{"Histograms","elastic"},string("pair_phi_diff_0-Bin-") + to_string(bin_num))
+            Hist(MC,"ppn_qf_",{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
             .Scale(2).XRange(0,90);
 
         const auto epsilon = std_error(mc_ppn.TotalSum().val())/N;

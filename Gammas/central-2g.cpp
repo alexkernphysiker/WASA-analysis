@@ -226,7 +226,7 @@ int main()
     const hist<> known_events =
         luminosity * (runs.first / runs.second)
         / double(trigger_he3_forward.scaling)
-        * (acceptance[1]*(he3etacs*0.4));
+        * (acceptance[1]*(he3etacs*0.40));
     const hist<> pi0_razy_drzwi =
         luminosity * (runs.first / runs.second)
         / double(trigger_he3_forward.scaling)

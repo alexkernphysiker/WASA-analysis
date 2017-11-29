@@ -214,7 +214,7 @@ int main()
     const hist<> he3etaev =
         luminosity * (runs.first / runs.second)
         / double(trigger_he3_forward.scaling)
-        * (acceptance[1]*he3etacs*0.3);
+        * (acceptance[1]*he3etacs*0.33);
     const hist<> pi0_razy_drzwi =
         luminosity * (runs.first / runs.second)
         / double(trigger_he3_forward.scaling)
