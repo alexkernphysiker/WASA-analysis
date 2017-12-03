@@ -9,7 +9,7 @@
 #include <gnuplot_wrap.h>
 #include <math_h/interpolate.h>
 #include <math_h/vectors.h>
-#include <Genetic/equation2.h>
+#include <Genetic/fit.h>
 #include <Genetic/initialconditions.h>
 #include <Genetic/parabolic.h>
 #include <Experiment/experiment_conv.h>
@@ -89,6 +89,7 @@ const SortedPoints<value<>> ConvertCrossSections(const SortedPoints<> &momentum)
 }
 int main()
 {
+    RANDOM random;
     const string ppn_reaction = "ppn_qf_";
     const auto runs = PresentRuns("E");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
@@ -137,45 +138,8 @@ int main()
     PlotHist2d(sp2, "ppn-eve-data-0").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "e_vs_e_21"))
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + e1 << "set ylabel " + e2;
 
-    PlotHist2d(sp2, "pd-tvt-mc-1").Distr(Hist2d(MC, "pd_", {"Histograms", "elastic"}, "t_vs_t_22"))
-            << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d(sp2, "ppn-tvt-mc-1").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_t_22"))
-            << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d(sp2, "ppn-tvt-data-1").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_t_22"))
-            << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d(sp2).Distr(Hist2d(MC, "pd_", {"Histograms", "elastic"}, "t_vs_e_22"))
-            << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + e1;
-    PlotHist2d(sp2).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_e_22"))
-            << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + e1;
-    PlotHist2d(sp2).Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_e_22"))
-            << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + e1;
-    PlotHist2d(sp2, "pd-eve-mc-1").Distr(Hist2d(MC, "pd_", {"Histograms", "elastic"}, "e_vs_e_22"))
-            << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + e1 << "set ylabel " + e2;
-    PlotHist2d(sp2, "ppn-eve-mc-1").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "e_vs_e_22"))
-            << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + e1 << "set ylabel " + e2;
-    PlotHist2d(sp2, "ppn-eve-data-1").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "e_vs_e_22"))
-            << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + e1 << "set ylabel " + e2;
 
-    PlotHist2d(sp2, "pd-tvt-mc-2").Distr(Hist2d(MC, "pd_", {"Histograms", "elastic"}, "t_vs_t_23"))
-            << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d(sp2, "ppn-tvt-mc-2").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_t_23"))
-            << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d(sp2, "ppn-tvt-data-2").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_t_23"))
-            << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d(sp2).Distr(Hist2d(MC, "pd_", {"Histograms", "elastic"}, "t_vs_e_23"))
-            << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + e1;
-    PlotHist2d(sp2).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_e_23"))
-            << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + e1;
-    PlotHist2d(sp2).Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_e_23"))
-            << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + e1;
-    PlotHist2d(sp2, "pd-eve-mc-2").Distr(Hist2d(MC, "pd_", {"Histograms", "elastic"}, "e_vs_e_23"))
-            << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + e1 << "set ylabel " + e2;
-    PlotHist2d(sp2, "ppn-eve-mc-2").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "e_vs_e_23"))
-            << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + e1 << "set ylabel " + e2;
-    PlotHist2d(sp2, "ppn-eve-data-2").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "e_vs_e_23"))
-            << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + e1 << "set ylabel " + e2;
-
-    hist<> acceptance, acceptance_pd,events;
+    hist<> acceptance, acceptance_pd,events,data_chi_sq;
     const auto diff_cs = ReadCrossSection();
     const auto p_cs = IntegrateCrossSection(diff_cs);
     Plot("pp-integrated").Line(p_cs) << "set title 'pp->pp'";
@@ -208,31 +172,45 @@ int main()
             Hist(DATA, "E", {"Histograms", "elastic"}, string("theta_sum_21-Bin-") + to_string(bin_num))
             .Scale(2).XRange(40, 200);
 
-        const hist<> data_copl_l=
+        const hist<> data_copl=
             Hist(DATA,"E",{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
-            .Scale(2).XRange(0,45);
-        const hist<> data_copl_r=
-            Hist(DATA,"E",{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
-            .Scale(2).XRange(45,90);
+            .Scale(2).XRange(0,90);
         const hist<> data_copl_mc=
             Hist(MC,"ppn_qf_",{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
             .Scale(2).XRange(0,90);
+        const hist<> data_copl_l=data_copl.XRange(0,30);
+        const hist<> data_copl_r=data_copl.XRange(30,90);
+        cout << endl << Qmsg << endl;
+        cout << endl;
 
         const auto epsilon = std_error(mc_ppn.TotalSum().val())/N;
         const auto epsilon2 = std_error(mc_pd.TotalSum().val())/N_pd;
         acceptance << make_point(Q, epsilon);
         acceptance_pd << make_point(Q, epsilon2);
 
-        const auto ev=std_error(data_copl_l.TotalSum().val())-std_error(data_copl_r.TotalSum().val());
+        const auto bg=[](const ParamSet&X,const ParamSet&P){return P[0]+P[1]*X[0];};
+        Fit<DifferentialMutations<Uncertainty>> fit(make_shared<FitPoints>()<<data_copl_r,bg);
+        fit.SetUncertaintyCalcDeltas({0.001,0.001}).SetFilter([](const ParamSet&P){return (P[0]>0)&&(P[1]<0);});
+        fit.Init(100,make_shared<InitialDistributions>()<<make_shared<DistribGauss>(10000,10000)<<make_shared<DistribGauss>(0,1),random);
+        while(!fit.AbsoluteOptimalityExitCondition(0.0000001))fit.Iterate(random);
+        cout << "Fitting: " << fit.iteration_count() << " iterations; "
+            << fit.Optimality() << "<chi^2<"
+            << fit.Optimality(fit.PopulationSize() - 1)
+            << endl;
+        const auto &P = fit.ParametersWithUncertainties();
+        const auto BG=[&P](const value<>&x){return P[0]+P[1]*x.val();};
+        data_chi_sq << point<value<>>(Q, fit.Optimality() / (data.size() - fit.ParamCount()));
+        const hist<> data_copl_fg=data_copl_l-BG,data_copl_bg=(data_copl*0.)+BG;
+        const auto ev=data_copl_fg.TotalSum();
         Plot(Q.Contains(21) ? "ppn-above-data-copl" : (Q.Contains(-39) ? "ppn-below-data-copl" : ""))
             .Hist(data_copl_l).Hist(data_copl_r)
-            .Line(data_copl_mc.toLine()*ev.val()/N.val()/epsilon.val(),"MC")
+            .Hist(data_copl_bg,"BG")
+            .Line(hist<>((data_copl_mc*ev/N/epsilon)+data_copl_bg).toLine(),"MC+BG")
                 << "set title 'Coplanarity. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
                 << "set yrange [0:]" << "set xlabel " + planarity;
 
         events<<make_point(Q,ev);
 
-        cout << endl << Qmsg << endl;
         Plot(Q.Contains(21) ? "ppn-above-mc" : (Q.Contains(-39) ? "ppn-below-mc" : ""))
             .Hist(mc_ppn / N, "ppn_{sp}")
             .Line(mc_pd.toLine()/N_pd.val(),"pd left")
@@ -242,12 +220,16 @@ int main()
         .Hist(data)
                 << "set key on" << "set title 'Data " + Qmsg+", "+runmsg + "'" << "set yrange [0:]"
                 << "set xlabel " + thth << "set ylabel 'counts normalized'";
-        cout << endl;
     }
     Plot("ppn-acceptance")
     .Hist(acceptance, "ppn_{sp}").Hist(acceptance_pd, "pd")
             << "set key on" << "set title 'Acceptance'" << "set yrange [0:]" 
             << "set xlabel 'Q, MeV'" << "set ylabel 'Acceptance, n.d.'";
+    Plot("ppn-chisq").Hist(data_chi_sq)
+            << "set xlabel 'Q, MeV'"
+            << "set ylabel 'chi^2/d, n.d.'"
+            << "set yrange [0:]" << "unset log y";
+
     Plot("ppn-events")
     .Hist(events, "ppn_{sp}")
             << "set key on" << "set title 'True events count "+runmsg+"'" << "set yrange [0:]" 
