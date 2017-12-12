@@ -191,7 +191,7 @@ int main()
         const auto bg=[](const ParamSet&X,const ParamSet&P){return P[0]+P[1]*X[0];};
         Fit<DifferentialMutations<Uncertainty>> fit(make_shared<FitPoints>()<<data_copl_r,bg);
         fit.SetUncertaintyCalcDeltas({0.001,0.001}).SetFilter([](const ParamSet&P){return (P[0]>0)&&(P[1]<0);});
-        fit.Init(100,make_shared<InitialDistributions>()<<make_shared<DistribGauss>(10000,10000)<<make_shared<DistribGauss>(0,1),random);
+        fit.Init(400,make_shared<InitialDistributions>()<<make_shared<DistribGauss>(10000,10000)<<make_shared<DistribGauss>(0,1),random);
         while(!fit.AbsoluteOptimalityExitCondition(0.0000001))fit.Iterate(random);
         cout << "Fitting: " << fit.iteration_count() << " iterations; "
             << fit.Optimality() << "<chi^2<"
@@ -204,8 +204,8 @@ int main()
         const auto ev=data_copl_fg.TotalSum();
         Plot(Q.Contains(21) ? "ppn-above-data-copl" : (Q.Contains(-39) ? "ppn-below-data-copl" : ""))
             .Hist(data_copl_l).Hist(data_copl_r)
-            .Hist(data_copl_bg,"BG")
-            .Line(hist<>((data_copl_mc*ev/N/epsilon)+data_copl_bg).toLine(),"MC+BG")
+            .Hist(data_copl_bg,"BG from fit")
+            .Line(hist<>((data_copl_mc*ev/(N*epsilon))+data_copl_bg).toLine(),"MC+BG")
                 << "set title 'Coplanarity. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
                 << "set yrange [0:]" << "set xlabel " + planarity;
 
@@ -235,6 +235,9 @@ int main()
             << "set key on" << "set title 'True events count "+runmsg+"'" << "set yrange [0:]" 
             << "set xlabel 'Q, MeV'" << "set ylabel 'count, n.d.'";
     const auto luminosity=(events*double(trigger_elastic1.scaling)/acceptance/SIGMA);
+    const auto sasha4d=Plotter::Instance().GetPoints<double>("luminosity_Q");
+    Chain<point<>> machine4d;
+    for(const auto&p:sasha4d)machine4d.push_back(make_point(-72.5+(p.X()*2.5),p.Y()));
     Plot("ppn-luminosity").Hist(luminosity)
             << "set title 'Integrated luminosity (" + runmsg + ")'"
             << "set key on" << "set xlabel 'Q, MeV'"
@@ -245,6 +248,7 @@ int main()
     Plot("luminosity-compare")
     .Hist(estimate_full_luminosity, "ppn_{sp}", "LUMINOSITYc")
     .Hist(prev_luminosity, "3He+eta")
+    .Line(machine4d,"Sasha")
             << "set title 'Integrated luminosity estimation for all runs'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"

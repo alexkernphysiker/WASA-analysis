@@ -43,7 +43,7 @@ int main()
             const hist<> data = 
                 Hist(DATA, "F", histpath_forward_reconstr,
                     string("MissingMass-Bin-") + to_string(bin_num)
-                ).XRange(0.532, 0.57);
+                ).XRange(0.533, 0.57);
             const auto chain = ChainWithStep(0.53, 0.0001, 0.57);
             const auto cut = make_pair(0.542,0.553);
             const hist<> mc_unnorm = 
