@@ -178,8 +178,8 @@ int main()
         const hist<> data_copl_mc=
             Hist(MC,"ppn_qf_",{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
             .Scale(2).XRange(0,90);
-        const hist<> data_copl_l=data_copl.XRange(0,30);
-        const hist<> data_copl_r=data_copl.XRange(30,90);
+        const hist<> data_copl_l=data_copl.XRange(0,40);
+        const hist<> data_copl_r=data_copl.XRange(40,90);
         cout << endl << Qmsg << endl;
         cout << endl;
 
