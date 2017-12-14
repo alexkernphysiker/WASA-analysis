@@ -27,7 +27,7 @@ int main()
     vector<string> histpath_forward_reconstr = {"Histograms", "He3Forward_Reconstruction"};
     const auto runs = PresentRuns("F");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
-    const hist<> norm = Hist(MC, "He3eta_gg", histpath_forward_reconstr, "0-Reference");
+    const hist<> norm = Hist(MC, "He3eta-gg", histpath_forward_reconstr, "0-Reference");
     hist<> luminosity, data_chi_sq, acceptance;
     vector<hist<>> parhists;
     RANDOM r_eng;
@@ -47,7 +47,7 @@ int main()
             const auto chain = ChainWithStep(0.53, 0.0001, 0.57);
             const auto cut = make_pair(0.542,0.553);
             const hist<> mc_unnorm = 
-                Hist(MC, "He3eta_gg", histpath_forward_reconstr,
+                Hist(MC, "He3eta-gg", histpath_forward_reconstr,
                     string("MissingMass-Bin-") + to_string(bin_num)
                 ).XRange(0.53, 0.57);
             const hist<> mc = mc_unnorm / N;

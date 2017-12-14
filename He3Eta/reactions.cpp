@@ -26,7 +26,7 @@ int main()
     const auto runs = PresentRuns("F");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
     vector<string> histpath_forward_reconstr = {"Histograms", "He3Forward_Reconstruction"};
-    vector<string> reaction = {"He3eta_gg", "He3pi0pi0pi0", "He3pi0pi0", "He3pi0"};
+    vector<string> reaction = {"He3eta-gg", "He3pi0pi0pi0", "He3pi0pi0", "He3pi0"};
     vector<hist<>> norm;
     for (const string &r : reaction)
         norm.push_back(Hist(MC, r, histpath_forward_reconstr, "0-Reference"));

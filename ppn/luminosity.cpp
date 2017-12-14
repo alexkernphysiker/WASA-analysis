@@ -178,8 +178,8 @@ int main()
         const hist<> data_copl_mc=
             Hist(MC,ppn_reaction,{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
             .Scale(2).XRange(0,90);
-        const hist<> data_copl_l=data_copl.XRange(0,40);
-        const hist<> data_copl_r=data_copl.XRange(40,90);
+        const hist<> data_copl_fg=data_copl.XRange(140,220);
+        const hist<> data_copl_bg=data_copl.XExclude(140,220);
         cout << endl << Qmsg << endl;
         cout << endl;
 
@@ -189,7 +189,7 @@ int main()
         acceptance_pd << make_point(Q, epsilon2);
 
         const auto bg=[](const ParamSet&X,const ParamSet&P){return P[0]+P[1]*X[0];};
-        Fit<DifferentialMutations<Uncertainty>> fit(make_shared<FitPoints>()<<data_copl_r,bg);
+        Fit<DifferentialMutations<Uncertainty>> fit(make_shared<FitPoints>()<<data_copl_bg,bg);
         fit.SetUncertaintyCalcDeltas({0.001,0.001}).SetFilter([](const ParamSet&P){return (P[0]>0)&&(P[1]<0);});
         fit.Init(400,make_shared<InitialDistributions>()<<make_shared<DistribGauss>(10000,10000)<<make_shared<DistribGauss>(0,1),random);
         while(!fit.AbsoluteOptimalityExitCondition(0.0000001))fit.Iterate(random);

@@ -23,7 +23,7 @@ int main()
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-6gamma-with-3he");
     vector<string> histpath_reconstr = {"Histograms", "He3nCentralGammas"};
     vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas6"};
-    vector<string> reaction = {"bound1-6g", "He3eta_6g", "He3pi0pi0pi0"};
+    vector<string> reaction = {"bound1-6g", "He3eta-6g", "He3pi0pi0pi0"};
     hist<> norm = Hist(MC, reaction[0], histpath_reconstr, "0-Reference");
     const auto runs = PresentRuns("C");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
