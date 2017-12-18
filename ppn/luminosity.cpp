@@ -211,7 +211,7 @@ int main()
         const auto ev=data_copl_fg.TotalSum();
         Plot(Q.Contains(21) ? "ppn-above-data-copl" : (Q.Contains(-39) ? "ppn-below-data-copl" : ""))
             .Hist(data_copl_inside).Hist(data_copl_outside)
-            .Hist(data_copl_bg,"BG from fit")
+            .Line(data_copl_bg.toLine(),"BG from fit")
             .Line(hist<>((data_copl_mc*ev/(N*epsilon))+data_copl_bg).toLine(),"MC+BG")
                 << "set title 'Coplanarity. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
                 << "set yrange [0:]" << "set xlabel " + planarity;

@@ -279,7 +279,7 @@ int main()
 
     Plot("He3gg-events")
     .Hist(ev_am, "data")
-    .Hist(ev_am-known_events, "data-(3He+eta)_{estimated}")
+    .Hist(known_events, "(3He+eta)_{estimated}")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '" + runmsg + "'";
