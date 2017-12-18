@@ -94,7 +94,7 @@ int main()
     const auto runs = PresentRuns("E");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
     const string th1 = "'Theta_1, deg'", th2 = "'Theta_2, deg'", e1 = "'Edep_1, GeV'", e2 = "'Edep_2, GeV'",
-                 thth = "'Theta_1+1.6Theta_2, deg'", planarity = "'|Phi_1-Phi_2-180^o|, deg'";
+                 thth = "'Theta_1+1.6Theta_2, deg'", planarity = "'Phi_1-Phi_2, deg'";
     const hist<> norm = Hist(MC, ppn_reaction, {"Histograms", "elastic"}, "0-Reference");
     const hist<> norm_pd = Hist(MC, pd_reaction, {"Histograms", "elastic"}, "0-Reference");
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "luminosity-central");
@@ -164,22 +164,22 @@ int main()
 
         const hist<> mc_ppn =
             Hist(MC, ppn_reaction, {"Histograms", "elastic"}, string("theta_sum_21-Bin-") + to_string(bin_num))
-            .Scale(2).XRange(40, 200);
+            .Scale(4).XRange(40, 200);
         const hist<> mc_pd =
             Hist(MC, pd_reaction, {"Histograms", "elastic"}, string("theta_sum_21-Bin-") + to_string(bin_num))
-            .Scale(2).XRange(40, 200);
+            .Scale(4).XRange(40, 200);
         const hist<> data =
             Hist(DATA, "E", {"Histograms", "elastic"}, string("theta_sum_21-Bin-") + to_string(bin_num))
-            .Scale(2).XRange(40, 200);
+            .Scale(4).XRange(40, 200);
 
         const hist<> data_copl=
             Hist(DATA,"E",{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
-            .Scale(2).XRange(0,90);
+            .Scale(4).XRange(120,240);
         const hist<> data_copl_mc=
             Hist(MC,ppn_reaction,{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
-            .Scale(2).XRange(0,90);
-        const hist<> data_copl_fg=data_copl.XRange(140,220);
-        const hist<> data_copl_bg=data_copl.XExclude(140,220);
+            .Scale(4).XRange(120,240);
+        const hist<> data_copl_inside=data_copl.XRange(160,200);
+        const hist<> data_copl_outside=data_copl.XExclude(160,200);
         cout << endl << Qmsg << endl;
         cout << endl;
 
@@ -188,22 +188,29 @@ int main()
         acceptance << make_point(Q, epsilon);
         acceptance_pd << make_point(Q, epsilon2);
 
-        const auto bg=[](const ParamSet&X,const ParamSet&P){return P[0]+P[1]*X[0];};
-        Fit<DifferentialMutations<Uncertainty>> fit(make_shared<FitPoints>()<<data_copl_bg,bg);
-        fit.SetUncertaintyCalcDeltas({0.001,0.001}).SetFilter([](const ParamSet&P){return (P[0]>0)&&(P[1]<0);});
-        fit.Init(400,make_shared<InitialDistributions>()<<make_shared<DistribGauss>(10000,10000)<<make_shared<DistribGauss>(0,1),random);
+        Fit<DifferentialMutations<Uncertainty>> fit(
+            make_shared<FitPoints>()<<data_copl_outside,
+            [](const ParamSet&X,const ParamSet&P){return Polynom<2>(X[0],P);}
+        );
+        fit.SetUncertaintyCalcDeltas({0.001,0.001,0.001});
+        fit.Init(500,make_shared<InitialDistributions>()
+            <<make_shared<DistribGauss>(10000,10000)
+            <<make_shared<DistribGauss>(0,1)
+            <<make_shared<DistribGauss>(-2,1)
+            ,random
+        );
         while(!fit.AbsoluteOptimalityExitCondition(0.0000001))fit.Iterate(random);
         cout << "Fitting: " << fit.iteration_count() << " iterations; "
             << fit.Optimality() << "<chi^2<"
             << fit.Optimality(fit.PopulationSize() - 1)
             << endl;
         const auto &P = fit.ParametersWithUncertainties();
-        const auto BG=[&P](const value<>&x){return P[0]+P[1]*x.val();};
+        const auto BG=[&P](const value<>&x){return Polynom<2>(x,P);};
         data_chi_sq << point<value<>>(Q, fit.Optimality() / (data.size() - fit.ParamCount()));
-        const hist<> data_copl_fg=data_copl_l-BG,data_copl_bg=(data_copl*0.)+BG;
+        const hist<> data_copl_fg=data_copl_inside-BG,data_copl_bg=(data_copl*0.)+BG;
         const auto ev=data_copl_fg.TotalSum();
         Plot(Q.Contains(21) ? "ppn-above-data-copl" : (Q.Contains(-39) ? "ppn-below-data-copl" : ""))
-            .Hist(data_copl_l).Hist(data_copl_r)
+            .Hist(data_copl_inside).Hist(data_copl_outside)
             .Hist(data_copl_bg,"BG from fit")
             .Line(hist<>((data_copl_mc*ev/(N*epsilon))+data_copl_bg).toLine(),"MC+BG")
                 << "set title 'Coplanarity. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
