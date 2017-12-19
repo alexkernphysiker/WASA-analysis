@@ -110,7 +110,7 @@ int main()
             )
             .Hist(Hist(MC, r, histpath_central_reconstr, string("TIM4-Bin-") + to_string(bin_num)), "IM and MM cuts")
                     << "set key on" << "set title '" + Qmsg + ";MC " + r + "'" << "set yrange [0:]"<< "set xrange [-0.5:0.5]"
-                    << "set xlabel 'total invariant mass, GeV'";
+                    << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
             Plot(
                 Q.Contains(21) ? "He3gg-above-t-mc"+r : (
                     Q.Contains(-39) ? "He3gg-below-t-mc"+r : (
@@ -186,7 +186,7 @@ int main()
             )
             .Hist(Hist(DATA, "C", histpath_central_reconstr, string("TIM4-Bin-") + to_string(bin_num)), "MM and IM cuts")
                     << "set key on" << "set title '" + Qmsg + ";Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [-0.5:0.5]"
-                    << "set xlabel 'Total invariant mass, GeV'";
+                    << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
 
             Plot(
                 Q.Contains(21) ? "He3gg-above-data-t" : (
@@ -233,7 +233,7 @@ int main()
         accplot << "set title 'Cut number "+to_string(cut_index)+"'"
             << "set xlabel 'Q, MeV'"
             << "set ylabel 'Acceptance, n.d.'"
-            << "set yrange [:1]" << "set key on"<<"set log y">>"unset log y";
+            << "set yrange [0.00001:1]" << "set key on"<<"set log y">>"unset log y";
         for (size_t i = 0; i < reaction.size(); i++) {
             const auto acc = acceptance[cut_index][i].YRange(0.00001, INFINITY);
             if (acc.size() > 0) {
@@ -251,6 +251,6 @@ int main()
         .Hist(known_events, "(3He+eta)_{estimated}")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
-            << "set title 'Cut number "+to_string(cut_index)+"."+runmsg+"'";
+            << "set title 'Cut number "+to_string(cut_index)+". "+runmsg+"'";
     }
 }
