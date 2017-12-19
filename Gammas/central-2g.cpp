@@ -23,7 +23,7 @@ int main()
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-2gamma");
     vector<string> histpath_reconstr = {"Histograms", "He3nCentralGammas"};
     vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas2"};
-    vector<string> reaction = {"bound1-2g", "He3eta-gg", "He3pi0pi0", "bound1-6g","He3eta-6g", "He3pi0pi0pi0", "He3pi0"};
+    vector<string> reaction = {"bound1-2g", "He3eta-gg", "He3pi0pi0", "He3pi0pi0pi0", "He3pi0"};
     const auto runs = PresentRuns("C");
     const hist<> norm = Hist(MC, reaction[0], histpath_reconstr, "0-Reference");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
@@ -237,12 +237,12 @@ int main()
         Plot accplot("He3gg-acceptance-"+to_string(cut_index));
         accplot << "set title 'Cut number "+to_string(cut_index)+"'"
             << "set xlabel 'Q, MeV'"
-            << "set ylabel 'Acceptance, n.d.'"
-            << "set yrange [0.00001:1]" << "set key on"<<"set log y">>"unset log y";
+            << "set ylabel 'Acceptance, percents'"
+            << "set yrange [0.0001:500]" << "set key on"<<"set log y">>"unset log y";
         for (size_t i = 0; i < reaction.size(); i++) {
-            const auto acc = acceptance[cut_index][i].YRange(0.00001, INFINITY);
+            const auto acc = acceptance[cut_index][i].YRange(0.000001, INFINITY);
             if (acc.size() > 0) {
-                accplot.Hist(acc, reaction[i]);
+                accplot.Hist(acc*100, reaction[i]);
             }
         }
 
@@ -251,13 +251,15 @@ int main()
             / double(trigger_he3_forward.scaling)
             * (acceptance[cut_index][1]*(he3etacs*0.393));
 
-        normevents.Line(hist<>(ev_am[cut_index]/acceptance[cut_index][0]).toLine(),to_string(cut_index));
-        if(cut_index==5)normevents.Hist(ev_am[cut_index]/acceptance[cut_index][0]);
+        const hist<> bound=ev_am[cut_index]-known_events;
         Plot("He3gg-events-"+to_string(cut_index))
-        .Hist(ev_am[cut_index], "data")
-        .Hist(known_events, "(3He+eta)_{estimated}")
+        .Hist(ev_am[cut_index],"All data")
+        //.Hist(bound.XRange(2.5,30),"3He+eta subtracted")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title 'Cut number "+to_string(cut_index)+". "+runmsg+"'";
+        normevents.Line(hist<>(bound/acceptance[cut_index][0]).toLine());
+        if(cut_index==5)normevents.Hist(bound/acceptance[cut_index][0]);
+
     }
 }
