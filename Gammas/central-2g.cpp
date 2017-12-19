@@ -52,7 +52,7 @@ int main()
 
     vector<hist<>> ev_am;
     vector<vector<hist<>>> acceptance;
-    const size_t cuts_count=10;
+    const size_t cuts_count=8;
     for(size_t cut_index=0;cut_index<cuts_count;cut_index++){
         acceptance.push_back(vector<hist<>>());
         for (size_t i = 0; i < reaction.size(); i++) {
@@ -228,19 +228,14 @@ int main()
     }
     const hist<> luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYc");
     const hist<> he3etacs = Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed");
-    Plot normevents("He3gg-events-all");
-    normevents << "set xlabel 'Q, MeV'" << "set key on"
-            << "set ylabel 'events/acceptance, n.d.'" << "set yrange [0:]"
-            << "set title '"+runmsg+"'";
-
     for(size_t cut_index=0;cut_index<cuts_count;cut_index++){
         Plot accplot("He3gg-acceptance-"+to_string(cut_index));
         accplot << "set title 'Cut number "+to_string(cut_index)+"'"
             << "set xlabel 'Q, MeV'"
             << "set ylabel 'Acceptance, percents'"
-            << "set yrange [0.0001:500]" << "set key on"<<"set log y">>"unset log y";
+            << "set yrange [0.00001:500]" << "set key on"<<"set log y">>"unset log y";
         for (size_t i = 0; i < reaction.size(); i++) {
-            const auto acc = acceptance[cut_index][i].YRange(0.000001, INFINITY);
+            const auto acc = acceptance[cut_index][i].YRange(0.0000001, INFINITY);
             if (acc.size() > 0) {
                 accplot.Hist(acc*100, reaction[i]);
             }
@@ -254,12 +249,8 @@ int main()
         const hist<> bound=ev_am[cut_index]-known_events;
         Plot("He3gg-events-"+to_string(cut_index))
         .Hist(ev_am[cut_index],"All data")
-        //.Hist(bound.XRange(2.5,30),"3He+eta subtracted")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title 'Cut number "+to_string(cut_index)+". "+runmsg+"'";
-        normevents.Line(hist<>(bound/acceptance[cut_index][0]).toLine());
-        if(cut_index==5)normevents.Hist(bound/acceptance[cut_index][0]);
-
     }
 }
