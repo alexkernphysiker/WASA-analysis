@@ -228,6 +228,11 @@ int main()
     }
     const hist<> luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYc");
     const hist<> he3etacs = Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed");
+    Plot normevents("He3gg-events-all");
+    normevents << "set xlabel 'Q, MeV'" << "set key on"
+            << "set ylabel 'events/acceptance, n.d.'" << "set yrange [0:]"
+            << "set title '"+runmsg+"'";
+
     for(size_t cut_index=0;cut_index<cuts_count;cut_index++){
         Plot accplot("He3gg-acceptance-"+to_string(cut_index));
         accplot << "set title 'Cut number "+to_string(cut_index)+"'"
@@ -246,6 +251,7 @@ int main()
             / double(trigger_he3_forward.scaling)
             * (acceptance[cut_index][1]*(he3etacs*0.393));
 
+        normevents.Hist(ev_am[cut_index]/acceptance[cut_index][0],to_string(cut_index));
         Plot("He3gg-events-"+to_string(cut_index))
         .Hist(ev_am[cut_index], "data")
         .Hist(known_events, "(3He+eta)_{estimated}")
