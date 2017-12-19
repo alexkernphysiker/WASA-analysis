@@ -251,7 +251,8 @@ int main()
             / double(trigger_he3_forward.scaling)
             * (acceptance[cut_index][1]*(he3etacs*0.393));
 
-        normevents.Hist(ev_am[cut_index]/acceptance[cut_index][0],to_string(cut_index));
+        normevents.Line(hist<>(ev_am[cut_index]/acceptance[cut_index][0]).toLine(),to_string(cut_index));
+        if(cut_index==5)normevents.Hist(ev_am[cut_index]/acceptance[cut_index][0]);
         Plot("He3gg-events-"+to_string(cut_index))
         .Hist(ev_am[cut_index], "data")
         .Hist(known_events, "(3He+eta)_{estimated}")
