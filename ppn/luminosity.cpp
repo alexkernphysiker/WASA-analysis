@@ -99,11 +99,11 @@ int main()
     const hist<> norm_pd = Hist(MC, pd_reaction, {"Histograms", "elastic"}, "0-Reference");
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "luminosity-central");
     Plot("ppn-copl-mc")
-    .Hist(Hist(MC, pd_reaction, {"Histograms", "elastic"}, "pair_phi_diff_0") / norm_pd.TotalSum().val(), pd_reaction)
+    //.Hist(Hist(MC, pd_reaction, {"Histograms", "elastic"}, "pair_phi_diff_0") / norm_pd.TotalSum().val(), pd_reaction)
     .Hist(Hist(MC, ppn_reaction, {"Histograms", "elastic"}, "pair_phi_diff_0") / norm.TotalSum().val(), "ppn_{sp}")
             << "set key on" << "set title 'Coplanarity. MC'" << "set yrange [0:]" << "set xlabel " + planarity;
     Plot()
-    .Hist(Hist(MC, pd_reaction, {"Histograms", "elastic"}, "pair_phi_diff_1") / norm_pd.TotalSum().val(), pd_reaction)
+    //.Hist(Hist(MC, pd_reaction, {"Histograms", "elastic"}, "pair_phi_diff_1") / norm_pd.TotalSum().val(), pd_reaction)
     .Hist(Hist(MC, ppn_reaction, {"Histograms", "elastic"}, "pair_phi_diff_1") / norm.TotalSum().val(), "ppn_{sp}")
             << "set key on" << "set title 'Coplanarity. MC. Cut'" << "set yrange [0:]" << "set xlabel " + planarity;
     Plot("ppn-copl-data")
@@ -178,8 +178,8 @@ int main()
         const hist<> data_copl_mc=
             Hist(MC,ppn_reaction,{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
             .Scale(4).XRange(120,240);
-        const hist<> data_copl_inside=data_copl.XRange(160,200);
-        const hist<> data_copl_outside=data_copl.XExclude(160,200);
+        const hist<> data_copl_inside=data_copl.XRange(150,210);
+        const hist<> data_copl_outside=data_copl.XExclude(150,210);
         cout << endl << Qmsg << endl;
         cout << endl;
 
