@@ -130,7 +130,7 @@ int main()
             hist<> clean = data - bg;
             Plot subplot(Q.Contains(21) ? "He3eta-subtract" : "");
             subplot.Hist(clean).Line({point<>(clean.left().X().min(), 0.0), point<>(clean.right().X().max(), 0.0)});
-            subplot.Hist(clean = clean.XRange(cut.first-0.01, cut.second+0.01))
+            subplot.Hist(clean = clean.XRange(cut.first-0.001, cut.second+0.001))
                     << "set key on" << "set title '" + Qmsg + ", " + runmsg + "'"
                     << "set xlabel 'Missing mass, GeV'"
                     << "set ylabel 'counts'"
