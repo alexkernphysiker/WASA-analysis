@@ -101,15 +101,18 @@ int main()
     Plot("ppn-copl-mc")
     //.Hist(Hist(MC, pd_reaction, {"Histograms", "elastic"}, "pair_phi_diff_0") / norm_pd.TotalSum().val(), pd_reaction)
     .Hist(Hist(MC, ppn_reaction, {"Histograms", "elastic"}, "pair_phi_diff_0") / norm.TotalSum().val(), "ppn_{sp}")
-            << "set key on" << "set title 'Coplanarity. MC'" << "set yrange [0:]" << "set xlabel " + planarity;
+            << "set key on" << "set title 'Coplanarity. MC'" << "set xrange [0:360]"
+            << "set yrange [0:]" << "set xlabel " + planarity;
     Plot()
     //.Hist(Hist(MC, pd_reaction, {"Histograms", "elastic"}, "pair_phi_diff_1") / norm_pd.TotalSum().val(), pd_reaction)
     .Hist(Hist(MC, ppn_reaction, {"Histograms", "elastic"}, "pair_phi_diff_1") / norm.TotalSum().val(), "ppn_{sp}")
-            << "set key on" << "set title 'Coplanarity. MC. Cut'" << "set yrange [0:]" << "set xlabel " + planarity;
+            << "set key on" << "set title 'Coplanarity. MC. Cut'" << "set xrange [0:360]"
+            << "set yrange [0:]" << "set xlabel " + planarity;
     Plot("ppn-copl-data")
     .Hist(Hist(DATA, "E", {"Histograms", "elastic"}, "pair_phi_diff_0"))
     .Hist(Hist(DATA, "E", {"Histograms", "elastic"}, "pair_phi_diff_1"))
-            << "set title 'Coplanarity. Data " + runmsg + "'" << "set yrange [0:]" << "set xlabel " + planarity;
+            << "set title 'Coplanarity. Data " + runmsg + "'" << "set xrange [0:360]"
+            << "set yrange [0:]" << "set xlabel " + planarity;
 
     PlotHist2d(sp2).Distr(Hist2d(MC, pd_reaction, {"Histograms", "elastic"}, "t_vs_t_1"))
             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + th2;
@@ -174,10 +177,10 @@ int main()
 
         const hist<> data_copl=
             Hist(DATA,"E",{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
-            .Scale(4).XRange(120,240);
+            .Scale(4).XRange(100,260);
         const hist<> data_copl_mc=
             Hist(MC,ppn_reaction,{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
-            .Scale(4).XRange(120,240);
+            .Scale(4).XRange(100,260);
         const hist<> data_copl_inside=data_copl.XRange(150,210);
         const hist<> data_copl_outside=data_copl.XExclude(150,210);
         cout << endl << Qmsg << endl;

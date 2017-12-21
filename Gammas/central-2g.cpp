@@ -21,11 +21,10 @@ using namespace GnuplotWrap;
 int main()
 {
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-2gamma");
-    vector<string> histpath_reconstr = {"Histograms", "He3nCentralGammas"};
     vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas2"};
     vector<string> reaction = {"bound1-2g", "He3eta-gg", "He3pi0pi0", "He3pi0pi0pi0", "He3pi0"};
     const auto runs = PresentRuns("C");
-    const hist<> norm = Hist(MC, reaction[0], histpath_reconstr, "0-Reference");
+    const hist<> norm = Hist(MC, reaction[0], histpath_central_reconstr, "0-Reference");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
 
     Plot gE("He3gg-gamma-energy-theory"), gEc("He3gg-gamma-energy-theory-cut"),
@@ -39,16 +38,16 @@ int main()
     for (size_t i = 0; i < reaction.size(); i++) {
         const auto &r = reaction[i];
         gE.Hist(
-            Hist(MC, r, histpath_reconstr, "GammaEnergy")
-            / Hist(MC, r, histpath_reconstr, "0-Reference").TotalSum().val()
+            Hist(MC, r, histpath_central_reconstr, "GammaEnergy")
+            / Hist(MC, r, histpath_central_reconstr, "0-Reference").TotalSum().val()
             , r);
         gEc.Hist(
-            Hist(MC, r, histpath_reconstr, "GammaEnergyCut")
-            / Hist(MC, r, histpath_reconstr, "0-Reference").TotalSum().val()
+            Hist(MC, r, histpath_central_reconstr, "GammaEnergyCut")
+            / Hist(MC, r, histpath_central_reconstr, "0-Reference").TotalSum().val()
             , r);
     }
-    gEd.Hist(Hist(DATA, "C", histpath_reconstr, "GammaEnergy")).Hist(Hist(DATA, "C", histpath_reconstr, "GammaEnergyCut"));
-    Plot("He3gg-gamma-count").Hist(Hist(DATA, "C", histpath_reconstr, "GammaCount"))<<"set log y">>"unset log y";
+    gEd.Hist(Hist(DATA, "C", histpath_central_reconstr, "GammaEnergy")).Hist(Hist(DATA, "C", histpath_central_reconstr, "GammaEnergyCut"));
+    Plot("He3gg-gamma-count").Hist(Hist(DATA, "C", histpath_central_reconstr, "GammaCount"))<<"set log y">>"unset log y";
 
     vector<hist<>> ev_am;
     vector<vector<hist<>>> acceptance;
@@ -74,8 +73,8 @@ int main()
                     )
                 )
             )
-            .Hist(Hist(MC, r, histpath_reconstr, string("He3MM0-Bin-") + to_string(bin_num)), "3He")
-            .Hist(Hist(MC, r, histpath_reconstr, string("He3MM1-Bin-") + to_string(bin_num)), "3He MM cut")
+            .Hist(Hist(MC, r, histpath_central_reconstr, string("He3MM0-Bin-") + to_string(bin_num)), "3He")
+            .Hist(Hist(MC, r, histpath_central_reconstr, string("He3MM1-Bin-") + to_string(bin_num)), "3He MM cut")
             .Hist(Hist(MC, r, histpath_central_reconstr, string("He3MM2-Bin-") + to_string(bin_num)), "3He+2gamma")
                     << "set key on" << "set title '" + Qmsg + ";MC " + r + "'" << "set yrange [0:]"
                     << "set xlabel '3He missing mass, GeV'";
@@ -140,8 +139,8 @@ int main()
                     )
                 )
             )
-            .Hist(Hist(DATA, "C", histpath_reconstr, string("He3MM0-Bin-") + to_string(bin_num)), "3He")
-            .Hist(Hist(DATA, "C", histpath_reconstr, string("He3MM1-Bin-") + to_string(bin_num)), "3He MM cut")
+            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("He3MM0-Bin-") + to_string(bin_num)), "3He")
+            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("He3MM1-Bin-") + to_string(bin_num)), "3He MM cut")
             .Hist(Hist(DATA, "C", histpath_central_reconstr, string("He3MM2-Bin-") + to_string(bin_num)), "3He+2gamma")
                     << "set key on" << "set title '" + Qmsg + ";Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '3He missing mass, GeV'";
@@ -213,7 +212,7 @@ int main()
             const double TIM_DIFF_CUT=0.01*cut_index;
             for (size_t i = 0; i < reaction.size(); i++) {
                 const auto &r = reaction[i];
-                hist<> Norm = Hist(MC, r, histpath_reconstr, "0-Reference");
+                hist<> Norm = Hist(MC, r, histpath_central_reconstr, "0-Reference");
                 const auto &N = Norm[bin_num].Y();
                 if (N.Above(0)) {
                     const hist<> h = Hist(MC, r, histpath_central_reconstr, string("TIM4-Bin-") + to_string(bin_num)).XRange(TIM_DIFF_CUT,INFINITY);
