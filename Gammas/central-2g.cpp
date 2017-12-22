@@ -167,16 +167,6 @@ int main()
                     << "set key on" << "set title '" + Qmsg + ";Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '2gamma invariant mass, GeV'";
             Plot(
-                Q.Contains(21) ? "He3gg-above-data" : (
-                    Q.Contains(-39) ? "He3gg-below-data" : (
-                        Q.Contains(-3) ? "He3gg-thr-data" : ""
-                    )
-                )
-            )
-            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("GIM4-Bin-") + to_string(bin_num)))
-                << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
-                << "set xlabel 'gamma-gamma invariant mass, GeV'";
-            Plot(
                 Q.Contains(21) ? "He3gg-above-tim-data" : (
                     Q.Contains(-39) ? "He3gg-below-tim-data" : (
                         Q.Contains(-3) ? "He3gg-thr-tim-data" : ""
@@ -224,6 +214,75 @@ int main()
             const hist<> data = Hist(DATA, "C", histpath_central_reconstr, string("TIM4-Bin-") + to_string(bin_num)).XRange(TIM_DIFF_CUT,INFINITY);
             ev_am[cut_index] << point<value<>>(Q, std_error(data.TotalSum().val()));
         }
+        for (size_t i = 0; i < reaction.size(); i++) {
+            const auto &r = reaction[i];
+            Plot(
+                Q.Contains(21) ? "He3gg-above-tim-final-mc" + r : (
+                    Q.Contains(-39) ? "He3gg-below-tim-final-mc" + r : (
+                        Q.Contains(-3) ? "He3gg-thr-tim-final-mc" + r : ""
+                    )
+                )
+            )
+            .Hist(Hist(MC, r, histpath_central_reconstr, string("TIM4-Bin-") + to_string(bin_num)), "IM and MM cuts")
+            .Hist(Hist(MC, r, histpath_central_reconstr, string("TIM51-Bin-") + to_string(bin_num)), "total IM cut")
+                    << "set key on" << "set title '" + Qmsg + ";MC " + r + "'" << "set yrange [0:]"<< "set xrange [-0.5:0.5]"
+                    << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
+            Plot(
+                Q.Contains(21) ? "He3gg-above-dt-final-mc"+r : (
+                    Q.Contains(-39) ? "He3gg-below-dt-final-mc"+r : (
+                        Q.Contains(-3) ? "He3gg-thr-dt-final-mc"+r : ""
+                    )
+                )
+            )
+            .Hist(Hist(MC, r, histpath_central_reconstr, string("dt51-Bin-") + to_string(bin_num)))
+                    << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
+                    << "set xlabel 'dt gamma-gamma, ns'";
+            Plot(
+                Q.Contains(21) ? "He3gg-above-t-final-mc"+r : (
+                    Q.Contains(-39) ? "He3gg-below-t-final-mc"+r : (
+                        Q.Contains(-3) ? "He3gg-thr-t-final-mc"+r : ""
+                    )
+                )
+            )
+            .Hist(Hist(MC, r, histpath_central_reconstr, string("t51-Bin-") + to_string(bin_num)))
+                    << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
+                    << "set xlabel 'quickest gamma - 3he , ns'";
+
+        }{
+            Plot(
+                Q.Contains(21) ? "He3gg-above-tim-final-data" : (
+                    Q.Contains(-39) ? "He3gg-below-tim-final-data" : (
+                        Q.Contains(-3) ? "He3gg-thr-tim-final-data" : ""
+                    )
+                )
+            )
+            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("TIM4-Bin-") + to_string(bin_num)), "MM and IM cuts")
+            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("TIM51-Bin-") + to_string(bin_num)), "total IM cut")
+                    << "set key on" << "set title '" + Qmsg + ";Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [-0.5:0.5]"
+                    << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
+            Plot(
+                Q.Contains(21) ? "He3gg-above-data-dt-final" : (
+                    Q.Contains(-39) ? "He3gg-below-data-dt-final" : (
+                        Q.Contains(-3) ? "He3gg-thr-data-dt-final" : ""
+                    )
+                )
+            )
+            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("dt51-Bin-") + to_string(bin_num)))
+                    << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
+                    << "set xlabel 'dt gamma-gamma, ns'";
+
+            Plot(
+                Q.Contains(21) ? "He3gg-above-data-t-final" : (
+                    Q.Contains(-39) ? "He3gg-below-data-t-final" : (
+                        Q.Contains(-3) ? "He3gg-thr-data-t-final" : ""
+                    )
+                )
+            )
+            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("t51-Bin-") + to_string(bin_num)))
+                    << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
+                    << "set xlabel 'quickest gamma - 3he , ns'";
+        }
+
     }
     const hist<> luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYc");
     const hist<> he3etacs = Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed");
