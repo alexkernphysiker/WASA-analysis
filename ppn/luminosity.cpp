@@ -165,29 +165,22 @@ int main()
                 << Q.min() << "; " << Q.max() << "] MeV"
             ).str();
 
-        const hist<> mc_ppn =
-            Hist(MC, ppn_reaction, {"Histograms", "elastic"}, string("theta_sum_21-Bin-") + to_string(bin_num))
-            .Scale(4).XRange(40, 200);
-        const hist<> mc_pd =
-            Hist(MC, pd_reaction, {"Histograms", "elastic"}, string("theta_sum_21-Bin-") + to_string(bin_num))
-            .Scale(4).XRange(40, 200);
-        const hist<> data =
-            Hist(DATA, "E", {"Histograms", "elastic"}, string("theta_sum_21-Bin-") + to_string(bin_num))
-            .Scale(4).XRange(40, 200);
-
         const hist<> data_copl=
             Hist(DATA,"E",{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
             .Scale(4).XRange(100,260);
         const hist<> data_copl_mc=
             Hist(MC,ppn_reaction,{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
             .Scale(4).XRange(100,260);
+        const hist<> data_copl_mc2=
+            Hist(MC,pd_reaction,{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
+            .Scale(4).XRange(100,260);
         const hist<> data_copl_inside=data_copl.XRange(150,210);
         const hist<> data_copl_outside=data_copl.XExclude(150,210);
         cout << endl << Qmsg << endl;
         cout << endl;
 
-        const auto epsilon = std_error(mc_ppn.TotalSum().val())/N;
-        const auto epsilon2 = std_error(mc_pd.TotalSum().val())/N_pd;
+        const auto epsilon = std_error(data_copl_mc.TotalSum().val())/N;
+        const auto epsilon2 = std_error(data_copl_mc2.TotalSum().val())/N_pd;
         acceptance << make_point(Q, epsilon);
         acceptance_pd << make_point(Q, epsilon2);
 
@@ -209,7 +202,7 @@ int main()
             << endl;
         const auto &P = fit.ParametersWithUncertainties();
         const auto BG=[&P](const value<>&x){return Polynom<2>(x,P);};
-        data_chi_sq << point<value<>>(Q, fit.Optimality() / (data.size() - fit.ParamCount()));
+        data_chi_sq << point<value<>>(Q, fit.Optimality() / (data_copl.size() - fit.ParamCount()));
         const hist<> data_copl_fg=data_copl_inside-BG,data_copl_bg=(data_copl*0.)+BG;
         const auto ev=data_copl_fg.TotalSum();
         Plot(Q.Contains(21) ? "ppn-above-data-copl" : (Q.Contains(-39) ? "ppn-below-data-copl" : ""))
@@ -220,16 +213,6 @@ int main()
                 << "set yrange [0:]" << "set xlabel " + planarity;
 
         events<<make_point(Q,ev);
-
-        Plot(Q.Contains(21) ? "ppn-above-mc" : (Q.Contains(-39) ? "ppn-below-mc" : ""))
-            .Hist(mc_ppn / N, "ppn_{sp}")
-            .Line(mc_pd.toLine()/N_pd.val(),"pd left")
-                << "set key on" << "set title 'MC " + Qmsg + "'" << "set yrange [0:]"
-                << "set xlabel " + thth << "set ylabel 'counts normalized'";
-        Plot(Q.Contains(21) ? "ppn-above-data" : (Q.Contains(-39) ? "ppn-below-data" : ""))
-        .Hist(data)
-                << "set key on" << "set title 'Data " + Qmsg+", "+runmsg + "'" << "set yrange [0:]"
-                << "set xlabel " + thth << "set ylabel 'counts normalized'";
     }
     Plot("ppn-acceptance")
     .Hist(acceptance, "ppn_{sp}").Hist(acceptance_pd, "pd")
@@ -258,12 +241,10 @@ int main()
     Plot("luminosity-compare")
     .Hist(estimate_full_luminosity, "ppn_{sp}", "LUMINOSITYc")
     .Hist(prev_luminosity, "3He+eta")
-    .Line(machine4d,"Sasha")
+     .Line(machine4d,"Sasha")
             << "set title 'Integrated luminosity estimation for all runs'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:]";
     cout<<"Full luminosity estimation: "<<estimate_full_luminosity.TotalSum();
 }
-
-
