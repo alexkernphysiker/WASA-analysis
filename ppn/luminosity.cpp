@@ -142,7 +142,7 @@ int main()
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + e1 << "set ylabel " + e2;
 
 
-    hist<> acceptance, acceptance_pd,events,data_chi_sq;
+    hist<> acceptance, acceptance_pd,events,events2,data_chi_sq;
     const auto diff_cs = ReadCrossSection();
     const auto p_cs = IntegrateCrossSection(diff_cs);
     Plot("pp-integrated").Line(p_cs) << "set title 'pp->pp'";
@@ -222,44 +222,60 @@ int main()
         const hist<> data_time_mc2=
             Hist(MC,pd_reaction,{"Histograms","elastic"},string("pair_time_diff_21-Bin-") + to_string(bin_num))
             .Scale(1).XRange(0,50);
+        const hist<> time_fg=data_time.XRange(8,20);
+        const hist<> time_bg=time_fg.CloneEmptyBins().Transform([&time_fg](const value<>&x,const value<>&){
+            const auto& a=time_fg.left().X();
+            const auto& b=time_fg.right().X();
+            const auto&xa=time_fg.left().Y();
+            const auto&xb=time_fg.right().Y();
+            return xa+(xb-xa)*(x-a)/(b-a);
+        });
+        const auto ev2=hist<>(time_fg-time_bg).TotalSum();
 
         Plot(Q.Contains(21) ? "ppn-above-data-time" : (Q.Contains(-39) ? "ppn-below-data-time" : ""))
-            .Hist(data_time,"Data")
+            .Hist(data_time,"Data").Hist(time_fg,"fg").Hist(time_bg,"bg")
                 << "set title 'Time difference. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
                 << "set yrange [0:]" << "set xlabel 'time difference, ns'";
+        events2<<make_point(Q,ev2);
 
     }
     Plot("ppn-acceptance")
-    .Hist(acceptance, "ppn_{sp}").Hist(acceptance_pd, "pd")
+        .Hist(acceptance, "ppn_{sp}").Hist(acceptance_pd, "pd")
             << "set key on" << "set title 'Acceptance'" << "set yrange [0:]" 
             << "set xlabel 'Q, MeV'" << "set ylabel 'Acceptance, n.d.'";
-    Plot("ppn-chisq").Hist(data_chi_sq)
+    Plot("ppn-chisq")
+        .Hist(data_chi_sq)
             << "set xlabel 'Q, MeV'"
             << "set ylabel 'chi^2/d, n.d.'"
             << "set yrange [0:]" << "unset log y";
 
     Plot("ppn-events")
-    .Hist(events, "ppn_{sp}")
+        .Hist(events,"phi").Hist(events2,"time")
             << "set key on" << "set title 'True events count "+runmsg+"'" << "set yrange [0:]" 
             << "set xlabel 'Q, MeV'" << "set ylabel 'count, n.d.'";
     const auto luminosity=(events*double(trigger_elastic1.scaling)/acceptance/SIGMA);
+    const auto luminosity2=(events2*double(trigger_elastic1.scaling)/acceptance/SIGMA);
     const auto sasha4d=Plotter::Instance().GetPoints<double>("luminosity_Q");
     Chain<point<>> machine4d;
     for(const auto&p:sasha4d)machine4d.push_back(make_point(-72.5+(p.X()*2.5),p.Y()));
-    Plot("ppn-luminosity").Hist(luminosity)
+    Plot("ppn-luminosity")
+        .Hist(luminosity,"phi").Hist(luminosity2,"time")
             << "set title 'Integrated luminosity (" + runmsg + ")'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:]";
     const hist<> prev_luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYf");
     const hist<> estimate_full_luminosity = luminosity * runs.second / runs.first;
+    const hist<> estimate_full_luminosity2 = luminosity2 * runs.second / runs.first;
     Plot("luminosity-compare")
-    .Hist(estimate_full_luminosity, "ppn_{sp}", "LUMINOSITYc")
-    .Hist(prev_luminosity, "3He+eta")
-     .Line(machine4d,"Sasha")
+        .Hist(estimate_full_luminosity, "ppn_{sp} (phi)", "LUMINOSITYc")
+        .Hist(estimate_full_luminosity2, "ppn_{sp} (time)", "LUMINOSITYc2")
+        .Hist(prev_luminosity, "3He+eta")
+        .Line(machine4d,"Sasha")
             << "set title 'Integrated luminosity estimation for all runs'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:]";
-    cout<<"Full luminosity estimation: "<<estimate_full_luminosity.TotalSum();
+    cout<<"Full luminosity estimation (phi): "<<estimate_full_luminosity.TotalSum()<<endl;
+    cout<<"Full luminosity estimation (time): "<<estimate_full_luminosity2.TotalSum()<<endl;
 }

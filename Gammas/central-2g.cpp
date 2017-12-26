@@ -291,7 +291,8 @@ int main()
         accplot << "set title 'Cut number "+to_string(cut_index)+"'"
             << "set xlabel 'Q, MeV'"
             << "set ylabel 'Acceptance, percents'"
-            << "set yrange [0.00001:500]" << "set key on"<<"set log y">>"unset log y";
+            << "set yrange [0.00001:500]" << "set xrange [-70:30]"
+            << "set key on"<<"set log y">>"unset log y";
         for (size_t i = 0; i < reaction.size(); i++) {
             const auto acc = acceptance[cut_index][i].YRange(0.0000001, INFINITY);
             if (acc.size() > 0) {
@@ -307,7 +308,7 @@ int main()
         const hist<> bound=ev_am[cut_index]-known_events;
         Plot("He3gg-events-"+to_string(cut_index))
         .Hist(ev_am[cut_index],"All data")
-            << "set xlabel 'Q, MeV'" << "set key on"
+            << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title 'Cut number "+to_string(cut_index)+". "+runmsg+"'";
     }
