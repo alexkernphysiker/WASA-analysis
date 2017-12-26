@@ -211,8 +211,23 @@ int main()
             .Line(hist<>((data_copl_mc*ev/(N*epsilon))+data_copl_bg).toLine(),"MC+BG")
                 << "set title 'Coplanarity. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
                 << "set yrange [0:]" << "set xlabel " + planarity;
-
         events<<make_point(Q,ev);
+
+        const hist<> data_time=
+            Hist(DATA,"E",{"Histograms","elastic"},string("pair_time_diff_21-Bin-") + to_string(bin_num))
+            .Scale(1).XRange(0,50);
+        const hist<> data_time_mc=
+            Hist(MC,ppn_reaction,{"Histograms","elastic"},string("pair_time_diff_21-Bin-") + to_string(bin_num))
+            .Scale(1).XRange(0,50);
+        const hist<> data_time_mc2=
+            Hist(MC,pd_reaction,{"Histograms","elastic"},string("pair_time_diff_21-Bin-") + to_string(bin_num))
+            .Scale(1).XRange(0,50);
+
+        Plot(Q.Contains(21) ? "ppn-above-data-time" : (Q.Contains(-39) ? "ppn-below-data-time" : ""))
+            .Hist(data_time,"Data")
+                << "set title 'Time difference. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
+                << "set yrange [0:]" << "set xlabel 'time difference, ns'";
+
     }
     Plot("ppn-acceptance")
     .Hist(acceptance, "ppn_{sp}").Hist(acceptance_pd, "pd")
