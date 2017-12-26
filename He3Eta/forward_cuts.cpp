@@ -51,7 +51,7 @@ int main()
         SP2((HS == DATA) ? "SP2-data-cut1" : "").Distr(Hist2d(HS, R, {"Histograms", "He3Forward_Reconstruction"}, string("4-GeomCut-FTH1-vs-FRH1")).Scale(3, 3)) << cut << "set zrange [0:]";
         THD().Hist(Hist(HS, R, {"Histograms", "He3Forward_Debug"}, "4-PhiDistribution-AllBins").Scale(30)) << cut;
     };
-    MakePlots(MC, "He3eta", 500000);
+    MakePlots(MC, "He3eta-gg", 500000);
     MakePlots(MC, "He3pi0pi0", 500000);
     MakePlots(MC, "He3pi0pi0pi0", 500000);
     MakePlots(DATA, "F", 50000);
