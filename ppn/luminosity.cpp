@@ -93,8 +93,9 @@ int main()
     const string ppn_reaction = "ppn_qf_",pd_reaction="pd_";
     const auto runs = PresentRuns("E");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
-    const string th1 = "'Theta_1, deg'", th2 = "'Theta_2, deg'", e1 = "'Edep_1, GeV'", e2 = "'Edep_2, GeV'",
-                 thth = "'Theta_1+1.6Theta_2, deg'", planarity = "'Phi_1-Phi_2, deg'";
+    const string th1 = "'Theta_1, deg'", th2 = "'Theta_2, deg'",
+            e1 = "'Edep_1, GeV'", e2 = "'Edep_2, GeV'",
+            planarity = "'Phi_1-Phi_2, deg'";
     const hist<> norm = Hist(MC, ppn_reaction, {"Histograms", "elastic"}, "0-Reference");
     const hist<> norm_pd = Hist(MC, pd_reaction, {"Histograms", "elastic"}, "0-Reference");
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "luminosity-central");
@@ -115,18 +116,24 @@ int main()
             << "set yrange [0:]" << "set xlabel " + planarity;
 
     PlotHist2d(sp2).Distr(Hist2d(MC, pd_reaction, {"Histograms", "elastic"}, "t_vs_t_1"))
+            << "set xrange [20:60]"<< "set yrange [20:90]"
             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + th2;
     PlotHist2d(sp2).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_t_1"))
+            << "set xrange [20:60]"<< "set yrange [20:90]"
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + th2;
     PlotHist2d(sp2).Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_t_1"))
+            << "set xrange [20:60]"<< "set yrange [20:90]"
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + th2;
 
 
     PlotHist2d(sp2, "pd-tvt-mc-0").Distr(Hist2d(MC, pd_reaction, {"Histograms", "elastic"}, "t_vs_t_21"))
+            << "set xrange [20:60]"<< "set yrange [20:90]"
             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + th2;
     PlotHist2d(sp2, "ppn-tvt-mc-0").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "elastic"}, "t_vs_t_21"))
+            << "set xrange [20:60]"<< "set yrange [20:90]"
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + th2;
     PlotHist2d(sp2, "ppn-tvt-data-0").Distr(Hist2d(DATA, "E", {"Histograms", "elastic"}, "t_vs_t_21"))
+            << "set xrange [20:60]"<< "set yrange [20:90]"
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + th2;
     PlotHist2d(sp2).Distr(Hist2d(MC, pd_reaction, {"Histograms", "elastic"}, "t_vs_e_21"))
             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + e1;
@@ -215,14 +222,14 @@ int main()
 
         const hist<> data_time=
             Hist(DATA,"E",{"Histograms","elastic"},string("pair_time_diff_21-Bin-") + to_string(bin_num))
-            .Scale(1).XRange(0,50);
+            .Scale(1).XRange(-50,50);
         const hist<> data_time_mc=
             Hist(MC,ppn_reaction,{"Histograms","elastic"},string("pair_time_diff_21-Bin-") + to_string(bin_num))
-            .Scale(1).XRange(0,50);
+            .Scale(1).XRange(-50,50);
         const hist<> data_time_mc2=
             Hist(MC,pd_reaction,{"Histograms","elastic"},string("pair_time_diff_21-Bin-") + to_string(bin_num))
-            .Scale(1).XRange(0,50);
-        const hist<> time_fg=data_time.XRange(8,20);
+            .Scale(1).XRange(-50,50);
+        const hist<> time_fg=data_time.XRange(-20,-7);
         const hist<> time_bg=time_fg.CloneEmptyBins().Transform([&time_fg](const value<>&x,const value<>&){
             const auto& a=time_fg.left().X();
             const auto& b=time_fg.right().X();
