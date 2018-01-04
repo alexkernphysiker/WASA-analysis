@@ -234,7 +234,7 @@ int main()
                     )
                 )
             )
-            .Hist(Hist(MC, r, histpath_central_reconstr, string("dt51-Bin-") + to_string(bin_num)))
+            .Hist(Hist(MC, r, histpath_central_reconstr, string("dt51-Bin-") + to_string(bin_num)).Scale(50))
                     << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel 'dt gamma-gamma, ns'";
             Plot(
@@ -244,7 +244,7 @@ int main()
                     )
                 )
             )
-            .Hist(Hist(MC, r, histpath_central_reconstr, string("t51-Bin-") + to_string(bin_num)))
+            .Hist(Hist(MC, r, histpath_central_reconstr, string("t51-Bin-") + to_string(bin_num)).Scale(50))
                     << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel 'quickest gamma - 3he , ns'";
 
@@ -267,7 +267,7 @@ int main()
                     )
                 )
             )
-            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("dt51-Bin-") + to_string(bin_num)))
+            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("dt51-Bin-") + to_string(bin_num)).Scale(50))
                     << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel 'dt gamma-gamma, ns'";
 
@@ -278,7 +278,7 @@ int main()
                     )
                 )
             )
-            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("t51-Bin-") + to_string(bin_num)))
+            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("t51-Bin-") + to_string(bin_num)).Scale(50))
                     << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel 'quickest gamma - 3he , ns'";
         }
