@@ -53,7 +53,7 @@ int main()
     vector<vector<hist<>>> acceptance;
     hist<> ev_am1,ev_am2;
     vector<hist<>> acc;
-    const size_t cuts_count=8;
+    const size_t cuts_count=10;
     for(size_t cut_index=0;cut_index<cuts_count;cut_index++){
         acceptance.push_back(vector<hist<>>());
         for (size_t i = 0; i < reaction.size(); i++) {
@@ -203,26 +203,60 @@ int main()
                     << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel 'dt gamma-gamma, ns'";
         }
+        hist<> ACC,RATIO;
         for(size_t cut_index=0;cut_index<cuts_count;cut_index++){
             const double TIM_DIFF_CUT=0.01*cut_index;
+            value<> R=INFINITY;
             for (size_t i = 0; i < reaction.size(); i++) {
                 const auto &r = reaction[i];
                 hist<> Norm = Hist(MC, r, histpath_central_reconstr, "0-Reference");
                 const auto &N = Norm[bin_num].Y();
                 if (N.Above(0)) {
                     const hist<> h = Hist(MC, r, histpath_central_reconstr, string("TIM4-Bin-") + to_string(bin_num)).XRange(TIM_DIFF_CUT,INFINITY);
-                    acceptance[cut_index][i] << point<value<>>(Q, std_error(h.TotalSum().val()) / N);
+                    const auto a=std_error(h.TotalSum().val()) / N;
+                    acceptance[cut_index][i] << point<value<>>(Q,a);
+                    if(i==0){
+                        R=a;
+                        ACC<<make_point(0.001*cut_index,a);
+                    }
+                    if(i==2)R/=a;
                 } else {
                     acceptance[cut_index][i] << point<value<>>(Q, 0.0);
+                    if(i==0)R=0.0;
+                    if(i==2)R=INFINITY;
                 }
             }
+            if(isfinite(R.val()))RATIO<<make_point(0.001*cut_index,R);
             const hist<> data = Hist(DATA, "C", histpath_central_reconstr, string("TIM4-Bin-") + to_string(bin_num)).XRange(TIM_DIFF_CUT,INFINITY);
             ev_am[cut_index] << point<value<>>(Q, std_error(data.TotalSum().val()));
         }
+        if(RATIO.size()>0)
+        Plot(
+            Q.Contains(21) ? "He3gg-above-acceptance-ratio" : (
+                Q.Contains(-39) ? "He3gg-below-acceptance-ratio" : (
+                    Q.Contains(-3) ? "He3gg-thr-acceptance-ratio" : ""
+                )
+            )
+        )
+        .Hist(RATIO)
+                << "set key on" << "set title 'Acceptance ratio" + Qmsg + "'"
+                << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, GeV'";
+        if(ACC.size()>0)
+        Plot(
+            Q.Contains(21) ? "He3gg-above-acceptance" : (
+                Q.Contains(-39) ? "He3gg-below-acceptance" : (
+                    Q.Contains(-3) ? "He3gg-thr-acceptance" : ""
+                )
+            )
+        )
+        .Hist(ACC*100)
+                << "set key on" << "set title 'Acceptance " + Qmsg + "'"
+                << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, GeV'"
+                << "set ylabel 'Acceptance, percents'";
         for (size_t i = 0; i < reaction.size(); i++) {
             const auto &r = reaction[i];
-            const auto DT=Hist(MC, r, histpath_central_reconstr, string("dt52-Bin-") + to_string(bin_num)).Scale(10);
-            const auto T=Hist(MC, r, histpath_central_reconstr, string("t52-Bin-") + to_string(bin_num)).Scale(10);
+            const auto DT=Hist(MC, r, histpath_central_reconstr, string("dt51-Bin-") + to_string(bin_num)).Scale(10);
+            const auto T=Hist(MC, r, histpath_central_reconstr, string("t51-Bin-") + to_string(bin_num)).Scale(10);
             hist<> Norm = Hist(MC, r, histpath_central_reconstr, "0-Reference");
             const auto &N = Norm[bin_num].Y();
             if (N.Above(0)) {
@@ -238,7 +272,7 @@ int main()
                 )
             )
             .Hist(Hist(MC, r, histpath_central_reconstr, string("TIM4-Bin-") + to_string(bin_num)), "IM and MM cuts")
-            .Hist(Hist(MC, r, histpath_central_reconstr, string("TIM52-Bin-") + to_string(bin_num)), "total IM cut")
+            .Hist(Hist(MC, r, histpath_central_reconstr, string("TIM51-Bin-") + to_string(bin_num)), "total IM cut")
                     << "set key on" << "set title '" + Qmsg + ";MC " + r + "'" << "set yrange [0:]"<< "set xrange [-0.5:0.5]"
                     << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
             Plot(
@@ -263,8 +297,8 @@ int main()
                     << "set xlabel 'quickest gamma - 3he , ns'";
 
         }{
-            const auto DT=Hist(DATA, "C", histpath_central_reconstr, string("dt52-Bin-") + to_string(bin_num)).Scale(50);
-            const auto T=Hist(DATA, "C", histpath_central_reconstr, string("t52-Bin-") + to_string(bin_num)).Scale(50);
+            const auto DT=Hist(DATA, "C", histpath_central_reconstr, string("dt51-Bin-") + to_string(bin_num)).Scale(50);
+            const auto T=Hist(DATA, "C", histpath_central_reconstr, string("t51-Bin-") + to_string(bin_num)).Scale(50);
             Plot(
                 Q.Contains(21) ? "He3gg-above-tim-final-data" : (
                     Q.Contains(-39) ? "He3gg-below-tim-final-data" : (
@@ -273,7 +307,7 @@ int main()
                 )
             )
             .Hist(Hist(DATA, "C", histpath_central_reconstr, string("TIM4-Bin-") + to_string(bin_num)), "MM and IM cuts")
-            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("TIM52-Bin-") + to_string(bin_num)), "total IM cut")
+            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("TIM51-Bin-") + to_string(bin_num)), "total IM cut")
                     << "set key on" << "set title '" + Qmsg + ";Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [-0.5:0.5]"
                     << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
             const auto DTBG=WeightedAverage<>()<<DT[2].Y()<<DT[3].Y()<<DT[4].Y();
@@ -336,12 +370,17 @@ int main()
         const auto ac = acc[i].YRange(0.0000001, INFINITY);
         if (ac.size() > 0) {
             accplot.Hist(ac*100, reaction[i]);
+            Plot("He3gg-acceptance-final-"+reaction[i]).Hist(ac*100)
+                << "set title 'Acceptance'"
+                << "set xlabel 'Q, MeV'"
+                << "set ylabel 'Acceptance, percents'"
+                << "set xrange [-70:30]";
         }
     }
     const hist<> known_events =
         luminosity * (runs.first / runs.second)
         / double(trigger_he3_forward.scaling)
-        * (acc[1]*(he3etacs*0.393));
+        * (acc[1]*(he3etacs*0.5));//0.393
     Plot("He3gg-events-final").Hist(ev_am1).Hist(ev_am2).Hist(known_events,"3He+eta")
         << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
         << "set ylabel 'events, n.d.'" << "set yrange [0:]"
