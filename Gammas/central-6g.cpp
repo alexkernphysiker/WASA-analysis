@@ -211,7 +211,7 @@ int main()
     const hist<> luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYc");
     const hist<> he3etacs = Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed");
     const hist<> he3etaev =
-        luminosity * (runs.first / runs.second)
+        luminosity
         / double(trigger_he3_forward.scaling)
         * (acceptance[1]*(he3etacs*0.326));
     Plot("He36g-events")

@@ -261,28 +261,22 @@ int main()
         .Hist(events,"phi").Hist(events2,"time")
             << "set key on" << "set title 'True events count "+runmsg+"'" << "set yrange [0:]" 
             << "set xlabel 'Q, MeV'" << "set ylabel 'count, n.d.'";
-    const auto luminosity=(events*double(trigger_elastic1.scaling)/acceptance/SIGMA);
-    const auto luminosity2=(events2*double(trigger_elastic1.scaling)/acceptance/SIGMA);
+    const hist<> luminosity=(events*double(trigger_elastic1.scaling)/acceptance/SIGMA);
+    const hist<> luminosity2=(events2*double(trigger_elastic1.scaling)/acceptance/SIGMA);
+    /*
     const auto sasha4d=Plotter::Instance().GetPoints<double>("luminosity_Q");
     Chain<point<>> machine4d;
     for(const auto&p:sasha4d)machine4d.push_back(make_point(-72.5+(p.X()*2.5),p.Y()));
-    Plot("ppn-luminosity")
-        .Hist(luminosity)
+    */
+    const hist<> prev_luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYf");
+    Plot("luminosity-compare")
+        .Hist(luminosity, "ppn_{sp}", "LUMINOSITYc")
+        .Hist(prev_luminosity, "3He+eta")
+        //.Line(machine4d,"Sasha")
             << "set title 'Integrated luminosity (" + runmsg + ")'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:]";
-    const hist<> prev_luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYf");
-    const hist<> estimate_full_luminosity = luminosity * runs.second / runs.first;
-    const hist<> estimate_full_luminosity2 = luminosity2 * runs.second / runs.first;
-    Plot("luminosity-compare")
-        .Hist(estimate_full_luminosity, "ppn_{sp}", "LUMINOSITYc")
-        .Hist(prev_luminosity, "3He+eta")
-        .Line(machine4d,"Sasha")
-            << "set title 'Integrated luminosity estimation for all runs'"
-            << "set key on" << "set xlabel 'Q, MeV'"
-            << "set ylabel 'Integrated luminosity, nb^{-1}'"
-            << "set xrange [-70:30]" << "set yrange [0:]";
-    cout<<"Full luminosity estimation (phi): "<<estimate_full_luminosity.TotalSum()<<endl;
-    cout<<"Full luminosity estimation (time): "<<estimate_full_luminosity2.TotalSum()<<endl;
+    cout<<"Full luminosity estimation (phi): "<<luminosity.TotalSum()<<endl;
+    cout<<"Full luminosity estimation (time): "<<luminosity2.TotalSum()<<endl;
 }

@@ -156,15 +156,9 @@ int main()
             << "set ylabel 'acceptance, n.d.'"
             << "set xrange [0:30]" << "set yrange [0:1]";
 
-    Plot("He3eta-luminosity").Hist(luminosity)
+    Plot("He3eta-luminosity").Hist(luminosity, "3He+eta", "LUMINOSITYf")
             << "set title 'Integrated luminosity (" + runmsg + ")'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [0:30]" << "set yrange [0:]";
-    Plot("")
-    .Hist(luminosity * runs.second / runs.first, "3He+eta", "LUMINOSITYf")
-            << "set title 'Integrated luminosity estimation for all runs'"
-            << "set key on" << "set xlabel 'Q, MeV'"
-            << "set ylabel 'Integrated luminosity, nb^{-1}'"
-            << "set xrange [-70:30]" << "set yrange [0:]";
 }

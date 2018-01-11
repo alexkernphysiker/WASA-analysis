@@ -432,7 +432,7 @@ int main()
             }
         }
         const hist<> known_events =
-            luminosity * (runs.first / runs.second)
+            luminosity
             / double(trigger_he3_forward.scaling)
             * (acc[1]*(he3etacs*0.4));
         Plot("He3gg-events-final").Hist(ev_am1).Hist(ev_am2).Line(known_events.toLine(),"3He+eta")
@@ -463,7 +463,7 @@ int main()
             }
         }
         const hist<> known_events =
-            luminosity * (runs.first / runs.second)
+            luminosity
             / double(trigger_he3_forward.scaling)
             * (e_acc[1]*(he3etacs*0.4));
         Plot("He3gg-events-final-strict").Hist(e_ev_am1).Hist(e_ev_am2).Line(known_events.toLine(),"3He+eta")
