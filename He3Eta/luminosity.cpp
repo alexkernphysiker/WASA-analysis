@@ -54,7 +54,6 @@ int main()
                     << "set ylabel 'acceptance density, GeV^{-1}'"
                     << "set yrange [0:]" << "unset log y";
             const auto &data_count = data.TotalSum().val();
-            const auto peak_reg = data.XRange(cut.first, cut.second);
             const auto data_bg = data.XExclude(cut.first, cut.second);
             cout << endl << Qmsg << endl << endl;
             Fit<DifferentialMutations<Uncertainty>> FIT(

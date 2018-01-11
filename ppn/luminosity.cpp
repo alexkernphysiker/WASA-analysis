@@ -171,15 +171,15 @@ int main()
 
         const hist<> data_copl=
             Hist(DATA,"E",{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
-            .Scale(4).XRange(100,260);
+            .Scale(4).XRange(90,270);
         const hist<> data_copl_mc=
             Hist(MC,ppn_reaction,{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
-            .Scale(4).XRange(100,260);
+            .Scale(4).XRange(90,270);
         const hist<> data_copl_mc2=
             Hist(MC,pd_reaction,{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
-            .Scale(4).XRange(100,260);
-        const hist<> data_copl_inside=data_copl.XRange(150,210);
-        const hist<> data_copl_outside=data_copl.XExclude(150,210);
+            .Scale(4).XRange(90,270);
+        const hist<> data_copl_inside=data_copl.XRange(140,220);
+        const hist<> data_copl_outside=data_copl.XExclude(140,220);
         cout << endl << Qmsg << endl;
         cout << endl;
 
@@ -241,7 +241,7 @@ int main()
         const auto ev2=hist<>(time_fg-time_bg).TotalSum();
 
         Plot(Q.Contains(21) ? "ppn-above-data-time" : (Q.Contains(-39) ? "ppn-below-data-time" : ""))
-            .Hist(data_time,"Data")
+            .Hist(data_time,"Data").Hist(time_bg,"Background")
                 << "set title 'Time difference. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
                 << "set yrange [0:]" << "set xlabel 'time difference, ns'";
         events2<<make_point(Q,ev2);
@@ -270,7 +270,8 @@ int main()
     */
     const hist<> prev_luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYf");
     Plot("luminosity-compare")
-        .Hist(luminosity, "ppn_{sp}", "LUMINOSITYc")
+        .Hist(luminosity, "ppn_{sp} (angular)")
+        .Hist(luminosity2, "ppn_{sp} (time)", "LUMINOSITYc")
         .Hist(prev_luminosity, "3He+eta")
         //.Line(machine4d,"Sasha")
             << "set title 'Integrated luminosity (" + runmsg + ")'"
