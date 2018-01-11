@@ -439,7 +439,7 @@ int main()
             << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '"+runmsg+"'";
-        Plot("He3gg-events-final-bound").Hist((ev_am1+ev_am2)/2 - known_events)
+        Plot("He3gg-events-final-bound").Hist(hist_avr(ev_am1,ev_am2) - known_events)
             << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '"+runmsg+"'";
@@ -470,7 +470,7 @@ int main()
             << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '"+runmsg+"'";
-        Plot("He3gg-events-final-strict-bound").Hist((e_ev_am1+e_ev_am2)/2 - known_events)
+        Plot("He3gg-events-final-strict-bound").Hist(hist_avr(e_ev_am1,e_ev_am2)-known_events)
             << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '"+runmsg+"'";

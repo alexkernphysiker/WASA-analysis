@@ -32,7 +32,7 @@ int main()
     vector<hist<>> parhists;
     RANDOM r_eng;
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++)
-        if (norm[bin_num].X() > 2.5) {
+        if (norm[bin_num].X() > 5.0) {
             const auto &Q = norm[bin_num].X();
             const auto &N = norm[bin_num].Y();
             const string Qmsg =
@@ -41,10 +41,10 @@ int main()
                     << Q.min() << "; " << Q.max() << "] MeV"
                 ).str();
             const string hist_name=string("MissingMass-Bin-") + to_string(bin_num);
-            const hist<> data = Hist(DATA, "F", histpath_forward_reconstr,hist_name).XRange(0.525, 0.57).YRange(20,INFINITY);
-            const hist<> mc_unnorm = Hist(MC, "He3eta-gg", histpath_forward_reconstr,hist_name).XRange(0.525, 0.57);
-            const auto chain = ChainWithStep(0.525, 0.0001, 0.57);
-            const auto cut = make_pair(0.538,0.556);
+            const hist<> data = Hist(DATA, "F", histpath_forward_reconstr,hist_name).XRange(0.53, 0.57).YRange(20,INFINITY);
+            const hist<> mc_unnorm = Hist(MC, "He3eta-gg", histpath_forward_reconstr,hist_name).XRange(0.53, 0.57);
+            const auto chain = ChainWithStep(0.53, 0.0001, 0.57);
+            const auto cut = make_pair(0.540,0.554);
             const hist<> mc = mc_unnorm / N;
             acceptance << make_point(Q, mc.TotalSum());
             Plot(Q.Contains(21) ? "He3eta-mc" : "")
@@ -119,7 +119,7 @@ int main()
             hist<> clean = data - bg;
             Plot subplot(Q.Contains(21) ? "He3eta-subtract" : (Q.Contains(9) ? "He3eta-subtract-lo":""));
             subplot.Hist(clean,"DATA").Line(Points<>{{clean.left().X().min(), 0.0},{clean.right().X().max(), 0.0}});
-            subplot.Hist(clean = clean.XRange(cut.first-0.002, cut.second+0.002))
+            subplot.Hist(clean = clean.XRange(cut.first, cut.second))
                 .Line(hist<>(mc*clean.TotalSum()/mc.TotalSum()).toLine(),"MC")
                     << "set key on" << "set title '" + Qmsg + ", " + runmsg + "'"
                     << "set xlabel 'Missing mass, GeV'"
@@ -148,7 +148,7 @@ int main()
             << "set title 'Cross section of He3eta used in the calculations'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'sigma(^3He eta), nb'"
-            << "set xrange [-20:45]" << "set yrange [0:600]";
+            << "set xrange [0:35]" << "set yrange [0:600]";
 
     Plot("He3eta-acceptance").Hist(acceptance)
             << "set title '3He+eta acceptance'"
