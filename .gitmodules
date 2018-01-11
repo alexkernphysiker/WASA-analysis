@@ -4,3 +4,6 @@
 [submodule "FitGen"]
 	path = FitGen
 	url = https://github.com/alexkernphysiker/FitGen.git
+[submodule "WASA-libs"]
+	path = WASA-libs
+	url = git@github.com:alexkernphysiker/WASA-libs.git
