@@ -41,10 +41,11 @@ int main()
                     << Q.min() << "; " << Q.max() << "] MeV"
                 ).str();
             const string hist_name=string("MissingMass-Bin-") + to_string(bin_num);
-            const hist<> data = Hist(DATA, "F", histpath_forward_reconstr,hist_name).XRange(0.53, 0.57).YRange(20,INFINITY);
-            const hist<> mc_unnorm = Hist(MC, "He3eta-gg", histpath_forward_reconstr,hist_name).XRange(0.53, 0.57);
-            const auto chain = ChainWithStep(0.53, 0.0001, 0.57);
-            const auto cut = make_pair(0.540,0.554);
+            const hist<> data_full = Hist(DATA, "F", histpath_forward_reconstr,hist_name).XRange(0.52, 0.57);
+            const hist<> data = data_full.XRange(0.530, data_full.YRange(20,INFINITY).right().X().val()+0.001);
+            const hist<> mc_unnorm = Hist(MC, "He3eta-gg", histpath_forward_reconstr,hist_name).XRange(0.530, 0.57);
+            const auto chain = ChainWithStep(0.530, 0.0001, 0.57);
+            const auto cut = make_pair(0.539,0.556);
             const hist<> mc = mc_unnorm / N;
             acceptance << make_point(Q, mc.TotalSum());
             Plot(Q.Contains(21) ? "He3eta-mc" : "")
@@ -59,7 +60,7 @@ int main()
             Fit<DifferentialMutations<Uncertainty>> FIT(
                 make_shared<FitPoints>() << data_bg,
                 [&data_count](const ParamSet & X, const ParamSet & P) {
-                    return data_count * Polynom(X[0], P, 3, 0);
+                    return data_count * Polynom<3>(X[0], P);
                 }
             );
             FIT.SetUncertaintyCalcDeltas({0.1, 0.1, 0.1, 0.1})

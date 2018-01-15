@@ -146,7 +146,7 @@ int main()
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + e1 << "set ylabel " + e2;
 
 
-    hist<> acceptance, acceptance_pd,events,events2,data_chi_sq,chi_sq_total;
+    hist<> acceptance, acceptance_pd,events,events2,data_chi_sq;
     const auto diff_cs = ReadCrossSection();
     const auto p_cs = IntegrateCrossSection(diff_cs);
     Plot("pp-integrated").Line(p_cs) << "set title 'pp->pp'";
@@ -171,15 +171,15 @@ int main()
 
         const hist<> data_copl=
             Hist(DATA,"E",{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
-            .Scale(4).XRange(90,270);
+            .Scale(4).XRange(20,340);
         const hist<> data_copl_mc=
             Hist(MC,ppn_reaction,{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
-            .Scale(4).XRange(90,270);
+            .Scale(4).XRange(20,340);
         const hist<> data_copl_mc2=
             Hist(MC,pd_reaction,{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
-            .Scale(4).XRange(90,270);
-        const hist<> data_copl_inside=data_copl.XRange(140,220);
-        const hist<> data_copl_outside=data_copl.XExclude(140,220);
+            .Scale(4).XRange(20,340);
+        const hist<> data_copl_inside=data_copl.XRange(110,250);
+        const hist<> data_copl_outside=data_copl.XExclude(110,250);
         cout << endl << Qmsg << endl;
         cout << endl;
 
@@ -190,13 +190,12 @@ int main()
 
         Fit<DifferentialMutations<Uncertainty>> fit(
             make_shared<FitPoints>()<<data_copl_outside,
-            [](const ParamSet&X,const ParamSet&P){return Polynom<2>(X[0],P);}
+            [](const ParamSet&X,const ParamSet&P){return Polynom<1>(X[0],P);}
         );
-        fit.SetUncertaintyCalcDeltas({0.001,0.001,0.001});
+        fit.SetUncertaintyCalcDeltas({0.001,0.001});
         fit.Init(500,make_shared<InitialDistributions>()
             <<make_shared<DistribGauss>(10000,10000)
             <<make_shared<DistribGauss>(0,1)
-            <<make_shared<DistribGauss>(-2,1)
             ,random
         );
         while(!fit.AbsoluteOptimalityExitCondition(0.0000001))fit.Iterate(random);
@@ -205,8 +204,8 @@ int main()
             << fit.Optimality(fit.PopulationSize() - 1)
             << endl;
         const auto &P = fit.ParametersWithUncertainties();
-        const auto BG=[&P](const value<>&x){return Polynom<2>(x,P);};
-        data_chi_sq << point<value<>>(Q, fit.Optimality() / (data_copl_outside.size() - fit.ParamCount()));
+        const auto BG=[&P](const value<>&x){return Polynom<1>(x,P);};
+        data_chi_sq << make_point(Q, fit.Optimality() / (data_copl_outside.size() - fit.ParamCount()));
         const hist<> data_copl_fg=data_copl_inside-BG,data_copl_bg=(data_copl*0.)+BG;
         const auto ev=data_copl_fg.TotalSum();
         const auto total_line=hist<>((data_copl_mc*ev/(N*epsilon))+data_copl_bg).toLine();
@@ -216,9 +215,6 @@ int main()
             .Line(total_line,"MC+BG")
                 << "set title 'Coplanarity. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
                 << "set yrange [0:]" << "set xlabel " + planarity;
-        double total_chisq=0;
-        for(size_t i=0;i<data_copl.size();i++)total_chisq+=data_copl[i].Y().NumCompare(total_line[i].Y());
-        chi_sq_total << make_point(Q, total_chisq / (data_copl.size()-fit.ParamCount()));
         events<<make_point(Q,ev);
 
         const hist<> data_time=
@@ -230,7 +226,7 @@ int main()
         const hist<> data_time_mc2=
             Hist(MC,pd_reaction,{"Histograms","elastic"},string("pair_time_diff_21-Bin-") + to_string(bin_num))
             .Scale(1).XRange(-50,50);
-        const hist<> time_fg=data_time.XRange(-20,-7);
+        const hist<> time_fg=data_time.XRange(-20,-5);
         const hist<> time_bg=time_fg.CloneEmptyBins().Transform([&time_fg](const value<>&x,const value<>&){
             const auto& a=time_fg.left().X();
             const auto& b=time_fg.right().X();
@@ -252,7 +248,7 @@ int main()
             << "set key on" << "set title 'Acceptance'" << "set yrange [0:]" 
             << "set xlabel 'Q, MeV'" << "set ylabel 'Acceptance, n.d.'";
     Plot("ppn-chisq")
-        .Hist(data_chi_sq,"BG").Hist(chi_sq_total,"Total")
+        .Hist(data_chi_sq,"BG")
             << "set xlabel 'Q, MeV'"<<"set key on"
             << "set ylabel 'chi^2/d, n.d.'"
             << "set yrange [0:]" << "unset log y";
