@@ -51,11 +51,11 @@ int main()
     fit.SetUncertaintyCalcDeltas(parEq(fit.ParamCount(), 0.01));
     for (const auto &P : fit.ParametersWithUncertainties())
         cout << P << endl;
-    cs_vs_t.Line(SortedPoints<>([&fit](double x){return fit({x});},ChainWithStep(0.0,0.001,0.5)),"chi^2/d="+to_string(chisq));
-    cs_vs_t_lin.Line(SortedPoints<>([&fit](double x){return fit({x});},ChainWithStep(0.0,0.001,0.5)),"chi^2/d="+to_string(chisq));
+    cs_vs_t.Line(SortedPoints<>([&fit](double x){return fit({x});},ChainWithStep(0.0,0.001,0.7)),"chi^2/d="+to_string(chisq));
+    cs_vs_t_lin.Line(SortedPoints<>([&fit](double x){return fit({x});},ChainWithStep(0.0,0.001,0.7)),"chi^2/d="+to_string(chisq));
     cs_vs_t<<"set xlabel 't,GeV/c'"<<"set ylabel 'sigma, ub/(GeV/c)'";
     t_vs_th<<"set xlabel 'theta_{p,CM},deg'"<<"set ylabel 't,GeV/c'"<<"set key on";
-    th_vs_th_l<<"set xlabel 'theta_{d,lab},deg'"<<"set ylabel 'theta_{p,lab},deg'"<<"set key on";
+    th_vs_th_l<<"set xlabel 'theta_{p,lab},deg'"<<"set ylabel 'theta_{d,lab},deg'"<<"set key on"<<"set yrange [0:180]";
 
     for(double pb=p_beam_low;pb<=p_beam_hi;pb+=0.05){
         SortedPoints<> out;
@@ -67,13 +67,13 @@ int main()
             const auto beta=-total.Beta();
             const auto d0_cm=d0.Transform(beta);
             const auto final_cm=binaryDecay(total.M(),Particle::p().mass(),Particle::d().mass(),direction(theta_cm));
-            const auto t=(final_cm.second.P()-d0_cm.P()).M();
+            const auto t=(final_cm.first.P()-d0_cm.P()).M();
             const auto p1=final_cm.first.Transform(beta);
             const auto d1=final_cm.second.Transform(beta);
-            if(t<0.5){
+            if(t<0.7){
                 out<<make_point(theta_cm*180/PI(),t);
                 const auto angles=make_pair(direction(p1.P()).phi()*180./PI(),direction(d1.P()).phi()*180./PI());
-                outpd.push_back(make_point(abs(angles.second),abs(angles.first)));
+                outpd.push_back(make_point(abs(angles.first),abs(angles.second)));
             }
         }
         t_vs_th.Line(out,to_string(pb));

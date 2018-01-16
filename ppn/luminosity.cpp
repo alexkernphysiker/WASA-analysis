@@ -146,7 +146,7 @@ int main()
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + e1 << "set ylabel " + e2;
 
 
-    hist<> acceptance, acceptance_pd,events,events2,data_chi_sq;
+    hist<> acceptance, acceptance_pd,events,events2,events3,data_chi_sq;
     const auto diff_cs = ReadCrossSection();
     const auto p_cs = IntegrateCrossSection(diff_cs);
     Plot("pp-integrated").Line(p_cs) << "set title 'pp->pp'";
@@ -169,6 +169,38 @@ int main()
                 << Q.min() << "; " << Q.max() << "] MeV"
             ).str();
 
+        const hist<> data_time=
+            Hist(DATA,"E",{"Histograms","elastic"},string("pair_time_diff_21-Bin-") + to_string(bin_num))
+            .Scale(1).XRange(-50,50);
+        const hist<> data_time_mc=
+            Hist(MC,ppn_reaction,{"Histograms","elastic"},string("pair_time_diff_21-Bin-") + to_string(bin_num))
+            .Scale(1).XRange(-50,50);
+        const hist<> data_time_mc2=
+            Hist(MC,pd_reaction,{"Histograms","elastic"},string("pair_time_diff_21-Bin-") + to_string(bin_num))
+            .Scale(1).XRange(-50,50);
+        const auto time_bg=[](const hist<>&time_fg)->hist<>{
+            return time_fg.CloneEmptyBins().Transform([&time_fg](const value<>&x,const value<>&){
+                const auto& a=time_fg.left().X();
+                const auto& b=time_fg.right().X();
+                const auto&xa=time_fg.left().Y();
+                const auto&xb=time_fg.right().Y();
+                return xa+(xb-xa)*(x-a)/(b-a);
+            });
+        };
+        const hist<> time_fg2=data_time.XRange(-20,-5);
+        const hist<> time_bg2=time_bg(time_fg2);
+        const hist<> time_fg3=data_time.XRange(-6,+5);
+        const hist<> time_bg3=time_bg(time_fg3);
+        const auto ev2=hist<>(time_fg2-time_bg2).TotalSum();
+        const auto ev3=hist<>(time_fg3-time_bg3).TotalSum();
+        events2<<make_point(Q,ev2);
+        events3<<make_point(Q,ev3);
+
+        Plot(Q.Contains(21) ? "ppn-above-data-time" : (Q.Contains(-39) ? "ppn-below-data-time" : ""))
+            .Hist(data_time,"Data").Hist(time_bg2,"Background left").Hist(time_bg3,"Background right")
+                << "set title 'Time difference. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
+                << "set yrange [0:]" << "set xlabel 'time difference, ns'";
+
         const hist<> data_copl=
             Hist(DATA,"E",{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
             .Scale(4).XRange(20,340);
@@ -178,8 +210,8 @@ int main()
         const hist<> data_copl_mc2=
             Hist(MC,pd_reaction,{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
             .Scale(4).XRange(20,340);
-        const hist<> data_copl_inside=data_copl.XRange(110,250);
-        const hist<> data_copl_outside=data_copl.XExclude(110,250);
+        const hist<> data_copl_inside=data_copl.XRange(100,260);
+        const hist<> data_copl_outside=data_copl.XExclude(100,260);
         cout << endl << Qmsg << endl;
         cout << endl;
 
@@ -190,11 +222,12 @@ int main()
 
         Fit<DifferentialMutations<Uncertainty>> fit(
             make_shared<FitPoints>()<<data_copl_outside,
-            [](const ParamSet&X,const ParamSet&P){return Polynom<1>(X[0],P);}
+            [](const ParamSet&X,const ParamSet&P){return Polynom<2>(X[0],P);}
         );
-        fit.SetUncertaintyCalcDeltas({0.001,0.001});
+        fit.SetUncertaintyCalcDeltas({0.001,0.001,0.001});
         fit.Init(500,make_shared<InitialDistributions>()
-            <<make_shared<DistribGauss>(10000,10000)
+            <<make_shared<DistribGauss>(1000,1000)
+            <<make_shared<DistribGauss>(0,1)
             <<make_shared<DistribGauss>(0,1)
             ,random
         );
@@ -204,11 +237,11 @@ int main()
             << fit.Optimality(fit.PopulationSize() - 1)
             << endl;
         const auto &P = fit.ParametersWithUncertainties();
-        const auto BG=[&P](const value<>&x){return Polynom<1>(x,P);};
+        const auto BG=[&P](const value<>&x){return Polynom<2>(x,P);};
         data_chi_sq << make_point(Q, fit.Optimality() / (data_copl_outside.size() - fit.ParamCount()));
         const hist<> data_copl_fg=data_copl_inside-BG,data_copl_bg=(data_copl*0.)+BG;
         const auto ev=data_copl_fg.TotalSum();
-        const auto total_line=hist<>((data_copl_mc*ev/(N*epsilon))+data_copl_bg).toLine();
+        const auto total_line=hist<>((data_copl_mc*ev2/(N*epsilon))+data_copl_bg).toLine();
         Plot(Q.Contains(21) ? "ppn-above-data-copl" : (Q.Contains(-39) ? "ppn-below-data-copl" : ""))
             .Hist(data_copl_inside).Hist(data_copl_outside)
             .Line(data_copl_bg.toLine(),"BG from fit")
@@ -216,31 +249,6 @@ int main()
                 << "set title 'Coplanarity. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
                 << "set yrange [0:]" << "set xlabel " + planarity;
         events<<make_point(Q,ev);
-
-        const hist<> data_time=
-            Hist(DATA,"E",{"Histograms","elastic"},string("pair_time_diff_21-Bin-") + to_string(bin_num))
-            .Scale(1).XRange(-50,50);
-        const hist<> data_time_mc=
-            Hist(MC,ppn_reaction,{"Histograms","elastic"},string("pair_time_diff_21-Bin-") + to_string(bin_num))
-            .Scale(1).XRange(-50,50);
-        const hist<> data_time_mc2=
-            Hist(MC,pd_reaction,{"Histograms","elastic"},string("pair_time_diff_21-Bin-") + to_string(bin_num))
-            .Scale(1).XRange(-50,50);
-        const hist<> time_fg=data_time.XRange(-20,-5);
-        const hist<> time_bg=time_fg.CloneEmptyBins().Transform([&time_fg](const value<>&x,const value<>&){
-            const auto& a=time_fg.left().X();
-            const auto& b=time_fg.right().X();
-            const auto&xa=time_fg.left().Y();
-            const auto&xb=time_fg.right().Y();
-            return xa+(xb-xa)*(x-a)/(b-a);
-        });
-        const auto ev2=hist<>(time_fg-time_bg).TotalSum();
-
-        Plot(Q.Contains(21) ? "ppn-above-data-time" : (Q.Contains(-39) ? "ppn-below-data-time" : ""))
-            .Hist(data_time,"Data").Hist(time_bg,"Background")
-                << "set title 'Time difference. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
-                << "set yrange [0:]" << "set xlabel 'time difference, ns'";
-        events2<<make_point(Q,ev2);
 
     }
     Plot("ppn-acceptance")
@@ -254,26 +262,17 @@ int main()
             << "set yrange [0:]" << "unset log y";
 
     Plot("ppn-events")
-        .Hist(events,"phi").Hist(events2,"time")
+        .Hist(events,"phi").Hist(events2,"time (left)").Hist(events2+events3,"time (left+right)")
             << "set key on" << "set title 'True events count "+runmsg+"'" << "set yrange [0:]" 
             << "set xlabel 'Q, MeV'" << "set ylabel 'count, n.d.'";
-    const hist<> luminosity=(events*double(trigger_elastic1.scaling)/acceptance/SIGMA);
-    const hist<> luminosity2=(events2*double(trigger_elastic1.scaling)/acceptance/SIGMA);
-    /*
-    const auto sasha4d=Plotter::Instance().GetPoints<double>("luminosity_Q");
-    Chain<point<>> machine4d;
-    for(const auto&p:sasha4d)machine4d.push_back(make_point(-72.5+(p.X()*2.5),p.Y()));
-    */
+    const hist<> luminosity=((events2)*double(trigger_elastic1.scaling)/acceptance/SIGMA);
     const hist<> prev_luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYf");
     Plot("luminosity-compare")
-        .Hist(luminosity, "ppn_{sp} (angular)")
-        .Hist(luminosity2, "ppn_{sp} (time)", "LUMINOSITYc")
+        .Hist(luminosity, "ppn_{sp}", "LUMINOSITYc")
         .Hist(prev_luminosity, "3He+eta")
-        //.Line(machine4d,"Sasha")
             << "set title 'Integrated luminosity (" + runmsg + ")'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:]";
-    cout<<"Full luminosity estimation (phi): "<<luminosity.TotalSum()<<endl;
-    cout<<"Full luminosity estimation (time): "<<luminosity2.TotalSum()<<endl;
+    cout<<"Full luminosity estimation: "<<luminosity.TotalSum()<<endl;
 }
