@@ -196,22 +196,28 @@ int main()
         events2<<make_point(Q,ev2);
         events3<<make_point(Q,ev3);
 
+        Plot(Q.Contains(21) ? "ppn-above-mc-time" : (Q.Contains(-39) ? "ppn-below-mc-time" : ""))
+            .Line(data_time_mc.toLine(),"MC ppn")
+            .Line(data_time_mc2.toLine(),"MC pd")
+                << "set title 'Time difference. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
+                << "set yrange [0:]" << "set xlabel 'time difference, ns'";
         Plot(Q.Contains(21) ? "ppn-above-data-time" : (Q.Contains(-39) ? "ppn-below-data-time" : ""))
-            .Hist(data_time,"Data").Hist(time_bg2,"Background left").Hist(time_bg3,"Background right")
+            .Hist(data_time,"Data").Line(data_time.toLine())
+            .Hist(time_bg2,"Background left").Hist(time_bg3,"Background right")
                 << "set title 'Time difference. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
                 << "set yrange [0:]" << "set xlabel 'time difference, ns'";
 
         const hist<> data_copl=
             Hist(DATA,"E",{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
-            .Scale(4).XRange(20,340);
+            .Scale(4).XRange(0,360);
         const hist<> data_copl_mc=
             Hist(MC,ppn_reaction,{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
-            .Scale(4).XRange(20,340);
+            .Scale(4).XRange(0,360);
         const hist<> data_copl_mc2=
             Hist(MC,pd_reaction,{"Histograms","elastic"},string("pair_phi_diff_21-Bin-") + to_string(bin_num))
-            .Scale(4).XRange(20,340);
-        const hist<> data_copl_inside=data_copl.XRange(100,260);
-        const hist<> data_copl_outside=data_copl.XExclude(100,260);
+            .Scale(4).XRange(0,360);
+        const hist<> data_copl_inside=data_copl.XRange(90,270);
+        const hist<> data_copl_outside=data_copl.XExclude(90,270);
         cout << endl << Qmsg << endl;
         cout << endl;
 
@@ -222,13 +228,11 @@ int main()
 
         Fit<DifferentialMutations<Uncertainty>> fit(
             make_shared<FitPoints>()<<data_copl_outside,
-            [](const ParamSet&X,const ParamSet&P){return Polynom<2>(X[0],P);}
+            [](const ParamSet&X,const ParamSet&P){return Polynom<0>(X[0],P);}
         );
-        fit.SetUncertaintyCalcDeltas({0.001,0.001,0.001});
+        fit.SetUncertaintyCalcDeltas({0.001,0.001});
         fit.Init(500,make_shared<InitialDistributions>()
-            <<make_shared<DistribGauss>(1000,1000)
-            <<make_shared<DistribGauss>(0,1)
-            <<make_shared<DistribGauss>(0,1)
+            <<make_shared<DistribGauss>(5000,5000)
             ,random
         );
         while(!fit.AbsoluteOptimalityExitCondition(0.0000001))fit.Iterate(random);
@@ -237,7 +241,7 @@ int main()
             << fit.Optimality(fit.PopulationSize() - 1)
             << endl;
         const auto &P = fit.ParametersWithUncertainties();
-        const auto BG=[&P](const value<>&x){return Polynom<2>(x,P);};
+        const auto BG=[&P](const value<>&x){return Polynom<0>(x,P);};
         data_chi_sq << make_point(Q, fit.Optimality() / (data_copl_outside.size() - fit.ParamCount()));
         const hist<> data_copl_fg=data_copl_inside-BG,data_copl_bg=(data_copl*0.)+BG;
         const auto ev=data_copl_fg.TotalSum();

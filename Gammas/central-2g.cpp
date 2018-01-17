@@ -8,8 +8,10 @@
 #include <gnuplot_wrap.h>
 #include <math_h/interpolate.h>
 #include <Genetic/fit.h>
+#include <Genetic/paramfunc.h>
 #include <Genetic/initialconditions.h>
 #include <Genetic/filter.h>
+#include <Genetic/parabolic.h>
 #include <Experiment/experiment_conv.h>
 #include <Experiment/str_get.h>
 #include <Experiment/gethist.h>
@@ -18,8 +20,11 @@ using namespace ROOT_data;
 using namespace Genetic;
 using namespace MathTemplates;
 using namespace GnuplotWrap;
+typedef Mul<Par<0>,Func3<Gaussian,Arg<0>,Par<1>,Par<2>>> FG;
+typedef PolynomFunc<Arg<0>,3,1> BG;
 int main()
 {
+    RANDOM RG;
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-2gamma");
     vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas2"};
     vector<string> reaction = {"bound1-2g", "He3eta-gg", "He3pi0pi0", "He3pi0pi0pi0", "He3pi0"};
@@ -412,7 +417,7 @@ int main()
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title 'Cut number "+to_string(cut_index)+". "+runmsg+"'";
     }
-
+    hist<> CS,CHISQ;
     {
         Plot accplot("He3gg-acceptance-final");
         accplot << "set title 'Acceptance'"
@@ -425,7 +430,7 @@ int main()
             if (ac.size() > 0) {
                 accplot.Hist(ac*100, reaction[i]);
                 Plot("He3gg-acceptance-final-"+reaction[i]).Hist(ac*100)
-                    << "set title 'Acceptance'"
+                    << "set title 'Acceptance "+reaction[i]+"'"
                     << "set xlabel 'Q, MeV'"
                     << "set ylabel 'Acceptance, percents'"
                     << "set xrange [-70:30]";
@@ -435,14 +440,40 @@ int main()
             luminosity
             / double(trigger_he3_forward.scaling)
             * (acc[1]*(he3etacs*0.4));
-        Plot("He3gg-events-final").Hist(ev_am1).Hist(ev_am2).Line(known_events.toLine(),"3He+eta")
-            << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
-            << "set ylabel 'events, n.d.'" << "set yrange [0:]"
-            << "set title '"+runmsg+"'";
-        Plot("He3gg-events-final-bound").Hist(hist_avr(ev_am1,ev_am2) - known_events)
-            << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
-            << "set ylabel 'events, n.d.'" << "set yrange [0:]"
-            << "set title '"+runmsg+"'";
+        Plot("He3gg-events-final")
+            .Hist(ev_am1,"data left")
+            .Hist(ev_am2,"data right")
+            .Line(known_events.toLine(),"3He+eta")
+                << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
+                << "set ylabel 'events, n.d.'" << "set yrange [0:]"
+                << "set title '"+runmsg+"'";
+        const hist<> ev=hist_avr(ev_am1,ev_am2)+0.0;
+        Plot("He3gg-events-final-bound")
+            .Hist(ev - known_events)
+                << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
+                << "set ylabel 'events, n.d.'" << "set yrange [0:]"
+                << "set title '"+runmsg+"'";
+        const auto bcs=((ev/(acc[0]*luminosity))*double(trigger_he3_forward.scaling)).XRange(-50,2);
+        FitFunction<DifferentialMutations<Uncertainty>,Add<FG,BG>> fit(make_shared<FitPoints>()<<bcs);
+        auto init=make_shared<InitialDistributions>()
+            <<make_shared<DistribGauss>(100,100)
+            <<make_shared<DistribGauss>(-15,5)
+            <<make_shared<DistribGauss>(5,5)
+            <<make_shared<DistribGauss>(100,100);
+        while(init->Count()<BG::ParamCount)init<<make_shared<DistribGauss>(0,1);
+        fit.SetFilter([](const ParamSet&P){return (P[2]>10)&&(P[0]>0);})
+            .Init(300,init,RG);
+        while(!fit.AbsoluteOptimalityExitCondition(0.0000001))fit.Iterate(RG);
+        fit.SetUncertaintyCalcDeltas({0.001});
+        CS<<make_point(1,fit.ParametersWithUncertainties()[0]);
+        CHISQ<<make_point(value<>(1,0.5),fit.Optimality()/(fit.Points().size()-fit.ParamCount()));
+        Plot("He3gg-events-norm-bound")
+            .Hist(bcs,"Data")
+            .Line(SortedPoints<>([&fit](const double&x){return fit({x});},ChainWithStep(-50.,0.001,+5.)),"fit")
+            .Line(SortedPoints<>([&fit](const double&x){return BG()({x},fit.Parameters());},ChainWithStep(-50.,0.001,+5.)),"background")
+                << "set xlabel 'Q, MeV'" << "set key on"
+                << "set ylabel 'cross section, nb'" << "set yrange [0:]"
+                << "set title '"+runmsg+"'";
     }
     {
         Plot accplot("He3gg-acceptance-final-strict");
@@ -456,7 +487,7 @@ int main()
             if (ac.size() > 0) {
                 accplot.Hist(ac*100, reaction[i]);
                 Plot("He3gg-acceptance-final-strict-"+reaction[i]).Hist(ac*100)
-                    << "set title 'Acceptance'"
+                    << "set title 'Acceptance "+reaction[i]+"'"
                     << "set xlabel 'Q, MeV'"
                     << "set ylabel 'Acceptance, percents'"
                     << "set xrange [-70:30]";
@@ -466,13 +497,48 @@ int main()
             luminosity
             / double(trigger_he3_forward.scaling)
             * (e_acc[1]*(he3etacs*0.4));
-        Plot("He3gg-events-final-strict").Hist(e_ev_am1).Hist(e_ev_am2).Line(known_events.toLine(),"3He+eta")
-            << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
-            << "set ylabel 'events, n.d.'" << "set yrange [0:]"
-            << "set title '"+runmsg+"'";
-        Plot("He3gg-events-final-strict-bound").Hist(hist_avr(e_ev_am1,e_ev_am2)-known_events)
-            << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
-            << "set ylabel 'events, n.d.'" << "set yrange [0:]"
-            << "set title '"+runmsg+"'";
+        Plot("He3gg-events-final-strict")
+            .Hist(e_ev_am1,"data left")
+            .Hist(e_ev_am2,"data right")
+            .Line(known_events.toLine(),"3He+eta")
+                << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
+                << "set ylabel 'events, n.d.'" << "set yrange [0:]"
+                << "set title '"+runmsg+"'";
+        const hist<> ev=hist_avr(e_ev_am1,e_ev_am2)+0.0;
+        Plot("He3gg-events-final-strict-bound")
+            .Hist(ev-known_events)
+                << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
+                << "set ylabel 'events, n.d.'" << "set yrange [0:]"
+                << "set title '"+runmsg+"'";
+        const auto bcs=((ev/(e_acc[0]*luminosity))*double(trigger_he3_forward.scaling)).XRange(-50,2);
+        FitFunction<DifferentialMutations<Uncertainty>,Add<FG,BG>> fit(make_shared<FitPoints>()<<bcs);
+        auto init=make_shared<InitialDistributions>()
+            <<make_shared<DistribGauss>(100,100)
+            <<make_shared<DistribGauss>(-15,5)
+            <<make_shared<DistribGauss>(5,5)
+            <<make_shared<DistribGauss>(100,100);
+        while(init->Count()<BG::ParamCount)init<<make_shared<DistribGauss>(0,1);
+        fit.SetFilter([](const ParamSet&P){return (P[2]>10)&&(P[0]>0);})
+            .Init(300,init,RG);
+        while(!fit.AbsoluteOptimalityExitCondition(0.0000001))fit.Iterate(RG);
+        fit.SetUncertaintyCalcDeltas({0.001});
+        CS<<make_point(2,fit.ParametersWithUncertainties()[0]);
+        CHISQ<<make_point(value<>(2,0.5),fit.Optimality()/(fit.Points().size()-fit.ParamCount()));
+        Plot("He3gg-events-norm-strict-bound")
+            .Hist(bcs,"Data")
+            .Line(SortedPoints<>([&fit](const double&x){return fit({x});},ChainWithStep(-50.,0.001,+5.)),"fit")
+            .Line(SortedPoints<>([&fit](const double&x){return BG()({x},fit.Parameters());},ChainWithStep(-50.,0.001,+5.)),"background")
+                << "set xlabel 'Q, MeV'" << "set key on"
+                << "set ylabel 'cross section, nb'" << "set yrange [0:]"
+                << "set title '"+runmsg+"'";
     }
+    Plot("He3gg-cross-section").Hist(CS)
+            << "set xlabel 'Analysis number'" << "set xrange [0:3]"
+            << "set ylabel 'cross section, nb'" << "set yrange [0:]"
+            << "set title '"+runmsg+"'";
+
+    Plot("He3gg-cross-section-chisq").Hist(CHISQ)
+            << "set xlabel 'Analysis number'" << "set xrange [0:3]"
+            << "set ylabel 'chi square, n.d.'" << "set yrange [0:]"
+            << "set title '"+runmsg+"'";
 }

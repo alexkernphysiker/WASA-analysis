@@ -32,7 +32,7 @@ int main()
     vector<hist<>> parhists;
     RANDOM r_eng;
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++)
-        if (norm[bin_num].X() > 5.0) {
+        if (norm[bin_num].X() > 2.5) {
             const auto &Q = norm[bin_num].X();
             const auto &N = norm[bin_num].Y();
             const string Qmsg =
