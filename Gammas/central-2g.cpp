@@ -27,7 +27,7 @@ int main()
     RANDOM RG;
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-2gamma");
     vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas2"};
-    vector<string> reaction = {"bound1-2g", "He3eta-gg", "He3pi0pi0", "He3pi0pi0pi0", "He3pi0"};
+    vector<string> reaction = {"bound3-2g", "He3eta-gg", "He3pi0pi0", "He3pi0pi0pi0", "He3pi0"};
     const auto runs = PresentRuns("C");
     const hist<> norm = Hist(MC, reaction[0], histpath_central_reconstr, "0-Reference");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
@@ -403,7 +403,7 @@ int main()
                 << "set title '"+runmsg+"'";
         const auto data_shape=(
             (ev-known_events)*double(trigger_he3_forward.scaling)/(acc[a_t][0]*luminosity)
-        ).XRange(-40,20);
+        ).XRange(-45,20);
         FitFunction<DifferentialMutations<Uncertainty>,Add<FG,BG>> fit(make_shared<FitPoints>()<<data_shape);
         auto init=make_shared<InitialDistributions>()
                     <<make_shared<DistribGauss>(50,50)
@@ -420,7 +420,7 @@ int main()
         POS<<make_point(a_t+1,P[1]);
         WIDTH<<make_point(a_t+1,P[2]);
         CHISQ<<make_point(value<>(a_t+1,0.5),fit.Optimality()/(fit.Points().size()-fit.ParamCount()));
-        const auto chain=ChainWithStep(-40.,0.001,20.);
+        const auto chain=ChainWithStep(-45.,0.001,20.);
         const SortedPoints<>
         fg([&fit](double x){return fit({x});},chain),
         bg([&fit](double x){return BG()({x},fit.Parameters());},chain);
