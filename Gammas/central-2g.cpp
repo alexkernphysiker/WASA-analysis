@@ -21,7 +21,7 @@ using namespace Genetic;
 using namespace MathTemplates;
 using namespace GnuplotWrap;
 typedef Mul<Par<0>,Func3<Gaussian,Arg<0>,Par<1>,Par<2>>> FG;
-typedef PolynomFunc<Arg<0>,3,2> BG;
+typedef PolynomFunc<Arg<0>,3,3> BG;
 int main()
 {
     RANDOM RG;
@@ -403,7 +403,7 @@ int main()
                 << "set title '"+runmsg+"'";
         const auto data_shape=(
             (ev-known_events)*double(trigger_he3_forward.scaling)/(acc[a_t][0]*luminosity)
-        ).XRange(-45,20);
+        ).XRange(-50,20);
         FitFunction<DifferentialMutations<Uncertainty>,Add<FG,BG>> fit(make_shared<FitPoints>()<<data_shape);
         auto init=make_shared<InitialDistributions>()
                     <<make_shared<DistribGauss>(50,50)
@@ -416,11 +416,7 @@ int main()
         while(!fit.AbsoluteOptimalityExitCondition(0.0000001))fit.Iterate(RG);
         fit.SetUncertaintyCalcDeltas({0.1,0.01,0.01,0.1});
         const auto&P=fit.ParametersWithUncertainties();
-        CS<<make_point(a_t+1,P[0].make_wider(3.0));
-        POS<<make_point(a_t+1,P[1]);
-        WIDTH<<make_point(a_t+1,P[2]);
-        CHISQ<<make_point(value<>(a_t+1,0.5),fit.Optimality()/(fit.Points().size()-fit.ParamCount()));
-        const auto chain=ChainWithStep(-45.,0.001,20.);
+        const auto chain=ChainWithStep(-50.,0.001,20.);
         const SortedPoints<>
         fg([&fit](double x){return fit({x});},chain),
         bg([&fit](double x){return BG()({x},fit.Parameters());},chain);
@@ -430,6 +426,11 @@ int main()
                 << "set xlabel 'Q, MeV'" << "set key on"
                 << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]"
                 << "set title '"+runmsg+"'";
+        //cross section is not peak area but it's height
+        CS<<make_point(a_t+1,P[0]*LinearInterpolation<>(fg-bg)(P[1].val())/P[0].val());
+        POS<<make_point(a_t+1,P[1]);
+        WIDTH<<make_point(a_t+1,P[2]);
+        CHISQ<<make_point(value<>(a_t+1,0.5),fit.Optimality()/(fit.Points().size()-fit.ParamCount()));
     }
     Plot("He3gg-cross-section").Hist(CS)
             << "set xlabel 'Analysis number'" << "set xrange [0:3]"
@@ -437,14 +438,14 @@ int main()
             << "set title 'Cross section (3 sigma) "+runmsg+"'";
     Plot("He3gg-pos").Hist(POS)
             << "set xlabel 'Analysis number'" << "set xrange [0:3]"
-            << "set ylabel 'Position, MeV'" << "set yrange [:0]"
+            << "set ylabel 'Position, MeV'" << "set yrange [-20:0]"
             << "set title 'Peak position "+runmsg+"'";
     Plot("He3gg-width").Hist(WIDTH)
             << "set xlabel 'Analysis number'" << "set xrange [0:3]"
-            << "set ylabel 'sigma, MeV'" << "set yrange [0:]"
+            << "set ylabel 'sigma, MeV'" << "set yrange [0:10]"
             << "set title 'Peak width (sigma) "+runmsg+"'";
     Plot("He3gg-cross-section-chisq").Hist(CHISQ)
             << "set xlabel 'Analysis number'" << "set xrange [0:3]"
-            << "set ylabel 'chi square, n.d.'" << "set yrange [0:]"
+            << "set ylabel 'chi square, n.d.'" << "set yrange [0:2]"
             << "set title 'Chi square "+runmsg+"'";
 }
