@@ -42,10 +42,10 @@ int main()
                 ).str();
             const string hist_name=string("MissingMass-Bin-") + to_string(bin_num);
             const hist<> data_full = Hist(DATA, "F", histpath_forward_reconstr,hist_name).XRange(0.52, 0.57);
-            const hist<> data = data_full.XRange(0.530, data_full.YRange(20,INFINITY).right().X().val()+0.001);
-            const hist<> mc_unnorm = Hist(MC, "He3eta-gg", histpath_forward_reconstr,hist_name).XRange(0.530, 0.57);
-            const auto chain = ChainWithStep(0.530, 0.0001, 0.57);
-            const auto cut = make_pair(0.539,0.556);
+            const hist<> data = data_full.XRange(0.525, data_full.YRange(20,INFINITY).right().X().val()+0.001);
+            const hist<> mc_unnorm = Hist(MC, "He3eta-gg", histpath_forward_reconstr,hist_name).XRange(0.525, 0.57);
+            const auto chain = ChainWithStep(0.525, 0.001, 0.57);
+            const auto cut = make_pair(0.539,0.554);
             const hist<> mc = mc_unnorm / N;
             acceptance << make_point(Q, mc.TotalSum());
             Plot(Q.Contains(21) ? "He3eta-mc" : "")
@@ -144,7 +144,7 @@ int main()
 
     Plot("He3eta-cross-section")
     .Hist(he3eta_sigma(), "Data from other experiments")
-    .Hist(hist<>(he3eta_sigma().func(), BinsByStep(-70.0, 2.5, 30.0)), "Interpolation", "CS-He3eta-assumed")
+    .Hist(hist<>(he3eta_sigma().func(), BinsByStep(2.5, 2.5, 30.0)), "Interpolation", "CS-He3eta-assumed")
             << "set title 'Cross section of He3eta used in the calculations'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'sigma(^3He eta), nb'"
