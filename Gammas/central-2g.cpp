@@ -427,14 +427,14 @@ int main()
                 << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]"
                 << "set title '"+runmsg+"'";
         //cross section is not peak area but it's height
-        CS<<make_point(a_t+1,P[0]*LinearInterpolation<>(fg-bg)(P[1].val())/P[0].val());
+        CS<<make_point(a_t+1,P[0].make_wider(3)*LinearInterpolation<>(fg-bg)(P[1].val())/P[0].val());
         POS<<make_point(a_t+1,P[1]);
         WIDTH<<make_point(a_t+1,P[2]);
         CHISQ<<make_point(value<>(a_t+1,0.5),fit.Optimality()/(fit.Points().size()-fit.ParamCount()));
     }
     Plot("He3gg-cross-section").Hist(CS)
             << "set xlabel 'Analysis number'" << "set xrange [0:3]"
-            << "set ylabel 'Cross section, nb'" << "set yrange [0:]"
+            << "set ylabel 'Cross section, nb'" << "set yrange [0:25]"
             << "set title 'Cross section (3 sigma) "+runmsg+"'";
     Plot("He3gg-pos").Hist(POS)
             << "set xlabel 'Analysis number'" << "set xrange [0:3]"
