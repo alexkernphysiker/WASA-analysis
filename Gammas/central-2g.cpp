@@ -56,6 +56,7 @@ int main()
 
     vector<hist<>> ev_am;
     vector<vector<hist<>>> acceptance;
+    hist<> he3acc;
 
     const vector<string> suffix={"","-strict"};
     vector<hist<>> ev_am1,ev_am2;
@@ -81,6 +82,10 @@ int main()
         const string Qmsg = static_cast<stringstream &>(stringstream()
                             << "Q in [" << setprecision(3)
                             << Q.min() << "; " << Q.max() << "] MeV").str();
+        {
+            hist<> he3reg = Hist(MC, reaction[0], histpath_central_reconstr, string("He3MM0-Bin-") + to_string(bin_num));
+            he3acc<<make_point(Q,std_error(he3reg.TotalSum().val())/norm[bin_num].Y());
+        }
         for (size_t i = 0; i < reaction.size(); i++) {
             const auto &r = reaction[i];
             Plot(
@@ -295,7 +300,7 @@ int main()
                     )
                 )
             )
-            .Hist(DT)
+            .Hist(DT).Line(DT.toLine())
                     << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel 'dt gamma-gamma, ns'";
             Plot(
@@ -305,7 +310,7 @@ int main()
                     )
                 )
             )
-            .Hist(T)
+            .Hist(T).Line(T.toLine())
                     << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel 'quickest gamma - 3he , ns'";
         }
@@ -326,7 +331,7 @@ int main()
                     )
                 )
             )
-            .Hist(DT).Hist(dtbgplot,"background")
+            .Hist(DT,"Data").Line(DT.toLine()).Hist(dtbgplot,"background")
                     << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel 'dt gamma-gamma, ns'";
             const hist<> tbgplot=Points<value<>>{{T[4].X(),TBG(T[4].X())},{T[5].X(),TBG(T[5].X())}};
@@ -337,7 +342,7 @@ int main()
                     )
                 )
             )
-            .Hist(T).Hist(tbgplot,"background")
+            .Hist(T,"Data").Line(T.toLine()).Hist(tbgplot,"background")
                     << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel 'quickest gamma - 3he , ns'";
         }
@@ -432,6 +437,10 @@ int main()
         WIDTH<<make_point(a_t+1,P[2]);
         CHISQ<<make_point(value<>(a_t+1,0.5),fit.Optimality()/(fit.Points().size()-fit.ParamCount()));
     }
+    Plot("He3gg-tube-acc").Hist(he3acc*100.)
+            << "set xlabel 'Q, MeV'" << "set xrange [-70:30]"
+            << "set ylabel 'Acceptance, percents'" << "set yrange [0:]"
+            << "set title 'How many helium ions from mesic nuclei decay would be detected'";
     Plot("He3gg-cross-section").Hist(CS)
             << "set xlabel 'Analysis number'" << "set xrange [0:3]"
             << "set ylabel 'Cross section, nb'" << "set yrange [0:25]"
