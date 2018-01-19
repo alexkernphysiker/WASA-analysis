@@ -408,7 +408,7 @@ int main()
                 << "set title '"+runmsg+"'";
         const auto data_shape=(
             (ev-known_events)*double(trigger_he3_forward.scaling)/(acc[a_t][0]*luminosity)
-        ).XRange(-50,20);
+        ).XRange(-50,30);
         FitFunction<DifferentialMutations<Uncertainty>,Add<FG,BG>> fit(make_shared<FitPoints>()<<data_shape);
         auto init=make_shared<InitialDistributions>()
                     <<make_shared<DistribGauss>(50,50)
@@ -421,7 +421,7 @@ int main()
         while(!fit.AbsoluteOptimalityExitCondition(0.0000001))fit.Iterate(RG);
         fit.SetUncertaintyCalcDeltas({0.1,0.01,0.01,0.1});
         const auto&P=fit.ParametersWithUncertainties();
-        const auto chain=ChainWithStep(-50.,0.001,20.);
+        const auto chain=ChainWithStep(-50.,0.001,30.);
         const SortedPoints<>
         fg([&fit](double x){return fit({x});},chain),
         bg([&fit](double x){return BG()({x},fit.Parameters());},chain);
