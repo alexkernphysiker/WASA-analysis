@@ -444,22 +444,22 @@ int main()
             << "set title 'How many helium ions from mesic nuclei decay would be detected'";
     Plot("He3gg-cross-section").Hist(CS)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-5:30]"
+            << "set xrange [-5:50]"
             << "set ylabel 'Cross section, nb'" << "set yrange [0:]"
             << "set title 'Cross section (3 sigma) "+runmsg+"'";
     Plot("He3gg-pos").Hist(POS)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-5:30]"
+            << "set xrange [-5:50]"
             << "set ylabel 'Position, MeV'" << "set yrange [-20:0]"
             << "set title 'Peak position "+runmsg+"'";
     Plot("He3gg-width").Hist(WIDTH)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-5:30]"
+            << "set xrange [-5:50]"
             << "set ylabel 'sigma, MeV'" << "set yrange [0:10]"
             << "set title 'Peak width (sigma) "+runmsg+"'";
     Plot("He3gg-cross-section-chisq").Hist(CHISQ)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-5:30]"
+            << "set xrange [-5:50]"
             << "set ylabel 'chi square, n.d.'" << "set yrange [0:2]"
             << "set title 'Chi square "+runmsg+"'";
 }
