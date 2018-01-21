@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.0)
-project(WASAatCOSY_etamesic_3He_search_analysis)
 add_definitions(-pthread)
 add_definitions(-std=c++17)
 
