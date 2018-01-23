@@ -57,14 +57,13 @@ const Points<> ReadPf()
 const double Calculate_pp2ppn(const double &pbeam, const function<double(double)> &pp)
 {
     static const RandomValueTableDistr<> PF = ReadPf();
-    RANDOM R;
     double res = 0;
     const size_t count = 10000;
     const auto Pt = lorentz_byPM(Z<>() * pbeam, Particle::p().mass()),
                T = lorentz_byPM(Zero<>(), Particle::d().mass());
     for (size_t i = 0; i < count; i++) {
         const auto
-        nt = lorentz_byPM(randomIsotropic<3>(R) * PF(R), Particle::n().mass()),
+        nt = lorentz_byPM(randomIsotropic<3>() * PF(), Particle::n().mass()),
         pt = T - nt;
         res += pp(Pt.Transform(pt.Beta()).P().M());
     }
@@ -89,7 +88,6 @@ const SortedPoints<value<>> ConvertCrossSections(const SortedPoints<> &momentum)
 }
 int main()
 {
-    RANDOM random;
     const string ppn_reaction = "ppn_qf_",pd_reaction="pd_";
     const auto runs = PresentRuns("E");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
@@ -233,9 +231,8 @@ int main()
         fit.SetUncertaintyCalcDeltas({0.001,0.001});
         fit.Init(500,make_shared<InitialDistributions>()
             <<make_shared<DistribGauss>(5000,5000)
-            ,random
         );
-        while(!fit.AbsoluteOptimalityExitCondition(0.0000001))fit.Iterate(random);
+        while(!fit.AbsoluteOptimalityExitCondition(0.0000001))fit.Iterate();
         cout << "Fitting: " << fit.iteration_count() << " iterations; "
             << fit.Optimality() << "<chi^2<"
             << fit.Optimality(fit.PopulationSize() - 1)

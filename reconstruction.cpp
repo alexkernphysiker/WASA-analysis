@@ -12,7 +12,6 @@ using namespace Genetic;
 using namespace Reconstruction;
 using namespace MathTemplates;
 using namespace GnuplotWrap;
-RANDOM engine;
 int main()
 {
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS),"He3-reconstruction");
@@ -25,6 +24,5 @@ int main()
         << make_shared<DistribGauss>(0, 0.1) << make_shared<DistribGauss>(0, 0.1)
         << make_shared<DistribGauss>(0, 0.1) << make_shared<DistribGauss>(1, 0.5)
         << make_shared<DistribGauss>(0, 0.1) << make_shared<DistribGauss>(0, 0.1)
-        , engine
     );
 }

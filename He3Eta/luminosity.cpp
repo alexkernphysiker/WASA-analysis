@@ -30,7 +30,6 @@ int main()
     const hist<> norm = Hist(MC, "He3eta-gg", histpath_forward_reconstr, "0-Reference");
     hist<> luminosity, data_chi_sq, acceptance;
     vector<hist<>> parhists;
-    RANDOM r_eng;
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++)
         if (norm[bin_num].X() > 2.5) {
             const auto &Q = norm[bin_num].X();
@@ -75,9 +74,9 @@ int main()
                         << make_shared<DistribGauss>(0, 10)
                         << make_shared<DistribGauss>(0, 5)
                         << make_shared<DistribGauss>(0, 5)
-                    ,r_eng);
+            );
             cout << endl;
-            while (!FIT.AbsoluteOptimalityExitCondition(0.0000001))FIT.Iterate(r_eng);
+            while (!FIT.AbsoluteOptimalityExitCondition(0.0000001))FIT.Iterate();
             cout << "Fitting: " << FIT.iteration_count() << " iterations; "
                  << FIT.Optimality() << "<chi^2<"
                  << FIT.Optimality(FIT.PopulationSize() - 1)

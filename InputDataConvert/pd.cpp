@@ -14,7 +14,6 @@ using namespace Genetic;
 using namespace GnuplotWrap;
 int main()
 {
-    RANDOM r;
     Plot th_vs_th_l("pd-th-th-lab"),t_vs_th("pd-t-th-cm-p"),cs_vs_t("pd-cs-t"),cs_vs_t_lin("pd-cs-t-lin");
     cs_vs_t<<"set key on"<<"set log y">>"unset log y";
     cs_vs_t_lin<<"set key on";
@@ -35,10 +34,9 @@ int main()
             <<make_shared<DistribGauss>(-30.,20.)
             <<make_shared<DistribGauss>(0.,1.)
             <<make_shared<DistribGauss>(0.,1.)
-        ,r
     );
     while (!fit.AbsoluteOptimalityExitCondition(0.00001)) {
-        fit.Iterate(r);
+        fit.Iterate();
         cout << fit.iteration_count() << " iterations; "
              << fit.Optimality() << " < Chi^2 < "
              << fit.Optimality(fit.PopulationSize() - 1)

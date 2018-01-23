@@ -37,7 +37,6 @@ int main()
         true_events.push_back(hist<>());
     }
     hist<> events_count;
-    RANDOM r_eng;
     for (size_t bin_num = 0, bin_count = norm[0].size(); bin_num < bin_count; bin_num++) {
         const auto &Q = norm[0][bin_num].X();
         const string Qmsg = static_cast<stringstream &>(stringstream()

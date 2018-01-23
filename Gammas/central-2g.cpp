@@ -24,7 +24,6 @@ typedef Mul<Par<0>,Func3<BreitWigner,Arg<0>,Par<1>,Par<2>>> FG;
 typedef PolynomFunc<Arg<0>,3,3> BG;
 int main()
 {
-    RANDOM RG;
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-2gamma");
     vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas2"};
     vector<string> reaction = {"bound3-2g", "He3eta-gg", "He3pi0pi0", "He3pi0pi0pi0", "He3pi0"};
@@ -418,8 +417,8 @@ int main()
                     <<make_shared<DistribGauss>(100,100);
         while(init->Count()<BG::ParamCount)init<<make_shared<DistribGauss>(0,1);
         fit.SetFilter([](const ParamSet&P){return (P[2]>4)&&(P[2]<15)&&(P[0]>0)&&(P[1]<0)&&(P[1]>-20);});
-        fit.Init(300,init,RG);
-        while(!fit.AbsoluteOptimalityExitCondition(0.0000001))fit.Iterate(RG);
+        fit.Init(300,init);
+        while(!fit.AbsoluteOptimalityExitCondition(0.0000001))fit.Iterate();
         fit.SetUncertaintyCalcDeltas({0.1,0.01,0.01,0.1});
         const auto&P=fit.ParametersWithUncertainties();
         const auto chain=ChainWithStep(-50.,0.001,30.);
