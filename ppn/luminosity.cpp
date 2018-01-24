@@ -268,9 +268,12 @@ int main()
 
     const hist<> luminosity=((events2)*double(trigger_elastic1.scaling)/acceptance/SIGMA);
     const hist<> prev_luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYf");
-    SortedPoints<> sasha;
-    for(const auto&p:Plotter::Instance().GetPoints<>("luminosity_Q"))
-        sasha<<make_point(-70.+1.25+2.5*p.X(),p.Y());
+    SortedPoints<> sasha_old;
+    for(const auto&p:Plotter::Instance().GetPoints<>("luminosity_khr_old"))
+        sasha_old<<make_point(-70.+1.25+2.5*p.X(),p.Y());
+    SortedPoints<> sasha_new;
+    for(const auto&p:Plotter::Instance().GetPoints<>("luminosity_khr_new"))
+        sasha_new<<make_point(-70.+1.25+2.5*p.X(),p.Y());
     Plot("luminosity-compare")
         .Hist(luminosity, "ppn_{sp}", "LUMINOSITYc")
         .Hist(prev_luminosity, "3He+eta")
@@ -278,10 +281,11 @@ int main()
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:]";
-    cout<<"uminosity: "<<luminosity.TotalSum()<<endl;
+    cout<<"luminosity: "<<luminosity.TotalSum()<<endl;
     Plot("luminosity-compare-estimation")
         .Hist(luminosity*runs.second/runs.first, "O. Rundel")
-        .Line(sasha, "A. Khreptak")
+        .Line(sasha_old, "A. Khreptak - old")
+        .Line(sasha_new, "A. Khreptak - new")
             << "set title 'Total integrated luminosity estimation'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
