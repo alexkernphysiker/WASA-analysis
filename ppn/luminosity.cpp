@@ -226,30 +226,25 @@ int main()
 
         Fit<DifferentialMutations<Uncertainty>> fit(
             make_shared<FitPoints>()<<data_copl_outside,
-            [](const ParamSet&X,const ParamSet&P){return Polynom<0>(X[0],P);}
+            [](const ParamSet&,const ParamSet&P){return P[0];}
         );
-        fit.SetUncertaintyCalcDeltas({0.001,0.001});
-        fit.Init(500,make_shared<InitialDistributions>()
-            <<make_shared<DistribGauss>(5000,5000)
-        );
-        while(!fit.AbsoluteOptimalityExitCondition(0.0000001))fit.Iterate();
+        fit.SetUncertaintyCalcDeltas({0.001})
+            .SetFilter([](const ParamSet&P){return (P[0]>0);});
+        fit.Init(500,make_shared<InitialDistributions>()<<make_shared<DistribGauss>(0,5000));
+        while(!fit.AbsoluteOptimalityExitCondition(0.000001))fit.Iterate();
         cout << "Fitting: " << fit.iteration_count() << " iterations; "
             << fit.Optimality() << "<chi^2<"
             << fit.Optimality(fit.PopulationSize() - 1)
             << endl;
         const auto &P = fit.ParametersWithUncertainties();
-        const auto BG=[&P](const value<>&x){return Polynom<0>(x,P);};
-        data_chi_sq << make_point(Q, fit.Optimality() / (data_copl_outside.size() - fit.ParamCount()));
-        const hist<> data_copl_fg=data_copl_inside-BG,data_copl_bg=(data_copl*0.)+BG;
-        const auto ev=data_copl_fg.TotalSum();
-        const auto total_line=hist<>((data_copl_mc*ev2/(N*epsilon))+data_copl_bg).toLine();
+        const auto BG=[&P](const value<>&){return P[0];};
+        data_chi_sq << make_point(Q, fit.Optimality() / (fit.Points().size() - fit.ParamCount()));
         Plot(Q.Contains(21) ? "ppn-above-data-copl" : (Q.Contains(-39) ? "ppn-below-data-copl" : ""))
             .Hist(data_copl_inside).Hist(data_copl_outside)
-            .Line(data_copl_bg.toLine(),"BG from fit")
-            .Line(total_line,"MC+BG")
+            .Line(hist<>(data_copl*0.0+BG).toLine())
                 << "set title 'Coplanarity. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
                 << "set yrange [0:]" << "set xlabel " + planarity;
-        events<<make_point(Q,ev);
+        events<<make_point(Q,hist<>(data_copl_inside-BG).TotalSum());
 
     }
     Plot("ppn-acceptance")
@@ -262,12 +257,20 @@ int main()
             << "set ylabel 'chi^2/d, n.d.'"
             << "set yrange [0:]" << "unset log y";
 
-    Plot("ppn-events")
-        .Hist(events,"phi").Hist(events2,"time (left)").Hist(events2+events3,"time (left+right)")
+    Plot("ppn-events-time")
+        .Hist(events2,"time (left)").Hist(events3,"time (right)")
             << "set key on" << "set title 'True events count "+runmsg+"'" << "set yrange [0:]" 
             << "set xlabel 'Q, MeV'" << "set ylabel 'count, n.d.'";
+    Plot("ppn-events-phi")
+        .Hist(events2,"time (left)").Hist(events2+events3,"time (left+right)").Hist(events,"phi")
+            << "set key on" << "set title 'True events count "+runmsg+"'" << "set yrange [0:]" 
+            << "set xlabel 'Q, MeV'" << "set ylabel 'count, n.d.'";
+
     const hist<> luminosity=((events2)*double(trigger_elastic1.scaling)/acceptance/SIGMA);
     const hist<> prev_luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYf");
+    SortedPoints<> sasha;
+    for(const auto&p:Plotter::Instance().GetPoints<>("luminosity_Q"))
+        sasha<<make_point(-70.+1.25+2.5*p.X(),p.Y());
     Plot("luminosity-compare")
         .Hist(luminosity, "ppn_{sp}", "LUMINOSITYc")
         .Hist(prev_luminosity, "3He+eta")
@@ -275,5 +278,13 @@ int main()
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:]";
-    cout<<"Full luminosity estimation: "<<luminosity.TotalSum()<<endl;
+    cout<<"uminosity: "<<luminosity.TotalSum()<<endl;
+    Plot("luminosity-compare-estimation")
+        .Hist(luminosity*runs.second/runs.first, "O. Rundel")
+        .Line(sasha, "A. Khreptak")
+            << "set title 'Total integrated luminosity estimation'"
+            << "set key on" << "set xlabel 'Q, MeV'"
+            << "set ylabel 'Integrated luminosity, nb^{-1}'"
+            << "set xrange [-70:30]" << "set yrange [0:]";
+    cout<<"Full luminosity estimation: "<<luminosity.TotalSum()*runs.second/runs.first<<endl;
 }

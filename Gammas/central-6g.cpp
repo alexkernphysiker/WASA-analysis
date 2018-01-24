@@ -21,11 +21,10 @@ using namespace GnuplotWrap;
 int main()
 {
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-6gamma-with-3he");
-    vector<string> histpath_reconstr = {"Histograms", "He3nCentralGammas"};
     vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas6"};
     vector<string> reaction = {"bound3-6g", "He3eta-6g", "He3pi0pi0pi0"};
-    hist<> norm = Hist(MC, reaction[0], histpath_reconstr, "0-Reference");
-    const auto runs = PresentRuns("C");
+    hist<> norm = Hist(MC, reaction[0], histpath_central_reconstr, "0-Reference");
+    const auto runs = PresentRuns("CC");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
 
     Plot gE("He36g-gamma-energy-theory"), gEc("He36g-gamma-energy-theory-cut"),
@@ -39,15 +38,15 @@ int main()
     for (size_t i = 0; i < reaction.size(); i++) {
         const auto &r = reaction[i];
         gE.Hist(
-            Hist(MC, r, histpath_reconstr, "GammaEnergy")
-            / Hist(MC, r, histpath_reconstr, "0-Reference").TotalSum().val()
+            Hist(MC, r, histpath_central_reconstr, "GammaEnergy")
+            / Hist(MC, r, histpath_central_reconstr, "0-Reference").TotalSum().val()
             , r);
         gEc.Hist(
-            Hist(MC, r, histpath_reconstr, "GammaEnergyCut")
-            / Hist(MC, r, histpath_reconstr, "0-Reference").TotalSum().val()
+            Hist(MC, r, histpath_central_reconstr, "GammaEnergyCut")
+            / Hist(MC, r, histpath_central_reconstr, "0-Reference").TotalSum().val()
             , r);
     }
-    gEd.Hist(Hist(DATA, "C", histpath_reconstr, "GammaEnergy")).Hist(Hist(DATA, "C", histpath_reconstr, "GammaEnergyCut"));
+    gEd.Hist(Hist(DATA, "CC", histpath_central_reconstr, "GammaEnergy")).Hist(Hist(DATA, "CC", histpath_central_reconstr, "GammaEnergyCut"));
 
 
     Plot theory("He36g-IMPiDiff-mc"),experiment("He36g-IMPiDiff-data");
@@ -62,7 +61,7 @@ int main()
     }
     theory << "set key on" << "set yrange [0:]";
     experiment
-    .Hist(Hist(DATA, "C", histpath_central_reconstr, "GMMPDiff4"), "data")
+    .Hist(Hist(DATA, "CC", histpath_central_reconstr, "GMMPDiff4"), "data")
             << "set key on" << "set title '" + runmsg + "'" << "set yrange [0:]";
 
     hist<> ev_am;
@@ -84,8 +83,8 @@ int main()
                     )
                 )
             )
-            .Hist(Hist(MC, r, histpath_reconstr, string("He3MM0-Bin-") + to_string(bin_num)), "3He")
-            .Hist(Hist(MC, r, histpath_reconstr, string("He3MM1-Bin-") + to_string(bin_num)), "3He MM cut")
+            .Hist(Hist(MC, r, histpath_central_reconstr, string("He3MM0-Bin-") + to_string(bin_num)), "3He")
+            .Hist(Hist(MC, r, histpath_central_reconstr, string("He3MM1-Bin-") + to_string(bin_num)), "3He MM cut")
             .Hist(Hist(MC, r, histpath_central_reconstr, string("He3MM2-Bin-") + to_string(bin_num)), "3He+6gamma")
                     << "set key on" << "set title '" + Qmsg + ";MC " + r + "'" << "set yrange [0:]"
                     << "set xlabel '3He missing mass, GeV'";
@@ -125,9 +124,9 @@ int main()
                     )
                 )
             )
-            .Hist(Hist(DATA, "C", histpath_reconstr, string("He3MM0-Bin-") + to_string(bin_num)), "3He")
-            .Hist(Hist(DATA, "C", histpath_reconstr, string("He3MM1-Bin-") + to_string(bin_num)), "3He MM cut")
-            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("He3MM2-Bin-") + to_string(bin_num)), "3He+6gamma")
+            .Hist(Hist(DATA, "CC", histpath_central_reconstr, string("He3MM0-Bin-") + to_string(bin_num)), "3He")
+            .Hist(Hist(DATA, "CC", histpath_central_reconstr, string("He3MM1-Bin-") + to_string(bin_num)), "3He MM cut")
+            .Hist(Hist(DATA, "CC", histpath_central_reconstr, string("He3MM2-Bin-") + to_string(bin_num)), "3He+6gamma")
                     << "set key on" << "set title '" + Qmsg + ";Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '3He missing mass, GeV'";
             Plot(
@@ -137,11 +136,11 @@ int main()
                     )
                 )
             )
-            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("GMM2-Bin-") + to_string(bin_num)), "3He+2gamma")
-            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("GMM3-Bin-") + to_string(bin_num)), "1 cut")
-            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("GMM4-Bin-") + to_string(bin_num)), "2 cut")
-            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("GMM5-Bin-") + to_string(bin_num)), "3 cut")
-            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("GMM6-Bin-") + to_string(bin_num)), "4 cut")
+            .Hist(Hist(DATA, "CC", histpath_central_reconstr, string("GMM2-Bin-") + to_string(bin_num)), "3He+2gamma")
+            .Hist(Hist(DATA, "CC", histpath_central_reconstr, string("GMM3-Bin-") + to_string(bin_num)), "1 cut")
+            .Hist(Hist(DATA, "CC", histpath_central_reconstr, string("GMM4-Bin-") + to_string(bin_num)), "2 cut")
+            .Hist(Hist(DATA, "CC", histpath_central_reconstr, string("GMM5-Bin-") + to_string(bin_num)), "3 cut")
+            .Hist(Hist(DATA, "CC", histpath_central_reconstr, string("GMM6-Bin-") + to_string(bin_num)), "4 cut")
                     << "set key on" << "set title '" + Qmsg + ";Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '6gamma missing mass, GeV'";
             Plot(
@@ -151,10 +150,10 @@ int main()
                     )
                 )
             )
-            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("GIM2-Bin-") + to_string(bin_num)), "3He+2gamma")
-            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("GIM3-Bin-") + to_string(bin_num)), "1 cut")
-            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("GIM4-Bin-") + to_string(bin_num)), "2 cut")
-            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("GIM5-Bin-") + to_string(bin_num)), "3 cut")
+            .Hist(Hist(DATA, "CC", histpath_central_reconstr, string("GIM2-Bin-") + to_string(bin_num)), "3He+2gamma")
+            .Hist(Hist(DATA, "CC", histpath_central_reconstr, string("GIM3-Bin-") + to_string(bin_num)), "1 cut")
+            .Hist(Hist(DATA, "CC", histpath_central_reconstr, string("GIM4-Bin-") + to_string(bin_num)), "2 cut")
+            .Hist(Hist(DATA, "CC", histpath_central_reconstr, string("GIM5-Bin-") + to_string(bin_num)), "3 cut")
                     << "set key on" << "set title '" + Qmsg + ";Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '6gamma invariant mass, GeV'";
         }
@@ -170,7 +169,7 @@ int main()
                     << "set xlabel '6gamma invariant mass, GeV'";
             for (size_t i = 0; i < reaction.size(); i++) {
                 const auto &r = reaction[i];
-                hist<> Norm = Hist(MC, r, histpath_reconstr, "0-Reference");
+                hist<> Norm = Hist(MC, r, histpath_central_reconstr, "0-Reference");
                 const auto &N = Norm[bin_num].Y();
                 if (N.Above(0)) {
                     const hist<> h = Hist(MC, r, histpath_central_reconstr, string("GIM6-Bin-") + to_string(bin_num));
@@ -182,7 +181,7 @@ int main()
                 }
             }
         }
-        const hist<> data = Hist(DATA, "C", histpath_central_reconstr, string("GIM6-Bin-") + to_string(bin_num));
+        const hist<> data = Hist(DATA, "CC", histpath_central_reconstr, string("GIM6-Bin-") + to_string(bin_num));
         Plot(
             Q.Contains(21) ? "He36g-above-data" : (
                 Q.Contains(-39) ? "He36g-below-data" : (
@@ -208,15 +207,8 @@ int main()
             accplot.Hist(acc, reaction[i]);
         }
     }
-    const hist<> luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYc");
-    const hist<> he3etacs = Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed");
-    const hist<> he3etaev =
-        luminosity
-        / double(trigger_he3_forward.scaling)
-        * (acceptance[1]*(he3etacs*0.326));
     Plot("He36g-events")
     .Hist(ev_am, "data")
-    .Hist(ev_am-he3etaev, "data-(3He+eta)_{estimated}")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '" + runmsg + "'";

@@ -318,7 +318,7 @@ int main()
             const auto DT=Hist(DATA, "C", histpath_central_reconstr, "dt5"+to_string(a_t+1)+"-Bin-"+to_string(bin_num)).Scale(50);
             const auto T=Hist(DATA, "C", histpath_central_reconstr, "t5"+to_string(a_t+1)+"-Bin-"+to_string(bin_num)).Scale(50);
 
-            const auto DTBG=WeightedAverage<>()<<DT[2].Y()<<DT[3].Y()<<DT[4].Y();
+            const auto DTBG=WeightedAverage<>()<<DT[2].Y()<<DT[3].Y();//<<DT[4].Y();
             ev_am1[a_t]<<make_point(Q,DT[0].Y()+DT[1].Y()-DTBG()*2.0);
             const LinearInterpolation<value<>> TBG=Points<value<>>{T[3],T[6]};
             ev_am2[a_t]<<make_point(Q,(T[4].Y()-TBG(T[4].X()))+(T[5].Y()-TBG(T[5].X())));
