@@ -400,7 +400,7 @@ int main()
                 << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
                 << "set ylabel 'events, n.d.'" << "set yrange [0:]"
                 << "set title '"+runmsg+"'";
-        const hist<> ev=hist_avr(ev_am1[a_t],ev_am2[a_t])+0.0;
+        const hist<> ev=ev_am2[a_t];//hist_avr(ev_am1[a_t],ev_am2[a_t])+0.0;
         Plot("He3gg-events-final"+suffix[a_t]+"-bound")
             .Hist(ev - known_events)
                 << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
