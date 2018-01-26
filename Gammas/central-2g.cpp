@@ -57,7 +57,7 @@ int main()
     vector<vector<hist<>>> acceptance;
     hist<> he3acc;
 
-    const vector<string> suffix={"","-strict"};
+    const vector<string> suffix={"-zero","","-strict"};
     vector<hist<>> ev_am1,ev_am2;
     vector<vector<hist<>>> acc;
     for(size_t i=0;i<suffix.size();i++){
@@ -90,7 +90,7 @@ int main()
             Plot(
                 Q.Contains(21) ? "He3gg-above-he3mm-mc-" + r : (
                     Q.Contains(-39) ? "He3gg-below-he3mm-mc-" + r : (
-                        Q.Contains(-3) ? "He3gg-thr-he3mm-mc-" + r : ""
+                        Q.Contains(-11) ? "He3gg-thr-he3mm-mc-" + r : ""
                     )
                 )
             )
@@ -102,7 +102,7 @@ int main()
             Plot(
                 Q.Contains(21) ? "He3gg-above-ggmm-mc" + r : (
                     Q.Contains(-39) ? "He3gg-below-ggmm-mc" + r : (
-                        Q.Contains(-3) ? "He3gg-thr-ggmm-mc" + r : ""
+                        Q.Contains(-11) ? "He3gg-thr-ggmm-mc" + r : ""
                     )
                 )
             )
@@ -113,7 +113,7 @@ int main()
             Plot(
                 Q.Contains(21) ? "He3gg-above-ggim-mc" + r : (
                     Q.Contains(-39) ? "He3gg-below-ggim-mc" + r : (
-                        Q.Contains(-3) ? "He3gg-thr-ggim-mc" + r : ""
+                        Q.Contains(-11) ? "He3gg-thr-ggim-mc" + r : ""
                     )
                 )
             )
@@ -124,7 +124,7 @@ int main()
             Plot(
                 Q.Contains(21) ? "He3gg-above-tim-mc" + r : (
                     Q.Contains(-39) ? "He3gg-below-tim-mc" + r : (
-                        Q.Contains(-3) ? "He3gg-thr-tim-mc" + r : ""
+                        Q.Contains(-11) ? "He3gg-thr-tim-mc" + r : ""
                     )
                 )
             )
@@ -134,7 +134,7 @@ int main()
             Plot(
                 Q.Contains(21) ? "He3gg-above-t-mc"+r : (
                     Q.Contains(-39) ? "He3gg-below-t-mc"+r : (
-                        Q.Contains(-3) ? "He3gg-thr-t-mc"+r : ""
+                        Q.Contains(-11) ? "He3gg-thr-t-mc"+r : ""
                     )
                 )
             )
@@ -144,7 +144,7 @@ int main()
             Plot(
                 Q.Contains(21) ? "He3gg-above-dt-mc"+r : (
                     Q.Contains(-39) ? "He3gg-below-dt-mc"+r : (
-                        Q.Contains(-3) ? "He3gg-thr-dt-mc"+r : ""
+                        Q.Contains(-11) ? "He3gg-thr-dt-mc"+r : ""
                     )
                 )
             )
@@ -156,7 +156,7 @@ int main()
             Plot(
                 Q.Contains(21) ? "He3gg-above-he3mm-data" : (
                     Q.Contains(-39) ? "He3gg-below-he3mm-data" : (
-                        Q.Contains(-3) ? "He3gg-thr-he3mm-data" : ""
+                        Q.Contains(-11) ? "He3gg-thr-he3mm-data" : ""
                     )
                 )
             )
@@ -168,7 +168,7 @@ int main()
             Plot(
                 Q.Contains(21) ? "He3gg-above-ggmm-data" : (
                     Q.Contains(-39) ? "He3gg-below-ggmm-data" : (
-                        Q.Contains(-3) ? "He3gg-thr-ggmm-data" : ""
+                        Q.Contains(-11) ? "He3gg-thr-ggmm-data" : ""
                     )
                 )
             )
@@ -179,7 +179,7 @@ int main()
             Plot(
                 Q.Contains(21) ? "He3gg-above-ggim-data" : (
                     Q.Contains(-39) ? "He3gg-below-ggim-data" : (
-                        Q.Contains(-3) ? "He3gg-thr-ggim-data" : ""
+                        Q.Contains(-11) ? "He3gg-thr-ggim-data" : ""
                     )
                 )
             )
@@ -190,7 +190,7 @@ int main()
             Plot(
                 Q.Contains(21) ? "He3gg-above-tim-data" : (
                     Q.Contains(-39) ? "He3gg-below-tim-data" : (
-                        Q.Contains(-3) ? "He3gg-thr-tim-data" : ""
+                        Q.Contains(-11) ? "He3gg-thr-tim-data" : ""
                     )
                 )
             )
@@ -201,7 +201,7 @@ int main()
             Plot(
                 Q.Contains(21) ? "He3gg-above-data-t" : (
                     Q.Contains(-39) ? "He3gg-below-data-t" : (
-                        Q.Contains(-3) ? "He3gg-thr-data-t" : ""
+                        Q.Contains(-11) ? "He3gg-thr-data-t" : ""
                     )
                 )
             )
@@ -211,7 +211,7 @@ int main()
             Plot(
                 Q.Contains(21) ? "He3gg-above-data-dt" : (
                     Q.Contains(-39) ? "He3gg-below-data-dt" : (
-                        Q.Contains(-3) ? "He3gg-thr-data-dt" : ""
+                        Q.Contains(-11) ? "He3gg-thr-data-dt" : ""
                     )
                 )
             )
@@ -253,7 +253,7 @@ int main()
         Plot(
             Q.Contains(21) ? "He3gg-above-acceptance-ratio" : (
                 Q.Contains(-39) ? "He3gg-below-acceptance-ratio" : (
-                    Q.Contains(-3) ? "He3gg-thr-acceptance-ratio" : ""
+                    Q.Contains(-11) ? "He3gg-thr-acceptance-ratio" : ""
                 )
             )
         )
@@ -264,7 +264,7 @@ int main()
         Plot(
             Q.Contains(21) ? "He3gg-above-acceptance" : (
                 Q.Contains(-39) ? "He3gg-below-acceptance" : (
-                    Q.Contains(-3) ? "He3gg-thr-acceptance" : ""
+                    Q.Contains(-11) ? "He3gg-thr-acceptance" : ""
                 )
             )
         )
@@ -276,7 +276,7 @@ int main()
         Plot(
             Q.Contains(21) ? "He3gg-above-acceptance-bg" : (
                 Q.Contains(-39) ? "He3gg-below-acceptance-bg" : (
-                    Q.Contains(-3) ? "He3gg-thr-acceptance-bg" : ""
+                    Q.Contains(-11) ? "He3gg-thr-acceptance-bg" : ""
                 )
             )
         )
@@ -287,8 +287,8 @@ int main()
 
         for (size_t i = 0; i < reaction.size(); i++) for(size_t a_t=0;a_t<suffix.size();a_t++){
             const auto &r = reaction[i];
-            const auto DT=Hist(MC, r, histpath_central_reconstr, "dt5"+to_string(a_t+1)+"-Bin-"+to_string(bin_num)).Scale(10);
-            const auto T=Hist(MC, r, histpath_central_reconstr, "t5"+to_string(a_t+1)+"-Bin-"+to_string(bin_num)).Scale(10);
+            const auto DT=Hist(MC, r, histpath_central_reconstr, "dt5"+to_string(a_t)+"-Bin-"+to_string(bin_num)).Scale(10);
+            const auto T=Hist(MC, r, histpath_central_reconstr, "t5"+to_string(a_t)+"-Bin-"+to_string(bin_num)).Scale(10);
             hist<> Norm = Hist(MC, r, histpath_central_reconstr, "0-Reference");
             const auto &N = Norm[bin_num].Y();
             if (N.Above(0)) acc[a_t][i] << make_point(Q, std_error(DT.TotalSum().val())/N);
@@ -296,7 +296,7 @@ int main()
             Plot(
                 Q.Contains(21) ? "He3gg-above-dt-final"+suffix[a_t]+"-mc"+r : (
                     Q.Contains(-39) ? "He3gg-below-dt-final"+suffix[a_t]+"-mc"+r : (
-                        Q.Contains(-3) ? "He3gg-thr-dt-final"+suffix[a_t]+"-mc"+r : ""
+                        Q.Contains(-11) ? "He3gg-thr-dt-final"+suffix[a_t]+"-mc"+r : ""
                     )
                 )
             )
@@ -306,7 +306,7 @@ int main()
             Plot(
                 Q.Contains(21) ? "He3gg-above-t-final"+suffix[a_t]+"-mc"+r : (
                     Q.Contains(-39) ? "He3gg-below-t-final"+suffix[a_t]+"-mc"+r : (
-                        Q.Contains(-3) ? "He3gg-thr-t-final"+suffix[a_t]+"-mc"+r : ""
+                        Q.Contains(-11) ? "He3gg-thr-t-final"+suffix[a_t]+"-mc"+r : ""
                     )
                 )
             )
@@ -315,8 +315,8 @@ int main()
                     << "set xlabel 'quickest gamma - 3he , ns'";
         }
         for(size_t a_t=0;a_t<suffix.size();a_t++){
-            const auto DT=Hist(DATA, "C", histpath_central_reconstr, "dt5"+to_string(a_t+1)+"-Bin-"+to_string(bin_num)).Scale(50);
-            const auto T=Hist(DATA, "C", histpath_central_reconstr, "t5"+to_string(a_t+1)+"-Bin-"+to_string(bin_num)).Scale(50);
+            const auto DT=Hist(DATA, "C", histpath_central_reconstr, "dt5"+to_string(a_t)+"-Bin-"+to_string(bin_num)).Scale(50);
+            const auto T=Hist(DATA, "C", histpath_central_reconstr, "t5"+to_string(a_t)+"-Bin-"+to_string(bin_num)).Scale(50);
 
             const auto DTBG=WeightedAverage<>()<<DT[2].Y()<<DT[3].Y();//<<DT[4].Y();
             ev_am1[a_t]<<make_point(Q,DT[0].Y()+DT[1].Y()-DTBG()*2.0);
@@ -327,7 +327,7 @@ int main()
             Plot(
                 Q.Contains(21) ? "He3gg-above-data-dt-final"+suffix[a_t] : (
                     Q.Contains(-39) ? "He3gg-below-data-dt-final"+suffix[a_t] : (
-                        Q.Contains(-3) ? "He3gg-thr-data-dt-final"+suffix[a_t] : ""
+                        Q.Contains(-11) ? "He3gg-thr-data-dt-final"+suffix[a_t] : ""
                     )
                 )
             )
@@ -338,7 +338,7 @@ int main()
             Plot(
                 Q.Contains(21) ? "He3gg-above-data-t-final"+suffix[a_t] : (
                     Q.Contains(-39) ? "He3gg-below-data-t-final"+suffix[a_t] : (
-                        Q.Contains(-3) ? "He3gg-thr-data-t-final"+suffix[a_t] : ""
+                        Q.Contains(-11) ? "He3gg-thr-data-t-final"+suffix[a_t] : ""
                     )
                 )
             )
@@ -432,10 +432,10 @@ int main()
                 << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]"
                 << "set title '"+runmsg+"'";
         //cross section is not peak area but it's height
-        CS<<make_point((a_t+1)*20.,P[0].make_wider(3)*LinearInterpolation<>(fg-bg)(P[1].val())/P[0].val());
-        POS<<make_point((a_t+1)*20.,P[1]);
-        WIDTH<<make_point((a_t+1)*20.,P[2]);
-        CHISQ<<make_point(value<>((a_t+1)*20.,2.5),fit.Optimality()/(fit.Points().size()-fit.ParamCount()));
+        CS<<make_point((a_t)*20.,P[0].make_wider(3)*LinearInterpolation<>(fg-bg)(P[1].val())/P[0].val());
+        POS<<make_point((a_t)*20.,P[1]);
+        WIDTH<<make_point((a_t)*20.,P[2]);
+        CHISQ<<make_point(value<>((a_t)*20.,2.5),fit.Optimality()/(fit.Points().size()-fit.ParamCount()));
     }
     Plot("He3gg-tube-acc").Hist(he3acc*100.)
             << "set xlabel 'Q, MeV'" << "set xrange [-70:30]"
