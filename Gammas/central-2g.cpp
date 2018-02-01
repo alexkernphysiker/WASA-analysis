@@ -318,10 +318,10 @@ int main()
             const auto DT=Hist(DATA, "C", histpath_central_reconstr, "dt5"+to_string(a_t)+"-Bin-"+to_string(bin_num)).Scale(50);
             const auto T=Hist(DATA, "C", histpath_central_reconstr, "t5"+to_string(a_t)+"-Bin-"+to_string(bin_num)).Scale(50);
 
-            const auto DTBG=WeightedAverage<>()<<DT[2].Y()<<DT[3].Y();//<<DT[4].Y();
+            const auto DTBG=WeightedAverage<>()<<DT[2].Y()<<DT[3].Y()<<DT[4].Y();
             ev_am1[a_t]<<make_point(Q,DT[0].Y()+DT[1].Y()-DTBG()*2.0);
-            const LinearInterpolation<value<>> TBG=Points<value<>>{T[3],T[6]};
-            ev_am2[a_t]<<make_point(Q,(T[4].Y()-TBG(T[4].X()))+(T[5].Y()-TBG(T[5].X())));
+            const LinearInterpolation<value<>> TBG=Points<value<>>{T[3],T[7]};
+            ev_am2[a_t]<<make_point(Q,(T[4].Y()-TBG(T[4].X()))+(T[5].Y()-TBG(T[5].X()))+(T[6].Y()-TBG(T[6].X())));
             const hist<> dtbgplot=Points<value<>>{{DT[0].X(),DTBG()},{DT[1].X(),DTBG()}};
 
             Plot(
@@ -334,7 +334,7 @@ int main()
             .Hist(DT,"Data").Line(DT.toLine()).Hist(dtbgplot,"background")
                     << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel 'dt gamma-gamma, ns'";
-            const hist<> tbgplot=Points<value<>>{{T[4].X(),TBG(T[4].X())},{T[5].X(),TBG(T[5].X())}};
+            const hist<> tbgplot=Points<value<>>{{T[4].X(),TBG(T[4].X())},{T[5].X(),TBG(T[5].X())},{T[6].X(),TBG(T[6].X())}};
             Plot(
                 Q.Contains(21) ? "He3gg-above-data-t-final"+suffix[a_t] : (
                     Q.Contains(-39) ? "He3gg-below-data-t-final"+suffix[a_t] : (
@@ -394,13 +394,13 @@ int main()
         }
         const hist<> known_events = true_he3eta*acc[a_t][1]*0.4;
         Plot("He3gg-events-final"+suffix[a_t])
-            .Hist(ev_am1[a_t],"data left")
-            .Hist(ev_am2[a_t],"data right")
+            .Hist(ev_am1[a_t],"data dt(gamma-gamma)")
+            .Hist(ev_am2[a_t],"data dt(3He-gamma)")
             .Line(known_events.toLine(),"3He+eta")
                 << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
                 << "set ylabel 'events, n.d.'" << "set yrange [0:]"
                 << "set title '"+runmsg+"'";
-        const hist<> ev=ev_am2[a_t];//hist_avr(ev_am1[a_t],ev_am2[a_t])+0.0;
+        const hist<> ev=hist_avr(ev_am1[a_t],ev_am2[a_t])+0.0;
         Plot("He3gg-events-final"+suffix[a_t]+"-bound")
             .Hist(ev - known_events)
                 << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
@@ -444,7 +444,7 @@ int main()
     Plot("He3gg-cross-section").Hist(CS)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
             << "set xrange [-5:50]"
-            << "set ylabel 'Cross section, nb'" << "set yrange [0:]"
+            << "set ylabel 'Cross section, nb'" << "set yrange [0:50]"
             << "set title 'Cross section (3 sigma) "+runmsg+"'";
     Plot("He3gg-pos").Hist(POS)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
@@ -454,11 +454,11 @@ int main()
     Plot("He3gg-width").Hist(WIDTH)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
             << "set xrange [-5:50]"
-            << "set ylabel 'sigma, MeV'" << "set yrange [0:10]"
+            << "set ylabel 'sigma, MeV'" << "set yrange [0:20]"
             << "set title 'Peak width (sigma) "+runmsg+"'";
     Plot("He3gg-cross-section-chisq").Hist(CHISQ)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
             << "set xrange [-5:50]"
-            << "set ylabel 'chi square, n.d.'" << "set yrange [0:2]"
+            << "set ylabel 'chi square, n.d.'" << "set yrange [0:1.5]"
             << "set title 'Chi square "+runmsg+"'";
 }

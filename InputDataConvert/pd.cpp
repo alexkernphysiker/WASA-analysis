@@ -62,19 +62,20 @@ int main()
             const auto p0=lorentz_byPM(x()*pb,Particle::p().mass());
             const auto d0=lorentz_byPM(zero(),Particle::d().mass());
             const auto total=p0+d0;
-            const auto beta=-total.Beta();
+            const auto beta=total.Beta();
+            const auto p0_cm=p0.Transform(beta);
             const auto d0_cm=d0.Transform(beta);
             const auto final_cm=binaryDecay(total.M(),Particle::p().mass(),Particle::d().mass(),direction(theta_cm));
-            const auto t=(final_cm.first.P()-d0_cm.P()).M();
-            const auto p1=final_cm.first.Transform(beta);
-            const auto d1=final_cm.second.Transform(beta);
+            const auto t=(final_cm.first.P()-p0.P()).M();
+            const auto p1=final_cm.first.Transform(-beta);
+            const auto d1=final_cm.second.Transform(-beta);
             if(t<0.7){
                 out<<make_point(theta_cm*180/PI(),t);
                 const auto angles=make_pair(direction(p1.P()).phi()*180./PI(),direction(d1.P()).phi()*180./PI());
                 outpd.push_back(make_point(abs(angles.first),abs(angles.second)));
             }
         }
-        t_vs_th.Line(out,to_string(pb));
-        th_vs_th_l.Line(outpd,to_string(pb));
+        if(out.size()>0)t_vs_th.Line(out,to_string(pb));
+        if(outpd.size()>0)th_vs_th_l.Line(outpd,to_string(pb));
     }
 }
