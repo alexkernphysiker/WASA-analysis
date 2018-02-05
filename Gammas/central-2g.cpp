@@ -57,7 +57,7 @@ int main()
     vector<vector<hist<>>> acceptance;
     hist<> he3acc;
 
-    const vector<string> suffix={"-zero","","-strict"};
+    const vector<string> suffix={"-0","-20","-40","-60","-80"};
     vector<hist<>> ev_am1,ev_am2;
     vector<vector<hist<>>> acc;
     for(size_t i=0;i<suffix.size();i++){
@@ -285,7 +285,7 @@ int main()
                 << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
                 << "set ylabel 'Acceptance, percents'"<<"set xrange [-5:100]";
 
-        for (size_t i = 0; i < reaction.size(); i++) for(size_t a_t=0;a_t<suffix.size();a_t++){
+        for(size_t i = 0; i < reaction.size(); i++) for(size_t a_t=0;a_t<suffix.size();a_t++){
             const auto &r = reaction[i];
             const auto DT=Hist(MC, r, histpath_central_reconstr, "dt5"+to_string(a_t)+"-Bin-"+to_string(bin_num)).Scale(10);
             const auto T=Hist(MC, r, histpath_central_reconstr, "t5"+to_string(a_t)+"-Bin-"+to_string(bin_num)).Scale(10);
@@ -432,10 +432,10 @@ int main()
                 << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]"
                 << "set title '"+runmsg+"'";
         //cross section is not peak area but it's height
-        CS<<make_point((a_t)*20.,P[0].make_wider(3)*LinearInterpolation<>(fg-bg)(P[1].val())/P[0].val());
-        POS<<make_point((a_t)*20.,P[1]);
-        WIDTH<<make_point((a_t)*20.,P[2]);
-        CHISQ<<make_point(value<>((a_t)*20.,2.5),fit.Optimality()/(fit.Points().size()-fit.ParamCount()));
+        CS<<make_point(a_t*20.,P[0].make_wider(3)*LinearInterpolation<>(fg-bg)(P[1].val())/P[0].val());
+        POS<<make_point(a_t*20.,P[1]);
+        WIDTH<<make_point(a_t*20.,P[2]);
+        CHISQ<<make_point(value<>(a_t*20.,2.5),fit.Optimality()/(fit.Points().size()-fit.ParamCount()));
     }
     Plot("He3gg-tube-acc").Hist(he3acc*100.)
             << "set xlabel 'Q, MeV'" << "set xrange [-70:30]"
@@ -443,22 +443,22 @@ int main()
             << "set title 'How many helium ions from mesic nuclei decay would be detected'";
     Plot("He3gg-cross-section").Hist(CS)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-5:50]"
-            << "set ylabel 'Cross section, nb'" << "set yrange [0:50]"
+            << "set xrange [-10:90]"
+            << "set ylabel 'Cross section, nb'" << "set yrange [0:]"
             << "set title 'Cross section (3 sigma) "+runmsg+"'";
     Plot("He3gg-pos").Hist(POS)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-5:50]"
+            << "set xrange [-10:90]"
             << "set ylabel 'Position, MeV'" << "set yrange [-20:0]"
             << "set title 'Peak position "+runmsg+"'";
     Plot("He3gg-width").Hist(WIDTH)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-5:50]"
+            << "set xrange [-10:90]"
             << "set ylabel 'sigma, MeV'" << "set yrange [0:20]"
             << "set title 'Peak width (sigma) "+runmsg+"'";
     Plot("He3gg-cross-section-chisq").Hist(CHISQ)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-5:50]"
+            << "set xrange [-10:90]"
             << "set ylabel 'chi square, n.d.'" << "set yrange [0:1.5]"
             << "set title 'Chi square "+runmsg+"'";
 }
