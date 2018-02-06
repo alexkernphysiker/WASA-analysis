@@ -191,10 +191,14 @@ int main()
                 }
             }
         }
-        const hist<> data1 = Hist(DATA, "CC", histpath_central_reconstr, string("t6-Bin-") + to_string(bin_num)).Scale(10);
-        ev_am1 << make_point(Q, std_error(data1.TotalSum().val()));
-        const hist<> data2 = Hist(DATA, "CC", histpath_central_reconstr, string("dt6-Bin-") + to_string(bin_num)).Scale(10);
-        ev_am2 << make_point(Q, std_error(data2.TotalSum().val()));
+        const hist<> T = Hist(DATA, "CC", histpath_central_reconstr, string("t6-Bin-") + to_string(bin_num)).Scale(50);
+        const hist<> DT = Hist(DATA, "CC", histpath_central_reconstr, string("dt6-Bin-") + to_string(bin_num)).Scale(50);
+
+        const auto DTBG=WeightedAverage<>()<<DT[3].Y()<<DT[4].Y();
+        ev_am1<<make_point(Q,DT[0].Y()+DT[1].Y()+DT[2].Y()-DTBG()*3.0);
+        const LinearInterpolation<value<>> TBG=Points<value<>>{T[3],T[7]};
+        ev_am2<<make_point(Q,(T[4].Y()-TBG(T[4].X()))+(T[5].Y()-TBG(T[5].X()))+(T[6].Y()-TBG(T[6].X())));
+        const hist<> dtbgplot=Points<value<>>{{DT[0].X(),DTBG()},{DT[1].X(),DTBG()},{DT[2].X(),DTBG()}};
         Plot(
             Q.Contains(21) ? "He36g-above-data1" : (
                 Q.Contains(-39) ? "He36g-below-data1" : (
@@ -202,9 +206,10 @@ int main()
                 )
             )
         )
-        .Hist(data1)
+        .Hist(DT,"Data").Line(DT.toLine()).Hist(dtbgplot,"background")
                 << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
-                << "set xlabel '3He-gamma time difference, ns'";
+                << "set xlabel 'gamma-gamma time difference, ns'"<<"set key on";
+        const hist<> tbgplot=Points<value<>>{{T[4].X(),TBG(T[4].X())},{T[5].X(),TBG(T[5].X())},{T[6].X(),TBG(T[6].X())}};
         Plot(
             Q.Contains(21) ? "He36g-above-data2" : (
                 Q.Contains(-39) ? "He36g-below-data2" : (
@@ -212,9 +217,9 @@ int main()
                 )
             )
         )
-        .Hist(data2)
+        .Hist(T,"Data").Line(T.toLine()).Hist(tbgplot,"background")
                 << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
-                << "set xlabel 'gamma-gamma time difference, ns'";
+                << "set xlabel '3He-gamma time difference, ns'"<<"set key on";
     }
     Plot accplot("He36g-acceptance");
     accplot << "set title 'Acceptance'"

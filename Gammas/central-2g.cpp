@@ -57,7 +57,7 @@ int main()
     vector<vector<hist<>>> acceptance;
     hist<> he3acc;
 
-    const vector<string> suffix={"-0","-20","-40","-60","-80"};
+    const vector<string> suffix={"-0","-20","-40","-60"};
     vector<hist<>> ev_am1,ev_am2;
     vector<vector<hist<>>> acc;
     for(size_t i=0;i<suffix.size();i++){
@@ -322,8 +322,8 @@ int main()
             ev_am1[a_t]<<make_point(Q,DT[0].Y()+DT[1].Y()-DTBG()*2.0);
             const LinearInterpolation<value<>> TBG=Points<value<>>{T[3],T[7]};
             ev_am2[a_t]<<make_point(Q,(T[4].Y()-TBG(T[4].X()))+(T[5].Y()-TBG(T[5].X()))+(T[6].Y()-TBG(T[6].X())));
-            const hist<> dtbgplot=Points<value<>>{{DT[0].X(),DTBG()},{DT[1].X(),DTBG()}};
 
+            const hist<> dtbgplot=Points<value<>>{{DT[0].X(),DTBG()},{DT[1].X(),DTBG()}};
             Plot(
                 Q.Contains(21) ? "He3gg-above-data-dt-final"+suffix[a_t] : (
                     Q.Contains(-39) ? "He3gg-below-data-dt-final"+suffix[a_t] : (
@@ -333,7 +333,7 @@ int main()
             )
             .Hist(DT,"Data").Line(DT.toLine()).Hist(dtbgplot,"background")
                     << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
-                    << "set xlabel 'dt gamma-gamma, ns'";
+                    << "set xlabel 'dt gamma-gamma, ns'"<<"set key on";
             const hist<> tbgplot=Points<value<>>{{T[4].X(),TBG(T[4].X())},{T[5].X(),TBG(T[5].X())},{T[6].X(),TBG(T[6].X())}};
             Plot(
                 Q.Contains(21) ? "He3gg-above-data-t-final"+suffix[a_t] : (
@@ -344,7 +344,7 @@ int main()
             )
             .Hist(T,"Data").Line(T.toLine()).Hist(tbgplot,"background")
                     << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
-                    << "set xlabel 'quickest gamma - 3he , ns'";
+                    << "set xlabel 'quickest gamma - 3he , ns'"<<"set key on";
         }
 
     }
@@ -373,7 +373,8 @@ int main()
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title 'Cut number "+to_string(cut_index)+". "+runmsg+"'";
     }
-    hist<> CS,CHISQ,POS,WIDTH;
+    hist<> CS_1,CS_3,POS,WIDTH;
+    SortedPoints<> CHISQ,CHISQ_W;
     for(size_t a_t=0;a_t<suffix.size();a_t++){
         Plot accplot("He3gg-acceptance-final"+suffix[a_t]);
         accplot << "set title 'Acceptance'"
@@ -413,10 +414,10 @@ int main()
         auto init=make_shared<InitialDistributions>()
                     <<make_shared<DistribGauss>(50,50)
                     <<make_shared<DistribGauss>(-15,5)
-                    <<make_shared<DistribGauss>(10,5)
+                    <<make_shared<DistribGauss>(10,10)
                     <<make_shared<DistribGauss>(100,100);
         while(init->Count()<BG::ParamCount)init<<make_shared<DistribGauss>(0,1);
-        fit.SetFilter([](const ParamSet&P){return (P[2]>4)&&(P[2]<15)&&(P[0]>0)&&(P[1]<0)&&(P[1]>-20);});
+        fit.SetFilter([](const ParamSet&P){return (P[2]>4)&&(P[2]<25)&&(P[0]>0)&&(P[1]<5)&&(P[1]>-30);});
         fit.Init(300,init);
         while(!fit.AbsoluteOptimalityExitCondition(0.0000001))fit.Iterate();
         fit.SetUncertaintyCalcDeltas({0.1,0.01,0.01,0.1});
@@ -432,33 +433,48 @@ int main()
                 << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]"
                 << "set title '"+runmsg+"'";
         //cross section is not peak area but it's height
-        CS<<make_point(a_t*20.,P[0].make_wider(3)*LinearInterpolation<>(fg-bg)(P[1].val())/P[0].val());
-        POS<<make_point(a_t*20.,P[1]);
-        WIDTH<<make_point(a_t*20.,P[2]);
-        CHISQ<<make_point(value<>(a_t*20.,2.5),fit.Optimality()/(fit.Points().size()-fit.ParamCount()));
+        const double cs_coef=LinearInterpolation<>(fg-bg)(P[1].val())/P[0].val();
+        const double cp=20.*a_t;
+        CS_1<<make_point(cp,P[0]*cs_coef);
+        CS_3<<make_point(cp,P[0].make_wider(3)*cs_coef);
+        //other parameters
+        POS<<make_point(cp,P[1]);
+        WIDTH<<make_point(cp,P[2]);
+        CHISQ<<make_point(cp,fit.Optimality()/(fit.Points().size()-fit.ParamCount()));
+        //pure background fit
+        FitFunction<DifferentialMutations<>,BG> fit_w(make_shared<FitPoints>()<<data_shape);
+        auto init_w=make_shared<InitialDistributions>()
+                    <<make_shared<FixParam>(0)
+                    <<make_shared<FixParam>(0)
+                    <<make_shared<FixParam>(0)
+                    <<make_shared<DistribGauss>(100,100);
+        while(init_w->Count()<BG::ParamCount)init_w<<make_shared<DistribGauss>(0,1);
+        fit_w.Init(300,init_w);
+        while(!fit_w.AbsoluteOptimalityExitCondition(0.0000001))fit_w.Iterate();
+        CHISQ_W<<make_point(cp,fit_w.Optimality()/(fit_w.Points().size()-fit_w.ParamCount()+3));
     }
     Plot("He3gg-tube-acc").Hist(he3acc*100.)
             << "set xlabel 'Q, MeV'" << "set xrange [-70:30]"
             << "set ylabel 'Acceptance, percents'" << "set yrange [0:]"
             << "set title 'How many helium ions from mesic nuclei decay would be detected'";
-    Plot("He3gg-cross-section").Hist(CS)
+    Plot("He3gg-cross-section").Hist(CS_3,"3 sigma").Hist(CS_1,"1 sigma")
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-10:90]"
+            << "set xrange [-10:70]"<<"set key on"
             << "set ylabel 'Cross section, nb'" << "set yrange [0:]"
-            << "set title 'Cross section (3 sigma) "+runmsg+"'";
+            << "set title 'Cross section "+runmsg+"'";
     Plot("He3gg-pos").Hist(POS)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-10:90]"
+            << "set xrange [-10:70]"
             << "set ylabel 'Position, MeV'" << "set yrange [-20:0]"
             << "set title 'Peak position "+runmsg+"'";
     Plot("He3gg-width").Hist(WIDTH)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-10:90]"
+            << "set xrange [-10:70]"
             << "set ylabel 'sigma, MeV'" << "set yrange [0:20]"
             << "set title 'Peak width (sigma) "+runmsg+"'";
-    Plot("He3gg-cross-section-chisq").Hist(CHISQ)
+    Plot("He3gg-cross-section-chisq").Line(CHISQ,"with peak").Line(CHISQ_W,"without peak")
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-10:90]"
-            << "set ylabel 'chi square, n.d.'" << "set yrange [0:1.5]"
+            << "set xrange [-10:70]"<<"set key on"
+            << "set ylabel 'chi square, n.d.'" << "set yrange [0:2]"
             << "set title 'Chi square "+runmsg+"'";
 }
