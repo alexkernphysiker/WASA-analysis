@@ -22,9 +22,9 @@ int main()
         if (HS == MC) {
             title = "Simulation " + R;
             Plot()
-            .Line(Hist(HS, R, {"Histograms", "He3Forward_Reconstruction"}, "0-Reference").toLine(), "Simulated events")
-            .Line(Hist(HS, R, {"Histograms", "He3Forward_Reconstruction"}, "2-ThetaIsAccepted").toLine(), "Reconstructable forward tracks")
-            .Line(Hist(HS, R, {"Histograms", "He3Forward_Reconstruction"}, "4-GeomCut").toLine(), "identified as ^3He")
+            .Hist(Hist(HS, R, {"Histograms", "He3Forward_Reconstruction"}, "0-Reference"), "Simulated events")
+            .Hist(Hist(HS, R, {"Histograms", "He3Forward_Reconstruction"}, "2-ThetaIsAccepted"), "Reconstructable forward tracks")
+            .Hist(Hist(HS, R, {"Histograms", "He3Forward_Reconstruction"}, "4-GeomCut"), "identified as ^3He")
                     << "set key on" << "set title '" + title + "'"
                     << "set yrange [0:]"
                     << "set xrange [0:30]"

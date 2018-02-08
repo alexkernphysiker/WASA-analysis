@@ -119,7 +119,7 @@ int main()
             Plot subplot(Q.Contains(21) ? "He3eta-subtract" : (Q.Contains(9) ? "He3eta-subtract-lo":""));
             subplot.Hist(clean,"DATA").Line(Points<>{{clean.left().X().min(), 0.0},{clean.right().X().max(), 0.0}});
             subplot.Hist(clean = clean.XRange(cut.first, cut.second))
-                .Line(hist<>(mc*clean.TotalSum()/mc.TotalSum()).toLine(),"MC")
+                .Hist(mc*clean.TotalSum()/mc.TotalSum(),"MC")
                     << "set key on" << "set title '" + Qmsg + ", " + runmsg + "'"
                     << "set xlabel 'Missing mass, GeV'"
                     << "set ylabel 'counts'"

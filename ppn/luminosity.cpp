@@ -195,12 +195,12 @@ int main()
         events3<<make_point(Q,ev3);
 
         Plot(Q.Contains(21) ? "ppn-above-mc-time" : (Q.Contains(-39) ? "ppn-below-mc-time" : ""))
-            .Line(data_time_mc.toLine(),"MC ppn")
-            .Line(data_time_mc2.toLine(),"MC pd")
+            .Hist(data_time_mc,"MC ppn")
+            .Hist(data_time_mc2,"MC pd")
                 << "set title 'Time difference. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
                 << "set yrange [0:]" << "set xlabel 'time difference, ns'";
         Plot(Q.Contains(21) ? "ppn-above-data-time" : (Q.Contains(-39) ? "ppn-below-data-time" : ""))
-            .Hist(data_time,"Data").Line(data_time.toLine())
+            .Hist(data_time,"Data")
             .Hist(time_bg2,"Background left").Hist(time_bg3,"Background right")
                 << "set title 'Time difference. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
                 << "set yrange [0:]" << "set xlabel 'time difference, ns'";
@@ -241,10 +241,10 @@ int main()
         data_chi_sq << make_point(Q, fit.Optimality() / (fit.Points().size() - fit.ParamCount()));
         Plot(Q.Contains(21) ? "ppn-above-data-copl" : (Q.Contains(-39) ? "ppn-below-data-copl" : ""))
             .Hist(data_copl_inside).Hist(data_copl_outside)
-            .Line(hist<>(data_copl*0.0+BG).toLine())
+            .Hist(data_copl.CloneEmptyBins()+BG, "BG")
                 << "set title 'Coplanarity. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
                 << "set yrange [0:]" << "set xlabel " + planarity;
-        events<<make_point(Q,hist<>(data_copl_inside-BG).TotalSum());
+        events<<make_point(Q,(data_copl_inside-BG).TotalSum());
 
     }
     Plot("ppn-acceptance")

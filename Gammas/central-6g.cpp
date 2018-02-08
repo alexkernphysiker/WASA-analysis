@@ -56,7 +56,7 @@ int main()
             .Hist(Hist(MC, r, histpath_central_reconstr, "GMMPDiff4"))
                     << "set key on" << "set yrange [0:]";
         }
-        theory.Line(Hist(MC, r, histpath_central_reconstr, "GMMPDiff4").toLine(), r);
+        theory.Hist(Hist(MC, r, histpath_central_reconstr, "GMMPDiff4"), r);
     }
     theory << "set key on" << "set yrange [0:]";
     experiment
@@ -195,10 +195,10 @@ int main()
         const hist<> DT = Hist(DATA, "CC", histpath_central_reconstr, string("dt6-Bin-") + to_string(bin_num)).Scale(50);
 
         const auto DTBG=WeightedAverage<>()<<DT[3].Y()<<DT[4].Y();
-        ev_am1<<make_point(Q,DT[0].Y()+DT[1].Y()+DT[2].Y()-DTBG()*3.0);
+        ev_am1<<make_point(Q,DT[0].Y()+DT[1].Y()+DT[2].Y()-DTBG*3.0);
         const LinearInterpolation<value<>> TBG=Points<value<>>{T[3],T[7]};
         ev_am2<<make_point(Q,(T[4].Y()-TBG(T[4].X()))+(T[5].Y()-TBG(T[5].X()))+(T[6].Y()-TBG(T[6].X())));
-        const hist<> dtbgplot=Points<value<>>{{DT[0].X(),DTBG()},{DT[1].X(),DTBG()},{DT[2].X(),DTBG()}};
+        const hist<> dtbgplot=Points<value<>>{{DT[0].X(),DTBG},{DT[1].X(),DTBG},{DT[2].X(),DTBG}};
         Plot(
             Q.Contains(21) ? "He36g-above-data1" : (
                 Q.Contains(-39) ? "He36g-below-data1" : (
@@ -206,7 +206,7 @@ int main()
                 )
             )
         )
-        .Hist(DT,"Data").Line(DT.toLine()).Hist(dtbgplot,"background")
+        .Hist(DT,"Data").Hist(dtbgplot,"background")
                 << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
                 << "set xlabel 'gamma-gamma time difference, ns'"<<"set key on";
         const hist<> tbgplot=Points<value<>>{{T[4].X(),TBG(T[4].X())},{T[5].X(),TBG(T[5].X())},{T[6].X(),TBG(T[6].X())}};
@@ -217,7 +217,7 @@ int main()
                 )
             )
         )
-        .Hist(T,"Data").Line(T.toLine()).Hist(tbgplot,"background")
+        .Hist(T,"Data").Hist(tbgplot,"background")
                 << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
                 << "set xlabel '3He-gamma time difference, ns'"<<"set key on";
     }

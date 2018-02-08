@@ -300,7 +300,7 @@ int main()
                     )
                 )
             )
-            .Hist(DT).Line(DT.toLine())
+            .Hist(DT)
                     << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel 'dt gamma-gamma, ns'";
             Plot(
@@ -310,7 +310,7 @@ int main()
                     )
                 )
             )
-            .Hist(T).Line(T.toLine())
+            .Hist(T)
                     << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel 'quickest gamma - 3he , ns'";
         }
@@ -319,11 +319,11 @@ int main()
             const auto T=Hist(DATA, "C", histpath_central_reconstr, "t5"+to_string(a_t)+"-Bin-"+to_string(bin_num)).Scale(50);
 
             const auto DTBG=WeightedAverage<>()<<DT[2].Y()<<DT[3].Y()<<DT[4].Y();
-            ev_am1[a_t]<<make_point(Q,DT[0].Y()+DT[1].Y()-DTBG()*2.0);
+            ev_am1[a_t]<<make_point(Q,DT[0].Y()+DT[1].Y()-DTBG*2.0);
             const LinearInterpolation<value<>> TBG=Points<value<>>{T[3],T[7]};
             ev_am2[a_t]<<make_point(Q,(T[4].Y()-TBG(T[4].X()))+(T[5].Y()-TBG(T[5].X()))+(T[6].Y()-TBG(T[6].X())));
 
-            const hist<> dtbgplot=Points<value<>>{{DT[0].X(),DTBG()},{DT[1].X(),DTBG()}};
+            const hist<> dtbgplot=Points<value<>>{{DT[0].X(),DTBG},{DT[1].X(),DTBG}};
             Plot(
                 Q.Contains(21) ? "He3gg-above-data-dt-final"+suffix[a_t] : (
                     Q.Contains(-39) ? "He3gg-below-data-dt-final"+suffix[a_t] : (
@@ -331,7 +331,7 @@ int main()
                     )
                 )
             )
-            .Hist(DT,"Data").Line(DT.toLine()).Hist(dtbgplot,"background")
+            .Hist(DT,"Data").Hist(dtbgplot,"background")
                     << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel 'dt gamma-gamma, ns'"<<"set key on";
             const hist<> tbgplot=Points<value<>>{{T[4].X(),TBG(T[4].X())},{T[5].X(),TBG(T[5].X())},{T[6].X(),TBG(T[6].X())}};
@@ -342,7 +342,7 @@ int main()
                     )
                 )
             )
-            .Hist(T,"Data").Line(T.toLine()).Hist(tbgplot,"background")
+            .Hist(T,"Data").Hist(tbgplot,"background")
                     << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel 'quickest gamma - 3he , ns'"<<"set key on";
         }
@@ -397,11 +397,11 @@ int main()
         Plot("He3gg-events-final"+suffix[a_t])
             .Hist(ev_am1[a_t],"data dt(gamma-gamma)")
             .Hist(ev_am2[a_t],"data dt(3He-gamma)")
-            .Line(known_events.toLine(),"3He+eta")
+            .Hist(known_events,"3He+eta")
                 << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
                 << "set ylabel 'events, n.d.'" << "set yrange [0:]"
                 << "set title '"+runmsg+"'";
-        const hist<> ev=hist_avr(ev_am1[a_t],ev_am2[a_t])+0.0;
+        const auto ev=hist_avr(ev_am1[a_t],ev_am2[a_t]);
         Plot("He3gg-events-final"+suffix[a_t]+"-bound")
             .Hist(ev - known_events)
                 << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"

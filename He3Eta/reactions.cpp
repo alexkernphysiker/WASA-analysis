@@ -76,21 +76,21 @@ int main()
                 const hist<> react_sim = transform(Hist(MC, reaction[i], histpath_forward_reconstr, string("MissingMass-Bin-") + to_string(bin_num)));
                 const hist<> react_sim2 = transform2(react_sim);
                 auto N = norm[i][bin_num].Y();
-                th_plot.Line(react_sim.toLine() / (N.val()*react_sim[0].X().uncertainty() * 2.), reaction[i]);
-                th_plot2.Line(react_sim2.toLine() / (N.val()*react_sim2[0].X().uncertainty() * 2.), reaction[i]);
-                const auto MN = value<>::std_error(react_sim.TotalSum().val());
-                const auto MN2 = value<>::std_error(react_sim2.TotalSum().val());
+                th_plot.Hist(react_sim / (N*react_sim[0].X().uncertainty() * 2.), reaction[i]);
+                th_plot2.Hist(react_sim2 / (N*react_sim2[0].X().uncertainty() * 2.), reaction[i]);
+                const auto MN = std_error(react_sim.TotalSum().val());
+                const auto MN2 = std_error(react_sim2.TotalSum().val());
                 if (N.Above(0)) {
-                    acceptance[i] << point<value<>>(Q, MN / N);
-                    acceptance2[i] << point<value<>>(Q, MN2 / N);
+                    acceptance[i] << make_point(Q, MN / N);
+                    acceptance2[i] << make_point(Q, MN2 / N);
                 } else {
-                    acceptance[i] << point<value<>>(Q, 0.0);
-                    acceptance2[i] << point<value<>>(Q, 0.0);
+                    acceptance[i] << make_point(Q, 0.0);
+                    acceptance2[i] << make_point(Q, 0.0);
                 }
             }
         }
         cout << endl << Qmsg << endl << endl;
-        events_count << point<value<>>(Q, value<>::std_error(data2.TotalSum().val()));
+        events_count << make_point(Q, std_error(data2.TotalSum().val()));
     }
     Plot acc("He3forward-acceptance"), acc2("He3forward-acceptance2");
     acc << "set key on"
@@ -107,17 +107,7 @@ int main()
     }
     const hist<> luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYc");
     const hist<> he3etacs = Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed");
-    const hist<> he3eta_events =
-        luminosity * (runs.first / runs.second)
-        / double(trigger_he3_forward.scaling)
-        * (he3etacs * acceptance2[0]);
-    const hist<> he3pi0pi0pi0_events =
-        luminosity * (runs.first / runs.second)
-        / double(trigger_he3_forward.scaling)
-        * (acceptance2[1] * value<>(115, 25));
     Plot("He3forward-events")
-    .Hist(he3eta_events, "3He+eta")
-    .Hist(he3eta_events + he3pi0pi0pi0_events, "3He+eta and 3He+3pi0")
     .Hist(events_count, "data")
             << "set key on"
             << "set yrange [0:]" << "unset log y"
