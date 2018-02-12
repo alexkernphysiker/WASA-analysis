@@ -18,12 +18,12 @@ int main()
     cs_vs_t<<"set key on"<<"set log y">>"unset log y";
     cs_vs_t_lin<<"set key on";
     const vector<string> files{"pb1271","pb1455","pb1459","pb1463","pb1569","pb1686"};
-    auto pointstofit=make_shared<FitPoints>();
+    FitPoints1D pointstofit;
     for(const auto&f:files){
         const auto data=Plotter::Instance().GetPoints<double,value<>>("pd/"+f);
         cs_vs_t.Points(data,f);
         cs_vs_t_lin.Points(data,f);
-        pointstofit<<data;
+        for(const auto&p:data)pointstofit.push_back(p);
     }
     Fit<DifferentialMutations<Uncertainty>> fit(pointstofit,[](const ParamSet&X,const ParamSet&P){
         return exp(P[0]+P[1]*X[0]+P[2]*X[0]*X[0]+P[3]*X[0]*X[0]*X[0]);

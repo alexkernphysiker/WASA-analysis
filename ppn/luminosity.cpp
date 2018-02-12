@@ -225,7 +225,7 @@ int main()
         acceptance_pd << make_point(Q, epsilon2);
 
         Fit<DifferentialMutations<Uncertainty>> fit(
-            make_shared<FitPoints>()<<data_copl_outside.removeXerorbars(),
+            data_copl_outside.removeXerorbars(),
             [](const ParamSet&,const ParamSet&P){return P[0];}
         );
         fit.SetUncertaintyCalcDeltas({0.001})

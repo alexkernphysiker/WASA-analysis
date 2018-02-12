@@ -410,7 +410,7 @@ int main()
         const auto data_shape=(
             (ev-known_events)*double(trigger_he3_forward.scaling)/(acc[a_t][0]*luminosity)
         ).XRange(-50,30);
-        FitFunction<DifferentialMutations<Uncertainty>,Add<FG,BG>> fit(make_shared<FitPoints>()<<data_shape.removeXerorbars());
+        FitFunction<DifferentialMutations<Uncertainty>,Add<FG,BG>> fit(data_shape.removeXerorbars());
         auto init=make_shared<InitialDistributions>()
                     <<make_shared<DistribGauss>(50,50)
                     <<make_shared<DistribGauss>(-15,5)
@@ -442,7 +442,7 @@ int main()
         WIDTH<<make_point(cp,P[2]);
         CHISQ<<make_point(cp,fit.Optimality()/(fit.Points().size()-fit.ParamCount()));
         //pure background fit
-        FitFunction<DifferentialMutations<>,BG> fit_w(make_shared<FitPoints>()<<data_shape.removeXerorbars());
+        FitFunction<DifferentialMutations<>,BG> fit_w(data_shape.removeXerorbars());
         auto init_w=make_shared<InitialDistributions>()
                     <<make_shared<FixParam>(0)
                     <<make_shared<FixParam>(0)
