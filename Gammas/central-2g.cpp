@@ -444,10 +444,10 @@ int main()
         //pure background fit
         FitFunction<DifferentialMutations<>,BG> fit_w(data_shape.removeXerorbars());
         auto init_w=make_shared<InitialDistributions>()
-                    <<make_shared<FixParam>(0)
-                    <<make_shared<FixParam>(0)
-                    <<make_shared<FixParam>(0)
-                    <<make_shared<DistribGauss>(100,100);
+                <<make_shared<FixParam>(0)
+                <<make_shared<FixParam>(0)
+                <<make_shared<FixParam>(0)
+                <<make_shared<DistribGauss>(100,100);
         while(init_w->Count()<BG::ParamCount)init_w<<make_shared<DistribGauss>(0,1);
         fit_w.Init(300,init_w);
         while(!fit_w.AbsoluteOptimalityExitCondition(0.0000001))fit_w.Iterate();
