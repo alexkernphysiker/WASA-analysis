@@ -57,7 +57,7 @@ int main()
             const auto data_bg = data.XExclude(cut.first, cut.second);
             cout << endl << Qmsg << endl << endl;
             Fit<DifferentialMutations<Uncertainty>> FIT(
-                make_shared<FitPoints>() << data_bg,
+                make_shared<FitPoints>() << data_bg.removeXerorbars(),
                 [&data_count](const ParamSet & X, const ParamSet & P) {
                     return data_count * Polynom<3>(X[0], P);
                 }

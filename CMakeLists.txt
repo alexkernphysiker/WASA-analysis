@@ -1,6 +1,5 @@
 add_definitions(-std=c++17)
 
-set(THREADS ON)
 add_subdirectory(math_h)
 add_subdirectory(FitGen)
 include_directories(${MATH_H_INC})
