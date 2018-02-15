@@ -11,7 +11,6 @@
 #include <math_h/vectors.h>
 #include <Genetic/fit.h>
 #include <Genetic/initialconditions.h>
-#include <Genetic/parabolic.h>
 #include <Experiment/experiment_conv.h>
 #include <Experiment/str_get.h>
 #include <Experiment/gethist.h>
@@ -224,7 +223,7 @@ int main()
         acceptance << make_point(Q, epsilon);
         acceptance_pd << make_point(Q, epsilon2);
 
-        Fit<DifferentialMutations<Uncertainty>> fit(
+        Fit<DifferentialMutations<>> fit(
             data_copl_outside.removeXerorbars(),
             [](const ParamSet&,const ParamSet&P){return P[0];}
         );

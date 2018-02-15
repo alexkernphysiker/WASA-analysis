@@ -11,7 +11,6 @@
 #include <Genetic/paramfunc.h>
 #include <Genetic/initialconditions.h>
 #include <Genetic/filter.h>
-#include <Genetic/parabolic.h>
 #include <Experiment/experiment_conv.h>
 #include <Experiment/str_get.h>
 #include <Experiment/gethist.h>
@@ -56,7 +55,7 @@ int main()
             const auto &data_count = data.TotalSum().val();
             const auto data_bg = data.XExclude(cut.first, cut.second);
             cout << endl << Qmsg << endl << endl;
-            Fit<DifferentialMutations<Uncertainty>> FIT(
+            Fit<DifferentialMutations<>> FIT(
                 data_bg.removeXerorbars(),
                 [&data_count](const ParamSet & X, const ParamSet & P) {
                     return data_count * Polynom<3>(X[0], P);

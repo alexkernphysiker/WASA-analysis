@@ -10,7 +10,6 @@
 #include <Genetic/searchmin.h>
 #include <Genetic/initialconditions.h>
 #include <Genetic/filter.h>
-#include <Genetic/parabolic.h>
 #include <Experiment/experiment_conv.h>
 #include <Experiment/str_get.h>
 #include <Experiment/gethist.h>

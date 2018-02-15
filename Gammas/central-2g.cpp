@@ -11,7 +11,6 @@
 #include <Genetic/paramfunc.h>
 #include <Genetic/initialconditions.h>
 #include <Genetic/filter.h>
-#include <Genetic/parabolic.h>
 #include <Experiment/experiment_conv.h>
 #include <Experiment/str_get.h>
 #include <Experiment/gethist.h>
@@ -410,7 +409,7 @@ int main()
         const auto data_shape=(
             (ev-known_events)*double(trigger_he3_forward.scaling)/(acc[a_t][0]*luminosity)
         ).XRange(-50,30);
-        FitFunction<DifferentialMutations<Uncertainty>,Add<FG,BG>> fit(data_shape.removeXerorbars());
+        FitFunction<DifferentialMutations<>,Add<FG,BG>> fit(data_shape.removeXerorbars());
         auto init=make_shared<InitialDistributions>()
                     <<make_shared<DistribGauss>(50,50)
                     <<make_shared<DistribGauss>(-15,5)
@@ -433,10 +432,10 @@ int main()
                 << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]"
                 << "set title '"+runmsg+"'";
         //cross section is not peak area but it's height
-        const double cs_coef=LinearInterpolation<>(fg-bg)(P[1].val())/P[0].val();
+        const value_numeric_const<> cs_coef=LinearInterpolation<>(fg-bg)(P[1].val())/P[0].val();
         const double cp=20.*a_t;
         CS_1<<make_point(cp,P[0]*cs_coef);
-        CS_3<<make_point(cp,P[0].make_wider(3)*cs_coef);
+        CS_3<<make_point(cp,value<>(P[0]).make_wider(3)*cs_coef);
         //other parameters
         POS<<make_point(cp,P[1]);
         WIDTH<<make_point(cp,P[2]);
