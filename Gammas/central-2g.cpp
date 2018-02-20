@@ -409,7 +409,7 @@ int main()
         const auto data_shape=(
             (ev-known_events)*double(trigger_he3_forward.scaling)/(acc[a_t][0]*luminosity)
         ).XRange(-50,30);
-        FitFunction<DifferentialMutations<>,Add<FG,BG>> fit(data_shape.removeXerorbars());
+        FitFunction2<DifferentialMutations<>,Add<FG,BG>> fit(data_shape.removeXerorbars());
         auto init=make_shared<InitialDistributions>()
                     <<make_shared<DistribGauss>(50,50)
                     <<make_shared<DistribGauss>(-15,5)

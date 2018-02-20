@@ -24,7 +24,7 @@ int main()
         cs_vs_t_lin.Points(data,f);
         for(const auto&p:data)pointstofit.push_back(p);
     }
-    Fit<DifferentialMutations<>> fit(pointstofit,[](const ParamSet&X,const ParamSet&P){
+    Fit2<DifferentialMutations<>> fit(pointstofit,[](const ParamSet&X,const ParamSet&P){
         return exp(P[0]+P[1]*X[0]+P[2]*X[0]*X[0]+P[3]*X[0]*X[0]*X[0]);
     });
     fit.SetUncertaintyCalcDeltas({0.001,0.001,0.001});

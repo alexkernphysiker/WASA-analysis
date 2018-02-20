@@ -223,7 +223,7 @@ int main()
         acceptance << make_point(Q, epsilon);
         acceptance_pd << make_point(Q, epsilon2);
 
-        Fit<DifferentialMutations<>> fit(
+        Fit2<DifferentialMutations<>> fit(
             data_copl_outside.removeXerorbars(),
             [](const ParamSet&,const ParamSet&P){return P[0];}
         );
