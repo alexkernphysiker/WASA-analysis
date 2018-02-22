@@ -56,7 +56,7 @@ int main()
     vector<vector<hist<>>> acceptance;
     hist<> he3acc;
 
-    const vector<string> suffix={"-0","-20","-40","-60"};
+    const vector<string> suffix={"-0","-20","-40"};
     vector<hist<>> ev_am1,ev_am2;
     vector<vector<hist<>>> acc;
     for(size_t i=0;i<suffix.size();i++){
@@ -458,22 +458,22 @@ int main()
             << "set title 'How many helium ions from mesic nuclei decay would be detected'";
     Plot("He3gg-cross-section").Hist(CS_3,"3 sigma").Hist(CS_1,"1 sigma")
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-10:70]"<<"set key on"
+            << "set xrange [-10:50]"<<"set key on"
             << "set ylabel 'Cross section, nb'" << "set yrange [0:]"
             << "set title 'Cross section "+runmsg+"'";
     Plot("He3gg-pos").Hist(POS)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-10:70]"
+            << "set xrange [-10:50]"
             << "set ylabel 'Position, MeV'" << "set yrange [-20:0]"
             << "set title 'Peak position "+runmsg+"'";
     Plot("He3gg-width").Hist(WIDTH)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-10:70]"
+            << "set xrange [-10:50]"
             << "set ylabel 'sigma, MeV'" << "set yrange [0:20]"
             << "set title 'Peak width (sigma) "+runmsg+"'";
     Plot("He3gg-cross-section-chisq").Line(CHISQ,"with peak").Line(CHISQ_W,"without peak")
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-10:70]"<<"set key on"
+            << "set xrange [-10:50]"<<"set key on"
             << "set ylabel 'chi square, n.d.'" << "set yrange [0:2]"
             << "set title 'Chi square "+runmsg+"'";
 }
