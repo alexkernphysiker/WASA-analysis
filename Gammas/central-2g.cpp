@@ -317,12 +317,12 @@ int main()
             const auto DT=Hist(DATA, "C", histpath_central_reconstr, "dt5"+to_string(a_t)+"-Bin-"+to_string(bin_num)).Scale(50);
             const auto T=Hist(DATA, "C", histpath_central_reconstr, "t5"+to_string(a_t)+"-Bin-"+to_string(bin_num)).Scale(50);
 
-            const auto DTBG=WeightedAverage<>()<<DT[2].Y()<<DT[3].Y()<<DT[4].Y();
-            ev_am1[a_t]<<make_point(Q,DT[0].Y()+DT[1].Y()-DTBG*2.0);
+            const auto DTBG=WeightedAverage<>()<<DT[3].Y()<<DT[4].Y();
+            ev_am1[a_t]<<make_point(Q,DT[0].Y()+DT[1].Y()+DT[2].Y()-DTBG*3.0);
             const LinearInterpolation<value<>> TBG=Points<value<>>{T[3],T[7]};
             ev_am2[a_t]<<make_point(Q,(T[4].Y()-TBG(T[4].X()))+(T[5].Y()-TBG(T[5].X()))+(T[6].Y()-TBG(T[6].X())));
 
-            const hist<> dtbgplot=Points<value<>>{{DT[0].X(),DTBG},{DT[1].X(),DTBG}};
+            const hist<> dtbgplot=Points<value<>>{{DT[0].X(),DTBG},{DT[1].X(),DTBG},{DT[2].X(),DTBG}};
             Plot(
                 Q.Contains(21) ? "He3gg-above-data-dt-final"+suffix[a_t] : (
                     Q.Contains(-39) ? "He3gg-below-data-dt-final"+suffix[a_t] : (
@@ -459,7 +459,7 @@ int main()
     Plot("He3gg-cross-section").Hist(CS_3,"3 sigma").Hist(CS_1,"1 sigma")
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
             << "set xrange [-10:50]"<<"set key on"
-            << "set ylabel 'Cross section, nb'" << "set yrange [0:]"
+            << "set ylabel 'Cross section, nb'" << "set yrange [0:50]"
             << "set title 'Cross section "+runmsg+"'";
     Plot("He3gg-pos").Hist(POS)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
