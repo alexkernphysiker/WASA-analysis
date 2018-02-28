@@ -427,7 +427,7 @@ int main()
         bg([&fit](double x){return BG()({x},fit.Parameters());},chain);
         Plot("He3gg-events-norm"+suffix[a_t]+"-bound")
             .Hist(data_shape,"Data")
-            .Line(bg).Line(fg)
+            .Line(bg).Line(fg,"fit with peak")
                 << "set xlabel 'Q, MeV'" << "set key on"
                 << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]"
                 << "set title '"+runmsg+"'";
@@ -451,6 +451,13 @@ int main()
         fit_w.Init(300,init_w);
         while(!fit_w.AbsoluteOptimalityExitCondition(0.0000001))fit_w.Iterate();
         CHISQ_W<<make_point(cp,fit_w.Optimality()/(fit_w.Points().size()-fit_w.ParamCount()+3));
+        const SortedPoints<> bg2([&fit_w](double x){return fit_w({x});},chain);
+        Plot("He3gg-events-norm2"+suffix[a_t]+"-bound")
+            .Hist(data_shape,"Data")
+            .Line(bg2,"fit without peak")
+                << "set xlabel 'Q, MeV'" << "set key on"
+                << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]"
+                << "set title '"+runmsg+"'";
     }
     Plot("He3gg-tube-acc").Hist(he3acc*100.)
             << "set xlabel 'Q, MeV'" << "set xrange [-70:30]"
@@ -474,6 +481,6 @@ int main()
     Plot("He3gg-cross-section-chisq").Line(CHISQ,"with peak").Line(CHISQ_W,"without peak")
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
             << "set xrange [-10:50]"<<"set key on"
-            << "set ylabel 'chi square, n.d.'" << "set yrange [0:2]"
+            << "set ylabel 'chi square, n.d.'" << "set yrange [0:3]"
             << "set title 'Chi square "+runmsg+"'";
 }
