@@ -355,7 +355,7 @@ int main()
         true_he3eta<<make_point(value<>(true_he3eta.left().X().min()-1.25,1.25),0);
     for(size_t cut_index=0;cut_index<cuts_count;cut_index++){
         Plot accplot("He3gg-acceptance-"+to_string(cut_index));
-        accplot << "set title 'Cut number "+to_string(cut_index)+"'"
+        accplot
             << "set xlabel 'Q, MeV'"
             << "set ylabel 'Acceptance, percents'"
             << "set yrange [0.0001:500]" << "set xrange [-70:30]"
@@ -375,6 +375,14 @@ int main()
     hist<> CS_1,CS_3,POS,WIDTH;
     SortedPoints<> CHISQ,CHISQ_W;
     for(size_t a_t=0;a_t<suffix.size();a_t++){
+        const auto TIM=Hist(DATA, "C", histpath_central_reconstr,"TIM4-AllBins");
+        const double high=TIM.TransponateAndSort().right().X().max();
+        const double cutpos=0.02*a_t;
+        Plot("He3gg-above-tim-data-allbins"+suffix[a_t]).Hist(TIM)
+        .Line({make_point(cutpos,0.),make_point(cutpos,high)})
+            << "set key on" << "set yrange [0:]"<< "set xrange [-0.5:0.5]"
+            << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
+
         Plot accplot("He3gg-acceptance-final"+suffix[a_t]);
         accplot << "set title 'Acceptance'"
             << "set xlabel 'Q, MeV'"
@@ -463,7 +471,7 @@ int main()
             << "set xlabel 'Q, MeV'" << "set xrange [-70:30]"
             << "set ylabel 'Acceptance, percents'" << "set yrange [0:]"
             << "set title 'How many helium ions from mesic nuclei decay would be detected'";
-    Plot("He3gg-cross-section").Hist(CS_3,"3 sigma").Hist(CS_1,"1 sigma")
+    Plot("He3gg-cross-section").Hist(CS_1)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
             << "set xrange [-10:50]"<<"set key on"
             << "set ylabel 'Cross section, nb'" << "set yrange [0:50]"
