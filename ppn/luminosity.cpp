@@ -200,7 +200,7 @@ int main()
                 << "set yrange [0:]" << "set xlabel 'time difference, ns'";
         Plot(Q.Contains(21) ? "ppn-above-data-time" : (Q.Contains(-39) ? "ppn-below-data-time" : ""))
             .Hist(data_time,"Data")
-            .Hist(time_bg2,"Background left").Hist(time_bg3,"Background right")
+            .Hist(time_bg2,"Background")//.Hist(time_bg3,"Background right")
                 << "set title 'Time difference. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
                 << "set yrange [0:]" << "set xlabel 'time difference, ns'";
 
@@ -261,7 +261,7 @@ int main()
             << "set key on" << "set title 'True events count "+runmsg+"'" << "set yrange [0:]" 
             << "set xlabel 'Q, MeV'" << "set ylabel 'count, n.d.'";
     Plot("ppn-events-phi")
-        .Hist(events2,"time (left)").Hist(events2+events3,"time (left+right)").Hist(events,"phi")
+        .Hist(events2)//.Hist(events2+events3,"time (left+right)").Hist(events,"phi")
             << "set key on" << "set title 'True events count "+runmsg+"'" << "set yrange [0:]" 
             << "set xlabel 'Q, MeV'" << "set ylabel 'count, n.d.'";
 

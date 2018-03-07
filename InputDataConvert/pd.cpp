@@ -48,8 +48,8 @@ int main()
     fit.SetUncertaintyCalcDeltas(parEq(fit.ParamCount(), 0.01));
     for (const auto &P : fit.ParametersWithUncertainties())
         cout << P << endl;
-    cs_vs_t.Line(SortedPoints<>([&fit](double x){return fit({x});},ChainWithStep(0.0,0.001,0.7)),"chi^2/d="+to_string(chisq));
-    cs_vs_t_lin.Line(SortedPoints<>([&fit](double x){return fit({x});},ChainWithStep(0.0,0.001,0.7)),"chi^2/d="+to_string(chisq));
+    cs_vs_t.Line(SortedPoints<>([&fit](double x){return fit({x});},ChainWithStep(0.0,0.001,0.4)),"chi^2/d="+to_string(chisq));
+    cs_vs_t_lin.Line(SortedPoints<>([&fit](double x){return fit({x});},ChainWithStep(0.0,0.001,0.4)),"chi^2/d="+to_string(chisq));
     cs_vs_t<<"set xlabel 't,GeV/c'"<<"set ylabel 'sigma, ub/(GeV/c)'";
     t_vs_th<<"set xlabel 'theta_{p,CM},deg'"<<"set ylabel 't,GeV/c'"<<"set key on";
     th_vs_th_l<<"set xlabel 'theta_{p,lab},deg'"<<"set ylabel 'theta_{d,lab},deg'"<<"set key on"<<"set yrange [0:180]";
