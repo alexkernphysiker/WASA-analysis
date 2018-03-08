@@ -106,12 +106,13 @@ int main()
             << "set yrange [0:]" << "set xlabel " + planarity;
 
     Plot("ppn-v2-dt-mc")
-    .Hist(Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "pair_dt_0") / norm.TotalSum().val(), "ppn_{sp}")
-            << "set key on" << "set title 'Time difference. MC'" << "set xrange [0:40]"<< "set yrange [0:]" ;
+    .Hist(Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins") / norm.TotalSum().val(), "ppn_{sp}")
+            << "set key on" << "set title 'Time difference. MC'" << "set xrange [-40:40]"<< "set yrange [0:]" ;
     Plot("ppn-v2-dt-data")
-    .Hist(Hist(DATA, "Q", {"Histograms", "quasielastic"}, "pair_dt_0"))
-    .Hist(Hist(DATA, "Q", {"Histograms", "quasielastic"}, "pair_dt_1"))
-            << "set title 'Time difference. Data " + runmsg + "'" << "set xrange [0:40]"<< "set yrange [0:]";
+    .Hist(Hist(DATA, "Q", {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins"))
+    .Hist(Hist(DATA, "Q", {"Histograms", "quasielastic"}, "pair_time_diff_1-AllBins"))
+    .Hist(Hist(DATA, "Q", {"Histograms", "quasielastic"}, "pair_time_diff_2-AllBins"))
+            << "set title 'Time difference. Data " + runmsg + "'" << "set xrange [-40:40]"<< "set yrange [0:]";
 
 
     PlotHist2d(sp2, "pd-v2-tvt-mc-0").Distr(Hist2d(MC, pd_reaction, {"Histograms", "quasielastic"}, "t_vs_t_1"))
@@ -161,7 +162,7 @@ int main()
             ).str();
 
         const hist<> data_time=
-            Hist(DATA,"Q",{"Histograms","quasielastic"},string("pair_time_diff_1-Bin-") + to_string(bin_num))
+            Hist(DATA,"Q",{"Histograms","quasielastic"},string("pair_time_diff_2-Bin-") + to_string(bin_num))
             .Scale(1).XRange(-50,50);
         const hist<> data_time_mc=
             Hist(MC,ppn_reaction,{"Histograms","quasielastic"},string("pair_time_diff_1-Bin-") + to_string(bin_num))
@@ -181,7 +182,7 @@ int main()
                 << "set yrange [0:]" << "set xlabel 'time difference, ns'";
 
         const hist<> data_copl=
-            Hist(DATA,"Q",{"Histograms","quasielastic"},string("pair_phi_diff_1-Bin-") + to_string(bin_num))
+            Hist(DATA,"Q",{"Histograms","quasielastic"},string("pair_phi_diff_2-Bin-") + to_string(bin_num))
             .Scale(4).XRange(100,260);
         const hist<> data_copl_mc=
             Hist(MC,ppn_reaction,{"Histograms","quasielastic"},string("pair_phi_diff_1-Bin-") + to_string(bin_num))
@@ -189,37 +190,38 @@ int main()
         const hist<> data_copl_mc2=
             Hist(MC,pd_reaction,{"Histograms","quasielastic"},string("pair_phi_diff_1-Bin-") + to_string(bin_num))
             .Scale(4).XRange(100,260);
-        const hist<> data_copl_inside=data_copl.XRange(140,220);
-        const hist<> data_copl_outside=data_copl.XExclude(140,220);
         cout << endl << Qmsg << endl;
         cout << endl;
 
-        const auto epsilon = std_error(data_copl_mc.TotalSum().val())/N;
-        const auto epsilon2 = std_error(data_copl_mc2.TotalSum().val())/N_pd;
-        acceptance << make_point(Q, epsilon);
-        acceptance_pd << make_point(Q, epsilon2);
+        acceptance << make_point(Q, data_copl_mc.TotalSum()/N);
+        acceptance_pd << make_point(Q, data_copl_mc2.TotalSum()/N_pd);
 
+        const auto data_copl_bg=data_copl.XExclude(140,220);
         Fit2<DifferentialMutations<>> fit(
-            data_copl_outside.removeXerorbars(),
-            [](const ParamSet&,const ParamSet&P){return P[0];}
+            data_copl_bg.removeXerorbars(),
+            [](const ParamSet&X,const ParamSet&P){return Polynom<2>(X[0],P);}
         );
-        fit.SetUncertaintyCalcDeltas({0.001})
-            .SetFilter([](const ParamSet&P){return (P[0]>0);});
-        fit.Init(500,make_shared<InitialDistributions>()<<make_shared<DistribGauss>(0,5000));
+        fit.SetUncertaintyCalcDeltas({0.001,0.001,0.001});
+        fit.Init(500,make_shared<InitialDistributions>()
+                    <<make_shared<DistribGauss>(0,5000)
+                    <<make_shared<DistribGauss>(0,5)
+                    <<make_shared<DistribGauss>(0,1)
+        );
         while(!fit.AbsoluteOptimalityExitCondition(0.000001))fit.Iterate();
         cout << "Fitting: " << fit.iteration_count() << " iterations; "
             << fit.Optimality() << "<chi^2<"
             << fit.Optimality(fit.PopulationSize() - 1)
             << endl;
         const auto &P = fit.ParametersWithUncertainties();
-        const auto BG=[&P](const value<>&){return P[0];};
+        const auto BG=[&P](const value<>&x){return Polynom<2>(x,P);};
         data_chi_sq << make_point(Q, fit.Optimality() / (fit.Points().size() - fit.ParamCount()));
+
         Plot(Q.Contains(21) ? "ppn-v2-above-data-copl" : (Q.Contains(-39) ? "ppn-v2-below-data-copl" : ""))
-            .Hist(data_copl_inside).Hist(data_copl_outside)
-            .Hist(data_copl.CloneEmptyBins()+BG, "BG")
+            .Hist(data_copl).Hist(data_copl_bg)
+            .Hist(data_copl.CloneEmptyBins()+BG,"BG")
                 << "set title 'Coplanarity. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
                 << "set yrange [0:]" << "set xlabel " + planarity;
-        events<<make_point(Q,(data_copl_inside-BG).TotalSum());
+        events<<make_point(Q,(data_copl-BG).TotalSum());
 
     }
     Plot("ppn-v2-acceptance")
