@@ -109,10 +109,10 @@ int main()
     .Hist(Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins") / norm.TotalSum().val(), "ppn_{sp}")
             << "set key on" << "set title 'Time difference. MC'" << "set xrange [-40:40]"<< "set yrange [0:]" ;
     Plot("ppn-v2-dt-data")
-    .Hist(Hist(DATA, "Q", {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins"))
-    .Hist(Hist(DATA, "Q", {"Histograms", "quasielastic"}, "pair_time_diff_1-AllBins"))
-    .Hist(Hist(DATA, "Q", {"Histograms", "quasielastic"}, "pair_time_diff_2-AllBins"))
-            << "set title 'Time difference. Data " + runmsg + "'" << "set xrange [-40:40]"<< "set yrange [0:]";
+    .Hist(Hist(DATA, "Q", {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins"),"All")
+    .Hist(Hist(DATA, "Q", {"Histograms", "quasielastic"}, "pair_time_diff_1-AllBins"),"theta cut")
+    .Hist(Hist(DATA, "Q", {"Histograms", "quasielastic"}, "pair_time_diff_2-AllBins"),"time cut")
+            << "set title 'Time difference. Data " + runmsg + "'" << "set xrange [-40:40]"<< "set yrange [0:]"<<"set key on";
 
 
     PlotHist2d(sp2, "pd-v2-tvt-mc-0").Distr(Hist2d(MC, pd_reaction, {"Histograms", "quasielastic"}, "t_vs_t_1"))

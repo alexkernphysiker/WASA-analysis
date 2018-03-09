@@ -30,7 +30,7 @@ int main()
     hist<> events_count, data_chi_sq, acceptance;
     vector<hist<>> parhists;
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++)
-        if (norm[bin_num].X() > 2.5) {
+        if (norm[bin_num].X() > 7.5) {
             const auto &Q = norm[bin_num].X();
             const auto &N = norm[bin_num].Y();
             const string Qmsg =
@@ -39,12 +39,12 @@ int main()
                     << Q.min() << "; " << Q.max() << "] MeV"
                 ).str();
             const string hist_name=string("MissingMass-Bin-") + to_string(bin_num);
-            const auto data_full = Hist(DATA, "F", histpath_forward_reconstr,hist_name).XRange(0.525, 0.57);
-            const double bg_level=data_full.TransponateAndSort().right().X().max()*0.07;
-            const auto data = data_full.XRange(0.525, data_full.YRange(bg_level,INFINITY).right().X().val()+0.001);
-            const auto mc_unnorm = Hist(MC, "He3eta-gg", histpath_forward_reconstr,hist_name).XRange(0.525, 0.57);
-            const auto chain = ChainWithStep(0.525, 0.001, 0.57);
-            const auto cut = make_pair(0.539,0.554);
+            const auto data_full = Hist(DATA, "F", histpath_forward_reconstr,hist_name).XRange(0.52, 0.57);
+            const double bg_level=data_full.TransponateAndSort().right().X().max()*0.04;
+            const auto data = data_full.XRange(0.52, data_full.YRange(bg_level,INFINITY).right().X().val()+0.001);
+            const auto mc_unnorm = Hist(MC, "He3eta-gg", histpath_forward_reconstr,hist_name).XRange(0.52, 0.57);
+            const auto chain = ChainWithStep(0.52, 0.001, 0.57);
+            const auto cut = make_pair(0.540,0.555);
             const auto mc = mc_unnorm / N;
             acceptance << make_point(Q, mc.TotalSum());
             Plot(Q.Contains(21) ? "He3eta-mc" : "")
@@ -63,10 +63,11 @@ int main()
                 }
             );
             FIT.SetUncertaintyCalcDeltas({0.1, 0.1, 0.1, 0.1})
-            .SetFilter([&FIT,&data](const ParamSet&P){
+            .SetFilter([&FIT,&data,&Q](const ParamSet&P){
                 return
                 (FIT.func({data.right().X().val()},P)<=data.right().Y().max())&&
-                (FIT.func({data.left().X().min()},P)>=data.left().Y().min());
+                (FIT.func({data.left().X().min()},P)>=data.left().Y().min())&&
+                ((Q<10.)||(FIT.func({0.555},P)>0));
             });
             FIT.Init(500,
                      make_shared<InitialDistributions>()
@@ -90,7 +91,7 @@ int main()
                 parhists[i] << make_point(Q, P[i]);
             data_chi_sq << make_point(Q, FIT.Optimality() / (data.size() - FIT.ParamCount()));
             cout << endl;
-            Plot exp_plot(Q.Contains(21) ? "He3eta-fit" : (Q.Contains(6) ? "He3eta-fit-lo":""));
+            Plot exp_plot(Q.Contains(21) ? "He3eta-fit" : (Q.Contains(8) ? "He3eta-fit-lo":""));
             exp_plot.Hist(data_full).Hist(data_bg)
                     << "set key on" << "set title '" + Qmsg + ", " + runmsg + "'"
                     << "set xlabel 'Missing mass, GeV'"
