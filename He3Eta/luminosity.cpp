@@ -126,7 +126,14 @@ int main()
 
     Plot("He3eta-cross-section")
     .Hist(he3eta_sigma(), "Data from other experiments")
-    .Hist(hist<>(he3eta_sigma().func(), BinsByStep(2.5, 2.5, 30.0)), "Interpolation", "CS-He3eta-assumed")
+    .Hist(hist<>(he3eta_sigma().func(), BinsByStep(2.5, 2.5, 30.0)), "Interpolation")
+            << "set title 'Cross section of He3eta used in the calculations'"
+            << "set key on" << "set xlabel 'Q, MeV'"
+            << "set ylabel 'sigma(^3He eta), nb'"
+            << "set xrange [0:35]" << "set yrange [0:600]";
+    Plot("He3eta-cross-section-all")
+    .Hist(he3eta_sigma(), "Data from other experiments")
+    .Hist(hist<>(he3eta_sigma().func(), BinsByStep(-70.0, 2.5, 30.0)), "Interpolation", "CS-He3eta-assumed")
             << "set title 'Cross section of He3eta used in the calculations'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'sigma(^3He eta), nb'"

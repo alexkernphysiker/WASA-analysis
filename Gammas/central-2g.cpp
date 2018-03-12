@@ -55,26 +55,15 @@ int main()
     vector<hist<>> ev_am;
     vector<vector<hist<>>> acceptance;
     hist<> he3acc;
-
-    const vector<string> suffix={"-0","-20","-40"};
-    vector<hist<>> ev_am1,ev_am2;
+    const vector<string> suffix={"-m40","-m20","-0","-20","-40"};
     vector<vector<hist<>>> acc;
     for(size_t i=0;i<suffix.size();i++){
         acc.push_back({});
         for (size_t j = 0; j < reaction.size(); j++)
             acc[i].push_back(hist<>());
-        ev_am1.push_back(hist<>());
-        ev_am2.push_back(hist<>());
-    }
-
-    const size_t cuts_count=10;
-    for(size_t cut_index=0;cut_index<cuts_count;cut_index++){
-        acceptance.push_back(vector<hist<>>());
-        for (size_t i = 0; i < reaction.size(); i++) {
-            acceptance[cut_index].push_back(hist<>());
-        }
         ev_am.push_back(hist<>());
     }
+
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++) {
         const auto &Q = norm[bin_num].X();
         const string Qmsg = static_cast<stringstream &>(stringstream()
@@ -218,72 +207,6 @@ int main()
                     << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel 'dt gamma-gamma, ns'";
         }
-        hist<> ACC,ACCbg,RATIO;
-        for(size_t cut_index=0;cut_index<cuts_count;cut_index++){
-            const double TIM_DIFF_CUT=0.01*cut_index;
-            value<> R=INFINITY;
-            for (size_t i = 0; i < reaction.size(); i++) {
-                const auto &r = reaction[i];
-                hist<> Norm = Hist(MC, r, histpath_central_reconstr, "0-Reference");
-                const auto &N = Norm[bin_num].Y();
-                if (N.Above(0)) {
-                    const hist<> h = Hist(MC, r, histpath_central_reconstr, string("TIM4-Bin-") + to_string(bin_num)).XRange(TIM_DIFF_CUT,INFINITY);
-                    const auto a=std_error(h.TotalSum().val()) / N;
-                    acceptance[cut_index][i] << point<value<>>(Q,a);
-                    if(i==0){
-                        R=a;
-                        ACC<<make_point(10.*cut_index,a);
-                    }
-                    if(i==2){
-                        R/=a;
-                        ACCbg<<make_point(10.*cut_index,a);
-                    }
-                } else {
-                    acceptance[cut_index][i] << point<value<>>(Q, 0.0);
-                    if(i==0)R=0.0;
-                    if(i==2)R=INFINITY;
-                }
-            }
-            if(isfinite(R.val()))RATIO<<make_point(0.001*cut_index,R);
-            const hist<> data = Hist(DATA, "C", histpath_central_reconstr, string("TIM4-Bin-") + to_string(bin_num)).XRange(TIM_DIFF_CUT,INFINITY);
-            ev_am[cut_index] << point<value<>>(Q, std_error(data.TotalSum().val()));
-        }
-        if(RATIO.size()>0)
-        Plot(
-            Q.Contains(21) ? "He3gg-above-acceptance-ratio" : (
-                Q.Contains(-39) ? "He3gg-below-acceptance-ratio" : (
-                    Q.Contains(-11) ? "He3gg-thr-acceptance-ratio" : ""
-                )
-            )
-        )
-        .Hist(RATIO)
-                << "set key on" << "set title 'Acceptance ratio" + Qmsg + "'"
-                << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'";
-        if(ACC.size()>0)
-        Plot(
-            Q.Contains(21) ? "He3gg-above-acceptance" : (
-                Q.Contains(-39) ? "He3gg-below-acceptance" : (
-                    Q.Contains(-11) ? "He3gg-thr-acceptance" : ""
-                )
-            )
-        )
-        .Hist(ACC*100)
-                << "set key on" << "set title 'Acceptance for foreground " + Qmsg + "'"
-                << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-                << "set ylabel 'Acceptance, percents'"<<"set xrange [-5:100]";
-        if(ACCbg.size()>0)
-        Plot(
-            Q.Contains(21) ? "He3gg-above-acceptance-bg" : (
-                Q.Contains(-39) ? "He3gg-below-acceptance-bg" : (
-                    Q.Contains(-11) ? "He3gg-thr-acceptance-bg" : ""
-                )
-            )
-        )
-        .Hist(ACCbg*100)
-                << "set key on" << "set title 'Acceptance for the most intensive background " + Qmsg + "'"
-                << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-                << "set ylabel 'Acceptance, percents'"<<"set xrange [-5:100]";
-
         for(size_t i = 0; i < reaction.size(); i++) for(size_t a_t=0;a_t<suffix.size();a_t++){
             const auto &r = reaction[i];
             const auto DT=Hist(MC, r, histpath_central_reconstr, "dt5"+to_string(a_t)+"-Bin-"+to_string(bin_num)).Scale(10);
@@ -314,15 +237,13 @@ int main()
                     << "set xlabel 'quickest gamma - 3he , ns'";
         }
         for(size_t a_t=0;a_t<suffix.size();a_t++){
-            const auto DT=Hist(DATA, "C", histpath_central_reconstr, "dt5"+to_string(a_t)+"-Bin-"+to_string(bin_num)).Scale(50);
-            const auto T=Hist(DATA, "C", histpath_central_reconstr, "t5"+to_string(a_t)+"-Bin-"+to_string(bin_num)).Scale(50);
+            const auto DT0=Hist(DATA, "C", histpath_central_reconstr, "dt5"+to_string(a_t)+"-Bin-"+to_string(bin_num)).Scale(50);
+            const auto DT=Hist(DATA, "C", histpath_central_reconstr, "dt6"+to_string(a_t)+"-Bin-"+to_string(bin_num)).Scale(50);
+            const auto T=Hist(DATA, "C", histpath_central_reconstr, "t6"+to_string(a_t)+"-Bin-"+to_string(bin_num)).Scale(50);
 
-            const auto DTBG=WeightedAverage<>()<<DT[3].Y()<<DT[4].Y();
-            ev_am1[a_t]<<make_point(Q,DT[0].Y()+DT[1].Y()+DT[2].Y()-DTBG*3.0);
             const LinearInterpolation<value<>> TBG=Points<value<>>{T[3],T[7]};
-            ev_am2[a_t]<<make_point(Q,(T[4].Y()-TBG(T[4].X()))+(T[5].Y()-TBG(T[5].X()))+(T[6].Y()-TBG(T[6].X())));
+            ev_am[a_t]<<make_point(Q,(T[4].Y()-TBG(T[4].X()))+(T[5].Y()-TBG(T[5].X()))+(T[6].Y()-TBG(T[6].X())));
 
-            const hist<> dtbgplot=Points<value<>>{{DT[0].X(),DTBG},{DT[1].X(),DTBG},{DT[2].X(),DTBG}};
             Plot(
                 Q.Contains(21) ? "He3gg-above-data-dt-final"+suffix[a_t] : (
                     Q.Contains(-39) ? "He3gg-below-data-dt-final"+suffix[a_t] : (
@@ -330,7 +251,7 @@ int main()
                     )
                 )
             )
-            .Hist(DT,"Data").Hist(dtbgplot,"background")
+            .Hist(DT0).Hist(DT)
                     << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel 'dt gamma-gamma, ns'"<<"set key on";
             const hist<> tbgplot=Points<value<>>{{T[4].X(),TBG(T[4].X())},{T[5].X(),TBG(T[5].X())},{T[6].X(),TBG(T[6].X())}};
@@ -348,36 +269,13 @@ int main()
 
     }
     const hist<> luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYc");
-    hist<> true_he3eta = Plotter::Instance().GetPoints<value<>>("LUMINOSITYf");
-    true_he3eta*=Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed");
-    true_he3eta/= double(trigger_he3_forward.scaling);
-    while(true_he3eta.left().X().min()>luminosity.left().X().min())
-        true_he3eta<<make_point(value<>(true_he3eta.left().X().min()-1.25,1.25),0);
-    for(size_t cut_index=0;cut_index<cuts_count;cut_index++){
-        Plot accplot("He3gg-acceptance-"+to_string(cut_index));
-        accplot
-            << "set xlabel 'Q, MeV'"
-            << "set ylabel 'Acceptance, percents'"
-            << "set yrange [0.0001:500]" << "set xrange [-70:30]"
-            << "set key on"<<"set log y">>"unset log y";
-        for (size_t i = 0; i < reaction.size(); i++) {
-            const auto acc = acceptance[cut_index][i].YRange(0.0000001, INFINITY);
-            if (acc.size() > 0) {
-                accplot.Hist(acc*100, reaction[i]);
-            }
-        }
-        Plot("He3gg-events-"+to_string(cut_index))
-        .Hist(ev_am[cut_index],"All data")
-            << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
-            << "set ylabel 'events, n.d.'" << "set yrange [0:]"
-            << "set title 'Cut number "+to_string(cut_index)+". "+runmsg+"'";
-    }
-    hist<> CS_1,CS_3,POS,WIDTH;
+    const hist<> true_he3eta = hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed"))*luminosity/trigger_he3_forward.scaling;
+    hist<> CS,POS,WIDTH;
     SortedPoints<> CHISQ,CHISQ_W;
     for(size_t a_t=0;a_t<suffix.size();a_t++){
         const auto TIM=Hist(DATA, "C", histpath_central_reconstr,"TIM4-AllBins");
         const double high=TIM.TransponateAndSort().right().X().max();
-        const double cutpos=0.02*a_t;
+        const double cutpos=-0.04+0.02*a_t;
         Plot("He3gg-above-tim-data-allbins"+suffix[a_t]).Hist(TIM)
         .Line({make_point(cutpos,0.),make_point(cutpos,high)})
             << "set key on" << "set yrange [0:]"<< "set xrange [-0.5:0.5]"
@@ -402,21 +300,20 @@ int main()
         }
         const hist<> known_events = true_he3eta*acc[a_t][1]*0.4;
         Plot("He3gg-events-final"+suffix[a_t])
-            .Hist(ev_am1[a_t],"data dt(gamma-gamma)")
-            .Hist(ev_am2[a_t],"data dt(3He-gamma)")
+            .Hist(ev_am[a_t],"data")
             .Hist(known_events,"3He+eta")
                 << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
                 << "set ylabel 'events, n.d.'" << "set yrange [0:]"
                 << "set title '"+runmsg+"'";
-        const auto ev=hist_avr(ev_am1[a_t],ev_am2[a_t]);
+        const auto ev=ev_am[a_t];
         Plot("He3gg-events-final"+suffix[a_t]+"-bound")
             .Hist(ev - known_events)
                 << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
                 << "set ylabel 'events, n.d.'" << "set yrange [0:]"
                 << "set title '"+runmsg+"'";
         const auto data_shape=(
-            (ev-known_events)*double(trigger_he3_forward.scaling)/(acc[a_t][0]*luminosity)
-        ).XRange(-50,30);
+            ((ev-known_events)*trigger_he3_forward.scaling)/(acc[a_t][0]*luminosity)
+        ).XRange(-50,20);
         FitFunction2<DifferentialMutations<>,Add<FG,BG>> fit(data_shape.removeXerorbars());
         auto init=make_shared<InitialDistributions>()
                     <<make_shared<DistribGauss>(50,50)
@@ -424,12 +321,12 @@ int main()
                     <<make_shared<DistribGauss>(10,10)
                     <<make_shared<DistribGauss>(100,100);
         while(init->Count()<BG::ParamCount)init<<make_shared<DistribGauss>(0,1);
-        fit.SetFilter([](const ParamSet&P){return (P[2]>4)&&(P[2]<25)&&(P[0]>0)&&(P[1]<5)&&(P[1]>-30);});
+        fit.SetFilter([](const ParamSet&P){return (P[2]>4)&&(P[2]<15)&&(P[0]>0)&&(P[1]<0)&&(P[1]>-20);});
         fit.Init(300,init);
         while(!fit.AbsoluteOptimalityExitCondition(0.0000001))fit.Iterate();
         fit.SetUncertaintyCalcDeltas({0.1,0.01,0.01,0.1});
         const auto&P=fit.ParametersWithUncertainties();
-        const auto chain=ChainWithStep(-50.,0.001,30.);
+        const auto chain=ChainWithStep(-50.,0.001,20.);
         const SortedPoints<>
         fg([&fit](double x){return fit({x});},chain),
         bg([&fit](double x){return BG()({x},fit.Parameters());},chain);
@@ -441,13 +338,10 @@ int main()
                 << "set title '"+runmsg+"'";
         //cross section is not peak area but it's height
         const value_numeric_const<> cs_coef=LinearInterpolation<>(fg-bg)(P[1].val())/P[0].val();
-        const double cp=20.*a_t;
-        CS_1<<make_point(cp,P[0]*cs_coef);
-        CS_3<<make_point(cp,value<>(P[0]).make_wider(3)*cs_coef);
-        //other parameters
-        POS<<make_point(cp,P[1]);
-        WIDTH<<make_point(cp,P[2]);
-        CHISQ<<make_point(cp,fit.Optimality()/(fit.Points().size()-fit.ParamCount()));
+        CS<<make_point(cutpos*1000,P[0]*cs_coef);
+        POS<<make_point(cutpos*1000,P[1]);
+        WIDTH<<make_point(cutpos*1000,P[2]);
+        CHISQ<<make_point(cutpos*1000,fit.Optimality()/(fit.Points().size()-fit.ParamCount()));
         //pure background fit
         FitFunction<DifferentialMutations<>,BG> fit_w(data_shape.removeXerorbars());
         auto init_w=make_shared<InitialDistributions>()
@@ -458,7 +352,7 @@ int main()
         while(init_w->Count()<BG::ParamCount)init_w<<make_shared<DistribGauss>(0,1);
         fit_w.Init(300,init_w);
         while(!fit_w.AbsoluteOptimalityExitCondition(0.0000001))fit_w.Iterate();
-        CHISQ_W<<make_point(cp,fit_w.Optimality()/(fit_w.Points().size()-fit_w.ParamCount()+3));
+        CHISQ_W<<make_point(cutpos*1000,fit_w.Optimality()/(fit_w.Points().size()-fit_w.ParamCount()+3));
         const SortedPoints<> bg2([&fit_w](double x){return fit_w({x});},chain);
         Plot("He3gg-events-norm2"+suffix[a_t]+"-bound")
             .Hist(data_shape,"Data")
@@ -469,26 +363,26 @@ int main()
     }
     Plot("He3gg-tube-acc").Hist(he3acc*100.)
             << "set xlabel 'Q, MeV'" << "set xrange [-70:30]"
-            << "set ylabel 'Acceptance, percents'" << "set yrange [0:]"
+            << "set ylabel 'Acceptance, percents'" << "set yrange [0:100]"
             << "set title 'How many helium ions from mesic nuclei decay would be detected'";
-    Plot("He3gg-cross-section").Hist(CS_1)
+    Plot("He3gg-cross-section").Hist(CS)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-10:50]"<<"set key on"
-            << "set ylabel 'Cross section, nb'" << "set yrange [0:50]"
+            << "set xrange [-50:50]"<<"set key on"
+            << "set ylabel 'Cross section, nb'" << "set yrange [0:60]"
             << "set title 'Cross section "+runmsg+"'";
     Plot("He3gg-pos").Hist(POS)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-10:50]"
+            << "set xrange [-50:50]"
             << "set ylabel 'Position, MeV'" << "set yrange [-20:0]"
             << "set title 'Peak position "+runmsg+"'";
     Plot("He3gg-width").Hist(WIDTH)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-10:50]"
+            << "set xrange [-50:50]"
             << "set ylabel 'sigma, MeV'" << "set yrange [0:20]"
             << "set title 'Peak width (sigma) "+runmsg+"'";
     Plot("He3gg-cross-section-chisq").Line(CHISQ,"with peak").Line(CHISQ_W,"without peak")
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-10:50]"<<"set key on"
+            << "set xrange [-50:50]"<<"set key on"
             << "set ylabel 'chi square, n.d.'" << "set yrange [0:3]"
             << "set title 'Chi square "+runmsg+"'";
 }
