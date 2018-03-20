@@ -269,7 +269,10 @@ int main()
 
     }
     const hist<> luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYc");
-    const hist<> true_he3eta = hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed"))*luminosity/trigger_he3_forward.scaling;
+    hist<> luminosity_he = Plotter::Instance().GetPoints<value<>>("LUMINOSITYf");
+    while(luminosity_he.left().X().min()>luminosity.left().X().min())
+        luminosity_he<<make_point(value<>(luminosity_he.left().X().min()-1.25,1.25),0);
+    const hist<> true_he3eta = hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed"))*luminosity_he/trigger_he3_forward.scaling;
     hist<> CS,POS,WIDTH;
     SortedPoints<> CHISQ,CHISQ_W;
     for(size_t a_t=0;a_t<suffix.size();a_t++){
