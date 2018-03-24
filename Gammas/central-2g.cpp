@@ -371,7 +371,7 @@ int main()
     Plot("He3gg-cross-section").Hist(CS)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
             << "set xrange [-50:50]"<<"set key on"
-            << "set ylabel 'Cross section, nb'" << "set yrange [0:60]"
+            << "set ylabel 'Cross section, nb'" << "set yrange [0:40]"
             << "set title 'Cross section "+runmsg+"'";
     Plot("He3gg-pos").Hist(POS)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
