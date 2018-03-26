@@ -193,10 +193,11 @@ int main()
         cout << endl << Qmsg << endl;
         cout << endl;
 
-        acceptance << make_point(Q, data_copl_mc.TotalSum()/N);
+        const auto acc=data_copl_mc.TotalSum()/N;
+        acceptance << make_point(Q, acc);
         acceptance_pd << make_point(Q, data_copl_mc2.TotalSum()/N_pd);
 
-        const auto data_copl_bg=data_copl.XExclude(140,220);
+        const auto data_copl_bg=data_copl.XExclude(138,222);
         Fit2<DifferentialMutations<>> fit(
             data_copl_bg.removeXerorbars(),
             [](const ParamSet&X,const ParamSet&P){return Polynom<2>(X[0],P);}
@@ -215,14 +216,15 @@ int main()
         const auto &P = fit.ParametersWithUncertainties();
         const auto BG=[&P](const value<>&x){return Polynom<2>(x,P);};
         data_chi_sq << make_point(Q, fit.Optimality() / (fit.Points().size() - fit.ParamCount()));
+        const auto ev=(data_copl-BG).TotalSum();
 
         Plot(Q.Contains(21) ? "ppn-v2-above-data-copl" : (Q.Contains(-39) ? "ppn-v2-below-data-copl" : ""))
             .Hist(data_copl).Hist(data_copl_bg)
-            .Hist(data_copl.CloneEmptyBins()+BG,"BG")
+            .Line((data_copl.CloneEmptyBins()+BG).toLine(),"BG")
+            .Line((data_copl.CloneEmptyBins()+BG+data_copl_mc*ev/N/acc).toLine(),"Simulation")
                 << "set title 'Coplanarity. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
                 << "set yrange [0:]" << "set xlabel " + planarity;
-        events<<make_point(Q,(data_copl-BG).TotalSum());
-
+        events<<make_point(Q,ev);
     }
     Plot("ppn-v2-acceptance")
         .Hist(acceptance, "ppn_{sp}").Hist(acceptance_pd, "pd")

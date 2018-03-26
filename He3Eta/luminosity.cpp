@@ -39,12 +39,12 @@ int main()
                     << Q.min() << "; " << Q.max() << "] MeV"
                 ).str();
             const string hist_name=string("MissingMass-Bin-") + to_string(bin_num);
-            const auto data_full = Hist(DATA, "F", histpath_forward_reconstr,hist_name).XRange(0.52, 0.57);
+            const auto data_full = Hist(DATA, "F", histpath_forward_reconstr,hist_name).XRange(0.525, 0.57);
             const double bg_level=data_full.TransponateAndSort().right().X().max()*0.04;
-            const auto data = data_full.XRange(0.52, data_full.YRange(bg_level,INFINITY).right().X().val()+0.001);
-            const auto mc_unnorm = Hist(MC, "He3eta-gg", histpath_forward_reconstr,hist_name).XRange(0.52, 0.57);
-            const auto chain = ChainWithStep(0.52, 0.001, 0.57);
-            const auto cut = make_pair(0.540,0.555);
+            const auto data = data_full.XRange(0.525, data_full.YRange(bg_level,INFINITY).right().X().val()+0.001);
+            const auto mc_unnorm = Hist(MC, "He3eta-gg", histpath_forward_reconstr,hist_name).XRange(0.525, 0.57);
+            const auto chain = ChainWithStep(0.525, 0.001, 0.57);
+            const auto cut = make_pair(0.540,0.553);
             const auto mc = mc_unnorm / N;
             acceptance << make_point(Q, mc.TotalSum());
             Plot(Q.Contains(21) ? "He3eta-mc" : "")
