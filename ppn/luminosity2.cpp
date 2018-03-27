@@ -115,26 +115,29 @@ int main()
             << "set title 'Time difference. Data " + runmsg + "'" << "set xrange [-40:40]"<< "set yrange [0:]"<<"set key on";
 
 
-    PlotHist2d(sp2, "pd-v2-tvt-mc-0").Distr(Hist2d(MC, pd_reaction, {"Histograms", "quasielastic"}, "t_vs_t_1"))
+    PlotHist2d(sp2, "pd-v2-tvt-mc-1").Distr(Hist2d(MC, pd_reaction, {"Histograms", "quasielastic"}, "t_vs_t_1"))
             << "set xrange [23:50]"<< "set yrange [23:80]"
             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d(sp2, "ppn-v2-tvt-mc-0").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "t_vs_t_1"))
+    PlotHist2d(sp2, "ppn-v2-tvt-mc-1").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "t_vs_t_1"))
             << "set xrange [23:50]"<< "set yrange [23:80]"
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d(sp2, "ppn-v2-tvt-data-0").Distr(Hist2d(DATA, "Q", {"Histograms", "quasielastic"}, "t_vs_t_1"))
+    PlotHist2d(sp2, "ppn-v2-tvt-data-1").Distr(Hist2d(DATA, "Q", {"Histograms", "quasielastic"}, "t_vs_t_1"))
             << "set xrange [23:50]"<< "set yrange [23:80]"
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d(sp2).Distr(Hist2d(MC, pd_reaction, {"Histograms", "quasielastic"}, "t_vs_e_1"))
-            << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + e1;
-    PlotHist2d(sp2).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "t_vs_e_1"))
-            << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + e1;
-    PlotHist2d(sp2).Distr(Hist2d(DATA, "Q", {"Histograms", "quasielastic"}, "t_vs_e_1"))
-            << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + e1;
-    PlotHist2d(sp2, "pd-v2-eve-mc-0").Distr(Hist2d(MC, pd_reaction, {"Histograms", "quasielastic"}, "e_vs_e_1"))
+    PlotHist2d(sp2, "pd-v2-tvt-mc-2").Distr(Hist2d(MC, pd_reaction, {"Histograms", "quasielastic"}, "t_vs_t_2"))
+            << "set xrange [23:50]"<< "set yrange [23:80]"
+            << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + th2;
+    PlotHist2d(sp2, "ppn-v2-tvt-mc-2").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "t_vs_t_2"))
+            << "set xrange [23:50]"<< "set yrange [23:80]"
+            << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + th2;
+    PlotHist2d(sp2, "ppn-v2-tvt-data-2").Distr(Hist2d(DATA, "Q", {"Histograms", "quasielastic"}, "t_vs_t_2"))
+            << "set xrange [23:50]"<< "set yrange [23:80]"
+            << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + th2;
+    PlotHist2d(sp2, "pd-v2-eve-mc-2").Distr(Hist2d(MC, pd_reaction, {"Histograms", "quasielastic"}, "e_vs_e_2"))
             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + e1 << "set ylabel " + e2;
-    PlotHist2d(sp2, "ppn-v2-eve-mc-0").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "e_vs_e_1"))
+    PlotHist2d(sp2, "ppn-v2-eve-mc-2").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "e_vs_e_2"))
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + e1 << "set ylabel " + e2;
-    PlotHist2d(sp2, "ppn-v2-eve-data-0").Distr(Hist2d(DATA, "Q", {"Histograms", "quasielastic"}, "e_vs_e_1"))
+    PlotHist2d(sp2, "ppn-v2-eve-data-2").Distr(Hist2d(DATA, "Q", {"Histograms", "quasielastic"}, "e_vs_e_2"))
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + e1 << "set ylabel " + e2;
 
 
@@ -228,7 +231,7 @@ int main()
     }
     Plot("ppn-v2-acceptance")
         .Hist(acceptance, "ppn_{sp}").Hist(acceptance_pd, "pd")
-            << "set key on" << "set title 'Acceptance'" << "set yrange [0:]" 
+            << "set key on" << "set title 'Acceptance'" << "set yrange [0:0.3]" 
             << "set xlabel 'Q, MeV'" << "set ylabel 'Acceptance, n.d.'";
     Plot("ppn-v2-chisq")
         .Hist(data_chi_sq,"BG")

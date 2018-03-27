@@ -44,7 +44,7 @@ int main()
             const auto data = data_full.XRange(0.525, data_full.YRange(bg_level,INFINITY).right().X().val()+0.001);
             const auto mc_unnorm = Hist(MC, "He3eta-gg", histpath_forward_reconstr,hist_name).XRange(0.525, 0.57);
             const auto chain = ChainWithStep(0.525, 0.001, 0.57);
-            const auto cut = make_pair(0.540,0.553);
+            const auto cut = make_pair(0.542,0.553);
             const auto mc = mc_unnorm / N;
             acceptance << make_point(Q, mc.TotalSum());
             Plot(Q.Contains(21) ? "He3eta-mc" : "")
@@ -91,7 +91,7 @@ int main()
                 parhists[i] << make_point(Q, P[i]);
             data_chi_sq << make_point(Q, FIT.Optimality() / (data.size() - FIT.ParamCount()));
             cout << endl;
-            Plot exp_plot(Q.Contains(21) ? "He3eta-fit" : (Q.Contains(8) ? "He3eta-fit-lo":""));
+            Plot exp_plot(Q.Contains(21) ? "He3eta-fit" : (Q.Contains(6) ? "He3eta-fit-lo":""));
             exp_plot.Hist(data_full).Hist(data_bg)
                     << "set key on" << "set title '" + Qmsg + ", " + runmsg + "'"
                     << "set xlabel 'Missing mass, GeV'"
@@ -104,9 +104,9 @@ int main()
             },data_full);
             exp_plot.Line(background.YRange(0,INFINITY)).Hist(bg);
             auto clean = data_full - bg;
-            Plot subplot(Q.Contains(21) ? "He3eta-subtract" : (Q.Contains(9) ? "He3eta-subtract-lo":""));
+            Plot subplot(Q.Contains(21) ? "He3eta-subtract" : (Q.Contains(6) ? "He3eta-subtract-lo":""));
             subplot.Hist(clean,"DATA").Line(Points<>{{clean.left().X().min(), 0.0},{clean.right().X().max(), 0.0}});
-            subplot.Hist(clean = clean.XRange(cut.first, cut.second))
+            subplot.Hist(clean = clean.XRange(cut.first-0.001, cut.second+0.001))
                 .Line((mc*clean.TotalSum()/mc.TotalSum()).toLine(),"MC")
                     << "set key on" << "set title '" + Qmsg + ", " + runmsg + "'"
                     << "set xlabel 'Missing mass, GeV'"
@@ -126,27 +126,24 @@ int main()
 
     Plot("He3eta-cross-section")
     .Hist(he3eta_sigma(), "Data from other experiments")
-    .Hist(hist<>(he3eta_sigma().func(), BinsByStep(2.5, 2.5, 30.0)), "Interpolation")
-            << "set title 'Cross section of He3eta used in the calculations'"
-            << "set key on" << "set xlabel 'Q, MeV'"
-            << "set ylabel 'sigma(^3He eta), nb'"
-            << "set xrange [0:35]" << "set yrange [0:600]";
-    Plot("He3eta-cross-section-all")
-    .Hist(he3eta_sigma(), "Data from other experiments")
-    .Hist(hist<>(he3eta_sigma().func(), BinsByStep(-70.0, 2.5, 30.0)), "Interpolation", "CS-He3eta-assumed")
+    .Hist(hist<>(he3eta_sigma().func(), BinsByStep(2.5, 2.5, 30.0)), "Interpolation", "CS-He3eta-assumed")
             << "set title 'Cross section of He3eta used in the calculations'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'sigma(^3He eta), nb'"
             << "set xrange [0:35]" << "set yrange [0:600]";
 
-    Plot("He3eta-acceptance").Hist(acceptance)
+    Plot("He3eta-acceptance")
+        .Hist(acceptance.XRange(12.5,30),"trusted")
+        .Hist(acceptance.XRange(0,12.5),"not truster")
             << "set title '3He+eta acceptance'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'acceptance, n.d.'"
             << "set xrange [0:30]" << "set yrange [0:1]";
 
     const auto luminosity=events_count*trigger_he3_forward.scaling/he3eta_sigma().func();
-    Plot("He3eta-luminosity").Hist(luminosity, "3He+eta", "LUMINOSITYf")
+    Plot("He3eta-luminosity")
+        .Hist(luminosity.XRange(12.5,30),"trusted", "LUMINOSITYf")
+        .Hist(luminosity.XRange(0,12.5),"not trusted")
             << "set title 'Integrated luminosity (" + runmsg + ")'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"

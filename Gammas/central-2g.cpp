@@ -20,7 +20,8 @@ using namespace Genetic;
 using namespace MathTemplates;
 using namespace GnuplotWrap;
 typedef Mul<Par<0>,Func3<BreitWigner,Arg<0>,Par<1>,Par<2>>> FG;
-typedef PolynomFunc<Arg<0>,3,2> BG;
+typedef PolynomFunc<Arg<0>,3,1> BG;
+typedef PolynomFunc<Arg<0>,0,3> BG2;
 int main()
 {
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-2gamma");
@@ -269,10 +270,11 @@ int main()
 
     }
     const hist<> luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYc");
-    hist<> luminosity_he = Plotter::Instance().GetPoints<value<>>("LUMINOSITYf");
-    while(luminosity_he.left().X().min()>luminosity.left().X().min())
-        luminosity_he<<make_point(value<>(luminosity_he.left().X().min()-1.25,1.25),0);
-    const hist<> true_he3eta = hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed"))*luminosity_he/trigger_he3_forward.scaling;
+    const hist<> luminosity_he = Plotter::Instance().GetPoints<value<>>("LUMINOSITYf");
+    const hist<> true_he3eta = luminosity_he
+        *hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed"))
+            .XRange(luminosity_he.left().X().min(),luminosity_he.right().X().max())
+        /trigger_he3_forward.scaling;
     hist<> CS,POS,WIDTH;
     SortedPoints<> CHISQ,CHISQ_W;
     for(size_t a_t=0;a_t<suffix.size();a_t++){
@@ -301,7 +303,7 @@ int main()
                     << "set xrange [-70:30]";
             }
         }
-        const hist<> known_events = true_he3eta*acc[a_t][1]*0.4;
+        const hist<> known_events = (true_he3eta*0.4)*acc[a_t][1].XRange(true_he3eta.left().X().min(),true_he3eta.right().X().max());
         Plot("He3gg-events-final"+suffix[a_t])
             .Hist(ev_am[a_t],"data")
             .Hist(known_events,"3He+eta")
@@ -310,8 +312,9 @@ int main()
                 << "set title '"+runmsg+"'";
         const auto ev=ev_am[a_t];
         Plot("He3gg-events-final"+suffix[a_t]+"-bound")
-            .Hist(ev,"data")
-                << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-45:2.5]"
+            .Hist(ev.XRange(-45,0),"data, below threshold")
+            .Hist(ev.XRange(12.5,30)-known_events,"data-3Heeta, upper threshold")
+                << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-45:30]"
                 << "set ylabel 'events, n.d.'" << "set yrange [0:]"
                 << "set title '"+runmsg+"'";
         const auto data_shape=(
@@ -324,7 +327,9 @@ int main()
                     <<make_shared<DistribGauss>(10,10)
                     <<make_shared<DistribGauss>(100,100);
         while(init->Count()<BG::ParamCount)init<<make_shared<DistribGauss>(0,1);
-        fit.SetFilter([](const ParamSet&P){return (P[2]>4)&&(P[2]<15)&&(P[0]>0)&&(P[1]<0)&&(P[1]>-20);});
+        fit.SetFilter([](const ParamSet&P){
+            return (P[0]>0)&&(P[1]<0)&&(P[1]>-30)&&(P[2]>2)&&(P[2]<10);
+        });
         fit.Init(300,init);
         while(!fit.AbsoluteOptimalityExitCondition(0.0000001))fit.Iterate();
         fit.SetUncertaintyCalcDeltas({0.1,0.01,0.01,0.1});
@@ -346,13 +351,10 @@ int main()
         WIDTH<<make_point(cutpos*1000,P[2]);
         CHISQ<<make_point(cutpos*1000,fit.Optimality()/(fit.Points().size()-fit.ParamCount()));
         //pure background fit
-        FitFunction<DifferentialMutations<>,BG> fit_w(data_shape.removeXerorbars());
+        FitFunction<DifferentialMutations<>,BG2> fit_w(data_shape.removeXerorbars());
         auto init_w=make_shared<InitialDistributions>()
-                <<make_shared<FixParam>(0)
-                <<make_shared<FixParam>(0)
-                <<make_shared<FixParam>(0)
                 <<make_shared<DistribGauss>(100,100);
-        while(init_w->Count()<BG::ParamCount)init_w<<make_shared<DistribGauss>(0,1);
+        while(init_w->Count()<BG2::ParamCount)init_w<<make_shared<DistribGauss>(0,1);
         fit_w.Init(300,init_w);
         while(!fit_w.AbsoluteOptimalityExitCondition(0.0000001))fit_w.Iterate();
         CHISQ_W<<make_point(cutpos*1000,fit_w.Optimality()/(fit_w.Points().size()-fit_w.ParamCount()+3));
@@ -383,9 +385,14 @@ int main()
             << "set xrange [-50:50]"
             << "set ylabel 'sigma, MeV'" << "set yrange [0:20]"
             << "set title 'Peak width (sigma) "+runmsg+"'";
-    Plot("He3gg-cross-section-chisq").Line(CHISQ,"with peak").Line(CHISQ_W,"without peak")
+    Plot("He3gg-cross-section-chisq").Line(CHISQ)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
             << "set xrange [-50:50]"<<"set key on"
-            << "set ylabel 'chi square, n.d.'" << "set yrange [0:3]"
+            << "set ylabel 'chi square, n.d.'" << "set yrange [0:2]"
+            << "set title 'Chi square "+runmsg+"'";
+    Plot("He3gg-cross-section-chisq2").Line(CHISQ,"with peak").Line(CHISQ_W,"without peak")
+            << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
+            << "set xrange [-50:50]"<<"set key on"
+            << "set ylabel 'chi square, n.d.'" << "set yrange [0:]"
             << "set title 'Chi square "+runmsg+"'";
 }
