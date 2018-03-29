@@ -312,14 +312,14 @@ int main()
                 << "set title '"+runmsg+"'";
         const auto ev=ev_am[a_t];
         Plot("He3gg-events-final"+suffix[a_t]+"-bound")
-            .Hist(ev.XRange(-45,0),"data, below threshold")
+            .Hist(ev.XRange(-50,0),"data, below threshold")
             .Hist(ev.XRange(12.5,30)-known_events,"data-3Heeta, upper threshold")
                 << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-45:30]"
                 << "set ylabel 'events, n.d.'" << "set yrange [0:]"
                 << "set title '"+runmsg+"'";
         const auto data_shape=(
             (ev*trigger_he3_forward.scaling)/(acc[a_t][0]*luminosity)
-        ).XRange(-40,0);
+        ).XRange(-45,0);
         FitFunction2<DifferentialMutations<>,Add<FG,BG>> fit(data_shape.removeXerorbars());
         auto init=make_shared<InitialDistributions>()
                     <<make_shared<DistribGauss>(50,50)
@@ -334,7 +334,7 @@ int main()
         while(!fit.AbsoluteOptimalityExitCondition(0.0000001))fit.Iterate();
         fit.SetUncertaintyCalcDeltas({0.1,0.01,0.01,0.1});
         const auto&P=fit.ParametersWithUncertainties();
-        const auto chain=ChainWithStep(-40.,0.001,0.);
+        const auto chain=ChainWithStep(-45.,0.01,0.);
         const SortedPoints<>
         fg([&fit](double x){return fit({x});},chain),
         bg([&fit](double x){return BG()({x},fit.Parameters());},chain);

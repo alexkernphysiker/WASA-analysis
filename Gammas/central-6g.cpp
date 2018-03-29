@@ -63,7 +63,7 @@ int main()
     .Hist(Hist(DATA, "CC", histpath_central_reconstr, "GMMPDiff4"), "data")
             << "set key on" << "set title '" + runmsg + "'" << "set yrange [0:]";
 
-    hist<> ev_am1,ev_am2;
+    hist<> ev_am;
     vector<hist<>> acceptance;
     for (size_t i = 0; i < reaction.size(); i++) {
         acceptance.push_back(hist<>());
@@ -191,14 +191,12 @@ int main()
                 }
             }
         }
-        const hist<> T = Hist(DATA, "CC", histpath_central_reconstr, string("t6-Bin-") + to_string(bin_num)).Scale(50);
-        const hist<> DT = Hist(DATA, "CC", histpath_central_reconstr, string("dt6-Bin-") + to_string(bin_num)).Scale(50);
+        const hist<> T = Hist(DATA, "CC", histpath_central_reconstr, string("t7-Bin-") + to_string(bin_num)).Scale(50);
+        const hist<> DT = Hist(DATA, "CC", histpath_central_reconstr, string("dt7-Bin-") + to_string(bin_num)).Scale(50);
+        const hist<> DT0 = Hist(DATA, "CC", histpath_central_reconstr, string("dt6-Bin-") + to_string(bin_num)).Scale(50);
 
-        const auto DTBG=WeightedAverage<>()<<DT[3].Y()<<DT[4].Y();
-        ev_am1<<make_point(Q,DT[0].Y()+DT[1].Y()+DT[2].Y()-DTBG*3.0);
         const LinearInterpolation<value<>> TBG=Points<value<>>{T[3],T[7]};
-        ev_am2<<make_point(Q,(T[4].Y()-TBG(T[4].X()))+(T[5].Y()-TBG(T[5].X()))+(T[6].Y()-TBG(T[6].X())));
-        const hist<> dtbgplot=Points<value<>>{{DT[0].X(),DTBG},{DT[1].X(),DTBG},{DT[2].X(),DTBG}};
+        ev_am<<make_point(Q,(T[4].Y()-TBG(T[4].X()))+(T[5].Y()-TBG(T[5].X()))+(T[6].Y()-TBG(T[6].X())));
         Plot(
             Q.Contains(21) ? "He36g-above-data1" : (
                 Q.Contains(-39) ? "He36g-below-data1" : (
@@ -206,7 +204,7 @@ int main()
                 )
             )
         )
-        .Hist(DT,"Data").Hist(dtbgplot,"background")
+        .Hist(DT0).Hist(DT,"Cut")
                 << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
                 << "set xlabel 'gamma-gamma time difference, ns'"<<"set key on";
         const hist<> tbgplot=Points<value<>>{{T[4].X(),TBG(T[4].X())},{T[5].X(),TBG(T[5].X())},{T[6].X(),TBG(T[6].X())}};
@@ -233,8 +231,13 @@ int main()
         }
     }
     Plot("He36g-events")
-    .Hist(ev_am1, "1").Hist(ev_am2, "2")
+    .Hist(ev_am)
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
+            << "set title '" + runmsg + "'";
+    Plot("He36g-events2")
+    .Hist(ev_am)
+            << "set xlabel 'Q, MeV'" << "set key on"
+            << "set ylabel 'events, n.d.'" << "set yrange [0:]"<< "set xrange [-40:2.5]"
             << "set title '" + runmsg + "'";
 }
