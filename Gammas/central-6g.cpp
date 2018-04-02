@@ -230,14 +230,33 @@ int main()
             accplot.Hist(acc*100, reaction[i]);
         }
     }
+    const hist<> luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYc");
+    const hist<> luminosity_he = Plotter::Instance().GetPoints<value<>>("LUMINOSITYf");
+    const hist<> true_he3eta = luminosity_he
+        *hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed"))
+            .XRange(luminosity_he.left().X().min(),luminosity_he.right().X().max())
+        /trigger_he3_forward.scaling;
+    const double branching_ratio=0.32;
+    const hist<> known_events = (true_he3eta*branching_ratio)
+        *acceptance[1].XRange(true_he3eta.left().X().min(),true_he3eta.right().X().max());
+
     Plot("He36g-events")
-    .Hist(ev_am)
+    .Hist(ev_am,"data").Hist(known_events,"3He+eta")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '" + runmsg + "'";
     Plot("He36g-events2")
-    .Hist(ev_am)
+        .Hist(ev_am.XRange(-50,0),"data, below threshold")
+        .Hist(ev_am.XRange(12.5,30)-known_events,"data-3Heeta, upper threshold")
             << "set xlabel 'Q, MeV'" << "set key on"
-            << "set ylabel 'events, n.d.'" << "set yrange [0:]"<< "set xrange [-40:2.5]"
+            << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '" + runmsg + "'";
+    const auto data_shape=(
+        (ev_am*trigger_he3_forward.scaling)/(acceptance[0]*luminosity)
+    ).XRange(-45,0);
+    Plot("He36g-events-norm-bound")
+        .Hist(data_shape,"Data")
+            << "set xlabel 'Q, MeV'" << "set key on"
+            << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]"
+            << "set title '"+runmsg+"'";
 }

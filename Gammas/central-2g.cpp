@@ -275,6 +275,7 @@ int main()
         *hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed"))
             .XRange(luminosity_he.left().X().min(),luminosity_he.right().X().max())
         /trigger_he3_forward.scaling;
+    const double branching_ratio=0.39;
     hist<> CS,POS,WIDTH;
     SortedPoints<> CHISQ,CHISQ_W;
     for(size_t a_t=0;a_t<suffix.size();a_t++){
@@ -303,7 +304,8 @@ int main()
                     << "set xrange [-70:30]";
             }
         }
-        const hist<> known_events = (true_he3eta*0.4)*acc[a_t][1].XRange(true_he3eta.left().X().min(),true_he3eta.right().X().max());
+        const hist<> known_events = (true_he3eta*branching_ratio)
+            *acc[a_t][1].XRange(true_he3eta.left().X().min(),true_he3eta.right().X().max());
         Plot("He3gg-events-final"+suffix[a_t])
             .Hist(ev_am[a_t],"data")
             .Hist(known_events,"3He+eta")
@@ -370,10 +372,10 @@ int main()
             << "set xlabel 'Q, MeV'" << "set xrange [-70:30]"
             << "set ylabel 'Acceptance, percents'" << "set yrange [0:100]"
             << "set title 'How many helium ions from mesic nuclei decay would be detected'";
-    Plot("He3gg-cross-section").Hist(CS)
+    Plot("He3gg-cross-section").Hist(CS,"data").Hist(CS/branching_ratio,"divided by branching ratio")
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
             << "set xrange [-50:50]"<<"set key on"
-            << "set ylabel 'Cross section, nb'" << "set yrange [0:40]"
+            << "set ylabel 'Cross section, nb'" << "set yrange [0:]"
             << "set title 'Cross section "+runmsg+"'";
     Plot("He3gg-pos").Hist(POS)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
