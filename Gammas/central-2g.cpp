@@ -375,7 +375,7 @@ int main()
     Plot("He3gg-cross-section").Hist(CS,"data").Hist(CS/branching_ratio,"divided by branching ratio")
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
             << "set xrange [-50:50]"<<"set key on"
-            << "set ylabel 'Cross section, nb'" << "set yrange [0:]"
+            << "set ylabel 'Cross section, nb'" << "set yrange [0:80]"
             << "set title 'Cross section "+runmsg+"'";
     Plot("He3gg-pos").Hist(POS)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
