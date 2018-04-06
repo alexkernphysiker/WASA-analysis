@@ -95,6 +95,7 @@ int main()
             planarity = "'Phi_1-Phi_2, deg'";
     const hist<> norm = Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "0-Reference");
     const hist<> norm_pd = Hist(MC, pd_reaction, {"Histograms", "quasielastic"}, "0-Reference");
+    cout << "2D plots"<<endl;
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "luminosity-central-v2");
     Plot("ppn-v2-copl-mc")
     .Hist(Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "pair_phi_diff_0-AllBins") / norm.TotalSum().val(), "ppn_{sp}")
@@ -142,6 +143,7 @@ int main()
 
 
     hist<> acceptance, acceptance_pd,events,data_chi_sq;
+    cout << "Cross sections"<<endl;
     const auto diff_cs = ReadCrossSection();
     const auto p_cs = IntegrateCrossSection(diff_cs);
     Plot("pp-v2-integrated").Line(p_cs) << "set title 'pp->pp'";
@@ -153,6 +155,7 @@ int main()
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'cross section, nb'"
             << "set xrange [-70:30]" << "set yrange [0:]";
+    cout << "Binning"<<endl;
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++) {
         const auto &Q = norm[bin_num].X();
         const auto &N = norm[bin_num].Y();
@@ -163,6 +166,7 @@ int main()
                 << "Q in [" << setprecision(3)
                 << Q.min() << "; " << Q.max() << "] MeV"
             ).str();
+        cout << endl << Qmsg << endl;
 
         const hist<> data_time=
             Hist(DATA,"Q",{"Histograms","quasielastic"},string("pair_time_diff_2-Bin-") + to_string(bin_num))
@@ -194,7 +198,7 @@ int main()
             Hist(MC,pd_reaction,{"Histograms","quasielastic"},string("pair_phi_diff_1-Bin-") + to_string(bin_num))
             .Scale(4).XRange(100,260);
         cout << endl << Qmsg << endl;
-        cout << endl;
+        cout << endl << "Fitting" << endl;
 
         const auto acc=data_copl_mc.TotalSum()/N;
         acceptance << make_point(Q, acc);

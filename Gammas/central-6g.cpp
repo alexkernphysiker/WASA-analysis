@@ -75,6 +75,7 @@ int main()
                             << Q.min() << "; " << Q.max() << "] MeV").str();
         for (size_t i = 0; i < reaction.size(); i++) {
             const auto &r = reaction[i];
+            cout<<Qmsg << " plots "<<r<<endl;
             Plot(
                 Q.Contains(21) ? "He36g-above-he3mm-mc-" + r : (
                     Q.Contains(-39) ? "He36g-below-he3mm-mc-" + r : (
@@ -87,6 +88,7 @@ int main()
             .Hist(Hist(MC, r, histpath_central_reconstr, string("He3MM2-Bin-") + to_string(bin_num)), "3He+6gamma")
                     << "set key on" << "set title '" + Qmsg + ";MC " + r + "'" << "set yrange [0:]"
                     << "set xlabel '3He missing mass, GeV'";
+            cout<<Qmsg << " plots "<<r<<endl;
             Plot(
                 Q.Contains(21) ? "He36g-above-ggmm-mc" + r : (
                     Q.Contains(-39) ? "He36g-below-ggmm-mc" + r : (
@@ -98,17 +100,7 @@ int main()
             .Hist(Hist(MC, r, histpath_central_reconstr, string("GMM5-Bin-") + to_string(bin_num)), "6gamma MM cut")
                     << "set key on" << "set title '" + Qmsg + ";MC " + r + "'" << "set yrange [0:]"
                     << "set xlabel '6gamma missing mass, GeV'";
-            Plot(
-                Q.Contains(21) ? "He36g-above-ggim-mc" + r : (
-                    Q.Contains(-39) ? "He36g-below-ggim-mc" + r : (
-                        Q.Contains(-3) ? "He36g-thr-ggim-mc" + r : ""
-                    )
-                )
-            )
-            .Hist(Hist(MC, r, histpath_central_reconstr, string("GIM4-Bin-") + to_string(bin_num)), "3He+6gamma")
-            .Hist(Hist(MC, r, histpath_central_reconstr, string("GIM5-Bin-") + to_string(bin_num)), "6gamma MM cut")
-                    << "set key on" << "set title '" + Qmsg + ";MC " + r + "'" << "set yrange [0:]"
-                    << "set xlabel '6gamma invariant mass, GeV'";
+            cout<<Qmsg << " plots "<<r<<endl;
             Plot(
                 Q.Contains(21) ? "He36g-above-tim-mc" + r : (
                     Q.Contains(-39) ? "He36g-below-tim-mc" + r : (
@@ -120,7 +112,9 @@ int main()
             .Hist(Hist(MC, r, histpath_central_reconstr, string("TIM6-Bin-") + to_string(bin_num)), "Total IM cut")
                     << "set key on" << "set title '" + Qmsg + ";MC " + r + "'" << "set yrange [0:]"
                     << "set xlabel '6gamma invariant mass, GeV'";
+            cout<<Qmsg << " plots "<<r<<endl;
         }{
+            cout<<Qmsg << " plots "<<"data"<<endl;
             Plot(
                 Q.Contains(21) ? "He36g-above-he3mm-data" : (
                     Q.Contains(-39) ? "He36g-below-he3mm-data" : (
@@ -133,6 +127,7 @@ int main()
             .Hist(Hist(DATA, "CC", histpath_central_reconstr, string("He3MM2-Bin-") + to_string(bin_num)), "3He+6gamma")
                     << "set key on" << "set title '" + Qmsg + ";Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '3He missing mass, GeV'";
+            cout<<Qmsg << " plots "<<"data"<<endl;
             Plot(
                 Q.Contains(21) ? "He36g-above-ggmm-data" : (
                     Q.Contains(-39) ? "He36g-below-ggmm-data" : (
@@ -144,28 +139,7 @@ int main()
             .Hist(Hist(DATA, "CC", histpath_central_reconstr, string("GMM5-Bin-") + to_string(bin_num)), "6gamma MM cut")
                     << "set key on" << "set title '" + Qmsg + ";Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '6gamma missing mass, GeV'";
-            Plot(
-                Q.Contains(21) ? "He36g-above-ggim-data" : (
-                    Q.Contains(-39) ? "He36g-below-ggim-data" : (
-                        Q.Contains(-3) ? "He36g-thr-ggim-data" : ""
-                    )
-                )
-            )
-            .Hist(Hist(DATA, "CC", histpath_central_reconstr, string("GIM4-Bin-") + to_string(bin_num)), "3He+6gamma")
-            .Hist(Hist(DATA, "CC", histpath_central_reconstr, string("GIM5-Bin-") + to_string(bin_num)), "6gamma MM cut")
-                    << "set key on" << "set title '" + Qmsg + ";Data " + runmsg + "'" << "set yrange [0:]"
-                    << "set xlabel '6gamma invariant mass, GeV'";
-            Plot(
-                Q.Contains(21) ? "He36g-above-tim-data" : (
-                    Q.Contains(-39) ? "He36g-below-tim-data" : (
-                        Q.Contains(-3) ? "He36g-thr-tim-data" : ""
-                    )
-                )
-            )
-            .Hist(Hist(DATA, "CC", histpath_central_reconstr, string("TIM5-Bin-") + to_string(bin_num)), "6gamma MM cut")
-            .Hist(Hist(DATA, "CC", histpath_central_reconstr, string("TIM6-Bin-") + to_string(bin_num)), "Total IM cut")
-                    << "set key on" << "set title '" + Qmsg + ";Data " + runmsg + "'" << "set yrange [0:]"
-                    << "set xlabel '6gamma invariant mass, GeV'";
+            cout<<Qmsg << " plots "<<"data"<<endl;
         }
         {
             Plot mc_plot(
@@ -175,10 +149,12 @@ int main()
                     )
                 )
             );
+            cout<<Qmsg << " plots2 "<<endl;
             mc_plot << "set key on" << "set title '" + Qmsg + ";MC'" << "set yrange [0:]"
                     << "set xlabel '6gamma invariant mass, GeV'";
             for (size_t i = 0; i < reaction.size(); i++) {
                 const auto &r = reaction[i];
+                cout<<Qmsg << " plots2 "<<r<<endl;
                 hist<> Norm = Hist(MC, r, histpath_central_reconstr, "0-Reference");
                 const auto &N = Norm[bin_num].Y();
                 if (N.Above(0)) {
@@ -191,12 +167,26 @@ int main()
                 }
             }
         }
-        const hist<> T = Hist(DATA, "CC", histpath_central_reconstr, string("t7-Bin-") + to_string(bin_num)).Scale(50);
-        const hist<> DT = Hist(DATA, "CC", histpath_central_reconstr, string("dt7-Bin-") + to_string(bin_num)).Scale(50);
-        const hist<> DT0 = Hist(DATA, "CC", histpath_central_reconstr, string("dt6-Bin-") + to_string(bin_num)).Scale(50);
+        cout<<Qmsg << " plots3 & events count "<<endl;
 
-        const LinearInterpolation<value<>> TBG=Points<value<>>{T[3],T[7]};
-        ev_am<<make_point(Q,(T[4].Y()-TBG(T[4].X()))+(T[5].Y()-TBG(T[5].X()))+(T[6].Y()-TBG(T[6].X())));
+        const hist<> DT0 = Hist(DATA, "CC", histpath_central_reconstr, string("dt6-Bin-") + to_string(bin_num)).Scale(50);
+        const hist<> DT = Hist(DATA, "CC", histpath_central_reconstr, string("dt7-Bin-") + to_string(bin_num)).Scale(50);
+        const hist<> T0 = Hist(DATA, "CC", histpath_central_reconstr, string("t7-Bin-") + to_string(bin_num)).Scale(50);
+        const hist<> T = T0.XRange(-10,20);
+        const auto TIM=Hist(DATA, "CC", histpath_central_reconstr, string("TIM6-Bin-") + to_string(bin_num));
+        cout<<Qmsg << " plots3 & events count "<<endl;
+
+        ev_am<<make_point(Q,std_error(T.TotalSum().val()));
+        Plot(
+            Q.Contains(21) ? "He36g-above-tim-data" : (
+                Q.Contains(-39) ? "He36g-below-tim-data" : (
+                    Q.Contains(-3) ? "He36g-thr-tim-data" : ""
+                )
+            )
+        )
+            .Hist(TIM)
+                    << "set key on" << "set title '" + Qmsg + ";Data " + runmsg + "'" << "set yrange [0:]"
+                    << "set xlabel '6gamma invariant mass, GeV'";
         Plot(
             Q.Contains(21) ? "He36g-above-data1" : (
                 Q.Contains(-39) ? "He36g-below-data1" : (
@@ -207,7 +197,6 @@ int main()
         .Hist(DT0).Hist(DT,"Cut")
                 << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
                 << "set xlabel 'gamma-gamma time difference, ns'"<<"set key on";
-        const hist<> tbgplot=Points<value<>>{{T[4].X(),TBG(T[4].X())},{T[5].X(),TBG(T[5].X())},{T[6].X(),TBG(T[6].X())}};
         Plot(
             Q.Contains(21) ? "He36g-above-data2" : (
                 Q.Contains(-39) ? "He36g-below-data2" : (
@@ -215,10 +204,11 @@ int main()
                 )
             )
         )
-        .Hist(T,"Data").Hist(tbgplot,"background")
+        .Hist(T0).Hist(T,"Cut")
                 << "set title '" + Qmsg + ";" + runmsg + "'" << "set yrange [0:]"
                 << "set xlabel '3He-gamma time difference, ns'"<<"set key on";
     }
+    cout<<"Final plots"<<endl;
     Plot accplot("He36g-acceptance");
     accplot << "set title 'Acceptance'"
             << "set xlabel 'Q, MeV'"
@@ -239,7 +229,6 @@ int main()
     const double branching_ratio=0.32;
     const hist<> known_events = (true_he3eta*branching_ratio)
         *acceptance[1].XRange(true_he3eta.left().X().min(),true_he3eta.right().X().max());
-
     Plot("He36g-events")
     .Hist(ev_am,"data").Hist(known_events,"3He+eta")
             << "set xlabel 'Q, MeV'" << "set key on"

@@ -1,4 +1,6 @@
 add_executable(central-2g central-2g.cpp)
 target_link_libraries(central-2g ${ROOT_LIBRARIES} experiment kinematics FitGen)
+add_executable(central-2g-part2 central-2g-part2.cpp)
+target_link_libraries(central-2g-part2 ${ROOT_LIBRARIES} experiment kinematics FitGen)
 add_executable(central-6g central-6g.cpp)
 target_link_libraries(central-6g ${ROOT_LIBRARIES} experiment kinematics FitGen)
