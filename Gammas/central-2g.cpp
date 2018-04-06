@@ -227,6 +227,15 @@ int main()
 
     for(size_t a_t=0;a_t<suffix.size();a_t++){
         cout<<suffix[a_t]<< " saving"<<endl;
+        const auto TIM=Hist(DATA, "C", histpath_central_reconstr,"TIM4-AllBins");
+        const double high=TIM.TransponateAndSort().right().X().max();
+        const double cutpos=-0.04+0.02*a_t;
+        Plot("He3gg-above-tim-data-allbins"+suffix[a_t]).Hist(TIM)
+        .Line({make_point(cutpos,0.),make_point(cutpos,high)})
+            << "set key on" << "set yrange [0:]"<< "set xrange [-0.5:0.5]"
+            << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
+
+
         Plot accplot("He3gg-acceptance-final"+suffix[a_t]);
         accplot << "set title 'Acceptance'"
             << "set xlabel 'Q, MeV'"
@@ -238,7 +247,7 @@ int main()
             if (ac.size() > 0) {
                 accplot.Hist(ac, reaction[i]);
                 Plot("He3gg-acceptance-final"+suffix[a_t]+"-"+reaction[i])
-                    .Hist(acc[a_t][i],"","He3gg-acceptance"+suffix[a_t]+"-"+to_string(i))
+                .Hist(acc[a_t][i],"","He3gg-acceptance"+suffix[a_t]+"-"+to_string(i))
                     << "set title 'Acceptance "+reaction[i]+"'"
                     << "set xlabel 'Q, MeV'"
                     << "set ylabel 'Acceptance, percents'"

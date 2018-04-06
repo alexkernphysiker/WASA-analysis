@@ -20,8 +20,8 @@ using namespace Genetic;
 using namespace MathTemplates;
 using namespace GnuplotWrap;
 typedef Mul<Par<0>,Func3<BreitWigner,Arg<0>,Par<1>,Par<2>>> FG;
-typedef PolynomFunc<Arg<0>,3,2> BG;
-typedef PolynomFunc<Arg<0>,0,2> BG2;
+typedef PolynomFunc<Arg<0>,3,1> BG;
+typedef PolynomFunc<Arg<0>,0,1> BG2;
 int main()
 {
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-2gamma");
@@ -31,7 +31,7 @@ int main()
     const hist<> norm = Hist(MC, reaction[0], histpath_central_reconstr, "0-Reference");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
 
-    const vector<string> suffix={"-m40","-m20","-0","-20","-40"};
+    const vector<string> suffix={"-m20","-0","-20"};
     const hist<> luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYc");
     const hist<> luminosity_he = Plotter::Instance().GetPoints<value<>>("LUMINOSITYf");
     const hist<> true_he3eta = luminosity_he
@@ -43,14 +43,7 @@ int main()
     SortedPoints<> CHISQ,CHISQ_W;
     for(size_t a_t=0;a_t<suffix.size();a_t++){
         cout<<suffix[a_t]<< " fitting"<<endl;
-        const auto TIM=Hist(DATA, "C", histpath_central_reconstr,"TIM4-AllBins");
-        const double high=TIM.TransponateAndSort().right().X().max();
-        const double cutpos=-0.04+0.02*a_t;
-        Plot("He3gg-above-tim-data-allbins"+suffix[a_t]).Hist(TIM)
-        .Line({make_point(cutpos,0.),make_point(cutpos,high)})
-            << "set key on" << "set yrange [0:]"<< "set xrange [-0.5:0.5]"
-            << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
-
+        const double cutpos=-0.02+0.02*a_t;
         const hist<> acc_bound=Plotter::Instance().GetPoints<value<>>("He3gg-acceptance"+suffix[a_t]+"-0");
         const hist<> acc_he3eta=Plotter::Instance().GetPoints<value<>>("He3gg-acceptance"+suffix[a_t]+"-1");
         cout<<suffix[a_t]<< " fitting"<<endl;
@@ -58,9 +51,9 @@ int main()
         const hist<> known_events = (true_he3eta*branching_ratio)
             *acc_he3eta.XRange(true_he3eta.left().X().min(),true_he3eta.right().X().max());
         Plot("He3gg-events-final"+suffix[a_t]+"-bound")
-            .Hist(ev.XRange(-50,0),"data, below threshold")
+            .Hist(ev.XRange(-60,0),"data, below threshold")
             .Hist(ev.XRange(12.5,30)-known_events,"data-3Heeta, upper threshold")
-                << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-45:30]"
+                << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-60:30]"
                 << "set ylabel 'events, n.d.'" << "set yrange [0:]"
                 << "set title '"+runmsg+"'";
         cout<<suffix[a_t]<< " fitting"<<endl;
@@ -79,7 +72,7 @@ int main()
         });
         fit.Init(300,init);
         while(!fit.AbsoluteOptimalityExitCondition(0.0000001))fit.Iterate();
-        fit.SetUncertaintyCalcDeltas({0.1,0.01,0.01,0.1});
+        fit.SetUncertaintyCalcDeltas(parEq(BG::ParamCount,0.01));
         const auto&P=fit.ParametersWithUncertainties();
         const auto chain=ChainWithStep(-50.,0.01,0.);
         const SortedPoints<>
@@ -116,32 +109,32 @@ int main()
     cout<<"Final plots"<<endl;
     Plot("He3gg-cross-section").Hist(CS,"data")
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-50:50]"<<"set key on"
+            << "set xrange [-30:30]"<<"set key on"
             << "set ylabel 'Cross section, nb'" << "set yrange [0:]"
             << "set title 'Cross section "+runmsg+"'";
     Plot("He3gg-cross-section-2").Hist(CS/branching_ratio,"divided by branching ratio")
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-50:50]"<<"set key on"
+            << "set xrange [-30:30]"<<"set key on"
             << "set ylabel 'Cross section, nb'" << "set yrange [0:]"
             << "set title 'Cross section "+runmsg+"'";
     Plot("He3gg-pos").Hist(POS)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-50:50]"
+            << "set xrange [-30:30]"
             << "set ylabel 'Position, MeV'" << "set yrange [-20:0]"
             << "set title 'Peak position "+runmsg+"'";
     Plot("He3gg-width").Hist(WIDTH)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-50:50]"
+            << "set xrange [-30:30]"
             << "set ylabel 'sigma, MeV'" << "set yrange [0:20]"
             << "set title 'Peak width (sigma) "+runmsg+"'";
     Plot("He3gg-cross-section-chisq").Line(CHISQ)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-50:50]"<<"set key on"
+            << "set xrange [-30:30]"<<"set key on"
             << "set ylabel 'chi square, n.d.'" << "set yrange [0:2]"
             << "set title 'Chi square "+runmsg+"'";
     Plot("He3gg-cross-section-chisq2").Line(CHISQ,"with peak").Line(CHISQ_W,"without peak")
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-50:50]"<<"set key on"
+            << "set xrange [-30:30]"<<"set key on"
             << "set ylabel 'chi square, n.d.'" << "set yrange [0:]"
             << "set title 'Chi square "+runmsg+"'";
     cout<<"END"<<endl;

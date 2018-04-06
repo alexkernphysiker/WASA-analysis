@@ -248,4 +248,9 @@ int main()
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]"
             << "set title '"+runmsg+"'";
+    Plot("He36g-events-norm2-bound")
+        .Hist(data_shape/branching_ratio,"Divided by branching ratio")
+            << "set xlabel 'Q, MeV'" << "set key on"
+            << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]"
+            << "set title '"+runmsg+"'";
 }
