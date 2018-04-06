@@ -22,7 +22,7 @@ using namespace GnuplotWrap;
 int main()
 {
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "background-reactions-forward");
-    const auto runs = PresentRuns("F");
+    const auto runs = PresentRuns("All");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
     vector<string> histpath_forward_reconstr = {"Histograms", "He3Forward_Reconstruction"};
     vector<string> reaction = {"He3eta-gg", "He3pi0pi0pi0", "He3pi0pi0", "He3pi0"};
@@ -48,7 +48,7 @@ int main()
         auto transform2 = [](const hist<> &h) {
             return h.XRange(0.4, 0.6);
         };
-        const hist<> data = transform(Hist(DATA, "F", histpath_forward_reconstr, string("MissingMass-Bin-") + to_string(bin_num)));
+        const hist<> data = transform(Hist(DATA, "All", histpath_forward_reconstr, string("MissingMass-Bin-") + to_string(bin_num)));
         Plot(Q.Contains(21) ? "He3forward-above-mm" : (Q.Contains(-39) ? "He3forward-below-mm" : "")).Hist(data)
                 << "set key on" << "set title '" + Qmsg + ", " + runmsg + "'"
                 << "set xlabel 'Missing mass, GeV'"

@@ -24,7 +24,7 @@ int main()
     vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas6"};
     vector<string> reaction = {"bound3-6g", "He3eta-6g", "He3pi0pi0pi0"};
     hist<> norm = Hist(MC, reaction[0], histpath_central_reconstr, "0-Reference");
-    const auto runs = PresentRuns("CC");
+    const auto runs = PresentRuns("All");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
 
     Plot gE("He36g-gamma-energy-theory"), gEc("He36g-gamma-energy-theory-cut"),
@@ -46,7 +46,7 @@ int main()
             / Hist(MC, r, histpath_central_reconstr, "0-Reference").TotalSum().val()
             , r);
     }
-    gEd.Hist(Hist(DATA, "CC", histpath_central_reconstr, "GammaEnergy")).Hist(Hist(DATA, "CC", histpath_central_reconstr, "GammaEnergyCut"));
+    gEd.Hist(Hist(DATA, "All", histpath_central_reconstr, "GammaEnergy")).Hist(Hist(DATA, "All", histpath_central_reconstr, "GammaEnergyCut"));
 
 
     Plot theory("He36g-IMPiDiff-mc"),experiment("He36g-IMPiDiff-data");
@@ -60,7 +60,7 @@ int main()
     }
     theory << "set key on" << "set yrange [0:]";
     experiment
-    .Hist(Hist(DATA, "CC", histpath_central_reconstr, "GMMPDiff4"), "data")
+    .Hist(Hist(DATA, "All", histpath_central_reconstr, "GMMPDiff4"), "data")
             << "set key on" << "set title '" + runmsg + "'" << "set yrange [0:]";
 
     hist<> ev_am;
@@ -122,9 +122,9 @@ int main()
                     )
                 )
             )
-            .Hist(Hist(DATA, "CC", histpath_central_reconstr, string("He3MM0-Bin-") + to_string(bin_num)), "3He")
-            .Hist(Hist(DATA, "CC", histpath_central_reconstr, string("He3MM1-Bin-") + to_string(bin_num)), "3He MM cut")
-            .Hist(Hist(DATA, "CC", histpath_central_reconstr, string("He3MM2-Bin-") + to_string(bin_num)), "3He+6gamma")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, string("He3MM0-Bin-") + to_string(bin_num)), "3He")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, string("He3MM1-Bin-") + to_string(bin_num)), "3He MM cut")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, string("He3MM2-Bin-") + to_string(bin_num)), "3He+6gamma")
                     << "set key on" << "set title '" + Qmsg + ";Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '3He missing mass, GeV'";
             cout<<Qmsg << " plots "<<"data"<<endl;
@@ -135,8 +135,8 @@ int main()
                     )
                 )
             )
-            .Hist(Hist(DATA, "CC", histpath_central_reconstr, string("GMM4-Bin-") + to_string(bin_num)), "3He+6gamma")
-            .Hist(Hist(DATA, "CC", histpath_central_reconstr, string("GMM5-Bin-") + to_string(bin_num)), "6gamma MM cut")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, string("GMM4-Bin-") + to_string(bin_num)), "3He+6gamma")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, string("GMM5-Bin-") + to_string(bin_num)), "6gamma MM cut")
                     << "set key on" << "set title '" + Qmsg + ";Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '6gamma missing mass, GeV'";
             cout<<Qmsg << " plots "<<"data"<<endl;
@@ -169,11 +169,11 @@ int main()
         }
         cout<<Qmsg << " plots3 & events count "<<endl;
 
-        const hist<> DT0 = Hist(DATA, "CC", histpath_central_reconstr, string("dt6-Bin-") + to_string(bin_num)).Scale(50);
-        const hist<> DT = Hist(DATA, "CC", histpath_central_reconstr, string("dt7-Bin-") + to_string(bin_num)).Scale(50);
-        const hist<> T0 = Hist(DATA, "CC", histpath_central_reconstr, string("t7-Bin-") + to_string(bin_num)).Scale(50);
+        const hist<> DT0 = Hist(DATA, "All", histpath_central_reconstr, string("dt6-Bin-") + to_string(bin_num)).Scale(50);
+        const hist<> DT = Hist(DATA, "All", histpath_central_reconstr, string("dt7-Bin-") + to_string(bin_num)).Scale(50);
+        const hist<> T0 = Hist(DATA, "All", histpath_central_reconstr, string("t7-Bin-") + to_string(bin_num)).Scale(50);
         const hist<> T = T0.XRange(-10,20);
-        const auto TIM=Hist(DATA, "CC", histpath_central_reconstr, string("TIM6-Bin-") + to_string(bin_num));
+        const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM6-Bin-") + to_string(bin_num));
         cout<<Qmsg << " plots3 & events count "<<endl;
 
         ev_am<<make_point(Q,std_error(T.TotalSum().val()));

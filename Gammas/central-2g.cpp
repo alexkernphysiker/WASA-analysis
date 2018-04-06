@@ -19,7 +19,7 @@ int main()
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-2gamma");
     vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas2"};
     vector<string> reaction = {"bound3-2g", "He3eta-gg", "He3pi0pi0", "He3pi0pi0pi0", "He3pi0"};
-    const auto runs = PresentRuns("C");
+    const auto runs = PresentRuns("All");
     const hist<> norm = Hist(MC, reaction[0], histpath_central_reconstr, "0-Reference");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
     cout<<"First plots"<<endl;
@@ -42,8 +42,8 @@ int main()
             / Hist(MC, r, histpath_central_reconstr, "0-Reference").TotalSum().val()
             , r);
     }
-    gEd.Hist(Hist(DATA, "C", histpath_central_reconstr, "GammaEnergy")).Hist(Hist(DATA, "C", histpath_central_reconstr, "GammaEnergyCut"));
-    Plot("He3gg-gamma-count").Hist(Hist(DATA, "C", histpath_central_reconstr, "GammaCount"))<<"set log y">>"unset log y";
+    gEd.Hist(Hist(DATA, "All", histpath_central_reconstr, "GammaEnergy")).Hist(Hist(DATA, "All", histpath_central_reconstr, "GammaEnergyCut"));
+    Plot("He3gg-gamma-count").Hist(Hist(DATA, "All", histpath_central_reconstr, "GammaCount"))<<"set log y">>"unset log y";
 
     vector<hist<>> ev_am;
     vector<vector<hist<>>> acceptance;
@@ -125,9 +125,9 @@ int main()
                     )
                 )
             )
-            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("He3MM0-Bin-") + to_string(bin_num)), "3He")
-            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("He3MM1-Bin-") + to_string(bin_num)), "3He MM cut")
-            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("He3MM2-Bin-") + to_string(bin_num)), "3He+2gamma")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, string("He3MM0-Bin-") + to_string(bin_num)), "3He")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, string("He3MM1-Bin-") + to_string(bin_num)), "3He MM cut")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, string("He3MM2-Bin-") + to_string(bin_num)), "3He+2gamma")
                     << "set key on" << "set title '" + Qmsg + ";Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '3He missing mass, GeV'";
             cout<<Qmsg << " plots data"<<endl;
@@ -138,8 +138,8 @@ int main()
                     )
                 )
             )
-            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("GMM2-Bin-") + to_string(bin_num)), "3He+2gamma")
-            .Hist(Hist(DATA, "C", histpath_central_reconstr, string("GMM4-Bin-") + to_string(bin_num)), "MM and IM cuts")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, string("GMM2-Bin-") + to_string(bin_num)), "3He+2gamma")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, string("GMM4-Bin-") + to_string(bin_num)), "MM and IM cuts")
                     << "set key on" << "set title '" + Qmsg + ";Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '2gamma missing mass, GeV'";
             cout<<Qmsg << " plots data"<<endl;
@@ -177,11 +177,11 @@ int main()
         }
         for(size_t a_t=0;a_t<suffix.size();a_t++){
             cout<<Qmsg<< ";"<<suffix[a_t] << "; plots 3 & events count"<<endl;
-            const auto DT0=Hist(DATA, "C", histpath_central_reconstr, "dt5"+to_string(a_t)+"-Bin-"+to_string(bin_num)).Scale(25);
-            const auto DT=Hist(DATA, "C", histpath_central_reconstr, "dt6"+to_string(a_t)+"-Bin-"+to_string(bin_num)).Scale(25);
-            const auto T0=Hist(DATA, "C", histpath_central_reconstr, "t6"+to_string(a_t)+"-Bin-"+to_string(bin_num)).Scale(25);
+            const auto DT0=Hist(DATA, "All", histpath_central_reconstr, "dt5"+to_string(a_t)+"-Bin-"+to_string(bin_num)).Scale(25);
+            const auto DT=Hist(DATA, "All", histpath_central_reconstr, "dt6"+to_string(a_t)+"-Bin-"+to_string(bin_num)).Scale(25);
+            const auto T0=Hist(DATA, "All", histpath_central_reconstr, "t6"+to_string(a_t)+"-Bin-"+to_string(bin_num)).Scale(25);
             const auto T=T0.XRange(-10,20);
-            const auto TIM=Hist(DATA, "C", histpath_central_reconstr, string("TIM4-Bin-") + to_string(bin_num));
+            const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM4-Bin-") + to_string(bin_num));
             cout<<Qmsg<< ";"<<suffix[a_t] << "; plots 3 & events count"<<endl;
             ev_am[a_t]<<make_point(Q,std_error(T.TotalSum().val()));
             Plot(
@@ -227,7 +227,7 @@ int main()
 
     for(size_t a_t=0;a_t<suffix.size();a_t++){
         cout<<suffix[a_t]<< " saving"<<endl;
-        const auto TIM=Hist(DATA, "C", histpath_central_reconstr,"TIM4-AllBins");
+        const auto TIM=Hist(DATA, "All", histpath_central_reconstr,"TIM4-AllBins");
         const double high=TIM.TransponateAndSort().right().X().max();
         const double cutpos=-0.04+0.02*a_t;
         Plot("He3gg-above-tim-data-allbins"+suffix[a_t]).Hist(TIM)

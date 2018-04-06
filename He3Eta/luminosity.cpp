@@ -24,7 +24,7 @@ int main()
 {
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "luminosity-forward");
     vector<string> histpath_forward_reconstr = {"Histograms", "He3Forward_Reconstruction"};
-    const auto runs = PresentRuns("F");
+    const auto runs = PresentRuns("All");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
     const hist<> norm = Hist(MC, "He3eta-gg", histpath_forward_reconstr, "0-Reference");
     hist<> events_count, data_chi_sq, acceptance;
@@ -39,7 +39,7 @@ int main()
                     << Q.min() << "; " << Q.max() << "] MeV"
                 ).str();
             const string hist_name=string("MissingMass-Bin-") + to_string(bin_num);
-            const auto data_full = Hist(DATA, "F", histpath_forward_reconstr,hist_name).XRange(0.525, 0.57);
+            const auto data_full = Hist(DATA, "All", histpath_forward_reconstr,hist_name).XRange(0.525, 0.57);
             const double bg_level=data_full.TransponateAndSort().right().X().max()*0.04;
             const auto data = data_full.XRange(0.525, data_full.YRange(bg_level,INFINITY).right().X().val()+0.001);
             const auto mc_unnorm = Hist(MC, "He3eta-gg", histpath_forward_reconstr,hist_name).XRange(0.525, 0.57);

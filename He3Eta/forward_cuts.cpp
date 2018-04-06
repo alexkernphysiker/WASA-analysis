@@ -54,6 +54,6 @@ int main()
     MakePlots(MC, "He3eta-gg", 500000);
     MakePlots(MC, "He3pi0pi0", 500000);
     MakePlots(MC, "He3pi0pi0pi0", 500000);
-    MakePlots(DATA, "F", 100000);
+    MakePlots(DATA, "All", 100000);
     MakePlots(MC, "He3pi0", 500000);
 }
