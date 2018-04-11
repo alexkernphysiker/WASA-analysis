@@ -7,17 +7,24 @@
 #include <memory>
 #include <gnuplot_wrap.h>
 #include <math_h/interpolate.h>
+#include <math_h/lorentzvector.h>
 #include <Genetic/fit.h>
 #include <Genetic/paramfunc.h>
 #include <Genetic/initialconditions.h>
 #include <Genetic/filter.h>
 #include <Experiment/experiment_conv.h>
 #include <Experiment/str_get.h>
+#include <Kinematics/particles.h>
 using namespace std;
 using namespace Genetic;
 using namespace MathTemplates;
 using namespace GnuplotWrap;
-typedef Mul<Par<0>,Func3<BreitWigner,Arg<0>,Par<1>,Par<2>>> FG;
+double Q2E(const double&Q){//The Breight-Wigner fotmula takes not Q but projectile energy
+    const auto CM=binaryDecay(Particle::he3().mass()+Particle::eta().mass()+Q*0.001,Particle::p().mass(),Particle::d().mass());
+    const auto p_lab=CM.first.Transform(CM.second.Beta());
+    return p_lab.Ekin()*1000.;
+}
+typedef Mul<Par<0>,Func3<BreitWigner,Func<Q2E,Arg<0>>,Func<Q2E,Par<1>>,Div<Par<2>,Const<2>>>> FG;
 typedef PolynomFunc<Arg<0>,3,1> BG;
 typedef PolynomFunc<Arg<0>,0,1> BG2;
 int main()
@@ -39,8 +46,8 @@ int main()
     for(size_t a_t=0;a_t<suffix.size();a_t++){
         cout<<suffix[a_t]<< " fitting"<<endl;
         const double cutpos=-0.02+0.02*a_t;
-        const hist<> acc_bound=Plotter::Instance().GetPoints<value<>>("He3gg-acceptance"+suffix[a_t]+"-0");
-        const hist<> acc_he3eta=Plotter::Instance().GetPoints<value<>>("He3gg-acceptance"+suffix[a_t]+"-1");
+        const hist<> acc_bound=Plotter::Instance().GetPoints<value<>>("He3gg-acceptance"+suffix[a_t]+"-2");
+        const hist<> acc_he3eta=Plotter::Instance().GetPoints<value<>>("He3gg-acceptance"+suffix[a_t]+"-3");
         cout<<suffix[a_t]<< " fitting"<<endl;
         const hist<> ev=Plotter::Instance().GetPoints<value<>>("He3gg-data"+suffix[a_t]);
         const hist<> known_events = (true_he3eta*branching_ratio)
@@ -62,9 +69,9 @@ int main()
                     <<make_shared<DistribGauss>(100,100);
         while(init->Count()<BG::ParamCount)init<<make_shared<DistribGauss>(0,1);
         fit.SetFilter([](const ParamSet&P){
-            return (P[0]>0)&&(P[1]<0)&&(P[1]>-30)&&(P[2]>2.5)&&(P[2]<20);
+            return (P[0]>0)&&(P[1]<0)&&(P[1]>-30)&&(P[2]>9)&&(P[2]<40);
         });
-        fit.Init(300,init);
+        fit.Init(500,init);
         while(!fit.AbsoluteOptimalityExitCondition(0.0000001))fit.Iterate();
         fit.SetUncertaintyCalcDeltas(parEq(BG::ParamCount,0.01));
         const auto&P=fit.ParametersWithUncertainties();
@@ -102,7 +109,7 @@ int main()
     Plot("He3gg-cross-section").Hist(CS,"data")
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
             << "set xrange [-30:30]"<<"set key on"
-            << "set ylabel 'Cross section, nb'" << "set yrange [0:]"
+            << "set ylabel 'Cross section, nb'" << "set yrange [0:30]"
             << "set title 'Cross section estimation'";
     Plot("He3gg-cross-section-2").Hist(CS/branching_ratio,"divided by branching ratio")
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
@@ -117,8 +124,8 @@ int main()
     Plot("He3gg-width").Hist(WIDTH)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
             << "set xrange [-30:30]"
-            << "set ylabel 'sigma, MeV'" << "set yrange [0:20]"
-            << "set title 'Peak width (sigma)'";
+            << "set ylabel 'Gamma, MeV'" << "set yrange [0:30]"
+            << "set title 'Peak width (Gamma)'";
     Plot("He3gg-cross-section-chisq").Line(CHISQ)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
             << "set xrange [-30:30]"<<"set key on"
@@ -127,7 +134,7 @@ int main()
     Plot("He3gg-cross-section-chisq2").Line(CHISQ,"with peak").Line(CHISQ_W,"without peak")
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
             << "set xrange [-30:30]"<<"set key on"
-            << "set ylabel 'chi square, n.d.'" << "set yrange [0:]"
+            << "set ylabel 'chi square, n.d.'" << "set yrange [0:2]"
             << "set title 'Chi square'";
     cout<<"END"<<endl;
 }
