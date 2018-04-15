@@ -30,7 +30,7 @@ int main()
     hist<> events_count, data_chi_sq, acceptance;
     vector<hist<>> parhists;
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++)
-        if (norm[bin_num].X() > 10.0) {
+        if (norm[bin_num].X() > 2.5) {
             const auto &Q = norm[bin_num].X();
             const auto &N = norm[bin_num].Y();
             const string Qmsg =
@@ -133,6 +133,7 @@ int main()
             << "set xrange [10:35]" << "set yrange [0:600]";
 
     Plot("He3eta-acceptance")
+        .Hist(acceptance.XRange(0,12.5),"not trusted")
         .Hist(acceptance.XRange(12.5,30),"trusted")
             << "set title '3He+eta acceptance'"
             << "set key on" << "set xlabel 'Q, MeV'"
@@ -141,9 +142,10 @@ int main()
 
     const auto luminosity=events_count*trigger_he3_forward.scaling/he3eta_sigma().func();
     Plot("He3eta-luminosity")
+        .Hist(luminosity.XRange(0,12.5),"not trusted")
         .Hist(luminosity.XRange(12.5,30),"trusted", "LUMINOSITYf")
             << "set title 'Integrated luminosity (" + runmsg + ")'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
-            << "set xrange [10:30]" << "set yrange [0:]";
+            << "set xrange [0:30]" << "set yrange [0:]";
 }

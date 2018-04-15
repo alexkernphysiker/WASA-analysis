@@ -110,10 +110,17 @@ int main()
     .Hist(Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins") / norm.TotalSum().val(), "ppn_{sp}")
             << "set key on" << "set title 'Time difference. MC'" << "set xrange [-40:40]"<< "set yrange [0:]" ;
     Plot("ppn-v2-dt-data")
-    .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins"),"All")
-    .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_1-AllBins"),"theta cut")
-    .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_2-AllBins"),"time cut")
+        .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins"),"All")
+        .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_1-AllBins"),"theta cut")
+        .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_2-AllBins"),"time cut")
             << "set title 'Time difference. Data " + runmsg + "'" << "set xrange [-40:40]"<< "set yrange [0:]"<<"set key on";
+
+    Plot("ppn-v2-mm-mc")
+        .Hist(Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "pp_mm_1") / norm.TotalSum().val())
+            << "set key on" << "set title 'Missing mass'" << "set yrange [0:]" ;
+    Plot("ppn-v2-mm-data")
+        .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pp_mm_2"))
+            << "set key on" << "set title 'Missing mass'" << "set yrange [0:]" ;
 
 
     PlotHist2d(sp2, "pd-v2-tvt-mc-1").Distr(Hist2d(MC, pd_reaction, {"Histograms", "quasielastic"}, "t_vs_t_1"))
@@ -141,7 +148,6 @@ int main()
     PlotHist2d(sp2, "ppn-v2-eve-data-2").Distr(Hist2d(DATA, "All", {"Histograms", "quasielastic"}, "e_vs_e_2"))
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + e1 << "set ylabel " + e2;
 
-
     hist<> acceptance, acceptance_pd,events,data_chi_sq;
     cout << "Cross sections"<<endl;
     const auto diff_cs = ReadCrossSection();
@@ -151,10 +157,10 @@ int main()
     const auto SIGMA = ConvertCrossSections(ppn_cs);
     Plot("ppn-v2-integrated").Line(ppn_cs.XRange(p_beam_low, p_beam_hi)) << "set title 'pd->pp+n_{sp}'";
     Plot("ppn-v2-sigma").Hist(SIGMA)
-            << "set title 'ppn_{sp} cross section'"
-            << "set key on" << "set xlabel 'Q, MeV'"
-            << "set ylabel 'cross section, nb'"
-            << "set xrange [-70:30]" << "set yrange [0:]";
+        << "set title 'ppn_{sp} cross section'"
+        << "set key on" << "set xlabel 'Q, MeV'"
+        << "set ylabel 'cross section, nb'"
+        << "set xrange [-70:30]" << "set yrange [0:]";
     cout << "Binning"<<endl;
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++) {
         const auto &Q = norm[bin_num].X();
@@ -190,13 +196,13 @@ int main()
 
         const hist<> data_copl=
             Hist(DATA,"All",{"Histograms","quasielastic"},string("pair_phi_diff_2-Bin-") + to_string(bin_num))
-            .Scale(4).XRange(100,260);
+            .Scale(4).XRange(120,240);
         const hist<> data_copl_mc=
             Hist(MC,ppn_reaction,{"Histograms","quasielastic"},string("pair_phi_diff_1-Bin-") + to_string(bin_num))
-            .Scale(4).XRange(100,260);
+            .Scale(4).XRange(120,240);
         const hist<> data_copl_mc2=
             Hist(MC,pd_reaction,{"Histograms","quasielastic"},string("pair_phi_diff_1-Bin-") + to_string(bin_num))
-            .Scale(4).XRange(100,260);
+            .Scale(4).XRange(120,240);
         cout << endl << Qmsg << endl;
         cout << endl << "Fitting" << endl;
 
@@ -204,7 +210,7 @@ int main()
         acceptance << make_point(Q, acc);
         acceptance_pd << make_point(Q, data_copl_mc2.TotalSum()/N_pd);
 
-        const auto data_copl_bg=data_copl.XExclude(138,222);
+        const auto data_copl_bg=data_copl.XExclude(160,200);
         Fit2<DifferentialMutations<>> fit(
             data_copl_bg.removeXerorbars(),
             [](const ParamSet&X,const ParamSet&P){return Polynom<2>(X[0],P);}
@@ -223,15 +229,20 @@ int main()
         const auto &P = fit.ParametersWithUncertainties();
         const auto BG=[&P](const value<>&x){return Polynom<2>(x,P);};
         data_chi_sq << make_point(Q, fit.Optimality() / (fit.Points().size() - fit.ParamCount()));
-        const auto ev=(data_copl-BG).TotalSum();
-
         Plot(Q.Contains(21) ? "ppn-v2-above-data-copl" : (Q.Contains(-39) ? "ppn-v2-below-data-copl" : ""))
             .Hist(data_copl).Hist(data_copl_bg)
-            .Line((data_copl.CloneEmptyBins()+BG).toLine(),"BG")
-            .Line((data_copl.CloneEmptyBins()+BG+data_copl_mc*ev/N/acc).toLine(),"Simulation")
+            .Hist(data_copl.CloneEmptyBins()+BG,"BG")
                 << "set title 'Coplanarity. Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
                 << "set yrange [0:]" << "set xlabel " + planarity;
-        events<<make_point(Q,ev);
+        const auto subtr=data_copl-BG;
+        const auto summ=subtr.XRange(150,210);
+        const SortedPoints<> simulation_curve=(data_copl.CloneEmptyBins()+data_copl_mc*summ.TotalSum()/N/acc).toLine();
+        Plot(Q.Contains(21) ? "ppn-v2-above-data-copl-norm" : (Q.Contains(-39) ? "ppn-v2-below-data-copl-norm" : ""))
+            .Hist(subtr,"Data-BG").Hist(summ)
+            .Line(simulation_curve,"Simulation")
+                << "set title 'Subtracted background " + runmsg+ "; "+Qmsg + "'" <<"set key on"
+                << "set yrange [0:]" << "set xlabel " + planarity;
+        events<<make_point(Q,summ.TotalSum());
     }
     Plot("ppn-v2-acceptance")
         .Hist(acceptance, "ppn_{sp}").Hist(acceptance_pd, "pd")
@@ -265,9 +276,10 @@ int main()
             << "set xrange [-70:30]" << "set yrange [0:]";
     cout<<"luminosity: "<<luminosity.TotalSum()<<endl;
     Plot("luminosity-v2-compare-estimation")
-        .Hist(luminosity*runs.second/runs.first, "O. Rundel")
-        //.Line(sasha_old, "A. Khreptak - old")
-        //.Line(sasha_new, "A. Khreptak - new")
+        .Hist(luminosity*runs.second/runs.first, "ppn_{sp}")
+        .Hist(prev_luminosity*runs.second/runs.first, "3He+eta")
+        .Line(sasha_old, "A. Khreptak - old")
+        .Line(sasha_new, "A. Khreptak - new")
             << "set title 'Total integrated luminosity estimation'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"

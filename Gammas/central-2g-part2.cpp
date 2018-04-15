@@ -31,8 +31,7 @@ int main()
 {
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-2gamma");
     vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas2"};
-    vector<string> reaction = {"bound3-2g", "He3eta-gg", "He3pi0pi0", "He3pi0pi0pi0", "He3pi0"};
-
+    vector<string> reaction = {"bound1-2g","bound2-2g","bound3-2g", "He3eta-gg", "He3pi0pi0", "He3pi0pi0pi0", "He3pi0"};
     const vector<string> suffix={"-m20","-0","-20"};
     const hist<> luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYc");
     const hist<> luminosity_he = Plotter::Instance().GetPoints<value<>>("LUMINOSITYf");
@@ -48,13 +47,14 @@ int main()
         const double cutpos=-0.02+0.02*a_t;
         const hist<> acc_bound=Plotter::Instance().GetPoints<value<>>("He3gg-acceptance"+suffix[a_t]+"-2");
         const hist<> acc_he3eta=Plotter::Instance().GetPoints<value<>>("He3gg-acceptance"+suffix[a_t]+"-3");
+        cout << acc_bound.size()<<":::"<<acc_he3eta.size()<<endl;
         cout<<suffix[a_t]<< " fitting"<<endl;
         const hist<> ev=Plotter::Instance().GetPoints<value<>>("He3gg-data"+suffix[a_t]);
-        const hist<> known_events = (true_he3eta*branching_ratio)
-            *acc_he3eta.XRange(true_he3eta.left().X().min(),true_he3eta.right().X().max());
+        //const hist<> known_events = (true_he3eta*branching_ratio)
+        //    *acc_he3eta.XRange(true_he3eta.left().X().min(),true_he3eta.right().X().max());
         Plot("He3gg-events-final"+suffix[a_t]+"-bound")
             .Hist(ev.XRange(-60,2.5),"data, below threshold")
-            .Hist(ev.XRange(12.5,30)-known_events,"data-3Heeta, upper threshold")
+            //.Hist(ev.XRange(12.5,30)-known_events,"data-3Heeta, upper threshold")
                 << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-60:30]"
                 << "set ylabel 'events, n.d.'" << "set yrange [0:]";
         cout<<suffix[a_t]<< " fitting"<<endl;
