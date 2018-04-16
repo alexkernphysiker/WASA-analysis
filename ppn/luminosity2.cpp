@@ -22,10 +22,10 @@ using namespace MathTemplates;
 using namespace GnuplotWrap;
 const BiSortedPoints<> ReadCrossSection()
 {
-    BiSortedPoints<> result(ChainWithCount(91, 0., PI<>() / 2.0), ChainWithCount(13, 1.000, 2.200));
+    BiSortedPoints<> result(ChainWithCount(91, 0., PI<>() / 2.0), ChainWithStep(0.700,0.050,3.000));
     for (size_t degree = 0; degree <= 90; degree++) {
         ifstream file("crosssections/Theta_" + to_string(degree) + ".txt");
-        for (double E = 0, C = 0; (file >> E >> C); result.Bin(degree, (size_t(E) - 1000) / 100) = C);
+        for (double E = 0, C = 0; (file >> E >> C); result.Bin(degree, (size_t(E) - 700) / 50) = C);
         file.close();
     }
     return result;
@@ -241,7 +241,7 @@ int main()
             .Hist(subtr,"Data-BG").Hist(summ)
             .Line(simulation_curve,"Simulation")
                 << "set title 'Subtracted background " + runmsg+ "; "+Qmsg + "'" <<"set key on"
-                << "set yrange [0:]" << "set xlabel " + planarity;
+                << "set yrange [-100:]" << "set xlabel " + planarity;
         events<<make_point(Q,summ.TotalSum());
     }
     Plot("ppn-v2-acceptance")
