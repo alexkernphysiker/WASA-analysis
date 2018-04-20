@@ -262,8 +262,7 @@ int main()
     Plot("luminosity-v2-compare-estimation")
         .Hist(luminosity*runs.second/runs.first, "ppn_{sp}")
         .Hist(prev_luminosity*runs.second/runs.first, "3He+eta")
-        .Line(sasha_old, "A. Khreptak - old")
-        .Line(sasha_new, "A. Khreptak - new")
+        .Line(sasha_new, "A. Khreptak")
             << "set title 'Total integrated luminosity estimation'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"

@@ -133,8 +133,8 @@ int main()
             << "set xrange [10:35]" << "set yrange [0:600]";
 
     Plot("He3eta-acceptance")
-        .Hist(acceptance.XRange(0,12.5),"not trusted")
-        .Hist(acceptance.XRange(12.5,30),"trusted")
+        //.Hist(acceptance.XRange(0,12.5),"not trusted")
+        .Hist(acceptance.XRange(12.5,30),"")
             << "set title '3He+eta acceptance'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'acceptance, n.d.'"
@@ -142,8 +142,8 @@ int main()
 
     const auto luminosity=events_count*trigger_he3_forward.scaling/he3eta_sigma().func();
     Plot("He3eta-luminosity")
-        .Hist(luminosity.XRange(0,12.5),"not trusted")
-        .Hist(luminosity.XRange(12.5,30),"trusted", "LUMINOSITYf")
+        //.Hist(luminosity.XRange(0,12.5),"not trusted")
+        .Hist(luminosity.XRange(12.5,30),"", "LUMINOSITYf")
             << "set title 'Integrated luminosity (" + runmsg + ")'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
