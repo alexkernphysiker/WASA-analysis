@@ -47,7 +47,7 @@ int main()
 
     vector<hist<>> ev_am;
     vector<vector<hist<>>> acceptance;
-    const vector<string> suffix={"-m40","-m20","-0","-20","-40"};
+    const vector<string> suffix={"-m60","-m40","-m20","-0","-20","-40"};
     vector<vector<hist<>>> acc;
     for(size_t i=0;i<suffix.size();i++){
         acc.push_back({});
@@ -116,7 +116,7 @@ int main()
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xrange [-0.3:0.3]" << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
             for(size_t a_t=0;a_t<suffix.size();a_t++){
-                const double cutpos=-0.04+0.02*a_t;
+                const double cutpos=-0.06+0.02*a_t;
                 const double high=TIM.TransponateAndSort().right().X().max();
                 Plot("He3gg-tim-data"+suffix[a_t]).Hist(TIM)
                     .Line({make_point(cutpos,0.),make_point(cutpos,high)})
@@ -167,7 +167,7 @@ int main()
         accplot << "set title 'Acceptance'"
             << "set xlabel 'Q, MeV'"
             << "set ylabel 'Acceptance, n.d.'"
-            << "set yrange [0.0000001:5]" << "set xrange [-70:30]"
+            << "set yrange [0.0000001:10]" << "set xrange [-70:30]"
             << "set key on"<<"set log y">>"unset log y";
         for (size_t i = 0; i < reaction.size(); i++) {
             const auto ac = acc[a_t][i].YRange(0.0000001, INFINITY);

@@ -173,12 +173,12 @@ int main()
     Plot accplot("He36g-acceptance");
     accplot << "set title 'Acceptance'"
             << "set xlabel 'Q, MeV'"
-            << "set ylabel 'Acceptance, percents'"
+            << "set ylabel 'Acceptance, n.d.'"
             << "set yrange [0:]" << "set key on";
     for (size_t i = 0; i < reaction.size(); i++) {
         const auto acc = acceptance[i].YRange(0.0001, INFINITY);
         if (acc.size() > 0) {
-            accplot.Hist(acc*100, reaction[i]);
+            accplot.Hist(acc, reaction[i]);
         }
     }
     const hist<> luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYc");

@@ -32,7 +32,7 @@ int main()
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-2gamma");
     vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas2"};
     vector<string> reaction = {"bound1-2g","bound2-2g","bound3-2g", "He3eta-gg", "He3pi0pi0", "He3pi0pi0pi0", "He3pi0"};
-    const vector<string> suffix={"-m20","-0","-20"};
+    const vector<string> suffix={"-m60","-m40","-m20","-0","-20"};
     const hist<> luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYc");
     const hist<> luminosity_he = Plotter::Instance().GetPoints<value<>>("LUMINOSITYf");
     const hist<> true_he3eta = luminosity_he
@@ -44,7 +44,7 @@ int main()
     SortedPoints<> CHISQ,CHISQ_W;
     for(size_t a_t=0;a_t<suffix.size();a_t++){
         cout<<suffix[a_t]<< " fitting"<<endl;
-        const double cutpos=-0.02+0.02*a_t;
+        const double cutpos=-0.06+0.02*a_t;
         const hist<> acc_bound=Plotter::Instance().GetPoints<value<>>("He3gg-acceptance"+suffix[a_t]+"-2");
         const hist<> acc_he3eta=Plotter::Instance().GetPoints<value<>>("He3gg-acceptance"+suffix[a_t]+"-3");
         cout << acc_bound.size()<<":::"<<acc_he3eta.size()<<endl;
@@ -60,7 +60,7 @@ int main()
         cout<<suffix[a_t]<< " fitting"<<endl;
         const auto data_shape=(
             (ev*trigger_he3_forward.scaling)/(acc_bound*luminosity)
-        ).XRange(-50,2.5);
+        ).XRange(-50,0);
         FitFunction2<DifferentialMutations<>,Add<FG,BG>> fit(data_shape.removeXerorbars());
         auto init=make_shared<InitialDistributions>()
                     <<make_shared<DistribGauss>(50,50)
@@ -108,32 +108,32 @@ int main()
     cout<<"Final plots"<<endl;
     Plot("He3gg-cross-section").Hist(CS,"data")
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-30:30]"<<"set key on"
+            << "set xrange [-70:30]"<<"set key on"
             << "set ylabel 'Cross section, nb'" << "set yrange [0:30]"
             << "set title 'Cross section estimation'";
     Plot("He3gg-cross-section-2").Hist(CS/branching_ratio,"divided by branching ratio")
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-30:30]"<<"set key on"
+            << "set xrange [-70:30]"<<"set key on"
             << "set ylabel 'Cross section, nb'" << "set yrange [0:]"
             << "set title 'Cross section estimation'";
     Plot("He3gg-pos").Hist(POS)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-30:30]"
+            << "set xrange [-70:30]"
             << "set ylabel 'Position, MeV'" << "set yrange [-20:0]"
             << "set title 'Peak position'";
     Plot("He3gg-width").Hist(WIDTH)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-30:30]"
-            << "set ylabel 'Gamma, MeV'" << "set yrange [0:30]"
+            << "set xrange [-70:30]"
+            << "set ylabel 'Gamma, MeV'" << "set yrange [0:40]"
             << "set title 'Peak width (Gamma)'";
     Plot("He3gg-cross-section-chisq").Line(CHISQ)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-30:30]"<<"set key on"
+            << "set xrange [-70:30]"<<"set key on"
             << "set ylabel 'chi square, n.d.'" << "set yrange [0:2]"
             << "set title 'Chi square'";
     Plot("He3gg-cross-section-chisq2").Line(CHISQ,"with peak").Line(CHISQ_W,"without peak")
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
-            << "set xrange [-30:30]"<<"set key on"
+            << "set xrange [-70:30]"<<"set key on"
             << "set ylabel 'chi square, n.d.'" << "set yrange [0:2]"
             << "set title 'Chi square'";
     cout<<"END"<<endl;
