@@ -47,20 +47,19 @@ int main()
         const double cutpos=-0.06+0.02*a_t;
         const hist<> acc_bound=Plotter::Instance().GetPoints<value<>>("He3gg-acceptance"+suffix[a_t]+"-2");
         const hist<> acc_he3eta=Plotter::Instance().GetPoints<value<>>("He3gg-acceptance"+suffix[a_t]+"-3");
-        cout << acc_bound.size()<<":::"<<acc_he3eta.size()<<endl;
         cout<<suffix[a_t]<< " fitting"<<endl;
         const hist<> ev=Plotter::Instance().GetPoints<value<>>("He3gg-data"+suffix[a_t]);
-        //const hist<> known_events = (true_he3eta*branching_ratio)
-        //    *acc_he3eta.XRange(true_he3eta.left().X().min(),true_he3eta.right().X().max());
+        const hist<> known_events = (true_he3eta*branching_ratio)
+            *acc_he3eta.XRange(true_he3eta.left().X().min(),true_he3eta.right().X().max());
         Plot("He3gg-events-final"+suffix[a_t]+"-bound")
-            .Hist(ev.XRange(-60,2.5),"data, below threshold")
-            //.Hist(ev.XRange(12.5,30)-known_events,"data-3Heeta, upper threshold")
-                << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-60:30]"
+            .Hist(ev.XRange(-70,0),"data, below threshold")
+            .Hist(ev.XRange(12.5,30)-known_events,"data-3Heeta, upper threshold")
+                << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
                 << "set ylabel 'events, n.d.'" << "set yrange [0:]";
         cout<<suffix[a_t]<< " fitting"<<endl;
         const auto data_shape=(
             (ev*trigger_he3_forward.scaling)/(acc_bound*luminosity)
-        ).XRange(-50,0);
+        ).XRange(-70,0);
         FitFunction2<DifferentialMutations<>,Add<FG,BG>> fit(data_shape.removeXerorbars());
         auto init=make_shared<InitialDistributions>()
                     <<make_shared<DistribGauss>(50,50)
@@ -75,7 +74,7 @@ int main()
         while(!fit.AbsoluteOptimalityExitCondition(0.0000001))fit.Iterate();
         fit.SetUncertaintyCalcDeltas(parEq(BG::ParamCount,0.01));
         const auto&P=fit.ParametersWithUncertainties();
-        const auto chain=ChainWithStep(-50.,0.01,2.5);
+        const auto chain=ChainWithStep(-60.,0.01,0.0);
         const SortedPoints<>
         fg([&fit](double x){return fit({x});},chain),
         bg([&fit](double x){return BG()({x},fit.Parameters());},chain);
