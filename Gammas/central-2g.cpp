@@ -63,21 +63,21 @@ int main()
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM0"))
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM1"), "cut")
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM2"), "2 gammas required")
-                    << "set key on" << "set title '"+r+"'" << "set yrange [0:]"
+                    << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [0.45:0.55]"
                     << "set xlabel '3He missing mass - Q, GeV'";
             Plot("He3gg-ggmm-mc" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr, "GMM3"), "before cut")
             .Hist(Hist(MC, r, histpath_central_reconstr, "GMM4"), "after cut")
-                    << "set key on" << "set title '"+r+"'" << "set yrange [0:]"
+                    << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [2.4:3.4]"
                     << "set xlabel '2gamma missing mass, GeV'";
             Plot("He3gg-ggim-mc" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr, "GIM4"), "before cut")
             .Hist(Hist(MC, r, histpath_central_reconstr, "GIM5"), "after cut")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"
-                    << "set xlabel '2gamma invariant mass, GeV'";
+                    << "set xlabel '2gamma invariant mass, GeV'"<< "set xrange [0.3:0.8]";
             Plot("He3gg-tim-mc" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr, "TIM5-AllBins"))
-                    << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [-0.5:0.5]"
+                    << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [-0.3:0.3]"
                     << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
             PlotHist2d(sp2, "He3gg-he3mm-he3me-mc" + r)
                 .Distr(Hist2d(MC,r,histpath_central_reconstr,"He3MME5"))
@@ -91,7 +91,7 @@ int main()
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM1"), "cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM2"), "2 gammas required")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
-                    << "set xlabel '3He missing mass - Q, GeV'";
+                    << "set xlabel '3He missing mass - Q, GeV'"<< "set xrange [0.45:0.55]";
             Plot("He3gg-dt-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt2").Scale(2))
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
@@ -104,17 +104,17 @@ int main()
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GMM3"), "before cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GMM4"), "after cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
-                    << "set xlabel '2gamma missing mass, GeV'";
+                    << "set xlabel '2gamma missing mass, GeV'"<< "set xrange [2.4:3.4]";
             Plot("He3gg-ggim-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GIM4"), "before cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GIM5"), "after cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
-                    << "set xlabel '2gamma invariant mass, GeV'";
+                    << "set xlabel '2gamma invariant mass, GeV'"<< "set xrange [0.3:0.8]";
             const auto TIM=Hist(DATA, "All", histpath_central_reconstr, "TIM5-AllBins");
             Plot("He3gg-tim-data")
             .Hist(TIM, "IM and MM cuts")
-                    << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
-                    << "set xrange [-0.3:0.3]" << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
+                    << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [-0.3:0.3]"
+                     << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
             for(size_t a_t=0;a_t<suffix.size();a_t++){
                 const double cutpos=-0.06+0.02*a_t;
                 const double high=TIM.TransponateAndSort().right().X().max();
@@ -167,8 +167,8 @@ int main()
         accplot << "set title 'Acceptance'"
             << "set xlabel 'Q, MeV'"
             << "set ylabel 'Acceptance, n.d.'"
-            << "set yrange [0.0000001:10]" << "set xrange [-70:30]"
-            << "set key on"<<"set log y">>"unset log y";
+            << "set yrange [0:0.2]" << "set xrange [-70:30]"
+            << "set key on";
         for (size_t i = 0; i < reaction.size(); i++) {
             const auto ac = acc[a_t][i].YRange(0.0000001, INFINITY);
             if (ac.size() > 0) {

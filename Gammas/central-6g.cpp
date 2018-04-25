@@ -77,17 +77,17 @@ int main()
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM1"), "cut")
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM3"), "6 gammas required")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"
-                    << "set xlabel '3He missing mass - Q, GeV'";
+                    << "set xlabel '3He missing mass - Q, GeV'"<< "set xrange [0.45:0.55]";
             Plot("He36g-6gmm-mc" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr, "GMM3"), "before cut")
             .Hist(Hist(MC, r, histpath_central_reconstr, "GMM4"), "after cut")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"
-                    << "set xlabel '2gamma missing mass, GeV'";
+                    << "set xlabel '2gamma missing mass, GeV'"<< "set xrange [2.4:3.4]";
             Plot("He36g-6gim-mc" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr, "GIM4"), "before cut")
             .Hist(Hist(MC, r, histpath_central_reconstr, "GIM5"), "after cut")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"
-                    << "set xlabel '2gamma invariant mass, GeV'";
+                    << "set xlabel '2gamma invariant mass, GeV'"<< "set xrange [0.3:0.7]";
             Plot("He36g-tim-mc" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr, "TIM5-AllBins"))
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [-0.5:0.5]"
@@ -99,7 +99,7 @@ int main()
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM1"), "cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM3"), "6 gammas required")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
-                    << "set xlabel '3He missing mass - Q, GeV'";
+                    << "set xlabel '3He missing mass - Q, GeV'"<< "set xrange [0.45:0.55]";
             Plot("He36g-dt-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt2").Scale(2))
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
@@ -112,12 +112,12 @@ int main()
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GMM3"), "before cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GMM4"), "after cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
-                    << "set xlabel '2gamma missing mass, GeV'";
+                    << "set xlabel '2gamma missing mass, GeV'"<< "set xrange [2.4:3.4]";
             Plot("He36g-6gim-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GIM4"), "before cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GIM5"), "after cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
-                    << "set xlabel '2gamma invariant mass, GeV'";
+                    << "set xlabel '2gamma invariant mass, GeV'"<< "set xrange [0.3:0.7]";
             Plot("He36g-tim-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM5-AllBins"), "IM and MM cuts")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
@@ -196,14 +196,14 @@ int main()
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '" + runmsg + "'";
     Plot("He36g-events2")
-        .Hist(ev_am.XRange(-50,0),"data, below threshold")
+        .Hist(ev_am.XRange(-70,2.5),"data, below threshold")
         .Hist(ev_am.XRange(12.5,30)-known_events,"data-3Heeta, upper threshold")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '" + runmsg + "'";
     const auto data_shape=(
         (ev_am*trigger_he3_forward.scaling)/(acceptance[0]*luminosity)
-    ).XRange(-45,0);
+    ).XRange(-70,2.5);
     Plot("He36g-events-norm-bound")
         .Hist(data_shape,"Data")
             << "set xlabel 'Q, MeV'" << "set key on"
