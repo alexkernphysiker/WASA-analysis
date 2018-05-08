@@ -229,6 +229,7 @@ int main()
             Plot(Q.Contains(21) ? "ppn-v2-above-data-copl-norm" : (Q.Contains(-39) ? "ppn-v2-below-data-copl-norm" : ""))
                 .Hist(subtr,"Data-BG").Hist(summ)
                 .Line(simulation_curve,"Simulation")
+                .Line(Points<>{{subtr.left().X().min(), 0.0},{subtr.right().X().max(), 0.0}})
                     << "set title 'Subtracted background " + runmsg+ "; "+Qmsg + "'" <<"set key on"
                     << "set yrange [-100:]" << "set xlabel " + planarity;
             events[cut_index]<<make_point(Q,summ.TotalSum());
