@@ -114,6 +114,7 @@ int main()
         .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_1-AllBins"),"theta cut")
         .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_2-AllBins"),"missing mass cut")
         .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_3-AllBins"),"time cut")
+        .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_6-AllBins"),"final theta cut")
             << "set title 'Time difference. Data " + runmsg + "'" << "set xrange [-25:5]"<< "set yrange [0:]"<<"set key on";
 
     Plot("ppn-v2-mm-mc")
@@ -137,13 +138,22 @@ int main()
             << "set xrange [23:50]"<< "set yrange [23:80]"
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + th2;
     PlotHist2d(sp2, "pd-v2-tvt-mc-2").Distr(Hist2d(MC, pd_reaction, {"Histograms", "quasielastic"}, "t_vs_t_3"))
-            << "set xrange [23:50]"<< "set yrange [23:80]"
+            << "set xrange [23:50]"<< "set yrange [40:80]"
             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + th2;
     PlotHist2d(sp2, "ppn-v2-tvt-mc-2").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "t_vs_t_3"))
-            << "set xrange [23:50]"<< "set yrange [23:80]"
+            << "set xrange [23:50]"<< "set yrange [40:80]"
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + th2;
     PlotHist2d(sp2, "ppn-v2-tvt-data-2").Distr(Hist2d(DATA, "All", {"Histograms", "quasielastic"}, "t_vs_t_3"))
-            << "set xrange [23:50]"<< "set yrange [23:80]"
+            << "set xrange [23:50]"<< "set yrange [40:80]"
+            << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + th2;
+    PlotHist2d(sp2, "pd-v2-tvt-mc-3").Distr(Hist2d(MC, pd_reaction, {"Histograms", "quasielastic"}, "t_vs_t_6"))
+            << "set xrange [25:45]"<< "set yrange [40:70]"
+            << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + th2;
+    PlotHist2d(sp2, "ppn-v2-tvt-mc-3").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "t_vs_t_6"))
+            << "set xrange [25:45]"<< "set yrange [40:70]"
+            << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + th2;
+    PlotHist2d(sp2, "ppn-v2-tvt-data-3").Distr(Hist2d(DATA, "All", {"Histograms", "quasielastic"}, "t_vs_t_6"))
+            << "set xrange [25:45]"<< "set yrange [40:70]"
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + th2;
     PlotHist2d(sp2, "pd-v2-eve-mc-2").Distr(Hist2d(MC, pd_reaction, {"Histograms", "quasielastic"}, "e_vs_e_3"))
             << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + e1 << "set ylabel " + e2;
@@ -166,7 +176,7 @@ int main()
         << "set ylabel 'cross section, nb'"
         << "set xrange [-70:30]" << "set yrange [0:]";
     cout << "Binning"<<endl;
-    for (size_t cut_index=0; cut_index<3; cut_index++){
+    for (size_t cut_index=0; cut_index<4; cut_index++){
         acceptance.push_back(hist<>());
         acceptance_pd.push_back(hist<>());
         events.push_back(hist<>());
@@ -253,13 +263,14 @@ int main()
     const hist<> luminosity=((events[0]*trigger_elastic1.scaling)/acceptance[0]/SIGMA);
     const hist<> luminosity1=((events[1]*trigger_elastic1.scaling)/acceptance[1]/SIGMA);
     const hist<> luminosity2=((events[2]*trigger_elastic1.scaling)/acceptance[2]/SIGMA);
+    const hist<> luminosity3=((events[3]*trigger_elastic1.scaling)/acceptance[3]/SIGMA);
     const hist<> prev_luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYf");
     SortedPoints<> sasha;
     for(const auto&p:Plotter::Instance().GetPoints<>("luminosity_khr_new"))
         sasha<<make_point(-70.+1.25+2.5*p.X(),p.Y());
     Plot("luminosity-v2-compare")
         .Hist(luminosity, "ppn_{sp}", "LUMINOSITYc")
-        .Hist(luminosity1).Hist(luminosity2)
+        .Hist(luminosity1).Hist(luminosity2).Hist(luminosity3)
         .Hist(prev_luminosity, "3He+eta")
             << "set title 'Integrated luminosity (" + runmsg + ")'"
             << "set key on" << "set xlabel 'Q, MeV'"
@@ -267,9 +278,10 @@ int main()
             << "set xrange [-70:30]" << "set yrange [0:]";
     cout<<"luminosity: "<<luminosity.TotalSum()<<endl;
     Plot("luminosity-v2-compare-estimation")
-        .Hist(luminosity*runs.second/runs.first, "ppn_{sp}, cut at 40")
-        .Hist(luminosity1*runs.second/runs.first, "ppn_{sp}, cut at 35")
-        .Hist(luminosity2*runs.second/runs.first,"ppn_{sp}, cut at 30")
+        .Hist(luminosity*runs.second/runs.first, "ppn_{sp}, cut 20-40")
+        .Hist(luminosity1*runs.second/runs.first, "ppn_{sp}, cut 20-35")
+        .Hist(luminosity2*runs.second/runs.first,"ppn_{sp}, cut 20-30")
+        .Hist(luminosity3*runs.second/runs.first,"ppn_{sp}, cut 30-40")
         .Hist(prev_luminosity*runs.second/runs.first, "3He+eta")
         .Line(sasha, "A. Khreptak")
             << "set title 'Total integrated luminosity estimation'"
