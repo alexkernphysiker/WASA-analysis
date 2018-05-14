@@ -87,16 +87,29 @@ const SortedPoints<value<>> ConvertCrossSections(const SortedPoints<> &momentum)
 }
 int main()
 {
-    const string ppn_reaction = "ppn_qf_",pd_reaction="pd_";
+    const string ppn_reaction = "ppn_qf_";
     const auto runs = PresentRuns("All");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
     const string th1 = "'Theta_1, deg'", th2 = "'Theta_2, deg'",
             e1 = "'Edep_1, GeV'", e2 = "'Edep_2, GeV'",
             planarity = "'Phi_1-Phi_2, deg'";
     const hist<> norm = Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "0-Reference");
-    const hist<> norm_pd = Hist(MC, pd_reaction, {"Histograms", "quasielastic"}, "0-Reference");
     cout << "2D plots"<<endl;
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "luminosity-central-v2");
+
+    PlotHist2d(sp2, "ppn-v2-trackid-mc-1").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "track_id-1"))
+            << "set xrange [0:0.8]"<< "set yrange [0:0.01]"
+            << "set zrange [0:]" << "set title 'MC ppn'" << "set xlabel 'E Calorimeter'"<< "set ylabel 'E PSB'";
+    PlotHist2d(sp2, "ppn-v2-trackid-data-1").Distr(Hist2d(DATA, "All", {"Histograms", "quasielastic"}, "track_id-1"))
+            << "set xrange [0:0.8]"<< "set yrange [0:0.01]"
+            << "set zrange [0:]" << "set title 'MC ppn'" << "set xlabel 'E Calorimeter'"<< "set ylabel 'E PSB'";
+    PlotHist2d(sp2, "ppn-v2-trackid-mc-2").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "track_id-2"))
+            << "set xrange [0:0.8]"<< "set yrange [0:0.01]"
+            << "set zrange [0:]" << "set title 'MC ppn'" << "set xlabel 'E Calorimeter'"<< "set ylabel 'E PSB'";
+    PlotHist2d(sp2, "ppn-v2-trackid-data-2").Distr(Hist2d(DATA, "All", {"Histograms", "quasielastic"}, "track_id-2"))
+            << "set xrange [0:0.8]"<< "set yrange [0:0.01]"
+            << "set zrange [0:]" << "set title 'MC ppn'" << "set xlabel 'E Calorimeter'"<< "set ylabel 'E PSB'";
+
     Plot("ppn-v2-copl-mc")
     .Hist(Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "pair_phi_diff_0-AllBins") / norm.TotalSum().val(), "ppn_{sp}")
             << "set key on" << "set title 'Coplanarity. MC'" << "set xrange [0:360]"
@@ -128,41 +141,30 @@ int main()
             << "set key on" << "set title 'Missing mass'" << "set yrange [0:]"<<"set xrange [0.5:1.5]" ;
 
 
-    PlotHist2d(sp2, "pd-v2-tvt-mc-1").Distr(Hist2d(MC, pd_reaction, {"Histograms", "quasielastic"}, "t_vs_t_1"))
-            << "set xrange [23:50]"<< "set yrange [23:80]"
-            << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + th2;
     PlotHist2d(sp2, "ppn-v2-tvt-mc-1").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "t_vs_t_1"))
             << "set xrange [23:50]"<< "set yrange [23:80]"
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + th2;
     PlotHist2d(sp2, "ppn-v2-tvt-data-1").Distr(Hist2d(DATA, "All", {"Histograms", "quasielastic"}, "t_vs_t_1"))
             << "set xrange [23:50]"<< "set yrange [23:80]"
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d(sp2, "pd-v2-tvt-mc-2").Distr(Hist2d(MC, pd_reaction, {"Histograms", "quasielastic"}, "t_vs_t_3"))
-            << "set xrange [23:50]"<< "set yrange [40:80]"
-            << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + th2;
     PlotHist2d(sp2, "ppn-v2-tvt-mc-2").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "t_vs_t_3"))
             << "set xrange [23:50]"<< "set yrange [40:80]"
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + th2;
     PlotHist2d(sp2, "ppn-v2-tvt-data-2").Distr(Hist2d(DATA, "All", {"Histograms", "quasielastic"}, "t_vs_t_3"))
             << "set xrange [23:50]"<< "set yrange [40:80]"
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d(sp2, "pd-v2-tvt-mc-3").Distr(Hist2d(MC, pd_reaction, {"Histograms", "quasielastic"}, "t_vs_t_6"))
-            << "set xrange [25:45]"<< "set yrange [40:70]"
-            << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + th1 << "set ylabel " + th2;
     PlotHist2d(sp2, "ppn-v2-tvt-mc-3").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "t_vs_t_6"))
             << "set xrange [25:45]"<< "set yrange [40:70]"
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + th2;
     PlotHist2d(sp2, "ppn-v2-tvt-data-3").Distr(Hist2d(DATA, "All", {"Histograms", "quasielastic"}, "t_vs_t_6"))
             << "set xrange [25:45]"<< "set yrange [40:70]"
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d(sp2, "pd-v2-eve-mc-2").Distr(Hist2d(MC, pd_reaction, {"Histograms", "quasielastic"}, "e_vs_e_3"))
-            << "set zrange [0:]" << "set title 'MC pd'" << "set xlabel " + e1 << "set ylabel " + e2;
     PlotHist2d(sp2, "ppn-v2-eve-mc-2").Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "e_vs_e_3"))
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + e1 << "set ylabel " + e2;
     PlotHist2d(sp2, "ppn-v2-eve-data-2").Distr(Hist2d(DATA, "All", {"Histograms", "quasielastic"}, "e_vs_e_3"))
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + e1 << "set ylabel " + e2;
 
-    vector<hist<>> acceptance, acceptance_pd,events,data_chi_sq;
+    vector<hist<>> acceptance,events,data_chi_sq;
     cout << "Cross sections"<<endl;
     const auto diff_cs = ReadCrossSection();
     const auto p_cs = IntegrateCrossSection(diff_cs);
@@ -178,13 +180,11 @@ int main()
     cout << "Binning"<<endl;
     for (size_t cut_index=0; cut_index<4; cut_index++){
         acceptance.push_back(hist<>());
-        acceptance_pd.push_back(hist<>());
         events.push_back(hist<>());
         data_chi_sq.push_back(hist<>());
         for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++) {
             const auto &Q = norm[bin_num].X();
             const auto &N = norm[bin_num].Y();
-            const auto &N_pd = norm_pd[bin_num].Y();
             const string Qmsg =
                 static_cast<stringstream &>(
                     stringstream()
@@ -199,15 +199,11 @@ int main()
             const hist<> data_copl_mc=
                 Hist(MC,ppn_reaction,{"Histograms","quasielastic"},string("pair_phi_diff_")+to_string(cut_index+3)+string("-Bin-") + to_string(bin_num))
                 .Scale(4).XRange(120,240);
-            const hist<> data_copl_mc2=
-                Hist(MC,pd_reaction,{"Histograms","quasielastic"},string("pair_phi_diff_")+to_string(cut_index+3)+string("-Bin-") + to_string(bin_num))
-                .Scale(4).XRange(120,240);
             cout << endl << Qmsg << endl;
             cout << endl << "Fitting" << endl;
 
             const auto acc=data_copl_mc.TotalSum()/N;
             acceptance[cut_index] << make_point(Q, acc);
-            acceptance_pd[cut_index] << make_point(Q, data_copl_mc2.TotalSum()/N_pd);
 
             const auto data_copl_bg=data_copl.XExclude(157,203);
             Fit2<DifferentialMutations<>> fit(
@@ -246,7 +242,7 @@ int main()
         }
     }
     Plot("ppn-v2-acceptance")
-        .Hist(acceptance[0], "ppn_{sp}").Hist(acceptance_pd[0], "pd")
+        .Hist(acceptance[0], "ppn_{sp}")
             << "set key on" << "set title 'Acceptance'" << "set yrange [0:0.3]" 
             << "set xlabel 'Q, MeV'" << "set ylabel 'Acceptance, n.d.'";
     Plot("ppn-v2-chisq")

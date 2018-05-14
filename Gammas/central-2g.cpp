@@ -93,11 +93,13 @@ int main()
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '3He missing mass - Q, GeV'"<< "set xrange [0.45:0.55]";
             Plot("He3gg-dt-data")
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt2").Scale(2))
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt2"))
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt2_"),"cut")
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
                     << "set xlabel 'dt gamma-gamma, ns'"<< "set key on";
             Plot("He3gg-t-data")
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "t2").Scale(2))
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "t2"))
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "t2_"),"cut")
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
                     << "set xlabel 'dt 3He-gamma, ns'"<< "set key on";
             Plot("He3gg-ggmm-data")
