@@ -7,6 +7,7 @@
 #include <memory>
 #include <gnuplot_wrap.h>
 #include <math_h/interpolate.h>
+#include <math_h/sigma3.h>
 #include <Experiment/experiment_conv.h>
 #include <Experiment/str_get.h>
 #include <Experiment/gethist.h>
@@ -63,7 +64,7 @@ int main()
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM0"))
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM1"), "cut")
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM2"), "2 gammas required")
-                    << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [0.45:0.55]"
+                    << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [0.45:0.57]"
                     << "set xlabel '3He missing mass - Q, GeV'";
             Plot("He3gg-ggmm-mc" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr, "GMM2"), "before cut")
@@ -91,7 +92,7 @@ int main()
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM1"), "cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM2"), "2 gammas required")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
-                    << "set xlabel '3He missing mass - Q, GeV'"<< "set xrange [0.45:0.55]";
+                    << "set xlabel '3He missing mass - Q, GeV'"<< "set xrange [0.45:0.57]";
             Plot("He3gg-dt-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt2"))
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt2_"),"cut")
@@ -156,9 +157,9 @@ int main()
         }
 
     }
-    const hist<> luminosity_he = Plotter::Instance().GetPoints<value<>>("LUMINOSITYf");
-    const hist<> true_he3eta = luminosity_he
-        *hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed"))
+    const auto luminosity_he = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYf"));
+    const auto true_he3eta = luminosity_he
+        *extend_hist<2,2>(hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")))
             .XRange(luminosity_he.left().X().min(),luminosity_he.right().X().max())
         /trigger_he3_forward.scaling;
     const double branching_ratio=0.39;
@@ -184,11 +185,11 @@ int main()
             }
         }
         cout<<suffix[a_t]<< " fitting"<<endl;
-        const hist<> known_events = (true_he3eta*branching_ratio)
-            *acc[a_t][3].XRange(true_he3eta.left().X().min(),true_he3eta.right().X().max());
+        const auto known_events = (true_he3eta*branching_ratio)
+            *extend_hist<2,2>(acc[a_t][3]).XRange(true_he3eta.left().X().min(),true_he3eta.right().X().max());
         Plot("He3gg-events-final"+suffix[a_t])
             .Hist(ev_am[a_t],"data","He3gg-data"+suffix[a_t])
-            .Hist(known_events,"3He+eta")
+            .Hist_2bars<1,2>(known_events,"3He+eta")
                 << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
                 << "set ylabel 'events, n.d.'" << "set yrange [0:]"
                 << "set title '"+runmsg+"'";

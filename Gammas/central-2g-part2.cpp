@@ -7,7 +7,7 @@
 #include <memory>
 #include <gnuplot_wrap.h>
 #include <math_h/interpolate.h>
-#include <math_h/lorentzvector.h>
+#include <math_h/sigma3.h>
 #include <Genetic/fit.h>
 #include <Genetic/paramfunc.h>
 #include <Genetic/initialconditions.h>
@@ -33,10 +33,10 @@ int main()
     vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas2"};
     vector<string> reaction = {"bound1-2g","bound2-2g","bound3-2g", "He3eta-gg", "He3pi0pi0", "He3pi0pi0pi0", "He3pi0"};
     const vector<string> suffix={"-m60","-m40","-m20","-0","-20"};
-    const hist<> luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYc");
-    const hist<> luminosity_he = Plotter::Instance().GetPoints<value<>>("LUMINOSITYf");
-    const hist<> true_he3eta = luminosity_he
-        *hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed"))
+    const ext_hist<2> luminosity = Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc");
+    const ext_hist<2> luminosity_he = Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYf");
+    const auto true_he3eta = luminosity_he
+        *extend_hist<2,2>(hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")))
             .XRange(luminosity_he.left().X().min(),luminosity_he.right().X().max())
         /trigger_he3_forward.scaling;
     const double branching_ratio=0.39;
@@ -49,18 +49,18 @@ int main()
         const hist<> acc_he3eta=Plotter::Instance().GetPoints<value<>>("He3gg-acceptance"+suffix[a_t]+"-3");
         cout<<suffix[a_t]<< " fitting"<<endl;
         const hist<> ev=Plotter::Instance().GetPoints<value<>>("He3gg-data"+suffix[a_t]);
-        const hist<> known_events = (true_he3eta*branching_ratio)
-            *acc_he3eta.XRange(true_he3eta.left().X().min(),true_he3eta.right().X().max());
+        const auto known_events = (true_he3eta*branching_ratio)
+            *extend_hist<2,2>(acc_he3eta).XRange(true_he3eta.left().X().min(),true_he3eta.right().X().max());
         Plot("He3gg-events-final"+suffix[a_t]+"-bound")
             .Hist(ev.XRange(-70,2.5),"data, below threshold")
-            .Hist(ev.XRange(12.5,30)-known_events,"data-3Heeta, upper threshold")
+            .Hist_2bars<1,2>(extend_hist<1,2>(ev).XRange(12.5,30)-known_events,"data-3Heeta, upper threshold")
                 << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
                 << "set ylabel 'events, n.d.'" << "set yrange [0:]";
         cout<<suffix[a_t]<< " fitting"<<endl;
         const auto data_shape=(
-            (ev*trigger_he3_forward.scaling)/(acc_bound*luminosity)
+            extend_hist<1,2>(ev)*trigger_he3_forward.scaling/(extend_hist<2,2>(acc_bound)*luminosity)
         ).XRange(-70,2.5);
-        FitFunction2<DifferentialMutations<>,Add<FG,BG>> fit(data_shape.removeXerorbars());
+        FitFunction2<DifferentialMutations<>,Add<FG,BG>> fit(wrap_hist(data_shape).removeXerorbars());
         auto init=make_shared<InitialDistributions>()
                     <<make_shared<DistribGauss>(50,50)
                     <<make_shared<DistribGauss>(-15,5)
@@ -79,7 +79,7 @@ int main()
         fg([&fit](double x){return fit({x});},chain),
         bg([&fit](double x){return BG()({x},fit.Parameters());},chain);
         Plot("He3gg-events-norm"+suffix[a_t]+"-bound")
-            .Hist(data_shape,"Data")
+            .Hist_2bars<1,2>(data_shape,"Data")
             .Line(bg).Line(fg,"fit with peak")
                 << "set xlabel 'Q, MeV'" << "set key on"
                 << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]";
@@ -90,7 +90,7 @@ int main()
         WIDTH<<make_point(cutpos*1000,P[2]);
         CHISQ<<make_point(cutpos*1000,fit.Optimality()/(fit.Points().size()-fit.ParamCount()));
         //pure background fit
-        FitFunction<DifferentialMutations<>,BG2> fit_w(data_shape.removeXerorbars());
+        FitFunction<DifferentialMutations<>,BG2> fit_w(wrap_hist(data_shape).removeXerorbars());
         auto init_w=make_shared<InitialDistributions>()
                 <<make_shared<DistribGauss>(100,100);
         while(init_w->Count()<BG2::ParamCount)init_w<<make_shared<DistribGauss>(0,1);
@@ -99,7 +99,7 @@ int main()
         CHISQ_W<<make_point(cutpos*1000,fit_w.Optimality()/(fit_w.Points().size()-fit_w.ParamCount()+3));
         const SortedPoints<> bg2([&fit_w](double x){return fit_w({x});},chain);
         Plot("He3gg-events-norm2"+suffix[a_t]+"-bound")
-            .Hist(data_shape,"Data")
+            .Hist_2bars<1,2>(data_shape,"Data")
             .Line(bg2,"fit without peak")
                 << "set xlabel 'Q, MeV'" << "set key on"
                 << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]";

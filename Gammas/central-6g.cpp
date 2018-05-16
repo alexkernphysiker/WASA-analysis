@@ -7,6 +7,7 @@
 #include <memory>
 #include <gnuplot_wrap.h>
 #include <math_h/interpolate.h>
+#include <math_h/sigma3.h>
 #include <Genetic/fit.h>
 #include <Genetic/initialconditions.h>
 #include <Genetic/filter.h>
@@ -77,7 +78,7 @@ int main()
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM1"), "cut")
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM3"), "6 gammas required")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"
-                    << "set xlabel '3He missing mass - Q, GeV'"<< "set xrange [0.45:0.55]";
+                    << "set xlabel '3He missing mass - Q, GeV'"<< "set xrange [0.45:0.57]";
             Plot("He36g-6gmm-mc" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr, "GMM3"), "before cut")
             .Hist(Hist(MC, r, histpath_central_reconstr, "GMM4"), "after cut")
@@ -99,7 +100,7 @@ int main()
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM1"), "cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM3"), "6 gammas required")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
-                    << "set xlabel '3He missing mass - Q, GeV'"<< "set xrange [0.45:0.55]";
+                    << "set xlabel '3He missing mass - Q, GeV'"<< "set xrange [0.45:0.57]";
             Plot("He36g-dt-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt2"))
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt2_"),"cut")
@@ -183,36 +184,36 @@ int main()
             accplot.Hist(acc, reaction[i]);
         }
     }
-    const hist<> luminosity = Plotter::Instance().GetPoints<value<>>("LUMINOSITYc");
-    const hist<> luminosity_he = Plotter::Instance().GetPoints<value<>>("LUMINOSITYf");
-    const hist<> true_he3eta = luminosity_he
-        *hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed"))
+    const ext_hist<2> luminosity = Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc");
+    const ext_hist<2> luminosity_he = Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYf");
+    const ext_hist<2> true_he3eta = luminosity_he
+        *extend_hist<2,2>(hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")))
             .XRange(luminosity_he.left().X().min(),luminosity_he.right().X().max())
         /trigger_he3_forward.scaling;
     const double branching_ratio=0.32;
-    const hist<> known_events = (true_he3eta*branching_ratio)
-        *acceptance[1].XRange(true_he3eta.left().X().min(),true_he3eta.right().X().max());
+    const auto known_events = (true_he3eta*branching_ratio)
+        *extend_hist<2,2>(acceptance[1]).XRange(true_he3eta.left().X().min(),true_he3eta.right().X().max());
     Plot("He36g-events")
-    .Hist(ev_am,"data").Hist(known_events,"3He+eta")
+    .Hist(ev_am,"data").Hist_2bars<1,2>(known_events,"3He+eta")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '" + runmsg + "'";
     Plot("He36g-events2")
         .Hist(ev_am.XRange(-70,2.5),"data, below threshold")
-        .Hist(ev_am.XRange(12.5,30)-known_events,"data-3Heeta, upper threshold")
+        .Hist_2bars<1,2>(extend_hist<1,2>(ev_am).XRange(12.5,30)-known_events,"data-3Heeta, upper threshold")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '" + runmsg + "'";
     const auto data_shape=(
-        (ev_am*trigger_he3_forward.scaling)/(acceptance[0]*luminosity)
+        extend_hist<1,2>(ev_am)*trigger_he3_forward.scaling/(extend_hist<2,2>(acceptance[0])*luminosity)
     ).XRange(-70,2.5);
     Plot("He36g-events-norm-bound")
-        .Hist(data_shape,"Data")
+        .Hist_2bars<1,2>(data_shape,"Data statistical","Data systematic")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]"
             << "set title '"+runmsg+"'";
     Plot("He36g-events-norm2-bound")
-        .Hist(data_shape/branching_ratio,"Divided by branching ratio")
+        .Hist_2bars<1,2>(data_shape/branching_ratio,"Divided by branching ratio")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]"
             << "set title '"+runmsg+"'";
