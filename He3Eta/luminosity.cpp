@@ -7,6 +7,7 @@
 #include <memory>
 #include <gnuplot_wrap.h>
 #include <math_h/interpolate.h>
+#include <math_h/sigma3.h>
 #include <Genetic/fit.h>
 #include <Genetic/paramfunc.h>
 #include <Genetic/initialconditions.h>
@@ -27,7 +28,8 @@ int main()
     const auto runs = PresentRuns("All");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
     const hist<> norm = Hist(MC, "He3eta-gg", histpath_forward_reconstr, "0-Reference");
-    hist<> events_count, data_chi_sq, acceptance;
+    hist<> data_chi_sq, acceptance;
+    ext_hist<2> events_count;
     vector<hist<>> parhists;
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++)
         if (norm[bin_num].X() > 2.5) {
@@ -113,7 +115,7 @@ int main()
                     << "set ylabel 'counts'"
                     << "set yrange [-200:]" << "unset log y";
 
-            events_count << make_point(Q,clean.TotalSum() / mc.TotalSum());
+            events_count << make_point(Q,extend_value<1,2>(clean.TotalSum()) / extend_value<2,2>(mc.TotalSum()));
         }
     for (size_t i = 0; i < parhists.size(); i++)
         Plot().Hist(parhists[i])
@@ -124,9 +126,10 @@ int main()
             << "set ylabel 'chi^2/d, n.d.'"
             << "set yrange [0:]" << "unset log y";
 
+    const auto cross_section=hist<>(he3eta_sigma().func(), BinsByStep(2.5, 2.5, 30.0));
     Plot("He3eta-cross-section")
     .Hist(he3eta_sigma().XRange(12.5,35), "Experimental data")
-    .Hist(hist<>(he3eta_sigma().func(), BinsByStep(12.5, 2.5, 30.0)), "Interpolation", "CS-He3eta-assumed")
+    .Hist(cross_section.XRange(12.5,35), "Interpolation", "CS-He3eta-assumed")
             << "set title 'Cross section of He3eta used in the calculations'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'sigma(^3He eta), nb'"
@@ -139,9 +142,9 @@ int main()
             << "set ylabel 'acceptance, n.d.'"
             << "set xrange [10:30]" << "set yrange [0:1]";
 
-    const auto luminosity=events_count*trigger_he3_forward.scaling/he3eta_sigma().func();
+    const auto luminosity=events_count*trigger_he3_forward.scaling/extend_hist<2,2>(cross_section);
     Plot("He3eta-luminosity")
-        .Hist(luminosity.XRange(12.5,30),"", "LUMINOSITYf")
+        .Hist_2bars<1,2>(luminosity.XRange(12.5,30),"stat","syst","LUMINOSITYf")
             << "set title 'Integrated luminosity (" + runmsg + ")'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
