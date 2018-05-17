@@ -83,12 +83,12 @@ int main()
             .Hist(Hist(MC, r, histpath_central_reconstr, "GMM3"), "before cut")
             .Hist(Hist(MC, r, histpath_central_reconstr, "GMM4"), "after cut")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"
-                    << "set xlabel '2gamma missing mass, GeV'"<< "set xrange [2.4:3.4]";
+                    << "set xlabel '2gamma missing mass, GeV'"<< "set xrange [2.2:3.4]";
             Plot("He36g-6gim-mc" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr, "GIM4"), "before cut")
             .Hist(Hist(MC, r, histpath_central_reconstr, "GIM5"), "after cut")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"
-                    << "set xlabel '2gamma invariant mass, GeV'"<< "set xrange [0.3:0.7]";
+                    << "set xlabel '2gamma invariant mass, GeV'"<< "set xrange [0.0:0.8]";
             Plot("He36g-tim-mc" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr, "TIM5-AllBins"))
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [-0.5:0.5]"
@@ -115,12 +115,12 @@ int main()
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GMM3"), "before cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GMM4"), "after cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
-                    << "set xlabel '2gamma missing mass, GeV'"<< "set xrange [2.4:3.4]";
+                    << "set xlabel '2gamma missing mass, GeV'"<< "set xrange [2.2:3.4]";
             Plot("He36g-6gim-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GIM4"), "before cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GIM5"), "after cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
-                    << "set xlabel '2gamma invariant mass, GeV'"<< "set xrange [0.3:0.7]";
+                    << "set xlabel '2gamma invariant mass, GeV'"<< "set xrange [0.0:0.8]";
             Plot("He36g-tim-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM5-AllBins"), "IM and MM cuts")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
