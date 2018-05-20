@@ -148,7 +148,7 @@ int main()
         cout<<Qmsg << " plots"<<endl;
         const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM4-Bin-") + to_string(bin_num));
         for(size_t a_t=0;a_t<suffix.size();a_t++){
-            const double cutpos=-0.04+0.02*a_t;
+            const double cutpos=-0.06+0.02*a_t;
             const auto TIM_c=TIM.XRange(cutpos,2);
             cout<<Qmsg<< ";"<<suffix[a_t] <<endl;
             for(size_t i = 0; i < reaction.size(); i++){ 

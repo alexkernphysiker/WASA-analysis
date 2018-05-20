@@ -88,7 +88,7 @@ int main()
             .Hist(Hist(MC, r, histpath_central_reconstr, "GIM4"), "before cut")
             .Hist(Hist(MC, r, histpath_central_reconstr, "GIM5"), "after cut")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"
-                    << "set xlabel '2gamma invariant mass, GeV'"<< "set xrange [0.0:0.8]";
+                    << "set xlabel '2gamma invariant mass, GeV'"<< "set xrange [0.0:1.0]";
             Plot("He36g-tim-mc" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr, "TIM5-AllBins"))
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [-0.5:0.5]"
@@ -120,11 +120,11 @@ int main()
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GIM4"), "before cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GIM5"), "after cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
-                    << "set xlabel '2gamma invariant mass, GeV'"<< "set xrange [0.0:0.8]";
+                    << "set xlabel '2gamma invariant mass, GeV'"<< "set xrange [0.0:1.0]";
             Plot("He36g-tim-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM5-AllBins"), "IM and MM cuts")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
-                    << "set xrange [-0.3:0.3]" << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
+                    << "set xrange [-0.5:0.5]" << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
     }
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++) {
         const auto &Q = norm[bin_num].X();

@@ -26,7 +26,7 @@ int main()
 
     vector<hist<>> ev_am;
     vector<vector<hist<>>> acceptance;
-    const vector<string> suffix={"-m60","-m40","-m20","-0","-20","-40"};
+    const vector<string> suffix={"-0","-20","-40"};
     vector<vector<hist<>>> acc;
     for(size_t i=0;i<suffix.size();i++){
         acc.push_back({});
@@ -94,15 +94,15 @@ int main()
                     << "set xlabel '2gamma invariant mass, GeV'"<< "set xrange [0:0.8]";
             const auto TIM=Hist(DATA, "All", histpath_central_reconstr, "old_TIM3-AllBins");
             Plot("He3gg-old-tim-data")
-            .Hist(TIM, "IM and MM cuts")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "old_TIM3-AllBins"))
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [-0.3:0.3]"
                      << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
             for(size_t a_t=0;a_t<suffix.size();a_t++){
-                const double cutpos=-0.06+0.02*a_t;
+                const double cutpos=0.02*a_t;
                 const double high=TIM.TransponateAndSort().right().X().max();
                 Plot("He3gg-old-tim-data"+suffix[a_t]).Hist(TIM)
                     .Line({make_point(cutpos,0.),make_point(cutpos,high)})
-                        << "set key on" << "set yrange [0:]"<< "set xrange [-0.3:0.3]"
+                        << "set key on" << "set yrange [0:]"<< "set xrange [-0.5:0.5]"
                         << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
             }
     }
@@ -114,7 +114,7 @@ int main()
         cout<<Qmsg << " plots"<<endl;
         const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("old_TIM3-Bin-") + to_string(bin_num));
         for(size_t a_t=0;a_t<suffix.size();a_t++){
-            const double cutpos=-0.04+0.02*a_t;
+            const double cutpos=0.02*a_t;
             const auto TIM_c=TIM.XRange(cutpos,2);
             cout<<Qmsg<< ";"<<suffix[a_t] <<endl;
             for(size_t i = 0; i < reaction.size(); i++){ 
@@ -131,15 +131,8 @@ int main()
         }
 
     }
-    const auto luminosity_he = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYf"));
-    const auto true_he3eta = luminosity_he
-        *extend_hist<2,2>(hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")))
-            .XRange(luminosity_he.left().X().min(),luminosity_he.right().X().max())
-        /trigger_he3_forward.scaling;
-    const double branching_ratio=0.39;
 
     for(size_t a_t=0;a_t<suffix.size();a_t++){
-        cout<<suffix[a_t]<< " saving"<<endl;
         Plot accplot("He3gg-old-acceptance-final"+suffix[a_t]);
         accplot << "set title 'Acceptance'"
             << "set xlabel 'Q, MeV'"
@@ -158,9 +151,6 @@ int main()
                     << "set xrange [-70:30]";
             }
         }
-        cout<<suffix[a_t]<< " fitting"<<endl;
-        const auto known_events = (true_he3eta*branching_ratio)
-            *extend_hist<2,2>(acc[a_t][3]).XRange(true_he3eta.left().X().min(),true_he3eta.right().X().max());
         Plot("He3gg-old-events-final"+suffix[a_t])
             .Hist(ev_am[a_t])
                 << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
