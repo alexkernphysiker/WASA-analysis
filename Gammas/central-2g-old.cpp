@@ -81,6 +81,7 @@ int main()
                     << "set xlabel 'dt gamma-gamma, ns'"<< "set key on";
             Plot("He3gg-old-t-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "old_t5-AllBins"))
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "old_t5-AllBins").XRange(-10,20))
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
                     << "set xlabel 'dt 3He-gamma, ns'"<< "set key on";
     }
@@ -100,7 +101,7 @@ int main()
                 if (N.Above(0)) acc[i] << make_point(Q, std_error(MCT.TotalSum().val())/N);
                 else acc[i] << make_point(Q, 0.0);
             }
-            ev_am<<make_point(Q,std_error(DataT.XRange(-5,25).TotalSum().val()));
+            ev_am<<make_point(Q,std_error(DataT.XRange(-10,20).TotalSum().val()));
     }
 
 
