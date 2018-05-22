@@ -81,7 +81,6 @@ int main()
                     << "set xlabel 'dt gamma-gamma, ns'"<< "set key on";
             Plot("He3gg-old-t-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "old_t5-AllBins"))
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "old_t5-AllBins").XRange(-10,20))
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
                     << "set xlabel 'dt 3He-gamma, ns'"<< "set key on";
     }
@@ -91,7 +90,8 @@ int main()
         const string Qmsg = static_cast<stringstream &>(stringstream()
             << "Q in [" << setprecision(3)<< Q.min() << "; " << Q.max() << "] MeV").str();
         cout<<Qmsg << " plots"<<endl;
-        const auto DataT=Hist(DATA, "All", histpath_central_reconstr, string("old_t5-Bin-") + to_string(bin_num));
+        const auto DataT=Hist(DATA, "All",histpath_central_reconstr, string("old_t5-Bin-") + to_string(bin_num)).Scale(5);
+        const auto DataTCut=DataT.XRange(0,25);
             for(size_t i = 0; i < reaction.size(); i++){ 
                 const auto &r = reaction[i];
                 cout<<Qmsg << " acceptance "<<r<<endl;
@@ -101,7 +101,12 @@ int main()
                 if (N.Above(0)) acc[i] << make_point(Q, std_error(MCT.TotalSum().val())/N);
                 else acc[i] << make_point(Q, 0.0);
             }
-            ev_am<<make_point(Q,std_error(DataT.XRange(-10,20).TotalSum().val()));
+        Plot(Q.Contains(-11) ? "He3gg-old-t-data-part" : "")
+            .Hist(DataT).Hist(DataTCut)
+            << "set title 'Data " + runmsg +" " + Qmsg + "'"  << "set yrange [0:]"
+            << "set xlabel 'dt 3He-gamma, ns'"<< "set key on";
+
+        ev_am<<make_point(Q,std_error(DataTCut.TotalSum().val()));
     }
 
 
@@ -127,6 +132,16 @@ int main()
             .Hist(ev_am)
                 << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
                 << "set ylabel 'events, n.d.'" << "set yrange [0:]"
+                << "set title '"+runmsg+"'";
+    const ext_hist<2> luminosity = Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc");
+    const auto ev_norm=(
+        extend_hist<1,2>(ev_am)*trigger_he3_forward.scaling/(extend_hist<2,2>(acc[2])*luminosity)
+    ).XRange(-40,2.5);
+
+    Plot("He3gg-old-events-final-20-part")
+            .Hist_2bars<1,2>(ev_norm)
+                << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-40:2.5]"
+                << "set ylabel 'events normalized, nb'" << "set yrange [0:]"
                 << "set title '"+runmsg+"'";
     cout<<"END"<<endl;
 }

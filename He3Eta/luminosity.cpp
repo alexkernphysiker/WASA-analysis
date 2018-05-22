@@ -32,7 +32,7 @@ int main()
     ext_hist<2> events_count;
     vector<hist<>> parhists;
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++)
-        if (norm[bin_num].X() > 2.5) {
+        if (norm[bin_num].X() > 10.0) {
             const auto &Q = norm[bin_num].X();
             const auto &N = norm[bin_num].Y();
             const string Qmsg =
@@ -61,10 +61,10 @@ int main()
             Fit2<DifferentialMutations<>> FIT(
                 data_bg.removeXerorbars(),
                 [&data_count](const ParamSet & X, const ParamSet & P) {
-                    return data_count * Polynom<3>(X[0], P);
+                    return data_count * Polynom<4>(X[0], P);
                 }
             );
-            FIT.SetUncertaintyCalcDeltas({0.1, 0.1, 0.1, 0.1})
+            FIT.SetUncertaintyCalcDeltas({0.1, 0.1, 0.1, 0.1, 0.01})
             .SetFilter([&FIT,&data,&Q](const ParamSet&P){
                 return
                 (FIT.func({data.right().X().val()},P)<=data.right().Y().max())&&
@@ -77,6 +77,7 @@ int main()
                         << make_shared<DistribGauss>(0, 10)
                         << make_shared<DistribGauss>(0, 5)
                         << make_shared<DistribGauss>(0, 5)
+                        << make_shared<DistribGauss>(0, 1)
             );
             cout << endl;
             while (!FIT.AbsoluteOptimalityExitCondition(0.0000001))FIT.Iterate();
@@ -108,7 +109,7 @@ int main()
             auto clean = data_full - bg;
             Plot subplot(Q.Contains(21) ? "He3eta-subtract" : (Q.Contains(14) ? "He3eta-subtract-lo":""));
             subplot.Hist(clean,"DATA").Line(Points<>{{clean.left().X().min(), 0.0},{clean.right().X().max(), 0.0}});
-            subplot.Hist(clean = clean.XRange(cut.first-0.001, cut.second+0.001))
+            subplot.Hist(clean = clean.XRange(cut.first-0.003, cut.second+0.003))
                 .Line((mc*clean.TotalSum()/mc.TotalSum()).toLine(),"MC")
                     << "set key on" << "set title '" + Qmsg + ", " + runmsg + "'"
                     << "set xlabel 'Missing mass, GeV'"
@@ -142,7 +143,7 @@ int main()
             << "set ylabel 'acceptance, n.d.'"
             << "set xrange [10:30]" << "set yrange [0:1]";
 
-    const auto luminosity=events_count*trigger_he3_forward.scaling/extend_hist<2,2>(cross_section);
+    const auto luminosity=events_count*trigger_he3_forward.scaling/extend_hist<2,2>(cross_section.XRange(events_count.left().X().min(),events_count.right().X().max()));
     Plot("He3eta-luminosity")
         .Hist_2bars<1,2>(luminosity.XRange(12.5,30),"stat","syst","LUMINOSITYf")
             << "set title 'Integrated luminosity (" + runmsg + ")'"
