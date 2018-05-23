@@ -178,7 +178,7 @@ int main()
         accplot << "set title 'Acceptance'"
             << "set xlabel 'Q, MeV'"
             << "set ylabel 'Acceptance, n.d.'"
-            << "set yrange [0:0.2]" << "set xrange [-70:30]"
+            << "set yrange [0:0.3]" << "set xrange [-70:30]"
             << "set key on";
         for (size_t i = 0; i < reaction.size(); i++) {
             const auto ac = acc[a_t][i].YRange(0.0000001, INFINITY);

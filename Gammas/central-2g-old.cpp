@@ -90,8 +90,8 @@ int main()
         const string Qmsg = static_cast<stringstream &>(stringstream()
             << "Q in [" << setprecision(3)<< Q.min() << "; " << Q.max() << "] MeV").str();
         cout<<Qmsg << " plots"<<endl;
-        const auto DataT=Hist(DATA, "All",histpath_central_reconstr, string("old_t5-Bin-") + to_string(bin_num)).Scale(5);
-        const auto DataTCut=DataT.XRange(0,25);
+        const auto DataT=Hist(DATA, "All",histpath_central_reconstr, string("old_t5-Bin-") + to_string(bin_num)).Scale(10);
+        const auto DataTCut=DataT.XRange(-10,30);
             for(size_t i = 0; i < reaction.size(); i++){ 
                 const auto &r = reaction[i];
                 cout<<Qmsg << " acceptance "<<r<<endl;
@@ -127,9 +127,18 @@ int main()
                     << "set ylabel 'Acceptance, percents'"
                     << "set xrange [-70:30]";
             }
-        }
+    }
+    const ext_hist<2> luminosity_he = Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYf");
+    const auto true_he3eta = luminosity_he
+        *extend_hist<2,2>(hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")))
+            .XRange(luminosity_he.left().X().min(),luminosity_he.right().X().max())
+        /trigger_he3_forward.scaling;
+    const double branching_ratio=0.39;
+    const auto known_events = (true_he3eta*branching_ratio)
+        *extend_hist<2,2>(acc[3]).XRange(true_he3eta.left().X().min(),true_he3eta.right().X().max());
+
     Plot("He3gg-old-events-final-20")
-            .Hist(ev_am)
+            .Hist(ev_am,"data").Hist_2bars<1,2>(known_events,"3He+eta")
                 << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
                 << "set ylabel 'events, n.d.'" << "set yrange [0:]"
                 << "set title '"+runmsg+"'";

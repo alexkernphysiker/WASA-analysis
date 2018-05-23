@@ -32,7 +32,7 @@ int main()
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-2gamma");
     vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas2"};
     vector<string> reaction = {"bound1-2g","bound2-2g","bound3-2g", "He3eta-gg", "He3pi0pi0", "He3pi0pi0pi0", "He3pi0"};
-    const vector<string> suffix={"-m60","-m40","-m20","-0","-20"};
+    const vector<string> suffix={"-m60","-m40","-m20","-0"};
     const ext_hist<2> luminosity = Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc");
     const ext_hist<2> luminosity_he = Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYf");
     const auto true_he3eta = luminosity_he
@@ -59,7 +59,7 @@ int main()
         cout<<suffix[a_t]<< " fitting"<<endl;
         const auto data_shape=(
             extend_hist<1,2>(ev)*trigger_he3_forward.scaling/(extend_hist<2,2>(acc_bound)*luminosity)
-        ).XRange(-70,2.5);
+        ).XRange(-60,2.5);
         FitFunction2<DifferentialMutations<>,Add<FG,BG>> fit(wrap_hist(data_shape).removeXerorbars());
         auto init=make_shared<InitialDistributions>()
                     <<make_shared<DistribGauss>(50,50)
@@ -118,12 +118,12 @@ int main()
     Plot("He3gg-pos").Hist(POS)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
             << "set xrange [-70:30]"
-            << "set ylabel 'Position, MeV'" << "set yrange [-20:0]"
+            << "set ylabel 'Position, MeV'" << "set yrange [-40:0]"
             << "set title 'Peak position'";
     Plot("He3gg-width").Hist(WIDTH)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
             << "set xrange [-70:30]"
-            << "set ylabel 'Gamma, MeV'" << "set yrange [0:40]"
+            << "set ylabel 'Gamma, MeV'" << "set yrange [0:]"
             << "set title 'Peak width (Gamma)'";
     Plot("He3gg-cross-section-chisq").Line(CHISQ)
             << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d) cut position, MeV'"
