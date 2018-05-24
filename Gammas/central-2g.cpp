@@ -60,6 +60,10 @@ int main()
     for (size_t i = 0; i < reaction.size(); i++) {
             const auto &r = reaction[i];
             cout<<"All-bins MC plots "<<r<<endl;
+            Plot("He3gg-sina-mc" + r)
+            .Hist(Hist(MC, r, histpath_central_reconstr,"vec_mul"))
+                    << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [0:1]"
+                    << "set xlabel 'sin(alpha(gamma-gamma))'";
             Plot("He3gg-he3mm-mc-" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM0"))
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM1"), "cut")
@@ -87,6 +91,10 @@ int main()
                    << "set ylabel '3He  missing energy, GeV'";
     }
     {
+            Plot("He3gg-sina-data")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr,"vec_mul"))
+                    << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [0:1]"
+                    << "set xlabel 'sin(alpha(gamma-gamma))'";
             Plot("He3gg-he3mm-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM0"))
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM1"), "cut")

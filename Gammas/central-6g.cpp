@@ -93,6 +93,8 @@ int main()
             .Hist(Hist(MC, r, histpath_central_reconstr, "TIM5-AllBins"))
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [-0.5:0.5]"
                     << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
+            PlotHist2d(sp2,"He36g-MME-mc"+r)
+                    .Distr(Hist2d(MC, r, histpath_central_reconstr,"He3MME5"));
     }
     {
             Plot("He36g-he3mm-data")
@@ -111,6 +113,14 @@ int main()
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "t2_"),"cut")
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
                     << "set xlabel 'dt 3He-gamma, ns'"<< "set key on";
+            Plot("He36g-dt-data-final")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt5"))
+                    << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
+                    << "set xlabel 'dt gamma-gamma, ns'"<< "set key on";
+            Plot("He36g-t-data-final")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "t5"))
+                    << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
+                    << "set xlabel 'dt 3He-gamma, ns'"<< "set key on";
             Plot("He36g-6gmm-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GMM3"), "before cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GMM4"), "after cut")
@@ -125,6 +135,8 @@ int main()
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM5-AllBins"), "IM and MM cuts")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xrange [-0.5:0.5]" << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
+            PlotHist2d(sp2,"He36g-MME-data")
+                    .Distr(Hist2d(DATA, "All", histpath_central_reconstr,"He3MME5"));
     }
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++) {
         const auto &Q = norm[bin_num].X();
