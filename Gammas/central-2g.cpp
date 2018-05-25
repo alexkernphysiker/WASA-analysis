@@ -61,9 +61,15 @@ int main()
             const auto &r = reaction[i];
             cout<<"All-bins MC plots "<<r<<endl;
             Plot("He3gg-sina-mc" + r)
-            .Hist(Hist(MC, r, histpath_central_reconstr,"vec_mul"))
+            .Hist(Hist(MC, r, histpath_central_reconstr,"sina2"))
+            .Hist(Hist(MC, r, histpath_central_reconstr,"sina4"))
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [0:1]"
                     << "set xlabel 'sin(alpha(gamma-gamma))'";
+            Plot("He3gg-eta-theta-mc" + r)
+            .Hist(Hist(MC, r, histpath_central_reconstr,"ET2"))
+            .Hist(Hist(MC, r, histpath_central_reconstr,"ET4"))
+                    << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [0:180]"
+                    << "set xlabel 'theta(eta) reconstructed'";
             Plot("He3gg-he3mm-mc-" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM0"))
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM1"), "cut")
@@ -92,9 +98,15 @@ int main()
     }
     {
             Plot("He3gg-sina-data")
-            .Hist(Hist(DATA, "All", histpath_central_reconstr,"vec_mul"))
+            .Hist(Hist(DATA, "All", histpath_central_reconstr,"sina2"))
+            .Hist(Hist(DATA, "All", histpath_central_reconstr,"sina3"))
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [0:1]"
                     << "set xlabel 'sin(alpha(gamma-gamma))'";
+            Plot("He3gg-eta-theta-data")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr,"ET2"))
+            .Hist(Hist(DATA, "All", histpath_central_reconstr,"ET4"))
+                    << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [0:180]"
+                    << "set xlabel 'theta(eta) reconstructed'";
             Plot("He3gg-he3mm-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM0"))
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM1"), "cut")
@@ -173,7 +185,7 @@ int main()
         }
 
     }
-    const auto luminosity_he = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYf"));
+    const auto luminosity_he = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc")).XRange(12.5,30);
     const auto true_he3eta = luminosity_he
         *extend_hist<2,2>(hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")))
             .XRange(luminosity_he.left().X().min(),luminosity_he.right().X().max())

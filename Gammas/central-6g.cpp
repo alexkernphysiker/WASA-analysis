@@ -73,6 +73,11 @@ int main()
     for (size_t i = 0; i < reaction.size(); i++) {
             const auto &r = reaction[i];
             cout<<"All-bins MC plots "<<r<<endl;
+            Plot("He36g-eta-theta-mc"+r)
+            .Hist(Hist(MC, r, histpath_central_reconstr,"ET2"))
+            .Hist(Hist(MC, r, histpath_central_reconstr,"ET5"))
+                    << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [0:180]"
+                    << "set xlabel 'theta(eta) reconstructed'";
             Plot("He36g-he3mm-mc-" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM0"))
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM1"), "cut")
@@ -97,6 +102,12 @@ int main()
                     .Distr(Hist2d(MC, r, histpath_central_reconstr,"He3MME5"));
     }
     {
+            Plot("He36g-eta-theta-data")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr,"ET2"))
+            .Hist(Hist(DATA, "All", histpath_central_reconstr,"ET5"))
+                    << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [0:180]"
+                    << "set xlabel 'theta(eta) reconstructed'";
+
             Plot("He36g-he3mm-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM0"))
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM1"), "cut")
