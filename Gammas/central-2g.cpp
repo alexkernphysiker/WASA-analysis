@@ -62,12 +62,11 @@ int main()
             cout<<"All-bins MC plots "<<r<<endl;
             Plot("He3gg-sina-mc" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr,"sina2"))
-            .Hist(Hist(MC, r, histpath_central_reconstr,"sina4"))
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [0:1]"
                     << "set xlabel 'sin(alpha(gamma-gamma))'";
             Plot("He3gg-eta-theta-mc" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr,"ET2"))
-            .Hist(Hist(MC, r, histpath_central_reconstr,"ET4"))
+            .Hist(Hist(MC, r, histpath_central_reconstr,"ET21"))
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [0:180]"
                     << "set xlabel 'theta(eta) reconstructed'";
             Plot("He3gg-he3mm-mc-" + r)
@@ -77,7 +76,7 @@ int main()
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [0.45:0.57]"
                     << "set xlabel '3He missing mass - Q, GeV'";
             Plot("He3gg-ggmm-mc" + r)
-            .Hist(Hist(MC, r, histpath_central_reconstr, "GMM2"), "before cut")
+            .Hist(Hist(MC, r, histpath_central_reconstr, "GMM22"), "before cut")
             .Hist(Hist(MC, r, histpath_central_reconstr, "GMM3"), "after cut")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [2.2:3.4]"
                     << "set xlabel '2gamma missing mass, GeV'";
@@ -99,12 +98,11 @@ int main()
     {
             Plot("He3gg-sina-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr,"sina2"))
-            .Hist(Hist(DATA, "All", histpath_central_reconstr,"sina3"))
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [0:1]"
                     << "set xlabel 'sin(alpha(gamma-gamma))'";
             Plot("He3gg-eta-theta-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr,"ET2"))
-            .Hist(Hist(DATA, "All", histpath_central_reconstr,"ET4"))
+            .Hist(Hist(DATA, "All", histpath_central_reconstr,"ET21"))
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [0:180]"
                     << "set xlabel 'theta(eta) reconstructed'";
             Plot("He3gg-he3mm-data")
@@ -114,13 +112,13 @@ int main()
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '3He missing mass - Q, GeV'"<< "set xrange [0.45:0.57]";
             Plot("He3gg-dt-data")
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt2"))
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt2_"),"cut")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt21"))
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt22"),"cut")
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
                     << "set xlabel 'dt gamma-gamma, ns'"<< "set key on";
             Plot("He3gg-t-data")
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "t2"))
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "t2_"),"cut")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "t21"))
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "t22"),"cut")
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
                     << "set xlabel 'dt 3He-gamma, ns'"<< "set key on";
             Plot("He3gg-dt-data-end")
@@ -132,7 +130,7 @@ int main()
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
                     << "set xlabel 'dt 3He-gamma, ns'"<< "set key on";
             Plot("He3gg-ggmm-data")
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "GMM2_"), "before cut")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "GMM22"), "before cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GMM3"), "after cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '2gamma missing mass, GeV'"<< "set xrange [2.2:3.4]";

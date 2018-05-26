@@ -54,6 +54,7 @@ int main()
     for (const auto &r : reaction) {
         if (r == reaction[0]) {
             Plot("He36g-IMPiDiff-bound-mc")
+            .Hist(Hist(MC, r, histpath_central_reconstr, "GMMPDiff22"))
             .Hist(Hist(MC, r, histpath_central_reconstr, "GMMPDiff3"))
                     << "set key on" << "set yrange [0:]";
         }
@@ -61,7 +62,8 @@ int main()
     }
     theory << "set key on" << "set yrange [0:]";
     experiment
-    .Hist(Hist(DATA, "All", histpath_central_reconstr, "GMMPDiff4"), "data")
+    .Hist(Hist(DATA, "All", histpath_central_reconstr, "GMMPDiff22"), "data")
+    .Hist(Hist(DATA, "All", histpath_central_reconstr, "GMMPDiff3"), "data")
             << "set key on" << "set title '" + runmsg + "'" << "set yrange [0:]";
 
     hist<> ev_am;
@@ -75,13 +77,13 @@ int main()
             cout<<"All-bins MC plots "<<r<<endl;
             Plot("He36g-eta-theta-mc"+r)
             .Hist(Hist(MC, r, histpath_central_reconstr,"ET2"))
-            .Hist(Hist(MC, r, histpath_central_reconstr,"ET5"))
+            .Hist(Hist(MC, r, histpath_central_reconstr,"ET21"))
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [0:180]"
                     << "set xlabel 'theta(eta) reconstructed'";
             Plot("He36g-he3mm-mc-" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM0"))
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM1"), "cut")
-            .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM3"), "6 gammas required")
+            .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM2"), "6 gammas required")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"
                     << "set xlabel '3He missing mass - Q, GeV'"<< "set xrange [0.45:0.57]";
             Plot("He36g-6gmm-mc" + r)
@@ -104,24 +106,24 @@ int main()
     {
             Plot("He36g-eta-theta-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr,"ET2"))
-            .Hist(Hist(DATA, "All", histpath_central_reconstr,"ET5"))
+            .Hist(Hist(DATA, "All", histpath_central_reconstr,"ET21"))
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [0:180]"
                     << "set xlabel 'theta(eta) reconstructed'";
 
             Plot("He36g-he3mm-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM0"))
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM1"), "cut")
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM3"), "6 gammas required")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM2"), "6 gammas required")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '3He missing mass - Q, GeV'"<< "set xrange [0.45:0.57]";
             Plot("He36g-dt-data")
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt2"))
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt2_"),"cut")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt21"))
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt22"),"cut")
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
                     << "set xlabel 'dt gamma-gamma, ns'"<< "set key on";
             Plot("He36g-t-data")
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "t2"))
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "t2_"),"cut")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "t21"))
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "t22"),"cut")
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
                     << "set xlabel 'dt 3He-gamma, ns'"<< "set key on";
             Plot("He36g-dt-data-final")
