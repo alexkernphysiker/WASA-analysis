@@ -98,6 +98,7 @@ int main()
                     << "set xlabel '2gamma invariant mass, GeV'"<< "set xrange [0.0:1.0]";
             Plot("He36g-tim-mc" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr, "TIM5-AllBins"))
+            .Hist(Hist(MC, r, histpath_central_reconstr, "TIM5-AllBins").XRange(-0.2,0.05))
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [-0.5:0.5]"
                     << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
             PlotHist2d(sp2,"He36g-MME-mc"+r)
@@ -145,7 +146,8 @@ int main()
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '2gamma invariant mass, GeV'"<< "set xrange [0.0:1.0]";
             Plot("He36g-tim-data")
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM5-AllBins"), "IM and MM cuts")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM5-AllBins"))
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM5-AllBins").XRange(-0.2,0.05))
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xrange [-0.5:0.5]" << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
             PlotHist2d(sp2,"He36g-MME-data")
@@ -174,7 +176,7 @@ int main()
                 hist<> Norm = Hist(MC, r, histpath_central_reconstr, "0-Reference");
                 const auto &N = Norm[bin_num].Y();
                 if (N.Above(0)) {
-                    const hist<> h = Hist(MC, r, histpath_central_reconstr, string("TIM5-Bin-") + to_string(bin_num));
+                    const hist<> h = Hist(MC, r, histpath_central_reconstr, string("TIM5-Bin-") + to_string(bin_num)).XRange(-0.2,0.05);
                     const auto C = std_error(h.TotalSum().val());
                     mc_plot.Hist(h / N, r);
                     acceptance[i] << point<value<>>(Q, C / N);
@@ -184,7 +186,7 @@ int main()
             }
         }
         cout<<Qmsg << " plots3 & events count "<<endl;
-        const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM5-Bin-") + to_string(bin_num));
+        const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM5-Bin-") + to_string(bin_num)).XRange(-0.2,0.05);
         ev_am<<make_point(Q,std_error(TIM.TotalSum().val()));
         Plot(
             Q.Contains(21) ? "He36g-above-tim-data" : (
