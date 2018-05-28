@@ -95,7 +95,7 @@ int main()
             .Hist(Hist(MC, r, histpath_central_reconstr, "GIM4"), "before cut")
             .Hist(Hist(MC, r, histpath_central_reconstr, "GIM5"), "after cut")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"
-                    << "set xlabel '2gamma invariant mass, GeV'"<< "set xrange [0.0:1.0]";
+                    << "set xlabel '2gamma invariant mass + Q, GeV'"<< "set xrange [0.0:1.0]";
             Plot("He36g-tim-mc" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr, "TIM5-AllBins"))
             .Hist(Hist(MC, r, histpath_central_reconstr, "TIM5-AllBins").XRange(-0.2,0.05))
@@ -144,7 +144,7 @@ int main()
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GIM4"), "before cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GIM5"), "after cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
-                    << "set xlabel '2gamma invariant mass, GeV'"<< "set xrange [0.0:1.0]";
+                    << "set xlabel '2gamma invariant mass + Q, GeV'"<< "set xrange [0.0:1.0]";
             Plot("He36g-tim-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM5-AllBins"))
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM5-AllBins").XRange(-0.2,0.05))

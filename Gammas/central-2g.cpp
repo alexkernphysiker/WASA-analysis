@@ -84,7 +84,7 @@ int main()
             .Hist(Hist(MC, r, histpath_central_reconstr, "GIM3"), "before cut")
             .Hist(Hist(MC, r, histpath_central_reconstr, "GIM4"), "after cut")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"
-                    << "set xlabel '2gamma invariant mass, GeV'"<< "set xrange [0:0.8]";
+                    << "set xlabel '2gamma invariant mass + Q, GeV'"<< "set xrange [0:0.8]";
             Plot("He3gg-tim-mc" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr, "TIM4-AllBins"))
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [-0.3:0.3]"
@@ -138,7 +138,7 @@ int main()
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GIM3"), "before cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GIM4"), "after cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
-                    << "set xlabel '2gamma invariant mass, GeV'"<< "set xrange [0:0.8]";
+                    << "set xlabel '2gamma invariant mass + Q, GeV'"<< "set xrange [0:0.8]";
             const auto TIM=Hist(DATA, "All", histpath_central_reconstr, "TIM4-AllBins");
             Plot("He3gg-tim-data")
             .Hist(TIM, "IM and MM cuts")
