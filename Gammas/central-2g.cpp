@@ -68,13 +68,13 @@ int main()
                     << "set xlabel '3He missing mass - Q, GeV'";
 
             PlotHist2d(sp2, "He3gg-alpha1-mc" + r)
-                .Distr(Hist2d(MC,r,histpath_central_reconstr,"GGangle2").Scale(5,5))
-                   << "set key on"
+                .Distr(Hist2d(MC,r,histpath_central_reconstr,"GGangle2").Scale(2,2))
+                   << "set key on"<<"set title '"+r+"'"
                    << "set xlabel 'sin alpha'"
                    << "set ylabel 'cos alpha'";
             PlotHist2d(sp2, "He3gg-alpha2-mc" + r)
-                .Distr(Hist2d(MC,r,histpath_central_reconstr,"GGangle3").Scale(5,5))
-                   << "set key on"
+                .Distr(Hist2d(MC,r,histpath_central_reconstr,"GGangle3").Scale(2,2))
+                   << "set key on"<<"set title '"+r+"'"
                    << "set xlabel 'sin alpha'"
                    << "set ylabel 'cos alpha'";
 
@@ -112,13 +112,13 @@ int main()
                     << "set xlabel '3He missing mass - Q, GeV'"<< "set xrange [0.45:0.57]";
 
             PlotHist2d(sp2, "He3gg-alpha1-data")
-                .Distr(Hist2d(DATA,"All",histpath_central_reconstr,"GGangle2").Scale(5,5))
-                   << "set key on"
+                .Distr(Hist2d(DATA,"All",histpath_central_reconstr,"GGangle2").Scale(2,2))
+                   << "set key on"<<"set title 'Data"+runmsg+"'"
                    << "set xlabel 'sin alpha'"
                    << "set ylabel 'cos alpha'";
             PlotHist2d(sp2, "He3gg-alpha2-data")
-                .Distr(Hist2d(DATA,"All",histpath_central_reconstr,"GGangle3").Scale(5,5))
-                   << "set key on"
+                .Distr(Hist2d(DATA,"All",histpath_central_reconstr,"GGangle3").Scale(2,2))
+                   << "set key on"<<"set title 'Data"+runmsg+"'"
                    << "set xlabel 'sin alpha'"
                    << "set ylabel 'cos alpha'";
 
