@@ -51,11 +51,6 @@ int main()
         const hist<> ev=Plotter::Instance().GetPoints<value<>>("He3gg-data"+suffix[a_t]);
         const auto known_events = (true_he3eta*branching_ratio)
             *extend_hist<2,2>(acc_he3eta).XRange(true_he3eta.left().X().min(),true_he3eta.right().X().max());
-        Plot("He3gg-events-final"+suffix[a_t]+"-bound")
-            .Hist(ev.XRange(-70,2.5),"data, below threshold")
-            .Hist_2bars<1,2>(extend_hist<1,2>(ev).XRange(12.5,30)-known_events,"data-3Heeta, upper threshold")
-                << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
-                << "set ylabel 'events, n.d.'" << "set yrange [0:]";
         cout<<suffix[a_t]<< " fitting"<<endl;
         const auto data_shape=(
             extend_hist<1,2>(ev)*trigger_he3_forward.scaling/(extend_hist<2,2>(acc_bound)*luminosity)

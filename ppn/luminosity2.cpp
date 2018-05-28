@@ -245,8 +245,10 @@ int main()
     const auto prev_luminosity = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYf"));
     const hist<> sasha=SortedPoints<double,value<>>(Plotter::Instance().GetPoints<double,value<>>("luminosity_khr"));
     Plot("luminosity-v2-compare")
-        .Hist_2bars<1,2>(luminosity, "ppn_{sp} stat","ppn_{sp} syst","LUMINOSITYc")
-        .Hist_2bars<1,2>(prev_luminosity,"3He+eta stat","3He+eta syst")
+        .Hist_2bars<1,2>(luminosity, "ppn_{sp}","","LUMINOSITYc")
+        .Hist_2bars<1,2>(prev_luminosity,"3He+eta")
+        .Hist(luminosity2, "ppn_{sp}, theta1<30^o")
+        .Hist(luminosity3, "ppn_{sp}, theta1>30^o")
             << "set title 'Integrated luminosity (" + runmsg + ")'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
@@ -254,8 +256,6 @@ int main()
     cout<<"luminosity: "<<luminosity.TotalSum()<<endl;
     Plot("luminosity-v2-compare-estimation")
         .Hist(wrap_hist(luminosity)*runs.second/runs.first, "ppn_{sp}")
-        .Hist(luminosity2*runs.second/runs.first, "ppn_{sp}, theta1<30^o")
-        .Hist(luminosity3*runs.second/runs.first, "ppn_{sp}, theta1>30^o")
         .Hist(wrap_hist(prev_luminosity)*runs.second/runs.first, "3He+eta")
         .Hist(sasha, "A. Khreptak")
             << "set title 'Total integrated luminosity estimation'"

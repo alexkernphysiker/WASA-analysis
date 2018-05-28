@@ -41,12 +41,12 @@ int main()
                     << Q.min() << "; " << Q.max() << "] MeV"
                 ).str();
             const string hist_name=string("MissingMass-Bin-") + to_string(bin_num);
-            const auto data_full = Hist(DATA, "All", histpath_forward_reconstr,hist_name).XRange(0.525, 0.57);
+            const auto data_full = Hist(DATA, "All", histpath_forward_reconstr,hist_name).XRange(0.532, 0.565);
             const double bg_level=data_full.TransponateAndSort().right().X().max()*0.04;
-            const auto data = data_full.XRange(0.525, data_full.YRange(bg_level,INFINITY).right().X().val()+0.001);
-            const auto mc_unnorm = Hist(MC, "He3eta-gg", histpath_forward_reconstr,hist_name).XRange(0.525, 0.57);
-            const auto chain = ChainWithStep(0.525, 0.001, 0.57);
-            const auto cut = make_pair(0.544,0.555);
+            const auto data = data_full.XRange(0.532, data_full.YRange(bg_level,INFINITY).right().X().val()+0.001);
+            const auto mc_unnorm = Hist(MC, "He3eta-gg", histpath_forward_reconstr,hist_name).XRange(0.532, 0.565);
+            const auto chain = ChainWithStep(0.532, 0.001, 0.565);
+            const auto cut = make_pair(0.544,0.554);
             const auto mc = mc_unnorm / N;
             acceptance << make_point(Q, mc.TotalSum());
             Plot(Q.Contains(21) ? "He3eta-mc" : "")
@@ -80,7 +80,7 @@ int main()
                         << make_shared<DistribGauss>(0, 1)
             );
             cout << endl;
-            while (!FIT.AbsoluteOptimalityExitCondition(0.0000001))FIT.Iterate();
+            while (!FIT.AbsoluteOptimalityExitCondition(0.000001))FIT.Iterate();
             cout << "Fitting: " << FIT.iteration_count() << " iterations; "
                  << FIT.Optimality() << "<chi^2<"
                  << FIT.Optimality(FIT.PopulationSize() - 1)
