@@ -116,7 +116,7 @@ int main()
                    << "set key on"
                    << "set xlabel 'sin alpha'"
                    << "set ylabel 'cos alpha'";
-            PlotHist2d(sp2, "He3gg-alpha1-data")
+            PlotHist2d(sp2, "He3gg-alpha2-data")
                 .Distr(Hist2d(DATA,"All",histpath_central_reconstr,"GGangle3").Scale(5,5))
                    << "set key on"
                    << "set xlabel 'sin alpha'"
