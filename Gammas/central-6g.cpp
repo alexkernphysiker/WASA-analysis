@@ -216,7 +216,7 @@ int main()
         *extend_hist<2,2>(hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")))
             .XRange(luminosity_he.left().X().min(),luminosity_he.right().X().max())
         /trigger_he3_forward.scaling;
-    const double branching_ratio=0.32;
+    const auto branching_ratio=uncertainties(0.322,0,0.003);
     const auto known_events = (true_he3eta*branching_ratio)
         *extend_hist<2,2>(acceptance[1]).XRange(true_he3eta.left().X().min(),true_he3eta.right().X().max());
     Plot("He36g-events")

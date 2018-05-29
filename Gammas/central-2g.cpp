@@ -67,17 +67,11 @@ int main()
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [0.45:0.57]"
                     << "set xlabel '3He missing mass - Q, GeV'";
 
-            PlotHist2d(sp2, "He3gg-alpha1-mc" + r)
-                .Distr(Hist2d(MC,r,histpath_central_reconstr,"GGangle2"))
-                   << "set key on"<<"set title '"+r+"'"
-                   << "set xlabel 'sin alpha'"
-                   << "set ylabel 'cos alpha'";
-            PlotHist2d(sp2, "He3gg-alpha2-mc" + r)
-                .Distr(Hist2d(MC,r,histpath_central_reconstr,"GGangle3"))
-                   << "set key on"<<"set title '"+r+"'"
-                   << "set xlabel 'sin alpha'"
-                   << "set ylabel 'cos alpha'";
-
+            Plot("He3gg-cos-mc" + r)
+            .Hist(Hist(MC, r, histpath_central_reconstr,"GGcos2"))
+            .Hist(Hist(MC, r, histpath_central_reconstr,"GGcos3"))
+                    << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [-1:1]"
+                    << "set xlabel 'cos(alpha)'";
             Plot("He3gg-eta-theta-mc" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr,"ET3"))
             .Hist(Hist(MC, r, histpath_central_reconstr,"ET4"))
@@ -111,17 +105,11 @@ int main()
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '3He missing mass - Q, GeV'"<< "set xrange [0.45:0.57]";
 
-            PlotHist2d(sp2, "He3gg-alpha1-data")
-                .Distr(Hist2d(DATA,"All",histpath_central_reconstr,"GGangle2"))
-                   << "set key on"<<"set title 'Data"+runmsg+"'"
-                   << "set xlabel 'sin alpha'"
-                   << "set ylabel 'cos alpha'";
-            PlotHist2d(sp2, "He3gg-alpha2-data")
-                .Distr(Hist2d(DATA,"All",histpath_central_reconstr,"GGangle3"))
-                   << "set key on"<<"set title 'Data"+runmsg+"'"
-                   << "set xlabel 'sin alpha'"
-                   << "set ylabel 'cos alpha'";
-
+            Plot("He3gg-cos-data")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr,"GGcos2"))
+            .Hist(Hist(DATA, "All", histpath_central_reconstr,"GGcos3"))
+                    << "set key on" << "set title 'Data"+runmsg+"'" << "set yrange [0:]"<< "set xrange [-1:1]"
+                    << "set xlabel 'cos(alpha)'";
             Plot("He3gg-eta-theta-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr,"ET3"))
             .Hist(Hist(DATA, "All", histpath_central_reconstr,"ET4"))
@@ -184,7 +172,7 @@ int main()
         const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM6-Bin-") + to_string(bin_num));
         for(size_t a_t=0;a_t<suffix.size();a_t++){
             const double cutpos=-0.06+0.02*a_t;
-            const auto TIM_c=TIM.XRange(cutpos,2);
+            const auto TIM_c=TIM.XRange(cutpos,2.0);
             cout<<Qmsg<< ";"<<suffix[a_t] <<endl;
             for(size_t i = 0; i < reaction.size(); i++){ 
                 const auto &r = reaction[i];
@@ -192,7 +180,7 @@ int main()
                 const auto MC_TIM=Hist(MC, r, histpath_central_reconstr, "TIM6-Bin-"+to_string(bin_num));
                 hist<> Norm = Hist(MC, r, histpath_central_reconstr, "0-Reference");
                 const auto &N = Norm[bin_num].Y();
-                if (N.Above(0)) acc[a_t][i] << make_point(Q, std_error(MC_TIM.XRange(cutpos,2).TotalSum().val())/N);
+                if (N.Above(0)) acc[a_t][i] << make_point(Q, std_error(MC_TIM.XRange(cutpos,2.0).TotalSum().val())/N);
                 else acc[a_t][i] << make_point(Q, 0.0);
             }
             cout<<Qmsg<< ";"<<suffix[a_t] << "; events count"<<endl;
@@ -206,7 +194,7 @@ int main()
         *extend_hist<2,2>(hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")))
             .XRange(luminosity_he.left().X().min(),luminosity_he.right().X().max())
         /trigger_he3_forward.scaling;
-    const double branching_ratio=0.39;
+    const auto branching_ratio=uncertainties(0.393,0,0.003);
 
     for(size_t a_t=0;a_t<suffix.size();a_t++){
         cout<<suffix[a_t]<< " saving"<<endl;
