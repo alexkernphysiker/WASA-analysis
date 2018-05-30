@@ -226,7 +226,7 @@ int main()
     accplot << "set title 'Acceptance'"
             << "set xlabel 'Q, MeV'"
             << "set ylabel 'Acceptance, n.d.'"
-            << "set yrange [0:]" << "set key on";
+            << "set yrange [0:0.2]" << "set key on";
     for (size_t i = 0; i < reaction.size(); i++) {
         const auto acc = acceptance[i].YRange(0.0001, INFINITY);
         if (acc.size() > 0) {
@@ -234,7 +234,7 @@ int main()
         }
     }
     const ext_hist<2> luminosity = Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc");
-    const ext_hist<2> luminosity_he = Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYf");
+    const ext_hist<2> luminosity_he = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc")).XRange(12.5,30);
     const ext_hist<2> true_he3eta = luminosity_he
         *extend_hist<2,2>(hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")))
             .XRange(luminosity_he.left().X().min(),luminosity_he.right().X().max())

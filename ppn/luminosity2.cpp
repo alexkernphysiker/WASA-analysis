@@ -159,7 +159,7 @@ int main()
         << "set ylabel 'cross section, nb'"
         << "set xrange [-70:30]" << "set yrange [0:]";
     cout << "Binning"<<endl;
-    for (size_t cut_index=0; cut_index<3; cut_index++){
+    for (size_t cut_index=0; cut_index<1; cut_index++){
         acceptance.push_back(hist<>());
         events.push_back(hist<>());
         data_chi_sq.push_back(hist<>());
@@ -240,15 +240,15 @@ int main()
             << "set xlabel 'Q, MeV'" << "set ylabel 'count, n.d.'";
 
     const auto luminosity=((extend_hist<1,2>(events[0])*trigger_elastic1.scaling)/extend_hist<2,2>(acceptance[0])/extend_hist<2,2>(SIGMA));
-    const auto luminosity2=((events[1]*trigger_elastic1.scaling)/acceptance[1]/SIGMA);
-    const auto luminosity3=((events[2]*trigger_elastic1.scaling)/acceptance[2]/SIGMA);
+    //const auto luminosity2=((events[1]*trigger_elastic1.scaling)/acceptance[1]/SIGMA);
+    //const auto luminosity3=((events[2]*trigger_elastic1.scaling)/acceptance[2]/SIGMA);
     const auto prev_luminosity = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYf"));
     const hist<> sasha=SortedPoints<double,value<>>(Plotter::Instance().GetPoints<double,value<>>("luminosity_khr"));
     Plot("luminosity-v2-compare")
         .Hist_2bars<1,2>(luminosity, "ppn_{sp}","","LUMINOSITYc")
         .Hist_2bars<1,2>(prev_luminosity,"3He+eta")
-        .Hist(luminosity2, "ppn_{sp}, theta1<30^o")
-        .Hist(luminosity3, "ppn_{sp}, theta1>30^o")
+        //.Hist(luminosity2, "ppn_{sp}, theta1<30^o")
+        //.Hist(luminosity3, "ppn_{sp}, theta1>30^o")
             << "set title 'Integrated luminosity (" + runmsg + ")'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
