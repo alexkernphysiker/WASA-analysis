@@ -75,10 +75,20 @@ int main()
     for (size_t i = 0; i < reaction.size(); i++) {
             const auto &r = reaction[i];
             cout<<"All-bins MC plots "<<r<<endl;
+            const auto cosb=Hist(MC, r, histpath_central_reconstr,"cosi2")
+                        +Hist(MC, r, histpath_central_reconstr,"cosj2")
+                        +Hist(MC, r, histpath_central_reconstr,"cosk2");
+            const auto cosa=Hist(MC, r, histpath_central_reconstr,"cosi3")
+                        +Hist(MC, r, histpath_central_reconstr,"cosj3")
+                        +Hist(MC, r, histpath_central_reconstr,"cosk3");
+            Plot("He36g-cos-mc"+r)
+            .Hist(cosb).Hist(cosa)
+                    << "set key on" << "set title '" + r + "'" << "set yrange [0:]"<< "set xrange [-1:1]"
+                    << "set xlabel 'cos(gamma-gamma)'";
             Plot("He36g-eta-theta-mc"+r)
             .Hist(Hist(MC, r, histpath_central_reconstr,"ET3"))
             .Hist(Hist(MC, r, histpath_central_reconstr,"ET4"))
-                    << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [0:180]"
+                    << "set key on" << "set title '" + r + "'" << "set yrange [0:]"<< "set xrange [0:180]"
                     << "set xlabel 'theta(eta) reconstructed'";
             Plot("He36g-he3mm-mc-" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM0"))
@@ -105,12 +115,21 @@ int main()
                     .Distr(Hist2d(MC, r, histpath_central_reconstr,"He3MME7"));
     }
     {
+            const auto cosb=Hist(DATA, "All", histpath_central_reconstr,"cosi2")
+                        +Hist(DATA, "All", histpath_central_reconstr,"cosj2")
+                        +Hist(DATA, "All", histpath_central_reconstr,"cosk2");
+            const auto cosa=Hist(DATA, "All", histpath_central_reconstr,"cosi3")
+                        +Hist(DATA, "All", histpath_central_reconstr,"cosj3")
+                        +Hist(DATA, "All", histpath_central_reconstr,"cosk3");
+            Plot("He36g-cos-data")
+            .Hist(cosb).Hist(cosa)
+                    << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [-1:1]"
+                    << "set xlabel 'cos(gamma-gamma)'";
             Plot("He36g-eta-theta-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr,"ET3"))
             .Hist(Hist(DATA, "All", histpath_central_reconstr,"ET4"))
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [0:180]"
                     << "set xlabel 'theta(eta) reconstructed'";
-
             Plot("He36g-he3mm-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM0"))
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM1"), "cut")
