@@ -111,8 +111,10 @@ int main()
             .Hist(Hist(MC, r, histpath_central_reconstr, "TIM7-AllBins").XRange(-0.2,0.05))
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [-0.5:0.5]"
                     << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
-            PlotHist2d(sp2,"He36g-MME-mc"+r)
-                    .Distr(Hist2d(MC, r, histpath_central_reconstr,"He3MME7"));
+            Plot("He36g-he3me-mc"+r)
+                .Hist(Hist(MC, r, histpath_central_reconstr, "He3ME7-AllBins"))
+                   << "set key on"<<"set yrange [0:]"<< "set title 'Data "+runmsg+"'"
+                   << "set xlabel '3He missing energy, GeV'";
     }
     {
             const auto cosb=Hist(DATA, "All", histpath_central_reconstr,"cosi2")
@@ -168,8 +170,10 @@ int main()
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM7-AllBins").XRange(-0.2,0.05))
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xrange [-0.5:0.5]" << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
-            PlotHist2d(sp2,"He36g-MME-data")
-                    .Distr(Hist2d(DATA, "All", histpath_central_reconstr,"He3MME7"));
+            Plot("He36g-he3me-data")
+                .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3ME7-AllBins"))
+                   << "set key on"<<"set yrange [0:]"<< "set title 'Data "+runmsg+"'"
+                   << "set xlabel '3He missing energy, GeV'";
     }
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++) {
         const auto &Q = norm[bin_num].X();

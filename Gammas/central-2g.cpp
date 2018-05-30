@@ -68,7 +68,7 @@ int main()
                     << "set xlabel '3He missing mass - Q, GeV'";
 
             Plot("He3gg-cos-mc" + r)
-            .Hist(Hist(MC, r, histpath_central_reconstr,"GGcos2"))
+            .Hist(Hist(MC, r, histpath_central_reconstr,"GGcos0"))
             .Hist(Hist(MC, r, histpath_central_reconstr,"GGcos3"))
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [-1:1]"
                     << "set xlabel 'cos(alpha)'";
@@ -91,11 +91,10 @@ int main()
             .Hist(Hist(MC, r, histpath_central_reconstr, "TIM6-AllBins"))
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [-0.3:0.3]"
                     << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
-            PlotHist2d(sp2, "He3gg-he3mm-he3me-mc" + r)
-                .Distr(Hist2d(MC,r,histpath_central_reconstr,"He3MME6"))
-                   << "set key on"
-                   << "set xlabel '3He missing mass, GeV'"
-                   << "set ylabel '3He  missing energy, GeV'";
+            Plot("He3gg-he3me-mc"+r)
+                .Hist(Hist(MC, r, histpath_central_reconstr, "He3ME6-AllBins"))
+                   << "set key on"<<"set yrange [0:]"<< "set title '"+r+"'"
+                   << "set xlabel '3He missing energy, GeV'";
     }
     {
             Plot("He3gg-he3mm-data")
@@ -106,7 +105,7 @@ int main()
                     << "set xlabel '3He missing mass - Q, GeV'"<< "set xrange [0.45:0.57]";
 
             Plot("He3gg-cos-data")
-            .Hist(Hist(DATA, "All", histpath_central_reconstr,"GGcos2"))
+            .Hist(Hist(DATA, "All", histpath_central_reconstr,"GGcos0"))
             .Hist(Hist(DATA, "All", histpath_central_reconstr,"GGcos3"))
                     << "set key on" << "set title 'Data"+runmsg+"'" << "set yrange [0:]"<< "set xrange [-1:1]"
                     << "set xlabel 'cos(alpha)'";
@@ -133,10 +132,12 @@ int main()
                      << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
 
             Plot("He3gg-dt-data")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt00"))
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt2"))
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
                     << "set xlabel 'dt gamma-gamma, ns'"<< "set key on";
             Plot("He3gg-t-data")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "t00"))
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "t2"))
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
                     << "set xlabel 'dt 3He-gamma, ns'"<< "set key on";
@@ -157,11 +158,10 @@ int main()
                         << "set key on" << "set yrange [0:]"<< "set xrange [-0.3:0.3]"
                         << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
             }
-            PlotHist2d(sp2, "He3gg-he3mm-he3me-data")
-                .Distr(Hist2d(DATA,"All",histpath_central_reconstr,"He3MME6"))
-                   << "set key on"
-                   << "set xlabel '3He missing mass, GeV'"
-                   << "set ylabel '3He  missing energy, GeV'";
+            Plot("He3gg-he3me-data")
+                .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3ME6-AllBins"))
+                   << "set key on"<<"set yrange [0:]"<< "set title 'Data " + runmsg + "'"
+                   << "set xlabel '3He missing energy, GeV'";
     }
 
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++) {
