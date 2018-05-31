@@ -144,6 +144,15 @@ int main()
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "t6"))
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
                     << "set xlabel 'dt 3He-gamma, ns'"<< "set key on";
+            Plot("He3gg-cos-data-end")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr,"GGcos6"),"data")
+                    << "set key on" << "set title 'Data"+runmsg+"'" << "set yrange [0:]"<< "set xrange [-1:1]"
+                    << "set xlabel 'cos(alpha)'";
+            Plot("He3gg-eta-theta-data-end")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr,"ET6"),"data")
+                    << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [0:180]"
+                    << "set xlabel 'theta(eta) reconstructed'";
+
             Plot("He3gg-he3me-data")
                 .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3ME6-AllBins"))
                    << "set key on"<<"set yrange [0:]"<< "set title 'Data " + runmsg + "'"
@@ -176,14 +185,22 @@ int main()
         /trigger_he3_forward.scaling;
     const auto branching_ratio=uncertainties(0.393,0,0.003);
 
-        Plot accplot("He3gg-acceptance-final");
+        Plot accplot("He3gg-acceptance-final"),accplot2("He3gg-acceptance-bg");
         accplot << "set title 'Acceptance'"
             << "set xlabel 'Q, MeV'"
             << "set ylabel 'Acceptance, n.d.'"
             << "set yrange [0:0.5]" << "set xrange [-70:30]"
             << "set key on";
+        accplot2 << "set title 'Acceptance'"
+            << "set xlabel 'Q, MeV'"
+            << "set ylabel 'Acceptance, n.d.'"
+            << "set yrange [0:0.005]" << "set xrange [-70:30]"
+            << "set key on";
         for (size_t i = 0; i < reaction.size(); i++) {
             accplot.Hist(acc[i], reaction[i]);
+        }
+        for (size_t i = 4; i < reaction.size(); i++) {
+            accplot2.Hist(acc[i], reaction[i]);
         }
         const auto known_events = (true_he3eta*branching_ratio)
             *extend_hist<2,2>(acc[3]).XRange(true_he3eta.left().X().min(),true_he3eta.right().X().max());

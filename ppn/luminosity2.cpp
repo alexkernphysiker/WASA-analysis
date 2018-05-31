@@ -150,7 +150,7 @@ int main()
     const auto diff_cs = ReadCrossSection();
     const auto p_cs = IntegrateCrossSection(diff_cs);
     Plot("pp-v2-integrated").Line(p_cs) << "set title 'pp->pp'";
-    const auto ppn_cs = pp2ppn(p_cs)*0.96;//shading effect
+    const auto ppn_cs = pp2ppn(p_cs)*0.955;//shading effect
     const auto SIGMA = ConvertCrossSections(ppn_cs);
     Plot("ppn-v2-integrated").Line(ppn_cs.XRange(p_beam_low, p_beam_hi)) << "set title 'pd->pp+n_{sp}'";
     Plot("ppn-v2-sigma").Hist(SIGMA)
