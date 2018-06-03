@@ -128,12 +128,12 @@ int main()
 
             Plot("He3gg-dt-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt00"))
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt2"))
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt0"))
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
                     << "set xlabel 'dt gamma-gamma, ns'"<< "set key on";
             Plot("He3gg-t-data")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "t00"))
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "t2"))
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "t0"))
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
                     << "set xlabel 'dt 3He-gamma, ns'"<< "set key on";
             Plot("He3gg-dt-data-end")
@@ -219,7 +219,7 @@ int main()
             extend_hist<1,2>(ev_am)*trigger_he3_forward.scaling/(extend_hist<2,2>(acc[2])*luminosity)
         ).XRange(-70,2.5);
         Plot("He3gg-events-norm")
-            .Hist_2bars<1,2>(data_shape,"Data")
+            .Hist_2bars<1,2>(data_shape,"Data statistical", "Data systematic")
                 << "set xlabel 'Q, MeV'" << "set key on"
                 << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]";
 
