@@ -209,18 +209,18 @@ int main()
             .Hist_2bars<1,2>(known_events,"3He+eta")
                 << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
                 << "set ylabel 'events, n.d.'" << "set yrange [0:]"
-                << "set title '"+runmsg+"'";
+                << "set title '"+runmsg+"'"<<"set key left top";
         Plot("He3gg-events-final-cut")
             .Hist(ev_am.XRange(-70,2.5),"data, below threshold")
             .Hist_2bars<1,2>(extend_hist<1,2>(ev_am).XRange(12.5,30)-known_events,"data-3Heeta, upper threshold")
                 << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
                 << "set ylabel 'events, n.d.'" << "set yrange [0:]";
         const auto data_shape=(
-            extend_hist<1,2>(ev_am)*trigger_he3_forward.scaling/(extend_hist<2,2>(acc[2])*luminosity)
+            extend_hist<1,2>(ev_am)*trigger_he3_forward.scaling/(extend_hist<2,2>(acc[0])*luminosity)
         ).XRange(-70,2.5);
         Plot("He3gg-events-norm")
             .Hist_2bars<1,2>(data_shape,"Data statistical", "Data systematic")
-                << "set xlabel 'Q, MeV'" << "set key on"
+                << "set xlabel 'Q, MeV'" << "set key on"<< "set title '"+runmsg+"'"
                 << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]";
 
     cout<<"Final plots"<<endl;
