@@ -46,7 +46,7 @@ int main()
             const auto data = data_full.XRange(0.532, data_full.YRange(bg_level,INFINITY).right().X().val()+0.001);
             const auto mc_unnorm = Hist(MC, "He3eta-gg", histpath_forward_reconstr,hist_name).XRange(0.532, 0.565);
             const auto chain = ChainWithStep(0.532, 0.001, 0.565);
-            const auto cut = make_pair(0.544,0.554);
+            const auto cut = make_pair(0.543,0.556);
             const auto mc = mc_unnorm / N;
             acceptance << make_point(Q, mc.TotalSum());
             Plot(Q.Contains(21) ? "He3eta-mc" : "")
@@ -109,7 +109,7 @@ int main()
             auto clean = data_full - bg;
             Plot subplot(Q.Contains(21) ? "He3eta-subtract" : (Q.Contains(14) ? "He3eta-subtract-lo":""));
             subplot.Hist(clean,"DATA").Line(Points<>{{clean.left().X().min(), 0.0},{clean.right().X().max(), 0.0}});
-            subplot.Hist(clean = clean.XRange(cut.first-0.003, cut.second+0.003))
+            subplot.Hist(clean = clean.XRange(cut.first, cut.second))
                 .Line((mc*clean.TotalSum()/mc.TotalSum()).toLine(),"MC")
                     << "set key on" << "set title '" + Qmsg + ", " + runmsg + "'"
                     << "set xlabel 'Missing mass, GeV'"
