@@ -50,6 +50,8 @@ int main()
     vector<hist<>> acceptance;
     vector<hist<>> acc;
 
+    const double last_cut_pos=-0.020;
+
     for (size_t j = 0; j < reaction.size(); j++)
         acc.push_back(hist<>());
 
@@ -85,6 +87,7 @@ int main()
                     << "set xlabel '2gamma invariant mass + Q, GeV'"<< "set xrange [0:0.8]";
             Plot("He3gg-tim-mc" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr, "TIM6-AllBins"))
+            .Hist(Hist(MC, r, histpath_central_reconstr, "TIM6-AllBins").XRange(last_cut_pos,INFINITY))
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [-0.3:0.3]"
                     << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
             Plot("He3gg-he3me-mc"+r)
@@ -122,7 +125,8 @@ int main()
                     << "set xlabel '2gamma invariant mass + Q, GeV'"<< "set xrange [0:0.8]";
 
             Plot("He3gg-tim-data")
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM6-AllBins"), "IM and MM cuts")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM6-AllBins"), "before cut")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM6-AllBins").XRange(last_cut_pos,INFINITY), "after cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [-0.3:0.3]"
                      << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
 
@@ -164,11 +168,11 @@ int main()
         const string Qmsg = static_cast<stringstream &>(stringstream()
             << "Q in [" << setprecision(3)<< Q.min() << "; " << Q.max() << "] MeV").str();
         cout<<Qmsg << " plots"<<endl;
-        const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM6-Bin-") + to_string(bin_num));
+        const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM6-Bin-") + to_string(bin_num)).XRange(last_cut_pos,INFINITY);
         for(size_t i = 0; i < reaction.size(); i++){ 
             const auto &r = reaction[i];
             cout<<Qmsg << " acceptance "<<r<<endl;
-            const auto MC_TIM=Hist(MC, r, histpath_central_reconstr, "TIM6-Bin-"+to_string(bin_num));
+            const auto MC_TIM=Hist(MC, r, histpath_central_reconstr, "TIM6-Bin-"+to_string(bin_num)).XRange(last_cut_pos,INFINITY);
             hist<> Norm = Hist(MC, r, histpath_central_reconstr, "0-Reference");
             const auto &N = Norm[bin_num].Y();
             if (N.Above(0)) acc[i] << make_point(Q, std_error(MC_TIM.TotalSum().val())/N);
