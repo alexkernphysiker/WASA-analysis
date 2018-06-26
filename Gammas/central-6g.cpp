@@ -23,7 +23,7 @@ int main()
 {
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-6gamma-with-3he");
     vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas6"};
-    vector<string> reaction = {"bound1-6g","bound2-6g","bound3-6g", "He3eta-6g", "He3pi0pi0pi0"};
+    vector<string> reaction = {"bound1-6g","bound1-6g","bound1-6g", "He3eta-6g", "He3pi0pi0pi0"};
     hist<> norm = Hist(MC, reaction[0], histpath_central_reconstr, "0-Reference");
     const auto runs = PresentRuns("All");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
@@ -234,36 +234,32 @@ int main()
         }
     }
     const ext_hist<2> luminosity = Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc");
-    const ext_hist<2> luminosity_he = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc")).XRange(12.5,30);
-    const ext_hist<2> true_he3eta = luminosity_he
-        *extend_hist<2,2>(hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")))
-            .XRange(luminosity_he.left().X().min(),luminosity_he.right().X().max())
-        /trigger_he3_forward.scaling;
+    const auto luminosity_he = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYf")).XRange(2.5,30);
+    auto true_he3eta = luminosity_he
+        *extend_hist<2,2>(hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")).XRange(2.5,30))/trigger_he3_forward.scaling;
+    while(true_he3eta.left().X().min()>-70.)true_he3eta<<make_point(value<>(true_he3eta.left().X().val()-2.5,2.5),0);
+
     const auto branching_ratio=uncertainties(0.322,0,0.003);
-    const auto known_events = (true_he3eta*branching_ratio)
-        *extend_hist<2,2>(acceptance[3]).XRange(true_he3eta.left().X().min(),true_he3eta.right().X().max());
+    const auto known_events = (true_he3eta*branching_ratio)*extend_hist<2,2>(acceptance[3]);
     Plot("He36g-events")
     .Hist(ev_am,"data").Hist_2bars<1,2>(known_events,"3He+eta")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '" + runmsg + "'"<<"set key left top";
     Plot("He36g-events2")
-        .Hist(ev_am.XRange(-70,2.5),"data, below threshold")
-        .Hist_2bars<1,2>(extend_hist<1,2>(ev_am).XRange(12.5,30)-known_events,"data-3Heeta, upper threshold")
+        .Hist_2bars<1,2>(extend_hist<1,2>(ev_am)-known_events,"data-3Heeta")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '" + runmsg + "'";
-    const auto data_shape=(
-        extend_hist<1,2>(ev_am)*trigger_he3_forward.scaling/(extend_hist<2,2>(acceptance[0])*luminosity)
-    ).XRange(-70,2.5);
+    const auto data_shape=(extend_hist<1,2>(ev_am)-known_events)*trigger_he3_forward.scaling/(extend_hist<2,2>(acceptance[0])*luminosity);
     Plot("He36g-events-norm-bound")
         .Hist_2bars<1,2>(data_shape,"Data statistical","Data systematic")
             << "set xlabel 'Q, MeV'" << "set key on"
-            << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]"
+            << "set ylabel 'normalized events amount, nb'" << "set yrange [-10:]"
             << "set title '"+runmsg+"'"<<"set key right top";
     Plot("He36g-events-norm2-bound")
         .Hist_2bars<1,2>(data_shape/branching_ratio,"Divided by branching ratio")
             << "set xlabel 'Q, MeV'" << "set key on"
-            << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]"
+            << "set ylabel 'normalized events amount, nb'" << "set yrange [-10:]"
             << "set title '"+runmsg+"'";
 }

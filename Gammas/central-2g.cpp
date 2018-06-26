@@ -19,7 +19,7 @@ int main()
 {
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-2gamma");
     vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas2"};
-    vector<string> reaction = {"bound1-2g","bound2-2g","bound3-2g", "He3eta-gg", "He3pi0pi0", "He3pi0pi0pi0", "He3pi0"};
+    vector<string> reaction = {"bound1-2g","bound1-2g","bound1-2g", "He3eta-gg", "He3pi0pi0", "He3pi0pi0pi0", "He3pi0"};
     const auto runs = PresentRuns("All");
     const hist<> norm = Hist(MC, reaction[0], histpath_central_reconstr, "0-Reference");
     const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
@@ -49,8 +49,6 @@ int main()
     hist<> ev_am;
     vector<hist<>> acceptance;
     vector<hist<>> acc;
-
-    const double last_cut_pos=-0.020;
 
     for (size_t j = 0; j < reaction.size(); j++)
         acc.push_back(hist<>());
@@ -87,7 +85,6 @@ int main()
                     << "set xlabel '2gamma invariant mass + Q, GeV'"<< "set xrange [0:0.8]";
             Plot("He3gg-tim-mc" + r)
             .Hist(Hist(MC, r, histpath_central_reconstr, "TIM6-AllBins"))
-            .Hist(Hist(MC, r, histpath_central_reconstr, "TIM6-AllBins").XRange(last_cut_pos,INFINITY))
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [-0.3:0.3]"
                     << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
             Plot("He3gg-he3me-mc"+r)
@@ -125,8 +122,7 @@ int main()
                     << "set xlabel '2gamma invariant mass + Q, GeV'"<< "set xrange [0:0.8]";
 
             Plot("He3gg-tim-data")
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM6-AllBins"), "before cut")
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM6-AllBins").XRange(last_cut_pos,INFINITY), "after cut")
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM6-AllBins"))
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [-0.3:0.3]"
                      << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
 
@@ -168,11 +164,11 @@ int main()
         const string Qmsg = static_cast<stringstream &>(stringstream()
             << "Q in [" << setprecision(3)<< Q.min() << "; " << Q.max() << "] MeV").str();
         cout<<Qmsg << " plots"<<endl;
-        const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM6-Bin-") + to_string(bin_num)).XRange(last_cut_pos,INFINITY);
+        const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM6-Bin-") + to_string(bin_num));
         for(size_t i = 0; i < reaction.size(); i++){ 
             const auto &r = reaction[i];
             cout<<Qmsg << " acceptance "<<r<<endl;
-            const auto MC_TIM=Hist(MC, r, histpath_central_reconstr, "TIM6-Bin-"+to_string(bin_num)).XRange(last_cut_pos,INFINITY);
+            const auto MC_TIM=Hist(MC, r, histpath_central_reconstr, "TIM6-Bin-"+to_string(bin_num));
             hist<> Norm = Hist(MC, r, histpath_central_reconstr, "0-Reference");
             const auto &N = Norm[bin_num].Y();
             if (N.Above(0)) acc[i] << make_point(Q, std_error(MC_TIM.TotalSum().val())/N);
@@ -182,11 +178,10 @@ int main()
 
     }
     const auto luminosity = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc"));
-    const auto luminosity_he = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc")).XRange(12.5,30);
-    const auto true_he3eta = luminosity_he
-        *extend_hist<2,2>(hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")))
-            .XRange(luminosity_he.left().X().min(),luminosity_he.right().X().max())
-        /trigger_he3_forward.scaling;
+    const auto luminosity_he = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYf")).XRange(2.5,30);
+    auto true_he3eta = luminosity_he
+        *extend_hist<2,2>(hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")).XRange(2.5,30))/trigger_he3_forward.scaling;
+    while(true_he3eta.left().X().min()>-70.)true_he3eta<<make_point(value<>(true_he3eta.left().X().val()-2.5,2.5),0);
     const auto branching_ratio=uncertainties(0.393,0,0.003);
 
         Plot accplot("He3gg-acceptance-final"),accplot2("He3gg-acceptance-bg");
@@ -206,8 +201,7 @@ int main()
         for (size_t i = 4; i < reaction.size(); i++) {
             accplot2.Hist(acc[i], reaction[i]);
         }
-        const auto known_events = (true_he3eta*branching_ratio)
-            *extend_hist<2,2>(acc[3]).XRange(true_he3eta.left().X().min(),true_he3eta.right().X().max());
+        const auto known_events = (true_he3eta*branching_ratio)*extend_hist<2,2>(acc[3]);
         Plot("He3gg-events-final")
             .Hist(ev_am,"data")
             .Hist_2bars<1,2>(known_events,"3He+eta")
@@ -215,17 +209,15 @@ int main()
                 << "set ylabel 'events, n.d.'" << "set yrange [0:]"
                 << "set title '"+runmsg+"'"<<"set key left top";
         Plot("He3gg-events-final-cut")
-            .Hist(ev_am.XRange(-70,2.5),"data, below threshold")
-            .Hist_2bars<1,2>(extend_hist<1,2>(ev_am).XRange(12.5,30)-known_events,"data-3Heeta, upper threshold")
+            .Hist(ev_am,"data, below threshold")
+            .Hist_2bars<1,2>(extend_hist<1,2>(ev_am)-known_events,"data-3Heeta")
                 << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
                 << "set ylabel 'events, n.d.'" << "set yrange [0:]";
-        const auto data_shape=(
-            extend_hist<1,2>(ev_am)*trigger_he3_forward.scaling/(extend_hist<2,2>(acc[0])*luminosity)
-        ).XRange(-70,2.5);
+        const auto data_shape=(extend_hist<1,2>(ev_am)-known_events)*trigger_he3_forward.scaling/(extend_hist<2,2>(acc[0])*luminosity);
         Plot("He3gg-events-norm")
             .Hist_2bars<1,2>(data_shape,"Data statistical", "Data systematic")
                 << "set xlabel 'Q, MeV'" << "set key on"<< "set title '"+runmsg+"'"
-                << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]";
+                << "set ylabel 'normalized events amount, nb'" << "set yrange [-10:]";
 
     cout<<"Final plots"<<endl;
     Plot("He3gg-tube-acc").Hist(
