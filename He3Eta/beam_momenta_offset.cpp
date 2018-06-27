@@ -21,7 +21,7 @@ int main()
 {
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "he3-forward-kinematics");
     const string He3eta_msg = "He3eta-gg";
-    const string bound_msg = "bound3-2g";
+    const string bound_msg = "bound1-2g";
     auto QBins = Hist(MC, He3eta_msg, {"Histograms", "He3Forward_Reconstruction"}, "0-Reference");
     for (size_t bin_num = 0, bin_count = QBins.size(); bin_num < bin_count; bin_num++) {
         const auto &Q = QBins[bin_num].X();
@@ -60,22 +60,22 @@ int main()
                 << "set xrange [0.2:0.4]"
                 << "set title 'Data (with correction), " + Qmsg + "'";
         const auto xcut = (kin_mc.X().size() * 2) / 5;
-        const auto &xC = kin_mc.X()[xcut].val();
+        const auto &xC = kin_mc.X()[xcut].min();
         const hist<> ymc = kin_mc.CutY(xcut), ydata = data_hist.CutY(xcut);
         Plot().Hist(ymc / ymc.TotalSum().val(), "MC").Hist(ydata / ydata.TotalSum().val(), "DATA")
-                << "set key on" << "set yrange[0:]" << "set ylabel ''"
+                << "set key on" << "set yrange[0:0.1]" << "set ylabel ''"<<"set title'"+Qmsg+"'"
                 << "set xlabel 'theta,deg (E=" + to_string(xC) + " GeV)'";
         const auto ycut = kin_mc.Y().size() / 3;
-        const auto &yC = kin_mc.Y()[ycut].val();
+        const auto &yC = kin_mc.Y()[ycut].min();
         const hist<> xmc = kin_mc.CutX(ycut), xdata = data_hist.CutX(ycut);
         Plot().Hist(xmc / xmc.TotalSum().val(), "MC").Hist(xdata / xdata.TotalSum().val(), "DATA")
-                << "set key on" << "set yrange[0:]" << "set ylabel ''"
+                << "set key on" << "set yrange[0:]" << "set ylabel ''"<<"set title'"+Qmsg+"'"
                 << "set xlabel 'E_k, GeV (theta=" + to_string(yC) + " deg)'"
                 << "set xrange [0.2:0.4]";
         const auto ycut2 = kin_mc.Y().size() * 2 / 3;
         const hist<> xmc2 = kin_mc.CutX(ycut2), xdata2 = data_hist.CutX(ycut2);
         Plot().Hist(xmc2 / xmc2.TotalSum().val(), "MC").Hist(xdata2 / xdata2.TotalSum().val(), "DATA")
-                << "set key on" << "set yrange[0:]" << "set ylabel ''"
+                << "set key on" << "set yrange[0:]" << "set ylabel ''"<<"set title'"+Qmsg+"'"
                 << "set xlabel 'E_k, GeV (theta=" + to_string(yC) + " deg)'"
                 << "set xrange [0.2:0.4]";
     }
