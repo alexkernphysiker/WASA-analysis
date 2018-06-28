@@ -64,7 +64,7 @@ int main()
         const hist<> ymc = kin_mc.CutY(xcut), ydata = data_hist.CutY(xcut);
         Plot().Hist(ymc / ymc.TotalSum().val(), "MC").Hist(ydata / ydata.TotalSum().val(), "DATA")
                 << "set key on" << "set yrange[0:0.1]" << "set ylabel ''"<<"set title'"+Qmsg+"'"
-                << "set xlabel 'theta,deg (E=" + to_string(xC) + " GeV)'";
+                << "set xlabel 'theta,deg (E=" + to_string(xC) + " GeV)'"<<"set xrange[4:9]";
         const auto ycut = kin_mc.Y().size() / 3;
         const auto &yC = kin_mc.Y()[ycut].min();
         const hist<> xmc = kin_mc.CutX(ycut), xdata = data_hist.CutX(ycut);

@@ -242,7 +242,7 @@ int main()
     const auto luminosity=((extend_hist<1,2>(events[0])*trigger_elastic1.scaling)/extend_hist<2,2>(acceptance[0])/extend_hist<2,2>(SIGMA));
     //const auto luminosity2=((events[1]*trigger_elastic1.scaling)/acceptance[1]/SIGMA);
     //const auto luminosity3=((events[2]*trigger_elastic1.scaling)/acceptance[2]/SIGMA);
-    const auto prev_luminosity = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYf"));
+    const auto prev_luminosity = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYf")).XRange(12.5,30);
     const hist<> sasha=SortedPoints<double,value<>>(Plotter::Instance().GetPoints<double,value<>>("luminosity_khr"));
     Plot("luminosity-v2-compare")
         .Hist_2bars<1,2>(luminosity, "ppn_{sp}","","LUMINOSITYc")

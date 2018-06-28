@@ -32,7 +32,7 @@ int main()
     ext_hist<2> events_count;
     vector<hist<>> parhists;
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++)
-        if (norm[bin_num].X() > 2.5) {
+        if (norm[bin_num].X() > 10.) {
             const auto &Q = norm[bin_num].X();
             const auto &N = norm[bin_num].Y();
             const string Qmsg =
@@ -41,12 +41,12 @@ int main()
                     << Q.min() << "; " << Q.max() << "] MeV"
                 ).str();
             const string hist_name=string("MissingMass-Bin-") + to_string(bin_num);
-            const auto data_full = Hist(DATA, "All", histpath_forward_reconstr,hist_name).XRange(0.538, 0.559);
+            const auto data_full = Hist(DATA, "All", histpath_forward_reconstr,hist_name).XRange(0.530, 0.559);
             const double bg_level=data_full.TransponateAndSort().right().X().max()*0.04;
-            const auto data = data_full.XRange(0.538, data_full.YRange(bg_level,INFINITY).right().X().val()+0.001);
-            const auto mc_unnorm = Hist(MC, "He3eta-gg", histpath_forward_reconstr,hist_name).XRange(0.538, 0.559);
-            const auto chain = ChainWithStep(0.538, 0.001, 0.559);
-            const auto cut = make_pair(0.544,0.555);
+            const auto data = data_full.XRange(0.530, data_full.YRange(bg_level,INFINITY).right().X().val()+0.001);
+            const auto mc_unnorm = Hist(MC, "He3eta-gg", histpath_forward_reconstr,hist_name).XRange(0.530, 0.559);
+            const auto chain = ChainWithStep(0.530, 0.001, 0.559);
+            const auto cut = make_pair(0.542,0.554);
             const auto mc = mc_unnorm / N;
             acceptance << make_point(Q, mc.TotalSum());
             Plot(Q.Contains(21) ? "He3eta-mc" : "")
@@ -64,23 +64,22 @@ int main()
                     return data_count * Polynom<4>(X[0], P);
                 }
             );
-            FIT.SetUncertaintyCalcDeltas({0.1, 0.1, 0.1, 0.1, 0.01})
-            .SetFilter([&FIT,&data,&Q](const ParamSet&P){
+            FIT.SetUncertaintyCalcDeltas({0.1, 0.1,0.1,0.01,0.01})
+            .SetFilter([&FIT,&data](const ParamSet&P){
                 return
                 (FIT.func({data.right().X().val()},P)<=data.right().Y().max())&&
-                (FIT.func({data.left().X().min()},P)>=data.left().Y().min())&&
-                ((Q<10.)||(FIT.func({0.555},P)>0));
+                (FIT.func({data.left().X().min()},P)>=data.left().Y().min());
             });
-            FIT.Init(200,
+            FIT.Init(300,
                      make_shared<InitialDistributions>()
-                        << make_shared<DistribGauss>(0, 10)
+                        << make_shared<DistribGauss>(0, 20)
                         << make_shared<DistribGauss>(0, 10)
                         << make_shared<DistribGauss>(0, 5)
                         << make_shared<DistribGauss>(0, 5)
                         << make_shared<DistribGauss>(0, 1)
             );
             cout << endl;
-            while (!FIT.AbsoluteOptimalityExitCondition(0.000001))FIT.Iterate();
+            while (!FIT.AbsoluteOptimalityExitCondition(0.00001))FIT.Iterate();
             cout << "Fitting: " << FIT.iteration_count() << " iterations; "
                  << FIT.Optimality() << "<chi^2<"
                  << FIT.Optimality(FIT.PopulationSize() - 1)
@@ -129,25 +128,25 @@ int main()
 
     const auto cross_section=hist<>(he3eta_sigma().func(), BinsByStep(2.5, 2.5, 30.0));
     Plot("He3eta-cross-section")
-    .Hist(he3eta_sigma().XRange(2.5,35), "Experimental data")
-    .Hist(cross_section.XRange(2.5,35), "Interpolation", "CS-He3eta-assumed")
+    .Hist(he3eta_sigma().XRange(10,35), "Experimental data")
+    .Hist(cross_section.XRange(10,35), "Interpolation", "CS-He3eta-assumed")
             << "set title 'Cross section of He3eta used in the calculations'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'sigma(^3He eta), nb'"
-            << "set xrange [0:35]" << "set yrange [0:600]";
+            << "set xrange [10:35]" << "set yrange [0:600]";
 
     Plot("He3eta-acceptance")
-        .Hist(acceptance.XRange(2.5,30),"")
+        .Hist(acceptance.XRange(10,30),"")
             << "set title '3He+eta acceptance'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'acceptance, n.d.'"
-            << "set xrange [0:30]" << "set yrange [0:1]";
+            << "set xrange [10:30]" << "set yrange [0:1]";
 
     const auto luminosity=events_count*trigger_he3_forward.scaling/extend_hist<2,2>(cross_section.XRange(events_count.left().X().min(),events_count.right().X().max()));
     Plot("He3eta-luminosity")
-        .Hist_2bars<1,2>(luminosity.XRange(2.5,30),"stat","syst","LUMINOSITYf")
+        .Hist_2bars<1,2>(luminosity.XRange(10,30),"stat","syst","LUMINOSITYf")
             << "set title 'Integrated luminosity (" + runmsg + ")'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
-            << "set xrange [0:30]" << "set yrange [0:]";
+            << "set xrange [10:30]" << "set yrange [0:]";
 }

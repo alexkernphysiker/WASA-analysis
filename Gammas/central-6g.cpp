@@ -221,10 +221,10 @@ int main()
     }
     cout<<"Final plots"<<endl;
     Plot accplot("He36g-acceptance");
-    accplot << "set title 'Acceptance'"
+    accplot << "set title 'Acceptance'"<<"set key left top"
             << "set xlabel 'Q, MeV'"
             << "set ylabel 'Acceptance, n.d.'"
-            << "set yrange [0:0.2]" << "set key on";
+            << "set yrange [0:0.1]" << "set key on";
     for (size_t i = 0; i < reaction.size(); i++) {
         const auto acc = acceptance[i].YRange(0.0001, INFINITY);
         if (acc.size() > 0) {
@@ -232,9 +232,9 @@ int main()
         }
     }
     const ext_hist<2> luminosity = Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc");
-    const auto luminosity_he = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYf")).XRange(2.5,30);
+    const auto luminosity_he = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc")).XRange(10,30);
     auto true_he3eta = luminosity_he
-        *extend_hist<2,2>(hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")).XRange(2.5,30))/trigger_he3_forward.scaling;
+        *extend_hist<2,2>(hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")).XRange(10,30))/trigger_he3_forward.scaling;
     while(true_he3eta.left().X().min()>-70.)true_he3eta<<make_point(value<>(true_he3eta.left().X().val()-2.5,2.5),0);
 
     const auto branching_ratio=uncertainties(0.322,0,0.003);
@@ -251,12 +251,12 @@ int main()
             << "set title '" + runmsg + "'";
     const auto data_shape=(extend_hist<1,2>(ev_am)-known_events)*trigger_he3_forward.scaling/(extend_hist<2,2>(acceptance[0])*luminosity);
     Plot("He36g-events-norm-bound")
-        .Hist_2bars<1,2>(data_shape,"Data statistical","Data systematic")
+        .Hist_2bars<1,2>(data_shape.XRange(-70,10),"Data statistical","Data systematic")
             << "set xlabel 'Q, MeV'" << "set key on"
-            << "set ylabel 'normalized events amount, nb'" << "set yrange [-10:]"
+            << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]"
             << "set title '"+runmsg+"'"<<"set key right top";
     Plot("He36g-events-norm2-bound")
-        .Hist_2bars<1,2>(data_shape/branching_ratio,"Divided by branching ratio")
+        .Hist_2bars<1,2>(data_shape.XRange(-70,10)/branching_ratio,"Divided by branching ratio")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'normalized events amount, nb'" << "set yrange [-10:]"
             << "set title '"+runmsg+"'";

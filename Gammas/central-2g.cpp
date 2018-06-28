@@ -49,7 +49,7 @@ int main()
     hist<> ev_am;
     vector<hist<>> acceptance;
     vector<hist<>> acc;
-    const double cut_pos=-0.200;                                                                                                .020;
+    const double cut_pos=-0.200;
 
     for (size_t j = 0; j < reaction.size(); j++)
         acc.push_back(hist<>());
@@ -181,9 +181,9 @@ int main()
 
     }
     const auto luminosity = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc"));
-    const auto luminosity_he = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYf")).XRange(2.5,30);
+    const auto luminosity_he = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc")).XRange(10,30);
     auto true_he3eta = luminosity_he
-        *extend_hist<2,2>(hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")).XRange(2.5,30))/trigger_he3_forward.scaling;
+        *extend_hist<2,2>(hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")).XRange(10,30))/trigger_he3_forward.scaling;
     while(true_he3eta.left().X().min()>-70.)true_he3eta<<make_point(value<>(true_he3eta.left().X().val()-2.5,2.5),0);
     const auto branching_ratio=uncertainties(0.393,0,0.003);
 
@@ -191,7 +191,7 @@ int main()
         accplot << "set title 'Acceptance'"
             << "set xlabel 'Q, MeV'"
             << "set ylabel 'Acceptance, n.d.'"
-            << "set yrange [0:0.5]" << "set xrange [-70:30]"
+            << "set yrange [0:0.4]" << "set xrange [-70:30]"
             << "set key on";
         accplot2 << "set title 'Acceptance'"
             << "set xlabel 'Q, MeV'"
@@ -216,11 +216,11 @@ int main()
             .Hist_2bars<1,2>(extend_hist<1,2>(ev_am)-known_events,"data-3Heeta")
                 << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
                 << "set ylabel 'events, n.d.'" << "set yrange [0:]";
-        const auto data_shape=(extend_hist<1,2>(ev_am)-known_events)*trigger_he3_forward.scaling/(extend_hist<2,2>(acc[0])*luminosity);
+        const auto data_shape=(extend_hist<1,2>(ev_am)-known_events)*trigger_he3_forward.scaling/(extend_hist<2,2>(acc[0])*luminosity); 
         Plot("He3gg-events-norm")
-            .Hist_2bars<1,2>(data_shape,"Data statistical", "Data systematic")
-                << "set xlabel 'Q, MeV'" << "set key on"<< "set title '"+runmsg+"'"
-                << "set ylabel 'normalized events amount, nb'" << "set yrange [-10:]";
+            .Hist_2bars<1,2>(data_shape.XRange(-70,10),"Data statistical", "Data systematic")
+                << "set xlabel 'Q, MeV'" << "set key on"<< "set title '"+runmsg+"'"<< "set xrange [-70:10]"
+                << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]";
 
     cout<<"Final plots"<<endl;
     Plot("He3gg-tube-acc").Hist(
