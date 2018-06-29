@@ -46,7 +46,7 @@ int main()
             const auto data = data_full.XRange(0.530, data_full.YRange(bg_level,INFINITY).right().X().val()+0.001);
             const auto mc_unnorm = Hist(MC, "He3eta-gg", histpath_forward_reconstr,hist_name).XRange(0.530, 0.559);
             const auto chain = ChainWithStep(0.530, 0.001, 0.559);
-            const auto cut = make_pair(0.542,0.554);
+            const auto cut = make_pair(0.543,0.554);
             const auto mc = mc_unnorm / N;
             acceptance << make_point(Q, mc.TotalSum());
             Plot(Q.Contains(21) ? "He3eta-mc" : "")
@@ -67,8 +67,9 @@ int main()
             FIT.SetUncertaintyCalcDeltas({0.1, 0.1,0.1,0.01,0.01})
             .SetFilter([&FIT,&data](const ParamSet&P){
                 return
+                (FIT.func({data.left().X().min()},P)>=data.left().Y().min())&&
                 (FIT.func({data.right().X().val()},P)<=data.right().Y().max())&&
-                (FIT.func({data.left().X().min()},P)>=data.left().Y().min());
+                (FIT.func({data.right().X().min()},P)>0);
             });
             FIT.Init(300,
                      make_shared<InitialDistributions>()
