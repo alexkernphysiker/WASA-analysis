@@ -18,10 +18,10 @@ int main()
 {
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "he3eta-forward-cuts");
     auto MakePlots = [](const histsource HS, const string & R, const uint max_z) {
-        string title = "Data";
+        string title = "";
         if (HS == MC) {
             title = "Simulation " + R;
-            Plot()
+            Plot("",4)
             .Hist(Hist(HS, R, {"Histograms", "He3Forward_Reconstruction"}, "0-Reference"), "Simulated events")
             .Hist(Hist(HS, R, {"Histograms", "He3Forward_Reconstruction"}, "2-ThetaIsAccepted"), "Reconstructable forward tracks")
             .Hist(Hist(HS, R, {"Histograms", "He3Forward_Reconstruction"}, "4-GeomCut"), "identified as ^3He")
@@ -32,14 +32,14 @@ int main()
                     << "set ylabel 'Events count'";
         }
         auto SP2 = [max_z](const string &name = "") {
-            return PlotHist2d(sp2, name)
+            return PlotHist2d(sp2, name,4)
                    << "set key on"
                    << "set xrange [0:0.3]" << "set xlabel 'E_{FRH1}, GeV'"
                    << "set yrange [0:0.03]" << "set ylabel 'E_{FTH1}, GeV'"
                    << "set zrange [0:" + to_string(max_z) + "]";
         };
         auto THD = [](const string &name = "") {
-            return Plot(name)
+            return Plot(name,4)
                    << "set key on"
                    << "set xlabel 'Phi, deg'" << "set xrange [-180:180]"
                    << "set ylabel 'events, count'" << "set yrange [0:]";
@@ -54,6 +54,6 @@ int main()
     MakePlots(MC, "He3eta-gg", 500000);
     MakePlots(MC, "He3pi0pi0", 500000);
     MakePlots(MC, "He3pi0pi0pi0", 500000);
-    MakePlots(DATA, "All", 100000);
+    MakePlots(DATA, "All", 70000);
     MakePlots(MC, "He3pi0", 500000);
 }

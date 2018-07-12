@@ -36,7 +36,7 @@ int main()
         {"Histograms", "He3Forward_Reconstruction"},
         string("Kinematic-reconstructed-Bin-") + to_string(bin_num)
                             ).Scale(5, 5);
-        PlotHist2d(sp2, Q.Contains(21) ? "He3forward-kin-bound-above" :(Q.Contains(-10) ? "He3forward-kin-bound-below":"")).Distr(kin_bound)
+        PlotHist2d(sp2, Q.Contains(21) ? "He3forward-kin-bound-above" :(Q.Contains(-10) ? "He3forward-kin-bound-below":""),3).Distr(kin_bound)
                 << "set xlabel 'E_k, GeV'"
                 << "set ylabel 'theta, deg'"
                 << "set xrange [0.2:0.4]"
@@ -45,7 +45,7 @@ int main()
         {"Histograms", "He3Forward_Reconstruction"},
         string("Kinematic-reconstructed-Bin-") + to_string(bin_num)
                             ).Scale(5, 5);
-        PlotHist2d(sp2, Q.Contains(21) ? "He3forward-kin-mc" : "").Distr(kin_mc)
+        PlotHist2d(sp2, Q.Contains(21) ? "He3forward-kin-mc" : "",3).Distr(kin_mc)
                 << "set xlabel 'E_k, GeV'"
                 << "set ylabel 'theta, deg'"
                 << "set xrange [0.2:0.4]"
@@ -54,7 +54,7 @@ int main()
         {"Histograms", "He3Forward_Reconstruction"},
         string("Kinematic-reconstructed-Bin-") + to_string(bin_num)
                                ).Scale(5, 5);
-        PlotHist2d(sp2, Q.Contains(21) ? "He3forward-kin-data" : "").Distr(data_hist)
+        PlotHist2d(sp2, Q.Contains(21) ? "He3forward-kin-data" : "",3).Distr(data_hist)
                 << "set xlabel 'E_k, GeV'"
                 << "set ylabel 'theta, deg'"
                 << "set xrange [0.2:0.4]"
@@ -62,19 +62,19 @@ int main()
         const auto xcut = (kin_mc.X().size() * 2) / 5;
         const auto &xC = kin_mc.X()[xcut].min();
         const hist<> ymc = kin_mc.CutY(xcut), ydata = data_hist.CutY(xcut);
-        Plot().Hist(ymc / ymc.TotalSum().val(), "MC").Hist(ydata / ydata.TotalSum().val(), "DATA")
+        Plot("",5).Hist(ymc / ymc.TotalSum().val(), "MC").Hist(ydata / ydata.TotalSum().val(), "DATA")
                 << "set key on" << "set yrange[0:0.1]" << "set ylabel ''"<<"set title'"+Qmsg+"'"
                 << "set xlabel 'theta,deg (E=" + to_string(xC) + " GeV)'"<<"set xrange[4:9]";
         const auto ycut = kin_mc.Y().size() / 3;
         const auto &yC = kin_mc.Y()[ycut].min();
         const hist<> xmc = kin_mc.CutX(ycut), xdata = data_hist.CutX(ycut);
-        Plot().Hist(xmc / xmc.TotalSum().val(), "MC").Hist(xdata / xdata.TotalSum().val(), "DATA")
+        Plot("",5).Hist(xmc / xmc.TotalSum().val(), "MC").Hist(xdata / xdata.TotalSum().val(), "DATA")
                 << "set key on" << "set yrange[0:]" << "set ylabel ''"<<"set title'"+Qmsg+"'"
                 << "set xlabel 'E_k, GeV (theta=" + to_string(yC) + " deg)'"
                 << "set xrange [0.2:0.4]";
         const auto ycut2 = kin_mc.Y().size() * 2 / 3;
         const hist<> xmc2 = kin_mc.CutX(ycut2), xdata2 = data_hist.CutX(ycut2);
-        Plot().Hist(xmc2 / xmc2.TotalSum().val(), "MC").Hist(xdata2 / xdata2.TotalSum().val(), "DATA")
+        Plot("",5).Hist(xmc2 / xmc2.TotalSum().val(), "MC").Hist(xdata2 / xdata2.TotalSum().val(), "DATA")
                 << "set key on" << "set yrange[0:]" << "set ylabel ''"<<"set title'"+Qmsg+"'"
                 << "set xlabel 'E_k, GeV (theta=" + to_string(yC) + " deg)'"
                 << "set xrange [0.2:0.4]";

@@ -20,9 +20,9 @@ int main()
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-2gamma");
     vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas2"};
     vector<string> reaction = {"bound1-2g","bound2-2g","bound3-2g", "He3eta-gg", "He3pi0pi0", "He3pi0pi0pi0", "He3pi0"};
-    const auto runs = PresentRuns("All");
     const hist<> norm = Hist(MC, reaction[0], histpath_central_reconstr, "0-Reference");
-    const string runmsg = to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs";
+    const auto runs = PresentRuns("All");
+    const string runmsg = (runs.first==runs.second)?"":"("+to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs)";
     cout<<"First plots"<<endl;
     Plot gE("He3gg-gamma-energy-theory"), gEc("He3gg-gamma-energy-theory-cut"),
          gEd("He3gg-gamma-energy-data");
