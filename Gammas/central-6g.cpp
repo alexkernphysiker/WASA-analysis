@@ -28,8 +28,8 @@ int main()
     const auto runs = PresentRuns("All");
     const string runmsg = (runs.first==runs.second)?"":"("+to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs)";
 
-    Plot gE("He36g-gamma-energy-theory"), gEc("He36g-gamma-energy-theory-cut"),
-         gEd("He36g-gamma-energy-data");
+    Plot gE("He36g-gamma-energy-theory",4), gEc("He36g-gamma-energy-theory-cut",4),
+         gEd("He36g-gamma-energy-data",4);
     gE << "set key on" << "set title 'Gamma energy. MC'"
        << "set yrange [0:]" << "set xlabel 'gamma energy, GeV'";
     gEc << "set key on" << "set title 'Gamma energy. MC. Cut'"
@@ -50,10 +50,10 @@ int main()
     gEd.Hist(Hist(DATA, "All", histpath_central_reconstr, "GammaEnergy")).Hist(Hist(DATA, "All", histpath_central_reconstr, "GammaEnergyCut"));
 
 
-    Plot theory("He36g-IMPiDiff-mc"),experiment("He36g-IMPiDiff-data");
+    Plot theory("He36g-IMPiDiff-mc",4),experiment("He36g-IMPiDiff-data",4);
     for (const auto &r : reaction) {
         if (r == reaction[0]) {
-            Plot("He36g-IMPiDiff-bound-mc")
+            Plot("He36g-IMPiDiff-bound-mc",3)
             .Hist(Hist(MC, r, histpath_central_reconstr, "GMMPDiff4"))
             .Hist(Hist(MC, r, histpath_central_reconstr, "GMMPDiff5"),"cut")
                     << "set key on" << "set yrange [0:]";
@@ -81,36 +81,36 @@ int main()
             const auto cosa=Hist(MC, r, histpath_central_reconstr,"cosi3")
                         +Hist(MC, r, histpath_central_reconstr,"cosj3")
                         +Hist(MC, r, histpath_central_reconstr,"cosk3");
-            Plot("He36g-cos-mc"+r)
+            Plot("He36g-cos-mc"+r,4)
             .Hist(cosb).Hist(cosa)
                     << "set key on" << "set title '" + r + "'" << "set yrange [0:]"<< "set xrange [-1:1]"
                     << "set xlabel 'cos(gamma-gamma)'";
-            Plot("He36g-eta-theta-mc"+r)
+            Plot("He36g-eta-theta-mc"+r,4)
             .Hist(Hist(MC, r, histpath_central_reconstr,"ET3"))
             .Hist(Hist(MC, r, histpath_central_reconstr,"ET4"))
                     << "set key on" << "set title '" + r + "'" << "set yrange [0:]"<< "set xrange [0:180]"
                     << "set xlabel 'theta(eta) reconstructed'";
-            Plot("He36g-he3mm-mc-" + r)
+            Plot("He36g-he3mm-mc-" + r,4)
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM0"))
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM1"), "cut")
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM2"), "6 gammas required")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"
                     << "set xlabel '3He missing mass - Q, GeV'"<< "set xrange [0.45:0.57]";
-            Plot("He36g-6gmm-mc" + r)
+            Plot("He36g-6gmm-mc" + r,4)
             .Hist(Hist(MC, r, histpath_central_reconstr, "GMM5"), "before cut")
             .Hist(Hist(MC, r, histpath_central_reconstr, "GMM6"), "after cut")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"
                     << "set xlabel '2gamma missing mass, GeV'"<< "set xrange [2.2:3.4]";
-            Plot("He36g-6gim-mc" + r)
+            Plot("He36g-6gim-mc" + r,4)
             .Hist(Hist(MC, r, histpath_central_reconstr, "GIM6"), "before cut")
             .Hist(Hist(MC, r, histpath_central_reconstr, "GIM7"), "after cut")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"
                     << "set xlabel '2gamma invariant mass + Q, GeV'"<< "set xrange [0.0:1.0]";
-            Plot("He36g-tim-mc" + r)
+            Plot("He36g-tim-mc" + r,4)
             .Hist(Hist(MC, r, histpath_central_reconstr, "TIM7-AllBins"))
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [-0.5:0.5]"
                     << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
-            Plot("He36g-he3me-mc"+r)
+            Plot("He36g-he3me-mc"+r,4)
                 .Hist(Hist(MC, r, histpath_central_reconstr, "He3ME7-AllBins"))
                    << "set key on"<<"set yrange [0:]"<< "set title 'Data "+runmsg+"'"
                    << "set xlabel '3He missing energy, GeV'";
@@ -122,53 +122,53 @@ int main()
             const auto cosa=Hist(DATA, "All", histpath_central_reconstr,"cosi3")
                         +Hist(DATA, "All", histpath_central_reconstr,"cosj3")
                         +Hist(DATA, "All", histpath_central_reconstr,"cosk3");
-            Plot("He36g-cos-data")
+            Plot("He36g-cos-data",4)
             .Hist(cosb).Hist(cosa)
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [-1:1]"
                     << "set xlabel 'cos(gamma-gamma)'";
-            Plot("He36g-eta-theta-data")
+            Plot("He36g-eta-theta-data",4)
             .Hist(Hist(DATA, "All", histpath_central_reconstr,"ET3"))
             .Hist(Hist(DATA, "All", histpath_central_reconstr,"ET4"))
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [0:180]"
                     << "set xlabel 'theta(eta) reconstructed'";
-            Plot("He36g-he3mm-data")
+            Plot("He36g-he3mm-data",4)
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM0"))
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM1"), "cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM2"), "6 gammas required")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '3He missing mass - Q, GeV'"<< "set xrange [0.45:0.57]";
-            Plot("He36g-dt-data")
+            Plot("He36g-dt-data",4)
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt2"))
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
                     << "set xlabel 'dt gamma-gamma, ns'"<< "set key on";
-            Plot("He36g-t-data")
+            Plot("He36g-t-data",4)
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "t2"))
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
                     << "set xlabel 'dt 3He-gamma, ns'"<< "set key on";
-            Plot("He36g-dt-data-final")
+            Plot("He36g-dt-data-final",4)
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt7"))
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
                     << "set xlabel 'dt gamma-gamma, ns'"<< "set key on";
-            Plot("He36g-t-data-final")
+            Plot("He36g-t-data-final",4)
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "t7"))
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
                     << "set xlabel 'dt 3He-gamma, ns'"<< "set key on";
 
-            Plot("He36g-6gmm-data")
+            Plot("He36g-6gmm-data",4)
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GMM5"), "before cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GMM6"), "after cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '2gamma missing mass, GeV'"<< "set xrange [2.2:3.4]";
-            Plot("He36g-6gim-data")
+            Plot("He36g-6gim-data",4)
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GIM6"), "before cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GIM7"), "after cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '2gamma invariant mass + Q, GeV'"<< "set xrange [0.0:1.0]";
-            Plot("He36g-tim-data")
+            Plot("He36g-tim-data",4)
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM7-AllBins"))
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xrange [-0.5:0.5]" << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
-            Plot("He36g-he3me-data")
+            Plot("He36g-he3me-data",4)
                 .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3ME7-AllBins"))
                    << "set key on"<<"set yrange [0:]"<< "set title 'Data "+runmsg+"'"
                    << "set xlabel '3He missing energy, GeV'";
@@ -185,7 +185,7 @@ int main()
                     Q.Contains(-39) ? "He36g-below-tim-mc" : (
                         Q.Contains(-3) ? "He36g-thr-tim-mc" : ""
                     )
-                )
+                ),4
             );
             cout<<Qmsg << " plots2 "<<endl;
             mc_plot << "set key on" << "set title '" + Qmsg + ";MC'" << "set yrange [0:]"
@@ -213,14 +213,14 @@ int main()
                 Q.Contains(-39) ? "He36g-below-tim-data" : (
                     Q.Contains(-3) ? "He36g-thr-tim-data" : ""
                 )
-            )
+            ),4
         )
             .Hist(TIM)
                     << "set key on" << "set title '" + Qmsg + ";Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '6gamma invariant mass, GeV'";
     }
     cout<<"Final plots"<<endl;
-    Plot accplot("He36g-acceptance");
+    Plot accplot("He36g-acceptance",3);
     accplot << "set title 'Acceptance'"<<"set key left top"
             << "set xlabel 'Q, MeV'"
             << "set ylabel 'Acceptance, n.d.'"
@@ -239,23 +239,23 @@ int main()
 
     const auto branching_ratio=uncertainties(0.322,0,0.003);
     const auto known_events = (true_he3eta*branching_ratio)*extend_hist<2,2>(acceptance[3]);
-    Plot("He36g-events")
+    Plot("He36g-events",3)
     .Hist(ev_am,"data").Hist_2bars<1,2>(known_events,"3He+eta")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '" + runmsg + "'"<<"set key left top";
-    Plot("He36g-events2")
+    Plot("He36g-events2",3)
         .Hist_2bars<1,2>(extend_hist<1,2>(ev_am)-known_events,"data-3Heeta")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'events, n.d.'" << "set yrange [0:]"
             << "set title '" + runmsg + "'";
     const auto data_shape=(extend_hist<1,2>(ev_am)-known_events)*trigger_he3_forward.scaling/(extend_hist<2,2>(acceptance[0])*luminosity);
-    Plot("He36g-events-norm-bound")
+    Plot("He36g-events-norm-bound",3)
         .Hist_2bars<1,2>(data_shape.XRange(-70,10),"Data statistical","Data systematic")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]"
             << "set title '"+runmsg+"'"<<"set key right top";
-    Plot("He36g-events-norm2-bound")
+    Plot("He36g-events-norm2-bound",3)
         .Hist_2bars<1,2>(data_shape.XRange(-70,10)/branching_ratio,"Divided by branching ratio")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'normalized events amount, nb'" << "set yrange [-10:]"
