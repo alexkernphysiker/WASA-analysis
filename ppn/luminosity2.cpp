@@ -251,6 +251,13 @@ int main()
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:100]";
+    Plot("luminosity-v2-compare-light",3)
+        .Hist(wrap_hist(luminosity), "ppn_{sp}")
+        .Hist(wrap_hist(prev_luminosity),"3He+eta")
+            << "set title 'Integrated luminosity " + runmsg + "'"
+            << "set key on" << "set xlabel 'Q, MeV'"
+            << "set ylabel 'Integrated luminosity, nb^{-1}'"
+            << "set xrange [-70:30]" << "set yrange [0:100]";
     cout<<"luminosity: "<<luminosity.TotalSum()<<endl;
     Plot("luminosity-v2-compare-estimation",3)
         .Hist(wrap_hist(luminosity)*runs.second/runs.first, "ppn_{sp}")

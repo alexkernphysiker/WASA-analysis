@@ -83,7 +83,7 @@ int main()
             .Hist(Hist(MC, r, histpath_central_reconstr, "GIM5"), "before cut")
             .Hist(Hist(MC, r, histpath_central_reconstr, "GIM6"), "after cut")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"
-                    << "set xlabel '2gamma invariant mass + Q, GeV'"<< "set xrange [0:0.8]";
+                    << "set xlabel '2gamma invariant mass - Q, GeV'"<< "set xrange [0:0.8]";
             Plot("He3gg-tim-mc" + r,4)
             .Hist(Hist(MC, r, histpath_central_reconstr, "TIM6-AllBins"))
             .Hist(Hist(MC, r, histpath_central_reconstr, "TIM6-AllBins").XRange(cut_pos,0.2))
@@ -121,7 +121,7 @@ int main()
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GIM5"), "before cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GIM6"), "after cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
-                    << "set xlabel '2gamma invariant mass + Q, GeV'"<< "set xrange [0:0.8]";
+                    << "set xlabel '2gamma invariant mass - Q, GeV'"<< "set xrange [0:0.8]";
 
             Plot("He3gg-tim-data",4)
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM6-AllBins"))
@@ -220,6 +220,10 @@ int main()
         Plot("He3gg-events-norm",3)
             .Hist_2bars<1,2>(data_shape.XRange(-70,10),"Data statistical", "Data systematic")
                 << "set xlabel 'Q, MeV'" << "set key on"<< "set title '"+runmsg+"'"<< "set xrange [-70:10]"
+                << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]";
+        Plot("He3gg-events-norm-light",3)
+            .Hist(wrap_hist(data_shape).XRange(-70,10))
+                << "set xlabel 'Q, MeV'" << "set key on"<< "set title '3He+2gamma"+runmsg+"'"<< "set xrange [-70:10]"
                 << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]";
 
     cout<<"Final plots"<<endl;

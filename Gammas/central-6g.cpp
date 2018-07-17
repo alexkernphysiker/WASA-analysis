@@ -105,7 +105,7 @@ int main()
             .Hist(Hist(MC, r, histpath_central_reconstr, "GIM6"), "before cut")
             .Hist(Hist(MC, r, histpath_central_reconstr, "GIM7"), "after cut")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"
-                    << "set xlabel '2gamma invariant mass + Q, GeV'"<< "set xrange [0.0:1.0]";
+                    << "set xlabel '2gamma invariant mass - Q, GeV'"<< "set xrange [0.0:1.0]";
             Plot("He36g-tim-mc" + r,4)
             .Hist(Hist(MC, r, histpath_central_reconstr, "TIM7-AllBins"))
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [-0.5:0.5]"
@@ -163,7 +163,7 @@ int main()
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GIM6"), "before cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GIM7"), "after cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
-                    << "set xlabel '2gamma invariant mass + Q, GeV'"<< "set xrange [0.0:1.0]";
+                    << "set xlabel '2gamma invariant mass - Q, GeV'"<< "set xrange [0.0:1.0]";
             Plot("He36g-tim-data",4)
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM7-AllBins"))
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
@@ -255,6 +255,11 @@ int main()
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]"
             << "set title '"+runmsg+"'"<<"set key right top";
+    Plot("He36g-events-norm-light",3)
+        .Hist(wrap_hist(data_shape).XRange(-70,10))
+            << "set xlabel 'Q, MeV'" << "set key on"
+            << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]"
+            << "set title '3He+6gamma"+runmsg+"'"<<"set key right top";
     Plot("He36g-events-norm2-bound",3)
         .Hist_2bars<1,2>(data_shape.XRange(-70,10)/branching_ratio,"Divided by branching ratio")
             << "set xlabel 'Q, MeV'" << "set key on"
