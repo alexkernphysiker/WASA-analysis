@@ -100,16 +100,16 @@ int main()
             .Hist(Hist(MC, r, histpath_central_reconstr, "GMM5"), "before cut")
             .Hist(Hist(MC, r, histpath_central_reconstr, "GMM6"), "after cut")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"
-                    << "set xlabel '2gamma missing mass, GeV'"<< "set xrange [2.2:3.4]";
+                    << "set xlabel '6gamma missing mass, GeV'"<< "set xrange [2.2:3.4]";
             Plot("He36g-6gim-mc" + r,4)
             .Hist(Hist(MC, r, histpath_central_reconstr, "GIM6"), "before cut")
             .Hist(Hist(MC, r, histpath_central_reconstr, "GIM7"), "after cut")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"
-                    << "set xlabel '2gamma invariant mass - Q, GeV'"<< "set xrange [0.0:1.0]";
+                    << "set xlabel '6gamma invariant mass - Q, GeV'"<< "set xrange [0.0:1.0]";
             Plot("He36g-tim-mc" + r,4)
             .Hist(Hist(MC, r, histpath_central_reconstr, "TIM7-AllBins"))
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [-0.5:0.5]"
-                    << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
+                    << "set xlabel 'IM(3He+6gamma)-IM(p+d), GeV'";
             Plot("He36g-he3me-mc"+r,4)
                 .Hist(Hist(MC, r, histpath_central_reconstr, "He3ME7-AllBins"))
                    << "set key on"<<"set yrange [0:]"<< "set title 'Data "+runmsg+"'"
@@ -158,16 +158,16 @@ int main()
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GMM5"), "before cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GMM6"), "after cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
-                    << "set xlabel '2gamma missing mass, GeV'"<< "set xrange [2.2:3.4]";
+                    << "set xlabel '6gamma missing mass, GeV'"<< "set xrange [2.2:3.4]";
             Plot("He36g-6gim-data",4)
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GIM6"), "before cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "GIM7"), "after cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
-                    << "set xlabel '2gamma invariant mass - Q, GeV'"<< "set xrange [0.0:1.0]";
+                    << "set xlabel '6gamma invariant mass - Q, GeV'"<< "set xrange [0.0:1.0]";
             Plot("He36g-tim-data",4)
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM7-AllBins"))
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
-                    << "set xrange [-0.5:0.5]" << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
+                    << "set xrange [-0.5:0.5]" << "set xlabel 'IM(3He+6gamma)-IM(p+d), GeV'";
             Plot("He36g-he3me-data",4)
                 .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3ME7-AllBins"))
                    << "set key on"<<"set yrange [0:]"<< "set title 'Data "+runmsg+"'"
