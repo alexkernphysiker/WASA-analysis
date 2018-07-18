@@ -186,7 +186,7 @@ int main()
             const auto acc=data_copl_mc.TotalSum()/N;
             acceptance[cut_index] << make_point(Q, acc);
 
-            const auto data_copl_bg=data_copl.XExclude(140,220);
+            const auto data_copl_bg=data_copl.XExclude(120,240);
             Fit2<DifferentialMutations<>> fit(
                 data_copl_bg.removeXerorbars(),
                 [](const ParamSet&X,const ParamSet&P){return Polynom<2>(X[0],P);}
@@ -206,7 +206,7 @@ int main()
             const auto BG=[&P](const value<>&x){return Polynom<2>(x,P);};
             data_chi_sq[cut_index] << make_point(Q, fit.Optimality() / (fit.Points().size() - fit.ParamCount()));
             const auto subtr=data_copl-BG;
-            const auto summ=subtr.XRange(140,220);
+            const auto summ=subtr.XRange(120,240);
             const SortedPoints<> simulation_curve=(data_copl.CloneEmptyBins()+data_copl_mc*summ.TotalSum()/N/acc).toLine();
             if(cut_index==0){
                 Plot(Q.Contains(21) ? "ppn-v2-above-data-copl" : (Q.Contains(-39) ? "ppn-v2-below-data-copl" : ""),4)
