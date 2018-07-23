@@ -11,6 +11,7 @@
 #include <Experiment/experiment_conv.h>
 #include <Experiment/str_get.h>
 #include <Experiment/gethist.h>
+#include <Parameters/parameters.h>
 using namespace std;
 using namespace ROOT_data;
 using namespace MathTemplates;
@@ -49,7 +50,6 @@ int main()
     hist<> ev_am;
     vector<hist<>> acceptance;
     vector<hist<>> acc;
-    const double cut_pos=-0.200;
 
     for (size_t j = 0; j < reaction.size(); j++)
         acc.push_back(hist<>());
@@ -57,88 +57,100 @@ int main()
     for (size_t i = 0; i < reaction.size(); i++) {
             const auto &r = reaction[i];
             cout<<"All-bins MC plots "<<r<<endl;
+            const auto he3mm0=Hist(MC, r, histpath_central_reconstr,"He3MM0");
             Plot("He3gg-he3mm-mc-" + r,4)
-            .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM0"))
-            .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM1"), "cut")
+            .Hist(he3mm0).Hist(Hist(MC, r, histpath_central_reconstr,"He3MM1"))
+            .Line(Points<>{{getParameter(he3mm_cut),0.0},{getParameter(he3mm_cut),hist<>(he3mm0.Transponate()).right().X().max()}},"cut")
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM2"), "2 gammas required")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [0.45:0.57]"
                     << "set xlabel '3He missing mass - Q, GeV'";
 
+            const auto ggcos=Hist(MC, r, histpath_central_reconstr,"GGcos0");
             Plot("He3gg-cos-mc" + r,4)
-            .Hist(Hist(MC, r, histpath_central_reconstr,"GGcos0"))
-            .Hist(Hist(MC, r, histpath_central_reconstr,"GGcos3"))
+            .Hist(ggcos).Hist(Hist(MC, r, histpath_central_reconstr,"GGcos3"))
+            .Line(Points<>{{0.0,0.0},{0.0,hist<>(ggcos.Transponate()).right().X().max()}},"cut")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [-1:1]"
                     << "set xlabel 'cos(alpha)'";
+            const auto eta_theta=Hist(MC, r, histpath_central_reconstr,"ET3");
             Plot("He3gg-eta-theta-mc" + r,4)
-            .Hist(Hist(MC, r, histpath_central_reconstr,"ET3"))
-            .Hist(Hist(MC, r, histpath_central_reconstr,"ET4"))
+            .Hist(eta_theta).Hist(Hist(MC, r, histpath_central_reconstr,"ET4"))
+            .Line(Points<>{{getParameter(eta_theta_thr),0.0},{getParameter(eta_theta_thr),hist<>(eta_theta.Transponate()).right().X().max()}},"cut")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [0:180]"
                     << "set xlabel 'theta(eta) reconstructed'";
+            const auto ggmm=Hist(MC, r, histpath_central_reconstr, "GMM4");
             Plot("He3gg-ggmm-mc" + r,4)
-            .Hist(Hist(MC, r, histpath_central_reconstr, "GMM4"), "before cut")
-            .Hist(Hist(MC, r, histpath_central_reconstr, "GMM5"), "after cut")
+            .Hist(ggmm).Hist(Hist(MC, r, histpath_central_reconstr, "GMM5"))
+            .Line(Points<>{{getParameter(gamma_mm_lo),hist<>(ggmm.Transponate()).right().X().max()},{getParameter(gamma_mm_lo),0.0},
+                           {getParameter(gamma_mm_hi),0.0},{getParameter(gamma_mm_hi),hist<>(ggmm.Transponate()).right().X().max()}},"cut")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [2.2:3.4]"
                     << "set xlabel '2gamma missing mass, GeV'";
+            const auto ggim=Hist(MC, r, histpath_central_reconstr, "GIM5");
             Plot("He3gg-ggim-mc" + r,4)
-            .Hist(Hist(MC, r, histpath_central_reconstr, "GIM5"), "before cut")
-            .Hist(Hist(MC, r, histpath_central_reconstr, "GIM6"), "after cut")
+            .Hist(ggim).Hist(Hist(MC, r, histpath_central_reconstr, "GIM6"))
+            .Line(Points<>{{getParameter(gamma_im_lo),hist<>(ggim.Transponate()).right().X().max()},{getParameter(gamma_im_lo),0.0},
+                           {getParameter(gamma_im_hi),0.0},{getParameter(gamma_im_hi),hist<>(ggim.Transponate()).right().X().max()}},"cut")
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"
                     << "set xlabel '2gamma invariant mass - Q, GeV'"<< "set xrange [0:0.8]";
             Plot("He3gg-tim-mc" + r,4)
             .Hist(Hist(MC, r, histpath_central_reconstr, "TIM6-AllBins"))
-            .Hist(Hist(MC, r, histpath_central_reconstr, "TIM6-AllBins").XRange(cut_pos,0.2))
                     << "set key on" << "set title '"+r+"'" << "set yrange [0:]"<< "set xrange [-0.3:0.3]"
                     << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
-            Plot("He3gg-he3me-mc"+r,4)
-                .Hist(Hist(MC, r, histpath_central_reconstr, "He3ME6-AllBins"))
-                   << "set key on"<<"set yrange [0:]"<< "set title '"+r+"'"
-                   << "set xlabel '3He missing energy, GeV'";
     }
     {
+            const auto he3mm0=Hist(DATA, "All", histpath_central_reconstr,"He3MM0");
             Plot("He3gg-he3mm-data",4)
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM0"))
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM1"), "cut")
+            .Hist(he3mm0).Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM1"))
+            .Line(Points<>{{getParameter(he3mm_cut),0.0},{getParameter(he3mm_cut),hist<>(he3mm0.Transponate()).right().X().max()}},"cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM2"), "2 gammas required")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '3He missing mass - Q, GeV'"<< "set xrange [0.45:0.57]";
 
+            const auto ggcos=Hist(DATA, "All", histpath_central_reconstr,"GGcos0");
             Plot("He3gg-cos-data",4)
-            .Hist(Hist(DATA, "All", histpath_central_reconstr,"GGcos0"))
-            .Hist(Hist(DATA, "All", histpath_central_reconstr,"GGcos3"))
+            .Hist(ggcos).Hist(Hist(DATA, "All", histpath_central_reconstr,"GGcos3"))
+            .Line(Points<>{{0.0,0.0},{0.0,hist<>(ggcos.Transponate()).right().X().max()}},"cut")
                     << "set key on" << "set title 'Data"+runmsg+"'" << "set yrange [0:]"<< "set xrange [-1:1]"
                     << "set xlabel 'cos(alpha)'";
+            const auto eta_theta=Hist(DATA,"All", histpath_central_reconstr,"ET3");
             Plot("He3gg-eta-theta-data",4)
-            .Hist(Hist(DATA, "All", histpath_central_reconstr,"ET3"))
-            .Hist(Hist(DATA, "All", histpath_central_reconstr,"ET4"))
+            .Hist(eta_theta).Hist(Hist(DATA, "All", histpath_central_reconstr,"ET4"))
+            .Line(Points<>{{getParameter(eta_theta_thr),0.0},{getParameter(eta_theta_thr),hist<>(eta_theta.Transponate()).right().X().max()}},"cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [0:180]"
                     << "set xlabel 'theta(eta) reconstructed'";
+            const auto ggmm=Hist(DATA,"All", histpath_central_reconstr, "GMM4");
             Plot("He3gg-ggmm-data",4)
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "GMM4"), "before cut")
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "GMM5"), "after cut")
+            .Hist(ggmm).Hist(Hist(DATA, "All", histpath_central_reconstr, "GMM5"))
+            .Line(Points<>{{getParameter(gamma_mm_lo),hist<>(ggmm.Transponate()).right().X().max()},{getParameter(gamma_mm_lo),0.0},
+                           {getParameter(gamma_mm_hi),0.0},{getParameter(gamma_mm_hi),hist<>(ggmm.Transponate()).right().X().max()}},"cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '2gamma missing mass, GeV'"<< "set xrange [2.2:3.4]";
+            const auto ggim=Hist(DATA,"All", histpath_central_reconstr, "GIM5");
             Plot("He3gg-ggim-data",4)
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "GIM5"), "before cut")
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "GIM6"), "after cut")
+            .Hist(ggim).Hist(Hist(DATA, "All", histpath_central_reconstr, "GIM6"))
+            .Line(Points<>{{getParameter(gamma_im_lo),hist<>(ggim.Transponate()).right().X().max()},{getParameter(gamma_im_lo),0.0},
+                           {getParameter(gamma_im_hi),0.0},{getParameter(gamma_im_hi),hist<>(ggim.Transponate()).right().X().max()}},"cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"
                     << "set xlabel '2gamma invariant mass - Q, GeV'"<< "set xrange [0:0.8]";
 
             Plot("He3gg-tim-data",4)
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM6-AllBins"))
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM6-AllBins").XRange(cut_pos,0.2))
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [-0.3:0.3]"
                      << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV'";
 
+            const auto DT=Hist(DATA, "All", histpath_central_reconstr, "dt00");
             Plot("He3gg-dt-data",4)
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt00"))
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt0"))
+            .Hist(DT).Hist(Hist(DATA, "All", histpath_central_reconstr, "dt0"))
+            .Line(Points<>{{getParameter(time_dt),0.0},{getParameter(time_dt),hist<>(DT.Transponate()).right().X().max()}},"cut")
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
                     << "set xlabel 'dt gamma-gamma, ns'"<< "set key on";
+            const auto T=Hist(DATA, "All", histpath_central_reconstr, "t00");
             Plot("He3gg-t-data",4)
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "t00"))
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "t0"))
+            .Hist(T).Hist(Hist(DATA, "All", histpath_central_reconstr, "t0"))
+            .Line(Points<>{{getParameter(time_t1),hist<>(T.Transponate()).right().X().max()},{getParameter(time_t1),0.0},
+                           {getParameter(time_t2),0.0},{getParameter(time_t2),hist<>(T.Transponate()).right().X().max()}},"cut")
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
                     << "set xlabel 'dt 3He-gamma, ns'"<< "set key on";
+
             Plot("He3gg-dt-data-end",4)
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt6"))
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
@@ -155,11 +167,6 @@ int main()
             .Hist(Hist(DATA, "All", histpath_central_reconstr,"ET6"),"data")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [0:180]"
                     << "set xlabel 'theta(eta) reconstructed'";
-
-            Plot("He3gg-he3me-data",4)
-                .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3ME6-AllBins"))
-                   << "set key on"<<"set yrange [0:]"<< "set title 'Data " + runmsg + "'"
-                   << "set xlabel '3He missing energy, GeV'";
     }
 
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++) {
@@ -167,11 +174,11 @@ int main()
         const string Qmsg = static_cast<stringstream &>(stringstream()
             << "Q in [" << setprecision(3)<< Q.min() << "; " << Q.max() << "] MeV").str();
         cout<<Qmsg << " plots"<<endl;
-        const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM6-Bin-") + to_string(bin_num)).XRange(cut_pos,0.2);
+        const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM6-Bin-") + to_string(bin_num)).XRange(-0.3,0.3);
         for(size_t i = 0; i < reaction.size(); i++){ 
             const auto &r = reaction[i];
             cout<<Qmsg << " acceptance "<<r<<endl;
-            const auto MC_TIM=Hist(MC, r, histpath_central_reconstr, "TIM6-Bin-"+to_string(bin_num)).XRange(cut_pos,0.2);
+            const auto MC_TIM=Hist(MC, r, histpath_central_reconstr, "TIM6-Bin-"+to_string(bin_num)).XRange(-0.3,0.3);
             hist<> Norm = Hist(MC, r, histpath_central_reconstr, "0-Reference");
             const auto &N = Norm[bin_num].Y();
             if (N.Above(0)) acc[i] << make_point(Q, std_error(MC_TIM.TotalSum().val())/N);

@@ -15,6 +15,7 @@
 #include <Experiment/experiment_conv.h>
 #include <Experiment/str_get.h>
 #include <Experiment/gethist.h>
+#include <Parameters/parameters.h>
 #include <Kinematics/reactions.h>
 using namespace std;
 using namespace ROOT_data;
@@ -106,22 +107,23 @@ int main()
             << "set zrange [0:]" << "set title 'Data "+runmsg+"'" << "set xlabel 'E Calorimeter'"<< "set ylabel 'E PSB'";
 
     Plot("ppn-v2-copl-mc",4)
-    .Hist(Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "pair_phi_diff_0-AllBins") / norm.TotalSum().val(), "ppn_{sp}")
-            << "set key on" << "set title 'Coplanarity. MC'" << "set xrange [0:360]"
+    .Hist(Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "pair_phi_diff_0-AllBins") / norm.TotalSum().val())
+            << "set key on" << "set title 'MC'" << "set xrange [90:270]"
             << "set yrange [0:]" << "set xlabel " + planarity;
     Plot("ppn-v2-copl-data",4)
     .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_phi_diff_0-AllBins"))
-            << "set title 'Coplanarity. Data " + runmsg + "'" << "set xrange [0:360]"
+            << "set title 'Data " + runmsg + "'" << "set xrange [90:270]"
             << "set yrange [0:]" << "set xlabel " + planarity;
 
     Plot("ppn-v2-dt-mc",4)
     .Hist(Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins") / norm.TotalSum().val(), "ppn_{sp}")
-            << "set key on" << "set title 'Time difference. MC'" << "set xrange [-25:5]"<< "set yrange [0:]" ;
+            << "set key on" << "set title 'MC'" << "set xrange [-25:5]"<< "set yrange [0:]" ;
     Plot("ppn-v2-dt-data",4)
         .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins"),"All")
         .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_1-AllBins"),"theta cut")
-        .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_3-AllBins"),"time cut")
-        .Line(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_3-AllBins").toLine())
+        //.Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_3-AllBins"),"time cut")
+        .Line(Points<>{{getParameter(ppn_t1), 1200000.},{getParameter(ppn_t1), 0.0},
+                       {getParameter(ppn_t2), 0.0},{getParameter(ppn_t2), 1200000.}},"time cut")
             << "set title 'Time difference. Data " + runmsg + "'" << "set xrange [-25:5]"<< "set yrange [0:]"<<"set key on";
 
     Plot("ppn-v2-mm-mc",4)
@@ -210,12 +212,12 @@ int main()
             const SortedPoints<> simulation_curve=(data_copl.CloneEmptyBins()+data_copl_mc*summ.TotalSum()/N/acc).toLine();
             if(cut_index==0){
                 Plot(Q.Contains(21) ? "ppn-v2-above-data-copl" : (Q.Contains(-39) ? "ppn-v2-below-data-copl" : ""),4)
-                    .Hist(data_copl).Hist(data_copl_bg)
+                    .Hist(data_copl,"DATA").Hist(data_copl_bg)
                     .Hist(data_copl.CloneEmptyBins()+BG,"BG")
                     << "set title 'Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
                     << "set yrange [0:]" << "set xlabel " + planarity<< "set xrange [90:270]";
                 Plot(Q.Contains(21) ? "ppn-v2-above-data-copl-norm" : (Q.Contains(-39) ? "ppn-v2-below-data-copl-norm" : ""),4)
-                    .Hist(subtr,"Data-BG").Hist(summ)
+                    .Hist(subtr).Hist(summ,"DATA-BG")
                     .Line(simulation_curve,"Simulation")
                     .Line(Points<>{{subtr.left().X().min(), 0.0},{subtr.right().X().max(), 0.0}})
                     << "set title 'Subtracted background " + runmsg+ "; "+Qmsg + "'" <<"set key on"
@@ -225,7 +227,7 @@ int main()
         }
     }
     Plot("ppn-v2-acceptance",4)
-        .Hist(acceptance[0], "ppn_{sp}")
+        .Hist(acceptance[0])
             << "set key on" << "set title 'Efficiency'" << "set yrange [0:0.2]" 
             << "set xlabel 'Q, MeV'" << "set ylabel 'Efficiency, n.d.'";
     Plot("ppn-v2-chisq",4)
@@ -245,8 +247,6 @@ int main()
     Plot("luminosity-v2-compare",3)
         .Hist_2bars<1,2>(luminosity, "ppn_{sp}","","LUMINOSITYc")
         .Hist_2bars<1,2>(prev_luminosity,"3He+eta")
-        //.Hist(luminosity2, "ppn_{sp}, theta1<30^o")
-        //.Hist(luminosity3, "ppn_{sp}, theta1>30^o")
             << "set title 'Integrated luminosity " + runmsg + "'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
