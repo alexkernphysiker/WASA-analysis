@@ -129,7 +129,7 @@ int main()
             << "set yrange [0:]" << "unset log y";
 
     const auto cross_section=hist<>(he3eta_sigma().func(), BinsByStep(2.5, 2.5, 30.0));
-    const hist<> exp_data=he3eta_sigma().XRange(10,35);
+    const hist<> exp_data=he3eta_sigma().XRange(11,35);
     Plot("He3eta-cross-section",5)
     .Hist(exp_data).Points(exp_data.removeXerorbars().removeYerorbars(), "Experimental data","","with points pointtype 7 pointsize 3")
     .Hist(cross_section.XRange(10,35), "Interpolation", "CS-He3eta-assumed")
