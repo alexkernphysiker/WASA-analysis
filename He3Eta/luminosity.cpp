@@ -49,7 +49,7 @@ int main()
             const auto cut = make_pair(0.540,0.555);
             const auto mc = mc_unnorm / N;
             acceptance << make_point(Q, mc.TotalSum());
-            Plot(Q.Contains(21) ? "He3eta-mc" : "",2)
+            Plot(Q.Contains(21) ? "He3eta-mc" : "",5)
             .Hist(mc)
                     << "set key on" << "set title '" + Qmsg + ",3He+eta MC'"
                     << "set xlabel '3He missing mass, GeV'"
@@ -94,12 +94,13 @@ int main()
                 parhists[i] << make_point(Q, P[i]);
             data_chi_sq << make_point(Q, FIT.Optimality() / (data.size() - FIT.ParamCount()));
             cout << endl;
-            Plot exp_plot(Q.Contains(21) ? "He3eta-fit" : (Q.Contains(14) ? "He3eta-fit-lo":""),4);
+            Plot exp_plot(Q.Contains(21) ? "He3eta-fit" : (Q.Contains(14) ? "He3eta-fit-lo":""),5);
+            const auto max=to_string(data_full.TransponateAndSort().right().X().max()*1.5);
             exp_plot.Hist(data_full,"Data").Hist(data_bg)
-                    << "set key on" << "set title '" + Qmsg + ", data " + runmsg + "'"
+                    << "set key on" << "set title '" + Qmsg + runmsg + "'"
                     << "set xlabel '3He missing mass, GeV'"
                     << "set ylabel 'Counts'"
-                    << "set yrange [-200:]" << "unset log y";
+                    << "set yrange [-200:"+max+"]" << "unset log y";
             const SortedPoints<> background([&FIT](double x) {return FIT({x});}, chain);
             const hist<> bg([&FIT](const value<>&X){
                 const auto r=FIT.FuncWithUncertainties({X.val()});
@@ -107,14 +108,14 @@ int main()
             },data_full);
             exp_plot.Line(background.YRange(0,INFINITY)).Hist(bg,"BG");
             auto clean = data_full - bg;
-            Plot subplot(Q.Contains(21) ? "He3eta-subtract" : (Q.Contains(14) ? "He3eta-subtract-lo":""),4);
+            Plot subplot(Q.Contains(21) ? "He3eta-subtract" : (Q.Contains(14) ? "He3eta-subtract-lo":""),5);
             subplot.Hist(clean).Line(Points<>{{clean.left().X().min(), 0.0},{clean.right().X().max(), 0.0}});
             subplot.Hist(clean = clean.XRange(cut.first, cut.second),"DATA-BG")
                 .Line((mc*clean.TotalSum()/mc.TotalSum()).toLine(),"MC")
-                    << "set key on" << "set title '" + Qmsg + ", data " + runmsg + "'"
+                    << "set key on" << "set title '" + Qmsg + runmsg + "'"
                     << "set xlabel '3He missing mass, GeV'"
                     //<< "set ylabel 'Counts'"
-                    << "set yrange [-200:]" << "unset log y";
+                    << "set yrange [-200:"+max+"]" << "unset log y";
 
             events_count << make_point(Q,extend_value<1,2>(clean.TotalSum()) / extend_value<2,2>(mc.TotalSum()));
         }
@@ -129,7 +130,7 @@ int main()
 
     const auto cross_section=hist<>(he3eta_sigma().func(), BinsByStep(2.5, 2.5, 30.0));
     const hist<> exp_data=he3eta_sigma().XRange(10,35);
-    Plot("He3eta-cross-section",4)
+    Plot("He3eta-cross-section",5)
     .Hist(exp_data).Points(exp_data.removeXerorbars().removeYerorbars(), "Experimental data","","with points pointtype 7 pointsize 3")
     .Hist(cross_section.XRange(10,35), "Interpolation", "CS-He3eta-assumed")
             << "set title 'Cross section'"
@@ -137,7 +138,7 @@ int main()
             << "set ylabel 'sigma, nb'"
             << "set xrange [10:35]" << "set yrange [0:600]";
 
-    Plot("He3eta-acceptance",3)
+    Plot("He3eta-acceptance",5)
         .Hist(acceptance.XRange(10,30),"")
             << "set title '3He+eta efficiency'"
             << "set key on" << "set xlabel 'Q, MeV'"
@@ -145,7 +146,7 @@ int main()
             << "set xrange [10:30]" << "set yrange [0:1]";
 
     const auto luminosity=events_count*trigger_he3_forward.scaling/extend_hist<2,2>(cross_section.XRange(events_count.left().X().min(),events_count.right().X().max()));
-    Plot("He3eta-luminosity",4)
+    Plot("He3eta-luminosity",5)
         .Hist_2bars<1,2>(luminosity.XRange(10,30),"stat","syst","LUMINOSITYf")
             << "set title 'Integrated luminosity " + runmsg + "'"
             << "set key on" << "set xlabel 'Q, MeV'"

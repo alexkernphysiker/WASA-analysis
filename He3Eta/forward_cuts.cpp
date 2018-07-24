@@ -21,7 +21,7 @@ int main()
         string title = "";
         if (HS == MC) {
             title = "Simulation " + R;
-            Plot("",4)
+            Plot("",5)
             .Hist(Hist(HS, R, {"Histograms", "He3Forward_Reconstruction"}, "0-Reference"), "Simulated events")
             .Hist(Hist(HS, R, {"Histograms", "He3Forward_Reconstruction"}, "2-ThetaIsAccepted"), "Reconstructable forward tracks")
             .Hist(Hist(HS, R, {"Histograms", "He3Forward_Reconstruction"}, "4-GeomCut"), "identified as ^3He")
@@ -32,14 +32,14 @@ int main()
                     << "set ylabel 'Events count'";
         }
         auto SP2 = [max_z](const string &name = "") {
-            return PlotHist2d(sp2, name,4)
+            return PlotHist2d(sp2, name,5)
                    << "set key on"
                    << "set xrange [0:0.3]" << "set xlabel 'E_{FRH1}, GeV'"
                    << "set yrange [0:0.03]" << "set ylabel 'E_{FTH1}, GeV'"
                    << "set zrange [0:" + to_string(max_z) + "]";
         };
         auto THD = [](const string &name = "") {
-            return Plot(name,4)
+            return Plot(name,5)
                    << "set key on"
                    << "set xlabel 'Phi, deg'" << "set xrange [-180:180]"
                    << "set ylabel 'events, count'" << "set yrange [0:]";

@@ -99,26 +99,26 @@ int main()
     cout << "2D plots"<<endl;
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "luminosity-central-v2");
 
-    PlotHist2d(sp2, "ppn-v2-trackid-mc-1",4).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "track_id-2"))
+    PlotHist2d(sp2, "ppn-v2-trackid-mc-1",5).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "track_id-2"))
             << "set xrange [0:0.5]"<< "set yrange [0:0.005]"
             << "set zrange [0:]" << "set title 'MC ppn'" << "set xlabel 'E Calorimeter'"<< "set ylabel 'E PSB'";
     PlotHist2d(sp2, "ppn-v2-trackid-data-1",4).Distr(Hist2d(DATA, "All", {"Histograms", "quasielastic"}, "track_id-2"))
             << "set xrange [0:0.5]"<< "set yrange [0:0.005]"
             << "set zrange [0:]" << "set title 'Data "+runmsg+"'" << "set xlabel 'E Calorimeter'"<< "set ylabel 'E PSB'";
 
-    Plot("ppn-v2-copl-mc",4)
+    Plot("ppn-v2-copl-mc",5)
     .Hist(Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "pair_phi_diff_0-AllBins") / norm.TotalSum().val())
             << "set key on" << "set title 'MC'" << "set xrange [90:270]"
             << "set yrange [0:]" << "set xlabel " + planarity;
-    Plot("ppn-v2-copl-data",4)
+    Plot("ppn-v2-copl-data",5)
     .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_phi_diff_0-AllBins"))
             << "set title 'Data " + runmsg + "'" << "set xrange [90:270]"
             << "set yrange [0:]" << "set xlabel " + planarity;
 
-    Plot("ppn-v2-dt-mc",4)
+    Plot("ppn-v2-dt-mc",5)
     .Hist(Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins") / norm.TotalSum().val(), "ppn_{sp}")
             << "set key on" << "set title 'MC'" << "set xrange [-25:5]"<< "set yrange [0:]" ;
-    Plot("ppn-v2-dt-data",4)
+    Plot("ppn-v2-dt-data",5)
         .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins"),"All")
         .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_1-AllBins"),"theta cut")
         //.Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_3-AllBins"),"time cut")
@@ -126,25 +126,25 @@ int main()
                        {getParameter(ppn_t2), 0.0},{getParameter(ppn_t2), 1200000.}},"time cut")
             << "set title 'Time difference. Data " + runmsg + "'" << "set xrange [-25:5]"<< "set yrange [0:]"<<"set key on";
 
-    Plot("ppn-v2-mm-mc",4)
+    Plot("ppn-v2-mm-mc",5)
         .Hist(Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "pp_mm_3") / norm.TotalSum().val())
             << "set key on" << "set title 'Missing mass'" << "set yrange [0:]"<<"set xrange [0.5:1.5]" ;
-    Plot("ppn-v2-mm-data",4)
+    Plot("ppn-v2-mm-data",5)
         .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pp_mm_3"))
             << "set key on" << "set title 'Missing mass'" << "set yrange [0:]"<<"set xrange [0.5:1.5]" ;
 
 
-    PlotHist2d(sp2, "ppn-v2-tvt-mc-1",4).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "t_vs_t_1"))
-            << "set xrange [23:40]"<< "set yrange [40:70]"
+    PlotHist2d(sp2, "ppn-v2-tvt-mc-1",5).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "t_vs_t_1"))
+            << "set xrange [23:40]"<< "set yrange [30:70]"
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d(sp2, "ppn-v2-tvt-data-1",4).Distr(Hist2d(DATA, "All", {"Histograms", "quasielastic"}, "t_vs_t_1"))
-            << "set xrange [23:40]"<< "set yrange [40:70]"
+    PlotHist2d(sp2, "ppn-v2-tvt-data-1",5).Distr(Hist2d(DATA, "All", {"Histograms", "quasielastic"}, "t_vs_t_1"))
+            << "set xrange [23:40]"<< "set yrange [30:70]"
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d(sp2, "ppn-v2-tvt-mc-2",4).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "t_vs_t_3"))
-            << "set xrange [23:40]"<< "set yrange [40:70]"
+    PlotHist2d(sp2, "ppn-v2-tvt-mc-2",5).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "t_vs_t_3"))
+            << "set xrange [23:40]"<< "set yrange [30:70]"
             << "set zrange [0:]" << "set title 'MC ppn_{sp}'" << "set xlabel " + th1 << "set ylabel " + th2;
-    PlotHist2d(sp2, "ppn-v2-tvt-data-2",4).Distr(Hist2d(DATA, "All", {"Histograms", "quasielastic"}, "t_vs_t_3"))
-            << "set xrange [23:40]"<< "set yrange [40:70]"
+    PlotHist2d(sp2, "ppn-v2-tvt-data-2",5).Distr(Hist2d(DATA, "All", {"Histograms", "quasielastic"}, "t_vs_t_3"))
+            << "set xrange [23:40]"<< "set yrange [30:70]"
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + th2;
 
     vector<hist<>> acceptance,events,data_chi_sq;
@@ -211,12 +211,12 @@ int main()
             const auto summ=subtr.XRange(120,240);
             const SortedPoints<> simulation_curve=(data_copl.CloneEmptyBins()+data_copl_mc*summ.TotalSum()/N/acc).toLine();
             if(cut_index==0){
-                Plot(Q.Contains(21) ? "ppn-v2-above-data-copl" : (Q.Contains(-39) ? "ppn-v2-below-data-copl" : ""),4)
+                Plot(Q.Contains(21) ? "ppn-v2-above-data-copl" : (Q.Contains(-39) ? "ppn-v2-below-data-copl" : ""),5)
                     .Hist(data_copl,"DATA").Hist(data_copl_bg)
                     .Hist(data_copl.CloneEmptyBins()+BG,"BG")
                     << "set title 'Data " + runmsg+ "; "+Qmsg + "'" <<"set key on"
                     << "set yrange [0:]" << "set xlabel " + planarity<< "set xrange [90:270]";
-                Plot(Q.Contains(21) ? "ppn-v2-above-data-copl-norm" : (Q.Contains(-39) ? "ppn-v2-below-data-copl-norm" : ""),4)
+                Plot(Q.Contains(21) ? "ppn-v2-above-data-copl-norm" : (Q.Contains(-39) ? "ppn-v2-below-data-copl-norm" : ""),5)
                     .Hist(subtr).Hist(summ,"DATA-BG")
                     .Line(simulation_curve,"Simulation")
                     .Line(Points<>{{subtr.left().X().min(), 0.0},{subtr.right().X().max(), 0.0}})
@@ -226,17 +226,17 @@ int main()
             events[cut_index]<<make_point(Q,summ.TotalSum());
         }
     }
-    Plot("ppn-v2-acceptance",4)
+    Plot("ppn-v2-acceptance",5)
         .Hist(acceptance[0])
             << "set key on" << "set title 'Efficiency'" << "set yrange [0:0.2]" 
             << "set xlabel 'Q, MeV'" << "set ylabel 'Efficiency, n.d.'";
-    Plot("ppn-v2-chisq",4)
+    Plot("ppn-v2-chisq",5)
         .Hist(data_chi_sq[0],"BG")
             << "set xlabel 'Q, MeV'"<<"set key on"
             << "set ylabel 'chi^2/d, n.d.'"
             << "set yrange [0:]" << "unset log y";
 
-    Plot("ppn-v2-events",4)
+    Plot("ppn-v2-events",5)
         .Hist(events[0])
             << "set key on" << "set title 'True events count "+runmsg+"'" << "set yrange [0:]" 
             << "set xlabel 'Q, MeV'" << "set ylabel 'count, n.d.'";

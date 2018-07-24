@@ -195,14 +195,14 @@ int main()
     const auto branching_ratio=uncertainties(0.393,0,0.003);
 
         Plot accplot("He3gg-acceptance-final",3),accplot2("He3gg-acceptance-bg",3);
-        accplot << "set title 'Acceptance'"
+        accplot << "set title 'Efficiency'"
             << "set xlabel 'Q, MeV'"
-            << "set ylabel 'Acceptance, n.d.'"
+            << "set ylabel 'Efficiency, n.d.'"
             << "set yrange [0:0.4]" << "set xrange [-70:30]"
             << "set key on";
-        accplot2 << "set title 'Acceptance'"
+        accplot2 << "set title 'Efficiency'"
             << "set xlabel 'Q, MeV'"
-            << "set ylabel 'Acceptance, n.d.'"
+            << "set ylabel 'Efficiency, n.d.'"
             << "set yrange [0:0.005]" << "set xrange [-70:30]"
             << "set key on";
         for (size_t i = 0; i < reaction.size(); i++) {
