@@ -68,7 +68,7 @@ int main()
             if((i!=0)&&(i!=2))theory.Hist(Hist(MC, r, histpath_central_reconstr, "GMMPDiff5")/N, rn)
             .Line(Points<>{{getParameter(three_pi0),0.0},{getParameter(three_pi0),hist<>(imdiff.Transponate()).right().X().max()*1.5}});
         }
-        theory << "set key on" << "set yrange [0:]"<<"set xrange [0:0.15]"<<"set ylabel 'Efficiency, a.u.'";
+        theory << "set key on" << "set yrange [0:]"<<"set xrange [0:0.15]"<<"set ylabel 'Efficiency, a.u.'"<<"set title 'Monte Carlo'";
         const auto imdiff=Hist(DATA, "All", histpath_central_reconstr, "GMMPDiff4");
         experiment
             .Hist(imdiff).Hist(Hist(DATA, "All", histpath_central_reconstr, "GMMPDiff5"))
