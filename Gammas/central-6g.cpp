@@ -123,8 +123,8 @@ int main()
                     << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<<"set ylabel 'Efficiensy, a.u.'"
                     << "set xlabel '6gamma invariant mass - Q, GeV'"<< "set xrange [0.0:1.0]";
             Plot("He36g-tim-mc" + r,4)
-            .Hist(Hist(MC, r, histpath_central_reconstr, "TIM7-AllBins"))
-                    << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<< "set xrange [-0.5:0.5]"
+            .Hist(Hist(MC, r, histpath_central_reconstr, "TIM7-AllBins")/N)
+                    << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<< "set xrange [-0.2:0.15]"
                     << "set xlabel 'IM(3He+6gamma)-IM(p+d), GeV'"<<"set ylabel 'Efficiensy, a.u.'";
     }
     {
@@ -168,19 +168,19 @@ int main()
             Plot("He36g-tim-data",5)
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM7-AllBins"))
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<<"set ylabel 'Events, n.d.'"
-                    << "set xrange [-0.5:0.5]" << "set xlabel 'IM(3He+6gamma)-IM(p+d), GeV'";
+                    << "set xrange [-0.2:0.15]" << "set xlabel 'IM(3He+6gamma)-IM(p+d), GeV'";
 
             const auto DT=Hist(DATA, "All", histpath_central_reconstr, "dt2");
             const auto T=Hist(DATA, "All", histpath_central_reconstr, "t2");
             Plot("He36g-dt-data",5)
             .Hist(DT)
-            .Line(Points<>{{getParameter(time_dt),0.0},{getParameter(time_dt),hist<>(DT.Transponate()).right().X().max()*1.5}},"cut")
+            .Line(Points<>{{getParameter(time_dt),0.0},{getParameter(time_dt),hist<>(DT.Transponate()).right().X().max()*1.5}},"condition")
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"<<"set ylabel 'Events, n.d.'"
                     << "set xlabel 'dt gamma-gamma, ns'"<< "set key on";
             Plot("He36g-t-data",5)
             .Hist(T)
             .Line(Points<>{{getParameter(time_t1),hist<>(T.Transponate()).right().X().max()*1.5},{getParameter(time_t1),0.0},
-                           {getParameter(time_t2),0.0},{getParameter(time_t2),hist<>(T.Transponate()).right().X().max()*1.5}},"cut")
+                           {getParameter(time_t2),0.0},{getParameter(time_t2),hist<>(T.Transponate()).right().X().max()*1.5}},"condition")
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"<<"set ylabel 'Events, n.d.'"
                     << "set xlabel 'dt 3He-gamma, ns'"<< "set key on";
 
