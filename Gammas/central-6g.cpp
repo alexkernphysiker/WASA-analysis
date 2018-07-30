@@ -123,7 +123,7 @@ int main()
                     << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<<"set ylabel 'Efficiensy, a.u.'"
                     << "set xlabel '6gamma invariant mass - Q, GeV'"<< "set xrange [0.0:1.0]";
             Plot("He36g-tim-mc" + r,4)
-            .Hist(Hist(MC, r, histpath_central_reconstr, "TIM7-AllBins")/N)
+            .Hist(Hist(MC, r, histpath_central_reconstr, "TIM7-AllBins").Scale(4)/N)
                     << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<< "set xrange [-0.2:0.15]"
                     << "set xlabel 'IM(3He+6gamma)-IM(p+d), GeV'"<<"set ylabel 'Efficiensy, a.u.'";
     }
@@ -166,7 +166,7 @@ int main()
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<<"set ylabel 'Events, n.d.'"
                     << "set xlabel '6gamma invariant mass - Q, GeV'"<< "set xrange [0.0:1.0]";
             Plot("He36g-tim-data",5)
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM7-AllBins"))
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM7-AllBins").Scale(4))
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<<"set ylabel 'Events, n.d.'"
                     << "set xrange [-0.2:0.15]" << "set xlabel 'IM(3He+6gamma)-IM(p+d), GeV'";
 
