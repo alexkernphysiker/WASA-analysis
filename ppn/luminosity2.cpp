@@ -176,7 +176,7 @@ int main()
                     << Q.min() << "; " << Q.max() << "] MeV"
                 ).str();
             size_t counter=0;
-            const list<size_t> params{ppn_th1,ppn_th2,ppn_t1,ppn_t2,he3_theta_cut};
+            const list<size_t> params{pbeam_corr,ppn_th1,ppn_th2,ppn_t1,ppn_t2};
             acceptance << make_point(Q,RawSystematicError(params,[&N,&ppn_reaction,&bin_num](const string&suffix){//only for plot
                 const hist<> data_copl_mc=
                     Hist(MC,ppn_reaction,{"Histograms","quasielastic"},string("pair_phi_diff_")+to_string(3)+string("-Bin-") + to_string(bin_num),suffix)
