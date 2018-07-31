@@ -151,7 +151,7 @@ int main()
             << "set xrange [23:40]"<< "set yrange [30:70]"<<"set xtics 5"
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + th2;
 
-    ext_hist<2> events,acceptance;
+    ext_hist<2> lum_bc_z,lum_bc_p,lum_bc_m,acceptance,luminosity;
     cout << "Cross sections"<<endl;
     const auto diff_cs = ReadCrossSection();
     const auto p_cs = IntegrateCrossSection(diff_cs);
@@ -176,17 +176,18 @@ int main()
                     << Q.min() << "; " << Q.max() << "] MeV"
                 ).str();
             size_t counter=0;
-            const list<size_t> params{pbeam_corr,ppn_th1,ppn_th2,ppn_t1,ppn_t2};
-            acceptance << make_point(Q,RawSystematicError(params,[&N,&ppn_reaction,&bin_num](const string&suffix){//only for plot
+            acceptance << make_point(Q,RawSystematicError({pbeam_corr,ppn_th1,ppn_th2,ppn_t1,ppn_t2},[&N,&ppn_reaction,&bin_num](const string&suffix){//only for plot
                 const hist<> data_copl_mc=
                     Hist(MC,ppn_reaction,{"Histograms","quasielastic"},string("pair_phi_diff_")+to_string(3)+string("-Bin-") + to_string(bin_num),suffix)
                     .Scale(4).XRange(90,270);
                 const auto acc=data_copl_mc.TotalSum()/N;
                 return extend_value<2,2>(acc);
             })());
-
-            events<< make_point(Q,RawSystematicError(params,[&counter,&Q,&N,&Qmsg,&bin_num,&runmsg,&ppn_reaction,&planarity]
-                (const string&suffix){
+            const auto LC=[
+                    &counter,&Q,&N,&Qmsg,&bin_num,
+                    &runmsg,&ppn_reaction,&planarity,
+                    &SIGMA
+                ](const string&suffix){
                 counter++;
                 cout << endl << Qmsg<<suffix << endl;
                 const hist<> data_copl=
@@ -199,7 +200,7 @@ int main()
                 cout << endl << "Fitting" << endl;
 
                 const auto acc=data_copl_mc.TotalSum()/N;
-                return SystematicError<ppn_fit_range>(
+                const auto res=SystematicError<ppn_fit_range>(
                     [&data_copl,&data_copl_mc,&counter,&Q,&Qmsg,&runmsg,&N,&planarity,&acc]
                     (const double&x){
                     counter++;
@@ -240,6 +241,14 @@ int main()
                     }
                     return extend_value<1,2>(summ.TotalSum())/extend_value<2,2>(acc);
                 })();
+                return res*trigger_elastic1.scaling/extend_value<2,2>(SIGMA[bin_num].Y());
+            };
+            luminosity<<make_point(Q,RawSystematicError({pbeam_corr},[&LC,&Q,&lum_bc_m,&lum_bc_p,&lum_bc_z](const string&suffix){
+                const auto res=(suffix=="_")?RawSystematicError({ppn_th1,ppn_th2,ppn_t1,ppn_t2},LC)():LC(suffix);
+                if(suffix=="_")lum_bc_z<<make_point(Q,res);
+                if(suffix=="00-")lum_bc_m<<make_point(Q,res);
+                if(suffix=="00+")lum_bc_p<<make_point(Q,res);
+                return res;
             })());
         }
     }
@@ -248,23 +257,31 @@ int main()
             << "set key on" << "set title 'Efficiency'" << "set yrange [0:0.2]" << "set xrange [-70:30]"
             << "set xlabel 'Q, MeV'" << "set ylabel 'Efficiency, n.d.'"<<"set xtics 20";
 
-    const auto luminosity=((events*trigger_elastic1.scaling)/extend_hist<2,2>(SIGMA));
+    Plot("luminosity-v2",3)
+        .Hist_2bars<1,2>(lum_bc_z, "","","LUMINOSITYc_z")
+        .Hist_2bars<1,2>(lum_bc_p, "","","LUMINOSITYc_p")
+        .Hist_2bars<1,2>(lum_bc_m, "","","LUMINOSITYc_m")
+            << "set title 'Integrated luminosity " + runmsg + "'"
+            << "set key on" << "set xlabel 'Q, MeV'"<<"set xtics 20"
+            << "set ylabel 'Integrated luminosity, nb^{-1}'"
+            << "set xrange [-70:30]" << "set yrange [0:]";
     const auto prev_luminosity = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYf"));
     const hist<> sasha=SortedPoints<double,value<>>(Plotter::Instance().GetPoints<double,value<>>("luminosity_khr"));
+    const auto hirange=to_string(wrap_hist(luminosity).TransponateAndSort().right().X().max()*1.5);
     Plot("luminosity-v2-compare",3)
         .Hist_2bars<1,2>(luminosity, "ppn_{sp}","","LUMINOSITYc")
         .Hist_2bars<1,2>(prev_luminosity,"3He+eta")
             << "set title 'Integrated luminosity " + runmsg + "'"
             << "set key on" << "set xlabel 'Q, MeV'"<<"set xtics 20"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
-            << "set xrange [-70:30]" << "set yrange [0:100]";
+            << "set xrange [-70:30]" << "set yrange [0:"+hirange+"]";
     Plot("luminosity-v2-compare-light",3)
         .Hist(wrap_hist(luminosity), "ppn_{sp}")
         .Hist(wrap_hist(prev_luminosity),"3He+eta")
             << "set title 'Integrated luminosity " + runmsg + "'"
             << "set key on" << "set xlabel 'Q, MeV'"<<"set xtics 20"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
-            << "set xrange [-70:30]" << "set yrange [0:100]";
+            << "set xrange [-70:30]" << "set yrange [0:"+hirange+"]";
     cout<<"luminosity: "<<luminosity.TotalSum()<<endl;
     Plot("luminosity-v2-compare-estimation",3)
         .Hist(wrap_hist(luminosity)*runs.second/runs.first, "ppn_{sp}")

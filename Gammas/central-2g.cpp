@@ -49,12 +49,6 @@ int main()
     gEd.Hist(Hist(DATA, "All", histpath_central_reconstr, "GammaEnergy")).Hist(Hist(DATA, "All", histpath_central_reconstr, "GammaEnergyCut"));
     Plot("He3gg-gamma-count",3).Hist(Hist(DATA, "All", histpath_central_reconstr, "GammaCount"));
 
-    ext_hist<2> ev_am,b_acc;
-    vector<ext_hist<2>> acc;
-
-    for (size_t j = 0; j < reaction.size(); j++)
-        acc.push_back(ext_hist<2>());
-
     for (size_t i = 0; i < reaction.size(); i++) {
             const int N=10000000;
             const auto &r = reaction[i];
@@ -172,25 +166,51 @@ int main()
                     << "set xlabel 'theta(eta) reconstructed'"<<"set ylabel 'Events, n.d.'";
     }
 
+    ext_hist<2> ev_am,b_acc,ev_norm;
+    vector<ext_hist<2>> acc;
+    for (size_t j = 0; j < reaction.size(); j++)
+        acc.push_back(ext_hist<2>());
+    const auto lum_b_z = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc_z"));
+    const auto lum_b_p = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc_p"));
+    const auto lum_b_m = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc_m"));
+    const list<size_t> params{pbeam_corr,he3_cut_h,he3_theta_cut};
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++) {
         const auto &Q = norm[bin_num].X();
         const string Qmsg = static_cast<stringstream &>(stringstream()
             << "Q in [" << setprecision(3)<< Q.min() << "; " << Q.max() << "] MeV").str();
         cout<<Qmsg << " plots"<<endl;
-        const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM6-Bin-") + to_string(bin_num)).XRange(-0.3,0.3);
         for(size_t i = 0; i < reaction.size(); i++){ 
             const auto &r = reaction[i];
             cout<<Qmsg << " acceptance "<<r<<endl;
-            const auto MC_TIM=Hist(MC, r, histpath_central_reconstr, "TIM6-Bin-"+to_string(bin_num)).XRange(-0.3,0.3);
-            hist<> Norm = Hist(MC, r, histpath_central_reconstr, "0-Reference");
-            const auto &N = Norm[bin_num].Y();
-            if (N.Above(0)) acc[i] << make_point(Q, extend_value<1,2>(std_error(MC_TIM.TotalSum().val())/N));
-            else acc[i] << make_point(Q, 0.0);
+            acc[i]<<make_point(Q,RawSystematicError(params,[bin_num,&r,&histpath_central_reconstr](const string&suffix){
+                const auto MC_TIM=Hist(MC, r, histpath_central_reconstr, "TIM6-Bin-"+to_string(bin_num),suffix).XRange(-0.3,0.3);
+                hist<> Norm = Hist(MC, r, histpath_central_reconstr, "0-Reference",suffix);
+                const auto &N = Norm[bin_num].Y();
+                if (N.Above(0)) return extend_value<2,2>(std_error(MC_TIM.TotalSum().val())/N);
+                else return uncertainties(0.,0.,0.);
+            })());
         }
         b_acc<<make_point(Q,SystematicError<bound_state_reaction_index>([&acc](const int i){return acc[i].right().Y();})());
-        ev_am<<make_point(Q,extend_value<1,2>(std_error(TIM.TotalSum().val())));
+        ev_am<<make_point(Q,RawSystematicError(params,[bin_num,&histpath_central_reconstr](const string&suffix){
+            const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM6-Bin-") + to_string(bin_num),suffix).XRange(-0.3,0.3);
+            return extend_value<1,2>(std_error(TIM.TotalSum().val()));
+        })());
+        ev_norm<<make_point(Q,RawSystematicError(params,[
+            bin_num,&histpath_central_reconstr,&reaction,
+            &lum_b_m,&lum_b_p,&lum_b_z
+        ](const string&suffix){
+            const auto ac=SystematicError<bound_state_reaction_index>([&histpath_central_reconstr,&bin_num,&reaction,&suffix](const int i){
+                const auto &r = reaction[i];
+                const auto MC_TIM=Hist(MC, r, histpath_central_reconstr, "TIM6-Bin-"+to_string(bin_num),suffix).XRange(-0.3,0.3);
+                hist<> Norm = Hist(MC, r, histpath_central_reconstr, "0-Reference",suffix);
+                const auto &N = Norm[bin_num].Y();
+                return extend_value<2,2>(std_error(MC_TIM.TotalSum().val())/N);
+            })();
+            const auto&lum=(suffix=="00+")?lum_b_p:(suffix=="00-")?lum_b_m:lum_b_z;
+            const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM6-Bin-") + to_string(bin_num),suffix).XRange(-0.3,0.3);
+            return (extend_value<1,2>(std_error(TIM.TotalSum().val()))*trigger_he3_forward.scaling)/(ac*lum[bin_num].Y());
+        })());
     }
-    const auto luminosity = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc"));
     const auto luminosity_he = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc")).XRange(10,30);
     const auto branching_ratio=uncertainties(0.393,0,0.003);
     const auto he3eta_events = luminosity_he/trigger_he3_forward.scaling *acc[3].XRange(10,30)*branching_ratio
@@ -219,14 +239,13 @@ int main()
             << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
             << "set ylabel 'Events, n.d.'" << "set yrange [0:]"
             << "set title 'pd->3He+2gamma "+runmsg+"'"<<"set key left top";
-    const auto data_shape=(ev_am*trigger_he3_forward.scaling/(b_acc*luminosity)).XRange(-70,10); 
     Plot("He3gg-events-norm",5)
-        .Hist_2bars<1,2>(data_shape,"Data statistical", "Data systematic","curve_3he_2gamma")
+        .Hist_2bars<1,2>(ev_norm.XRange(-70,10),"Data statistical", "Data systematic","curve_3he_2gamma")
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set title 'pd->3He+2gamma "+runmsg+"'"<< "set xrange [-70:10]"
             << "set ylabel 'Normalized events, nb'" << "set yrange [0:40]";
     Plot("He3gg-events-norm-light",5)
-        .Hist(wrap_hist(data_shape))
+        .Hist(wrap_hist(ev_norm).XRange(-70,10))
             << "set xlabel 'Q, MeV'" << "set key on"
             << "set title 'pd->3He+2gamma "+runmsg+"'"<< "set xrange [-70:10]"
             << "set ylabel 'Normalized events, nb'" << "set yrange [0:40]";
