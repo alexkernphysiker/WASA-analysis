@@ -166,7 +166,7 @@ int main()
                     << "set xlabel 'theta(eta) reconstructed'"<<"set ylabel 'Events, n.d.'";
     }
 
-    ext_hist<2> ev_am,b_acc,ev_norm;
+    ext_hist<2> ev_am,b_acc,ev_norm,tube_acc;
     vector<ext_hist<2>> acc;
     for (size_t j = 0; j < reaction.size(); j++)
         acc.push_back(ext_hist<2>());
@@ -193,7 +193,16 @@ int main()
             })());
         }
         cout<<Qmsg << " acceptance"<<endl;
-        b_acc<<make_point(Q,SystematicError<bound_state_reaction_index>([&acc](const int i){return acc[i].right().Y();})());
+        b_acc<<make_point(Q,SystematicError<bound_state_reaction_index>([&](const int i){return acc[i].right().Y();})());
+        cout<<Qmsg << " acceptance (tube)"<<endl;
+        tube_acc<<make_point(Q,SystematicError<bound_state_reaction_index>([&reaction,&histpath_central_reconstr,bin_num](const int i){
+            return RawSystematicError({he3_theta_cut},[&reaction,&histpath_central_reconstr,&bin_num,&i](const string&suffix){
+                return extend_value<1,2>(
+                    Hist(MC, reaction[i], histpath_central_reconstr, "Events0",suffix)[bin_num].Y()
+                   /Hist(MC, reaction[i], histpath_central_reconstr, "0-Reference",suffix)[bin_num].Y()
+                );
+            })();
+        })());
         cout<<Qmsg << " events count"<<endl;
         ev_am<<make_point(Q,RawSystematicError(params,[bin_num,&histpath_central_reconstr](const string&suffix){
             const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM6-Bin-") + to_string(bin_num),suffix).XRange(-0.3,0.3);
@@ -256,10 +265,7 @@ int main()
             << "set ylabel 'Normalized events, nb'" << "set yrange [0:40]";
 
     cout<<"Final plots"<<endl;
-    Plot("He3gg-tube-acc",5).Hist(
-        Hist(MC, reaction[1], histpath_central_reconstr, "Events0")
-        /Hist(MC, reaction[1], histpath_central_reconstr, "0-Reference")
-    )
+    Plot("He3gg-tube-acc",5).Hist_2bars<1,2>(tube_acc)
             << "set xlabel 'Q, MeV'" << "set xrange [-70:30]"
             << "set ylabel 'Efficiency, n.d.'" << "set yrange [0:1]"
             << "set title 'How many helium ions from mesic nuclei decay would be detected'";
