@@ -20,9 +20,9 @@ using namespace GnuplotWrap;
 int main()
 {
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-2gamma");
-    vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas2"};
-    vector<string> reaction = {"bound1-2g","bound2-2g","bound3-2g", "He3eta-gg", "He3pi0pi0", "He3pi0pi0pi0", "He3pi0"};
-    vector<string> rname = {"Bound state","Bound state","Bound state", "3He+eta", "3He+2pi0", "3He+3pi0", "3He+pi0"};
+    const vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas2"};
+    const vector<string> reaction = {"bound1-2g","bound2-2g","bound3-2g", "He3eta-gg", "He3pi0pi0", "He3pi0pi0pi0", "He3pi0"};
+    const vector<string> rname = {"Bound state","Bound state","Bound state", "3He+eta", "3He+2pi0", "3He+3pi0", "3He+pi0"};
     const hist<> norm = Hist(MC, reaction[0], histpath_central_reconstr, "0-Reference");
     const auto runs = PresentRuns("All");
     const string runmsg = (runs.first==runs.second)?"":"("+to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs)";
@@ -173,12 +173,14 @@ int main()
     const auto lum_b_z = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc_z"));
     const auto lum_b_p = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc_p"));
     const auto lum_b_m = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc_m"));
-    const list<size_t> params{pbeam_corr,he3_cut_h,he3_theta_cut};
+    const list<size_t> params{pbeam_corr,he3_cut_h,he3_theta_cut,
+        gamma_E_thr,time_dt,time_t1,time_t2,eta_theta_thr,he3mm_cut,
+        gamma_mm_lo,gamma_mm_hi,gamma_im_lo,gamma_im_hi
+    };
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++) {
         const auto &Q = norm[bin_num].X();
         const string Qmsg = static_cast<stringstream &>(stringstream()
             << "Q in [" << setprecision(3)<< Q.min() << "; " << Q.max() << "] MeV").str();
-        cout<<Qmsg << " plots"<<endl;
         for(size_t i = 0; i < reaction.size(); i++){ 
             const auto &r = reaction[i];
             cout<<Qmsg << " acceptance "<<r<<endl;
@@ -190,11 +192,14 @@ int main()
                 else return uncertainties(0.,0.,0.);
             })());
         }
+        cout<<Qmsg << " acceptance"<<endl;
         b_acc<<make_point(Q,SystematicError<bound_state_reaction_index>([&acc](const int i){return acc[i].right().Y();})());
+        cout<<Qmsg << " events count"<<endl;
         ev_am<<make_point(Q,RawSystematicError(params,[bin_num,&histpath_central_reconstr](const string&suffix){
             const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM6-Bin-") + to_string(bin_num),suffix).XRange(-0.3,0.3);
             return extend_value<1,2>(std_error(TIM.TotalSum().val()));
         })());
+        cout<<Qmsg << " events count norm"<<endl;
         ev_norm<<make_point(Q,RawSystematicError(params,[
             bin_num,&histpath_central_reconstr,&reaction,
             &lum_b_m,&lum_b_p,&lum_b_z

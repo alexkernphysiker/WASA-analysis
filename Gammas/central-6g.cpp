@@ -24,9 +24,9 @@ using namespace GnuplotWrap;
 int main()
 {
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "central-6gamma-with-3he");
-    vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas6"};
-    vector<string> reaction = {"bound1-6g","bound2-6g","bound3-6g", "He3eta-6g", "He3pi0pi0pi0"};
-    vector<string> rname = {"Bound state","Bound state","Bound state", "3He+eta", "3He+3pi0"};
+    const vector<string> histpath_central_reconstr = {"Histograms", "He3nCentralGammas6"};
+    const vector<string> reaction = {"bound1-6g","bound2-6g","bound3-6g", "He3eta-6g", "He3pi0pi0pi0"};
+    const vector<string> rname = {"Bound state","Bound state","Bound state", "3He+eta", "3He+3pi0"};
     hist<> norm = Hist(MC, reaction[0], histpath_central_reconstr, "0-Reference");
     const auto runs = PresentRuns("All");
     const string runmsg = (runs.first==runs.second)?"":"("+to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs)";
@@ -75,12 +75,6 @@ int main()
             .Line(Points<>{{getParameter(three_pi0),0.0},{getParameter(three_pi0),hist<>(imdiff.Transponate()).right().X().max()*1.5}})
                 << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<<"set xrange [0:0.15]"<<"set ylabel 'Events, n.d.'";
     }
-    ext_hist<2> ev_am,b_acc;
-    vector<ext_hist<2>> acceptance;
-    for (size_t i = 0; i < reaction.size(); i++) {
-        acceptance.push_back(ext_hist<2>());
-    }
-
     for (size_t i = 0; i < reaction.size(); i++) {
             const auto &r = reaction[i];
             const auto &rn = rname[i];
@@ -193,52 +187,58 @@ int main()
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"<<"set ylabel 'Events, n.d.'"
                     << "set xlabel 'dt 3He-gamma, ns'"<< "set key on";
     }
+    ext_hist<2> ev_am,b_acc,ev_norm;
+    vector<ext_hist<2>> acc;
+    for (size_t i = 0; i < reaction.size(); i++) {
+        acc.push_back(ext_hist<2>());
+    }
+    const auto lum_b_z = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc_z"));
+    const auto lum_b_p = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc_p"));
+    const auto lum_b_m = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc_m"));
+    const list<size_t> params{pbeam_corr,he3_cut_h,he3_theta_cut,
+        gamma_E_thr,time_dt,time_t1,time_t2,eta_theta_thr,he3mm_cut,
+        gamma_mm_lo,gamma_mm_hi,gamma_im_lo6,gamma_im_hi6,three_pi0
+    };
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++) {
         const auto &Q = norm[bin_num].X();
         const string Qmsg = static_cast<stringstream &>(stringstream()
                             << "Q in [" << setprecision(3)
                             << Q.min() << "; " << Q.max() << "] MeV").str();
         cout<<Qmsg << " plots3 & events count "<<endl;
-        {
-            Plot mc_plot(
-                Q.Contains(21) ? "He36g-above-tim-mc" : (
-                    Q.Contains(-39) ? "He36g-below-tim-mc" : (
-                        Q.Contains(-3) ? "He36g-thr-tim-mc" : ""
-                    )
-                ),5
-            );
-            cout<<Qmsg << " plots2 "<<endl;
-            mc_plot << "set key on" << "set title '" + Qmsg + ";MC'" << "set yrange [0:]"
-                    << "set xlabel '6gamma invariant mass, GeV'";
-            for (size_t i = 0; i < reaction.size(); i++) {
-                const auto &r = reaction[i];
-                cout<<Qmsg << " plots2 "<<r<<endl;
-                hist<> Norm = Hist(MC, r, histpath_central_reconstr, "0-Reference");
+        for (size_t i = 0; i < reaction.size(); i++) {
+            const auto &r = reaction[i];
+            cout<<Qmsg << " plots2 "<<r<<endl;
+            acc[i]<<make_point(Q,RawSystematicError(params,[bin_num,&r,&histpath_central_reconstr](const string&suffix){
+                const auto MC_TIM=Hist(MC, r, histpath_central_reconstr, "TIM7-Bin-"+to_string(bin_num),suffix).XRange(-0.3,0.3);
+                hist<> Norm = Hist(MC, r, histpath_central_reconstr, "0-Reference",suffix);
                 const auto &N = Norm[bin_num].Y();
-                if (N.Above(0)) {
-                    const hist<> h = Hist(MC, r, histpath_central_reconstr, string("TIM7-Bin-") + to_string(bin_num)).XRange(-0.3,0.3);
-                    const auto C = std_error(h.TotalSum().val());
-                    mc_plot.Hist(h / N, rname[i]);
-                    acceptance[i] << make_point(Q, extend_value<1,2>(C/N));
-                } else {
-                    acceptance[i] << make_point(Q, 0.0);
-                }
-            }
+                if (N.Above(0)) return extend_value<2,2>(std_error(MC_TIM.TotalSum().val())/N);
+                else return uncertainties(0.,0.,0.);
+            })());
         }
-        cout<<Qmsg << " plots3 & events count "<<endl;
-        const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM7-Bin-") + to_string(bin_num)).XRange(-0.3,0.3);
-        b_acc<<make_point(Q,SystematicError<bound_state_reaction_index>([&acceptance](const int i){return acceptance[i].right().Y();})());
-        ev_am<<make_point(Q,extend_value<1,2>(std_error(TIM.TotalSum().val())));
-        Plot(
-            Q.Contains(21) ? "He36g-above-tim-data" : (
-                Q.Contains(-39) ? "He36g-below-tim-data" : (
-                    Q.Contains(-3) ? "He36g-thr-tim-data" : ""
-                )
-            ),5
-        )
-            .Hist(TIM)
-                    << "set key on" << "set title '" + Qmsg + ";Data " + runmsg + "'" << "set yrange [0:]"
-                    << "set xlabel '6gamma invariant mass, GeV'";
+        cout<<Qmsg << " acceptance "<<endl;
+        b_acc<<make_point(Q,SystematicError<bound_state_reaction_index>([&acc](const int i){return acc[i].right().Y();})());
+        cout<<Qmsg << " events count "<<endl;
+        ev_am<<make_point(Q,RawSystematicError(params,[bin_num,&histpath_central_reconstr](const string&suffix){
+            const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM7-Bin-") + to_string(bin_num),suffix).XRange(-0.3,0.3);
+            return extend_value<1,2>(std_error(TIM.TotalSum().val()));
+        })());
+        cout<<Qmsg << " events count norm"<<endl;
+        ev_norm<<make_point(Q,RawSystematicError(params,[
+            bin_num,&histpath_central_reconstr,&reaction,
+            &lum_b_m,&lum_b_p,&lum_b_z
+        ](const string&suffix){
+            const auto ac=SystematicError<bound_state_reaction_index>([&histpath_central_reconstr,&bin_num,&reaction,&suffix](const int i){
+                const auto &r = reaction[i];
+                const auto MC_TIM=Hist(MC, r, histpath_central_reconstr, "TIM7-Bin-"+to_string(bin_num),suffix).XRange(-0.3,0.3);
+                hist<> Norm = Hist(MC, r, histpath_central_reconstr, "0-Reference",suffix);
+                const auto &N = Norm[bin_num].Y();
+                return extend_value<2,2>(std_error(MC_TIM.TotalSum().val())/N);
+            })();
+            const auto&lum=(suffix=="00+")?lum_b_p:(suffix=="00-")?lum_b_m:lum_b_z;
+            const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM7-Bin-") + to_string(bin_num),suffix).XRange(-0.3,0.3);
+            return (extend_value<1,2>(std_error(TIM.TotalSum().val()))*trigger_he3_forward.scaling)/(ac*lum[bin_num].Y());
+        })());
     }
     cout<<"Final plots"<<endl;
     Plot accplot("He36g-acceptance",5);
@@ -248,13 +248,11 @@ int main()
             << "set yrange [0:0.1]" << "set key on";
     accplot.Hist(wrap_hist(b_acc),rname[1]);
     for (size_t i = 3; i < reaction.size(); i++) {
-        accplot.Hist(wrap_hist(acceptance[i]), rname[i]);
+        accplot.Hist(wrap_hist(acc[i]), rname[i]);
     }
-    const ext_hist<2> luminosity = Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc");
     const auto luminosity_he = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc")).XRange(10,30);
     const auto branching_ratio=uncertainties(0.322,0,0.003);
-    const auto he3eta_events = luminosity_he
-        *branching_ratio*acceptance[3].XRange(10,30)
+    const auto he3eta_events = luminosity_he*branching_ratio*acc[3].XRange(10,30)
         *extend_hist<2,2>(hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")).XRange(10,30))/trigger_he3_forward.scaling;
 
     Plot("He36g-events",5)
@@ -263,23 +261,16 @@ int main()
             << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:30]"
             << "set ylabel 'Events, n.d.'" << "set yrange [0:]"
             << "set title 'pd->3He+6gamma " + runmsg + "'"<<"set key left top";
-    const auto data_shape=(ev_am*trigger_he3_forward.scaling/(b_acc*luminosity)).XRange(-70,10);
     Plot("He36g-events-norm-bound",5)
-        .Hist_2bars<1,2>(data_shape,"Data statistical","Data systematic","curve_3he_6gamma")
+        .Hist_2bars<1,2>(ev_norm.XRange(-70,10),"Data statistical","Data systematic","curve_3he_6gamma")
             <<"set key left top">>"set key right top"
             << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
             << "set ylabel 'Normalized events, nb'" << "set yrange [0:70]"
             << "set title 'pd->3He+6gamma "+runmsg+"'"<<"set key right top";
     Plot("He36g-events-norm-light",5)
-        .Hist(wrap_hist(data_shape))
+        .Hist(wrap_hist(ev_norm).XRange(-70,10))
             <<"set key left top">>"set key right top"
             << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
             << "set ylabel 'Normalized events, nb'" << "set yrange [0:70]"
             << "set title 'pd->3He+6gamma "+runmsg+"'"<<"set key right top";
-    Plot("He36g-events-norm2-bound",5)
-        .Hist_2bars<1,2>(data_shape/branching_ratio,"Divided by branching ratio")
-            <<"set key left top">>"set key right top"
-            << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
-            << "set ylabel 'normalized events amount, nb'" << "set yrange [0:]"
-            << "set title 'pd->3He+6gamma "+runmsg+"'";
 }
