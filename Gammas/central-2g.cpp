@@ -186,8 +186,8 @@ int main()
             cout<<Qmsg << " acceptance "<<r<<endl;
             acc[i]<<make_point(Q,RawSystematicError(params,[bin_num,&r,&histpath_central_reconstr](const string&suffix){
                 const auto MC_TIM=Hist(MC, r, histpath_central_reconstr, "TIM6-Bin-"+to_string(bin_num),suffix).XRange(-0.3,0.3);
-                hist<> Norm = Hist(MC, r, histpath_central_reconstr, "0-Reference",suffix);
-                const auto &N = Norm[bin_num].Y();
+                static Cache<string,hist<>> NORM;
+                const auto &N = NORM(r+suffix,[&histpath_central_reconstr,&r,&suffix](){return Hist(MC, r, histpath_central_reconstr, "0-Reference",suffix);})[bin_num].Y();
                 if (N.Above(0)) return extend_value<2,2>(std_error(MC_TIM.TotalSum().val())/N);
                 else return uncertainties(0.,0.,0.);
             })());
@@ -197,9 +197,11 @@ int main()
         cout<<Qmsg << " acceptance (tube)"<<endl;
         tube_acc<<make_point(Q,SystematicError<bound_state_reaction_index>([&reaction,&histpath_central_reconstr,bin_num](const int i){
             return RawSystematicError({he3_theta_cut},[&reaction,&histpath_central_reconstr,&bin_num,&i](const string&suffix){
+                static Cache<string,hist<>> OVER,UNDER;
+                const auto&r=reaction[i];
                 return extend_value<1,2>(
-                    Hist(MC, reaction[i], histpath_central_reconstr, "Events0",suffix)[bin_num].Y()
-                   /Hist(MC, reaction[i], histpath_central_reconstr, "0-Reference",suffix)[bin_num].Y()
+                    OVER(r+suffix,[&r,&suffix,&histpath_central_reconstr](){return Hist(MC, r, histpath_central_reconstr, "Events0",suffix);})[bin_num].Y()
+                  /UNDER(r+suffix,[&r,&suffix,&histpath_central_reconstr](){return Hist(MC, r, histpath_central_reconstr, "0-Reference",suffix);})[bin_num].Y()
                 );
             })();
         })());
@@ -216,8 +218,8 @@ int main()
             const auto ac=SystematicError<bound_state_reaction_index>([&histpath_central_reconstr,&bin_num,&reaction,&suffix](const int i){
                 const auto &r = reaction[i];
                 const auto MC_TIM=Hist(MC, r, histpath_central_reconstr, "TIM6-Bin-"+to_string(bin_num),suffix).XRange(-0.3,0.3);
-                hist<> Norm = Hist(MC, r, histpath_central_reconstr, "0-Reference",suffix);
-                const auto &N = Norm[bin_num].Y();
+                static Cache<string,hist<>> NORM;
+                const auto &N = NORM(r+suffix,[&histpath_central_reconstr,&r,&suffix](){return Hist(MC, r, histpath_central_reconstr, "0-Reference",suffix);})[bin_num].Y();
                 return extend_value<2,2>(std_error(MC_TIM.TotalSum().val())/N);
             })();
             const auto&lum=(suffix=="00+")?lum_b_p:(suffix=="00-")?lum_b_m:lum_b_z;
