@@ -61,7 +61,7 @@ Chain<value_numeric_distr<>> BWfit(const string&suffix,const double&B,const doub
     static CacheConstr<string,ext_hist<2>> DATA1,DATA2,MBG1,MBG2;
     const auto&data1=DATA1(suffix,[&suffix,&lum](const value<>&Q){
         const size_t bin_num=trunc((Q.val()+70.)/2.5);
-        cout<<"Preparing histogram for "<<suffix<<": "<<"data1"<<Q.min()<<":"<<Q.max()<<"MeV"<<endl;
+        cout<<"Preparing histogram for "<<suffix<<": "<<"data1["<<Q.min()<<":"<<Q.max()<<"]MeV"<<endl;
         const auto ac=SystematicError<bound_state_reaction_index>([&bin_num,&suffix](const int i){
             const auto &r = reaction1[i];
             const auto MC_TIM=Hist(MC, r, histpath_central_reconstr1, "TIM6-Bin-"+to_string(bin_num),suffix).XRange(-0.3,0.3);
@@ -74,7 +74,7 @@ Chain<value_numeric_distr<>> BWfit(const string&suffix,const double&B,const doub
     },Qbins);
     cout<<"Histogram for "<<suffix<<": "<<"bg1"<<endl;
     const auto bg1=lum.XRange(-70,2.5)*MBG1(suffix,[&suffix](const value<>&Q){
-        cout<<"Preparing histogram for "<<suffix<<": "<<"bg1"<<Q.min()<<":"<<Q.max()<<"MeV"<<endl;
+        cout<<"Preparing histogram for "<<suffix<<": "<<"bg1["<<Q.min()<<":"<<Q.max()<<"]MeV"<<endl;
         const size_t bin_num=trunc((Q.val()+70.)/2.5);
         const auto MC_TIM=Hist(MC, "He3pi0pi0", histpath_central_reconstr1, "TIM6-Bin-"+to_string(bin_num),suffix).XRange(-0.3,0.3);
         static Cache<string,hist<>> NORM;
@@ -84,7 +84,7 @@ Chain<value_numeric_distr<>> BWfit(const string&suffix,const double&B,const doub
     cout<<"Histogram for "<<suffix<<": "<<"data2"<<endl;
     const auto&data2=DATA2(suffix,[&suffix,&lum](const value<>&Q){
         const size_t bin_num=trunc((Q.val()+70.)/2.5);
-        cout<<"Preparing histogram for "<<suffix<<": "<<"data2"<<Q.min()<<":"<<Q.max()<<"MeV"<<endl;
+        cout<<"Preparing histogram for "<<suffix<<": "<<"data2["<<Q.min()<<":"<<Q.max()<<"]MeV"<<endl;
         const auto ac=SystematicError<bound_state_reaction_index>([&bin_num,&suffix](const int i){
             const auto &r = reaction2[i];
             const auto MC_TIM=Hist(MC, r, histpath_central_reconstr2, "TIM7-Bin-"+to_string(bin_num),suffix).XRange(-0.3,0.3);
@@ -98,19 +98,19 @@ Chain<value_numeric_distr<>> BWfit(const string&suffix,const double&B,const doub
     cout<<"Histogram for "<<suffix<<": "<<"bg2"<<endl;
     const auto bg2=lum.XRange(-70,2.5)*MBG2(suffix,[&suffix](const value<>&Q){
         const size_t bin_num=trunc((Q.val()+70.)/2.5);
-        cout<<"Preparing histogram for "<<suffix<<": "<<"bg2"<<Q.min()<<":"<<Q.max()<<"MeV"<<endl;
+        cout<<"Preparing histogram for "<<suffix<<": "<<"bg2["<<Q.min()<<":"<<Q.max()<<"]MeV"<<endl;
         const auto MC_TIM=Hist(MC, "He3pi0pi0pi0", histpath_central_reconstr2, "TIM7-Bin-"+to_string(bin_num),suffix).XRange(-0.3,0.3);
         static Cache<string,hist<>> NORM;
         const auto &N = NORM(suffix,[&suffix](){return Hist(MC, "He3pi0pi0pi0", histpath_central_reconstr2, "0-Reference",suffix);})[bin_num].Y();
         return extend_value<2,2>(std_error(MC_TIM.TotalSum().val())/N);
     },Qbins);
-    const auto Data1=wrap_hist(data1.XRange(-40,5)),Data2=wrap_hist(data2.XRange(-40,5)),
-                BG1=wrap_hist(bg1.XRange(-40,5)),BG2=wrap_hist(bg2.XRange(-40,5));
+    const auto Data1=wrap_hist(data1.XRange(-35,5)),Data2=wrap_hist(data2.XRange(-35,5)),
+                BG1=wrap_hist(bg1.XRange(-35,5)),BG2=wrap_hist(bg2.XRange(-35,5));
     cout<<"Fitting for "<<suffix<<": B="<<B<<"; G="<<G<<endl;
     const hist<> BW([&B,&G](const value<>&Q){
         //ToDo: calculate Breight Wigner using kinetic energy value
         return BreitWigner(Q.val(),B,G);
-    },Qbins);
+    },Data1);
     EquationSolver<DifferentialMutations<ParabolicErrorEstimationFromChisq>> FIT{{
         .left=[&BW,&Data1,&BG1,&Data2,&BG2](const ParamSet&P){
             const auto F1=BW*branching_ratio1*P[0]+BG1*P[1];
@@ -147,13 +147,13 @@ Chain<value_numeric_distr<>> BWfit(const string&suffix,const double&B,const doub
         Plot("UpperLimitTotalFit1",5)
             .Hist(Data1).Line(fit1).Line(background1)
                 <<"set key left top">>"set key right top"
-                << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
+                << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-40:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:]"
                 << "set title 'pd->3He+2g "+msg+"'"<<"set key right top";
         Plot("UpperLimitTotalFit2",5)
             .Hist(Data2).Line(fit2).Line(background2)
                 <<"set key left top">>"set key right top"
-                << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
+                << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-40:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:]"
                 << "set title 'pd->3He+6g "+msg+"'"<<"set key right top";
     }
@@ -167,17 +167,19 @@ int main()
         gamma_mm_lo,gamma_mm_hi,gamma_im_lo,gamma_im_hi,
         gamma_mm_lo,gamma_mm_hi,gamma_im_lo6,gamma_im_hi6,three_pi0
     };
-    const double G=5.0;
-    ext_hist<2> UpperLimit;
-    for(double B=-28.75;B<0;B+=2.5){
-        UpperLimit<<make_point(B,RawSystematicError(params,[&G,&B](const string&suffix){
-            return BWfit(suffix,B,G,(B>-10)&&(B<-7.5))[0].max();
-        })());
-    }
-    Plot("UpperLimit",5)
-        .Hist_2bars<1,2>(UpperLimit)
+    Plot plot_upper("UpperLimit",5);
+    plot_upper
             <<"set key left top">>"set key right top"
             << "set xlabel 'Binding energy, MeV'" << "set key on"<<"set xrange [-70:10]"
-            << "set ylabel 'Upper limit, nb'" << "set yrange [0:]"
-            << "set title 'Upper limit Г="+to_string(G)+"'"<<"set key right top";
+            << "set ylabel 'Upper limit, nb'" << "set yrange [0:40]"
+            << "set title 'Upper limit'"<<"set key right top";
+    for(double G=5;G<=20;G+=5){
+        ext_hist<2> UpperLimit;
+        for(double B=-28.75;B<0;B+=2.5){
+            UpperLimit<<make_point(B,RawSystematicError(params,[&G,&B](const string&suffix){
+                return BWfit(suffix,B,G,(B>-10)&&(B<-7.5)&&(G==5))[0].max();
+            })());
+        }
+        plot_upper.Hist(wrap_hist(UpperLimit),"Г="+to_string(G));
+    }
 }
