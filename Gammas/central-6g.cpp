@@ -195,7 +195,7 @@ int main()
     const auto lum_b_z = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc_z"));
     const auto lum_b_p = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc_p"));
     const auto lum_b_m = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc_m"));
-    const list<size_t> params{pbeam_corr,he3_cut_h,//he3_theta_cut,
+    const list<size_t> params{pbeam_corr,he3_cut_h,he3_theta_cut,
         gamma_E_thr,time_dt,time_t1,time_t2,eta_theta_thr,he3mm_cut,
         gamma_mm_lo,gamma_mm_hi,gamma_im_lo6,gamma_im_hi6,three_pi0
     };

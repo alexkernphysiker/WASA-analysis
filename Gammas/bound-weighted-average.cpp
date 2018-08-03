@@ -104,8 +104,10 @@ Chain<value_numeric_distr<>> BWfit(const string&suffix,const double&B,const doub
         const auto &N = NORM(suffix,[&suffix](){return Hist(MC, "He3pi0pi0pi0", histpath_central_reconstr2, "0-Reference",suffix);})[bin_num].Y();
         return extend_value<2,2>(std_error(MC_TIM.TotalSum().val())/N);
     },Qbins);
-    const auto Data1=wrap_hist(data1.XRange(-35,5)),Data2=wrap_hist(data2.XRange(-35,5)),
-                BG1=wrap_hist(bg1.XRange(-35,5)),BG2=wrap_hist(bg2.XRange(-35,5));
+    const auto Data1=take_uncertainty_component<1>(data1.XRange(-35,5)),
+               Data2=take_uncertainty_component<1>(data2.XRange(-35,5)),
+               BG1=take_uncertainty_component<1>(bg1.XRange(-35,5)),
+               BG2=take_uncertainty_component<1>(bg2.XRange(-35,5));
     cout<<"Fitting for "<<suffix<<": B="<<B<<"; G="<<G<<endl;
     const hist<> BW([&B,&G](const value<>&Q){
         //ToDo: calculate Breight Wigner using kinetic energy value
