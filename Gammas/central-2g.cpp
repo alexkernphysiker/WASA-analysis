@@ -215,14 +215,13 @@ int main()
             bin_num,&histpath_central_reconstr,&reaction,
             &lum_b_m,&lum_b_p,&lum_b_z
         ](const string&suffix){
-            //const auto ac=SystematicError<bound_state_reaction_index>([&histpath_central_reconstr,&bin_num,&reaction,&suffix](const int i){
-                const auto &r = reaction[1];//i];
+            const auto ac=SystematicError<bound_state_reaction_index>([&histpath_central_reconstr,&bin_num,&reaction,&suffix](const int i){
+                const auto &r = reaction[i];
                 const auto MC_TIM=Hist(MC, r, histpath_central_reconstr, "TIM6-Bin-"+to_string(bin_num),suffix).XRange(-0.3,0.3);
                 static Cache<string,hist<>> NORM;
                 const auto &N = NORM(r+suffix,[&histpath_central_reconstr,&r,&suffix](){return Hist(MC, r, histpath_central_reconstr, "0-Reference",suffix);})[bin_num].Y();
-                //return extend_value<2,2>(std_error(MC_TIM.TotalSum().val())/N);
-                const auto ac=extend_value<2,2>(std_error(MC_TIM.TotalSum().val())/N);
-            //})();
+                return extend_value<2,2>(std_error(MC_TIM.TotalSum().val())/N);
+            })();
             const auto&lum=(suffix=="00+")?lum_b_p:(suffix=="00-")?lum_b_m:lum_b_z;
             const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM6-Bin-") + to_string(bin_num),suffix).XRange(-0.3,0.3);
             return (extend_value<1,2>(std_error(TIM.TotalSum().val()))*trigger_he3_forward.scaling)/(ac*lum[bin_num].Y());
