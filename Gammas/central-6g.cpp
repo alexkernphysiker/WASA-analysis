@@ -113,16 +113,18 @@ int main()
             Plot("He36g-6gim-mc" + r,4)
             .Hist(ggim).Hist(Hist(MC, r, histpath_central_reconstr, "GIM7")/N)
             .Line(Points<>{{getParameter(gamma_im_lo6),hist<>(ggim.Transponate()).right().X().max()*1.5},{getParameter(gamma_im_lo6),0.0},
-                           {getParameter(gamma_im_hi6),0.0},{getParameter(gamma_im_hi6),hist<>(ggim.Transponate()).right().X().max()*1.5}},"cut")
+                {getParameter(gamma_im_hi6),0.0},{getParameter(gamma_im_hi6),hist<>(ggim.Transponate()).right().X().max()*1.5}},"cut")
                     << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<<"set ylabel 'Efficiensy, a.u.'"
                     << "set xlabel '6gamma invariant mass - Q, GeV'"<< "set xrange [0.0:1.0]";
             const auto lasthist=Hist(MC, r, histpath_central_reconstr, "TIM7-AllBins").Scale(4)/N;
             Plot("He36g-tim-mc" + r,4)
-            .Hist(lasthist).Hist(lasthist.XRange(-INFINITY,Parameter(sixgamma_last_cut).val())/N)
-            .Line(Points<>{{Parameter(sixgamma_last_cut).val(),0.0},{Parameter(sixgamma_last_cut).val(),lasthist.TransponateAndSort().right().X().max()*1.5}},"cut")
+            .Hist(lasthist)
                     << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<< "set xrange [-0.2:0.15]"
                     << "set xlabel 'IM(3He+6gamma)-IM(p+d), GeV'"<<"set ylabel 'Efficiensy, a.u.'";
     }
+    const auto lasthist=Hist(DATA, "All", histpath_central_reconstr, "TIM7-AllBins").Scale(4);
+    const auto last_top=lasthist.XRange(0.05,0.10)[1]*0.95;
+    const value<> S=(last_top.Y()*0.275)/(4.0*lasthist[0].X().uncertainty());
     {
             const auto cosb=Hist(DATA, "All", histpath_central_reconstr,"cosi2")
                         +Hist(DATA, "All", histpath_central_reconstr,"cosj2")
@@ -161,10 +163,9 @@ int main()
                            {getParameter(gamma_im_hi6),0.0},{getParameter(gamma_im_hi6),hist<>(ggim.Transponate()).right().X().max()*1.5}},"cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<<"set ylabel 'Events, n.d.'"
                     << "set xlabel '6gamma invariant mass - Q, GeV'"<< "set xrange [0.0:1.0]";
-            const auto lasthist=Hist(DATA, "All", histpath_central_reconstr, "TIM7-AllBins").Scale(4);
             Plot("He36g-tim-data",5)
-            .Hist(lasthist).Hist(lasthist.XRange(-INFINITY,Parameter(sixgamma_last_cut).val())/N)
-            .Line(Points<>{{Parameter(sixgamma_last_cut).val(),0.0},{Parameter(sixgamma_last_cut).val(),lasthist.TransponateAndSort().right().X().max()*1.5}},"cut")
+                .Hist(lasthist)
+                .Line(Points<>{{-0.175,0.0},{last_top.X().val(),last_top.Y().val()},{0.1,0.0}},"background")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<<"set ylabel 'Events, n.d.'"
                     << "set xrange [-0.2:0.15]" << "set xlabel 'IM(3He+6gamma)-IM(p+d), GeV'";
 
@@ -176,9 +177,8 @@ int main()
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"<<"set ylabel 'Events, n.d.'"
                     << "set xlabel 'dt gamma-gamma, ns'"<< "set key on";
             Plot("He36g-t-data",5)
-            .Hist(T)
-            .Line(Points<>{{getParameter(time_t1),hist<>(T.Transponate()).right().X().max()*1.5},{getParameter(time_t1),0.0},
-                           {getParameter(time_t2),0.0},{getParameter(time_t2),hist<>(T.Transponate()).right().X().max()*1.5}},"condition")
+            .Hist(T).Line(Points<>{{getParameter(time_t1),hist<>(T.Transponate()).right().X().max()*1.5},{getParameter(time_t1),0.0},
+                {getParameter(time_t2),0.0},{getParameter(time_t2),hist<>(T.Transponate()).right().X().max()*1.5}},"condition")
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"<<"set ylabel 'Events, n.d.'"
                     << "set xlabel 'dt 3He-gamma, ns'"<< "set key on";
 
@@ -213,45 +213,39 @@ int main()
             const auto &r = reaction[i];
             cout<<Qmsg << " plots2 "<<r<<endl;
             acc[i]<<make_point(Q,RawSystematicError(params,[bin_num,&r,&histpath_central_reconstr](const string&suffix){
-                const auto MC_TIM=Hist(MC, r, histpath_central_reconstr, "TIM7-Bin-"+to_string(bin_num),suffix);
+                const auto MC_TIM=Hist(MC, r, histpath_central_reconstr, "TIM7-Bin-"+to_string(bin_num),suffix).XRange(-0.3,0.3);
                 static Cache<string,hist<>> NORM;
                 const auto &N = NORM(r+suffix,[&histpath_central_reconstr,&r,&suffix](){
                     return Hist(MC, r, histpath_central_reconstr, "0-Reference",suffix);
                 })[bin_num].Y();
-                return SystematicError<sixgamma_last_cut>([&N,&MC_TIM](const double&cutpos){
-                    if (N.Above(0)) return extend_value<2,2>(std_error(MC_TIM.XRange(-0.3,cutpos).TotalSum().val())/N);
-                    else return uncertainties(0.,0.,0.);
-                })();
+                if (N.Above(0)) return extend_value<2,2>(std_error(MC_TIM.TotalSum().val())/N);
+                else return uncertainties(0.,0.,0.);
             })());
         }
         cout<<Qmsg << " acceptance "<<endl;
         b_acc<<make_point(Q,SystematicError<bound_state_reaction_index>([&acc](const int i){return acc[i].right().Y();})());
         cout<<Qmsg << " events count "<<endl;
         ev_am<<make_point(Q,RawSystematicError(params,[bin_num,&histpath_central_reconstr](const string&suffix){
-            const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM7-Bin-") + to_string(bin_num),suffix);
-            return SystematicError<sixgamma_last_cut>([&TIM](const double&cutpos){
-                return extend_value<1,2>(std_error(TIM.XRange(-0.3,cutpos).TotalSum().val()));
-            })();
+            const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM7-Bin-") + to_string(bin_num),suffix).XRange(-0.3,0.3);
+            return extend_value<1,2>(std_error(TIM.TotalSum().val()));
         })());
         cout<<Qmsg << " events count norm"<<endl;
         ev_norm<<make_point(Q,RawSystematicError(params,[
             bin_num,&histpath_central_reconstr,&reaction,
             &lum_b_m,&lum_b_p,&lum_b_z
         ](const string&suffix){
-            const auto&lum=(suffix=="00+")?lum_b_p:(suffix=="00-")?lum_b_m:lum_b_z;
-            const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM7-Bin-") + to_string(bin_num),suffix);
-            return SystematicError<sixgamma_last_cut>([&TIM,&lum,bin_num,&histpath_central_reconstr,&reaction,&suffix](const double&cutpos){
-                const auto ac=SystematicError<bound_state_reaction_index>([&histpath_central_reconstr,&bin_num,&reaction,&suffix,&cutpos](const int i){
-                    const auto &r = reaction[i];
-                    const auto MC_TIM=Hist(MC, r, histpath_central_reconstr, "TIM7-Bin-"+to_string(bin_num),suffix).XRange(-0.3,cutpos);
-                    static Cache<string,hist<>> NORM;
-                    const auto &N = NORM(r+suffix,[&histpath_central_reconstr,&r,&suffix](){
-                        return Hist(MC, r, histpath_central_reconstr, "0-Reference",suffix);
-                    })[bin_num].Y();
-                    return extend_value<2,2>(std_error(MC_TIM.TotalSum().val())/N);
-                })();
-                return (extend_value<1,2>(std_error(TIM.XRange(-0.3,cutpos).TotalSum().val()))*trigger_he3_forward.scaling)/(ac*lum[bin_num].Y());
+            const auto ac=SystematicError<bound_state_reaction_index>([&histpath_central_reconstr,&bin_num,&reaction,&suffix](const int i){
+                const auto &r = reaction[i];
+                const auto MC_TIM=Hist(MC, r, histpath_central_reconstr, "TIM7-Bin-"+to_string(bin_num),suffix).XRange(-0.3,0.3);
+                static Cache<string,hist<>> NORM;
+                const auto &N = NORM(r+suffix,[&histpath_central_reconstr,&r,&suffix](){
+                    return Hist(MC, r, histpath_central_reconstr, "0-Reference",suffix);
+                })[bin_num].Y();
+                return extend_value<2,2>(std_error(MC_TIM.TotalSum().val())/N);
             })();
+            const auto&lum=(suffix=="00+")?lum_b_p:(suffix=="00-")?lum_b_m:lum_b_z;
+            const auto TIM=Hist(DATA, "All", histpath_central_reconstr, string("TIM7-Bin-") + to_string(bin_num),suffix).XRange(-0.3,0.3);
+            return (extend_value<1,2>(std_error(TIM.TotalSum().val()))*trigger_he3_forward.scaling)/(ac*lum[bin_num].Y());
         })());
     }
     cout<<"Final plots"<<endl;
@@ -275,6 +269,13 @@ int main()
             << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:30]"
             << "set ylabel 'Events, n.d.'" << "set yrange [0:]"
             << "set title 'pd->3He+6gamma " + runmsg + "'"<<"set key left top";
+    const auto S2=take_uncertainty_component<1>(ev_am.XRange(10,30)-he3eta_events).TotalSum();
+    Plot("He36g-events-BG",5)
+    .Hist(hist<>(Points<value<>>{{1,S}}),"total invariant mass")
+    .Hist(hist<>(Points<value<>>{{2,S2}}),"excitation curve")
+            <<"set xrange [0:3]"
+            << "set ylabel 'Events, n.d.'" << "set yrange [0:"+to_string(S.val()*2)+"]"
+            << "set title 'pd->3He+6gamma background events " + runmsg + "'"<<"set key left top";
     Plot("He36g-events-norm-bound",5)
         .Hist_2bars<1,2>(ev_norm.XRange(-70,10),"Data statistical","Data systematic","curve_3he_6gamma")
             <<"set key left top">>"set key right top"

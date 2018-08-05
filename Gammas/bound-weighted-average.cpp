@@ -173,15 +173,15 @@ int main()
     plot_upper
             <<"set key left top">>"set key right top"
             << "set xlabel 'Binding energy, MeV'" << "set key on"<<"set xrange [-70:10]"
-            << "set ylabel 'Upper limit, nb'" << "set yrange [0:40]"
+            << "set ylabel 'peak height (fit), nb'" << "set yrange [-10:40]"
             << "set title 'Upper limit'"<<"set key right top";
-    for(double G=5;G<=20;G+=5){
+    for(double G=5;G<=30;G+=10){
         ext_hist<2> UpperLimit;
         for(double B=-28.75;B<0;B+=2.5){
             UpperLimit<<make_point(B,RawSystematicError(params,[&G,&B](const string&suffix){
-                return BWfit(suffix,B,G,(B>-10)&&(B<-7.5)&&(G==5))[0].max();
+                return extend_value<1,2>(value<>(BWfit(suffix,B,G,(suffix=="_")&&(B>-22.5)&&(B<-20)&&(G==5))[0]));
             })());
         }
-        plot_upper.Hist(wrap_hist(UpperLimit),"Г="+to_string(G));
+        plot_upper.Hist_2bars<1,2>(UpperLimit,"Г="+to_string(G));
     }
 }
