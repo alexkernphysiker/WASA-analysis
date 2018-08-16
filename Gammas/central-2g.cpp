@@ -233,12 +233,12 @@ int main()
         *extend_hist<2,2>(hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")).XRange(10,30));
 
     Plot accplot("He3gg-acceptance-final",5),accplot2("He3gg-acceptance-bg",5);
-    accplot << "set title 'Efficiency'"
+    accplot << "set title 'pd->3He2gamma'"
         << "set xlabel 'Q, MeV'"
         << "set ylabel 'Efficiency, n.d.'"
         << "set yrange [0:0.4]" << "set xrange [-70:30]"
         << "set key on";
-    accplot2 << "set title 'Efficiency'"
+    accplot2 << "set title 'Background'"
         << "set xlabel 'Q, MeV'"
         << "set ylabel 'Efficiency, n.d.'"
         << "set yrange [0:0.005]" << "set xrange [-70:30]"

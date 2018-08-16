@@ -130,7 +130,7 @@ int main()
         return lasthist.Scale(4);
     };
     const auto lasthist=get_lh();
-    const auto last_top=lasthist.XRange(0.05,0.10)[1]*0.95;
+    const auto last_top=lasthist.XRange(0.04,0.10)[0];
     const value<> S=(last_top.Y()*0.275)/(4.0*lasthist[0].X().uncertainty());
     Plot("He36g-tim-BG",5)
         .Hist(lasthist)
@@ -262,10 +262,10 @@ int main()
     }
     cout<<"Final plots"<<endl;
     Plot accplot("He36g-acceptance",5);
-    accplot << "set title 'Efficiency'"<<"set key left top">>"set key right top"
+    accplot << "set title 'pd->3He6gamma'"<<"set key left top">>"set key right top"
             << "set xlabel 'Q, MeV'"<<"set xrange [-70:30]"
             << "set ylabel 'Efficiency, n.d.'"
-            << "set yrange [0:0.1]" << "set key on";
+            << "set yrange [0:0.12]" << "set key on";
     accplot.Hist(wrap_hist(b_acc),rname[1]);
     for (size_t i = 3; i < reaction.size(); i++) {
         accplot.Hist(wrap_hist(acc[i]), rname[i]);
@@ -286,7 +286,7 @@ int main()
     .Hist(hist<>(Points<value<>>{{1,S}}),"total invariant mass")
     .Hist(hist<>(Points<value<>>{{2,S2}}),"excitation curve")
             <<"set xrange [0:3]"<<"unset xtics"
-            << "set ylabel 'Events, n.d.'" << "set yrange [0:"+to_string(S.val()*2)+"]"
+            << "set ylabel 'Events, n.d.'" << "set yrange [0:"+to_string(S2.val()*2)+"]"
             << "set title 'pd->3He+6gamma background events " + runmsg + "'"<<"set key left top";
     Plot("He36g-events-norm-bound",5)
         .Hist_2bars<1,2>(ev_norm.XRange(-70,10),"Data statistical","Data systematic","curve_3he_6gamma")

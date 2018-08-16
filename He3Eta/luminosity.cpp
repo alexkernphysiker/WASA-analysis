@@ -147,7 +147,7 @@ int main()
 
     const auto luminosity=events_count*trigger_he3_forward.scaling/extend_hist<2,2>(cross_section.XRange(events_count.left().X().min(),events_count.right().X().max()));
     Plot("He3eta-luminosity",5)
-        .Hist_2bars<1,2>(luminosity.XRange(10,30),"stat","syst","LUMINOSITYf")
+        .Hist_2bars<1,2>(luminosity.XRange(12,30),"stat","syst","LUMINOSITYf")
             << "set title 'Integrated luminosity " + runmsg + "'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
