@@ -135,7 +135,7 @@ int main()
     Plot("He36g-tim-BG",5)
         .Hist(lasthist)
         .Line(Points<>{{-0.175,0.0},{last_top.X().val(),last_top.Y().val()},{0.1,0.0}},"background")
-            << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<<"set ylabel 'Events, n.d.'"
+            << "set key on" << "set title 'Q in [10;30] MeV " + runmsg + "'" << "set yrange [0:]"<<"set ylabel 'Events, n.d.'"
             << "set xrange [-0.2:0.15]" << "set xlabel 'IM(3He+6gamma)-IM(p+d), GeV'";
     {
             const auto cosb=Hist(DATA, "All", histpath_central_reconstr,"cosi2")
