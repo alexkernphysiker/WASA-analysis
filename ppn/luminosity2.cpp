@@ -253,7 +253,7 @@ int main()
         }
     }
     Plot("ppn-v2-acceptance",7)
-        ..Hist_2bars<1,2>((acceptance))
+        .Hist_2bars<1,2>((acceptance))
             << "set key on" << "set title 'Efficiency'" << "set yrange [0:0.2]" << "set xrange [-70:30]"
             << "set xlabel 'Q, MeV'" << "set ylabel 'Efficiency, n.d.'"<<"set xtics 20";
 
