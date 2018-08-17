@@ -141,10 +141,10 @@ Chain<value_numeric_distr<>> BWfit(const string&suffix,const double&B,const doub
     cout << "xi^2/d = "<< FIT.Optimality()/(Data1.size()+Data2.size()-FIT.ParamCount())<<endl;
     const auto&P=FIT.Parameters();
     if(plot){
-        const auto background1=BG1.toLine()*P[1];
-        const auto background2=BG2.toLine()*P[2];
-        const auto fit1=(BW*branching_ratio1).toLine()*P[0]+background1;
-        const auto fit2=(BW*branching_ratio2).toLine()*P[0]+background2;
+        const auto background1=toLine(BG1)*P[1];
+        const auto background2=toLine(BG2)*P[2];
+        const auto fit1=toLine((BW*branching_ratio1))*P[0]+background1;
+        const auto fit2=toLine((BW*branching_ratio2))*P[0]+background2;
         const string msg="B="+to_string(B)+"; Г="+to_string(G);
         Plot("UpperLimitTotalFit1",5)
             .Hist(Data1).Line(fit1).Line(background1)

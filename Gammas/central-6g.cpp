@@ -275,13 +275,15 @@ int main()
     const auto he3eta_events = luminosity_he*branching_ratio*acc[3].XRange(10,30)
         *extend_hist<2,2>(hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")).XRange(10,30))/trigger_he3_forward.scaling;
 
+    const auto avr_bg_level=(ev_am.XRange(-70,10)).TotalSum()/32.0;
     Plot("He36g-events",5)
-    .Hist(wrap_hist(ev_am),"data").Hist(wrap_hist(he3eta_events),"3He+eta")
+    .Hist(wrap_hist(ev_am),"data").Hist(wrap_hist(he3eta_events+avr_bg_level.val()),"3He+eta")
+        .Line(Points<>{{10,avr_bg_level.val()},{30,avr_bg_level.val()}})
             <<"set key left top">>"set key right top"
             << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:30]"
             << "set ylabel 'Events, n.d.'" << "set yrange [0:]"
             << "set title 'pd->3He+6gamma " + runmsg + "'"<<"set key left top";
-    const auto S2=take_uncertainty_component<1>(ev_am.XRange(10,30)-he3eta_events).TotalSum();
+    const auto S2=take_uncertainty_component<1>(ev_am.XRange(10,30)-he3eta_events).TotalSum()-(take_uncertainty_component<1>(avr_bg_level)*8.0);
     Plot("He36g-events-BG",5)
     .Hist(hist<>(Points<value<>>{{1,S}}),"total invariant mass")
     .Hist(hist<>(Points<value<>>{{2,S2}}),"excitation curve")

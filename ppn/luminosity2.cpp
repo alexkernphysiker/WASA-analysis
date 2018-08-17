@@ -122,8 +122,8 @@ int main()
     Plot("ppn-v2-dt-data",5)
         .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins"),"All")
         .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_1-AllBins"),"theta cut")
-        .Line(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins").toLine())
-        .Line(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_1-AllBins").toLine())
+        .Line(toLine(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins")))
+        .Line(toLine(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_1-AllBins")))
         .Line(Points<>{
             {getParameter(ppn_t1), 1200000.},{getParameter(ppn_t1), 0.0},
             {getParameter(ppn_t2), 0.0},{getParameter(ppn_t2), 1200000.}
@@ -206,7 +206,7 @@ int main()
                     counter++;
                     const auto data_copl_bg=data_copl.XExclude(180.-x,180.+x);
                     Fit2<DifferentialMutations<>> fit(
-                        data_copl_bg.removeXerorbars(),
+                        removeXerorbars(data_copl_bg),
                         [](const ParamSet&X,const ParamSet&P){return Polynom<2>(X[0],P);}
                     );
                     fit.SetUncertaintyCalcDeltas({0.001,0.001,0.001});
@@ -224,7 +224,7 @@ int main()
                     const auto BG=[&P](const value<>&x){return Polynom<2>(x,P);};
                     const auto subtr=data_copl-BG;
                     const auto summ=subtr.XRange(120,240);
-                    const SortedPoints<> simulation_curve=(data_copl.CloneEmptyBins()+data_copl_mc*summ.TotalSum()/N/acc).toLine();
+                    const SortedPoints<> simulation_curve=(toLine(data_copl.CloneEmptyBins()+data_copl_mc*summ.TotalSum()/N/acc));
                     if(counter==2){
                         const auto max=to_string(data_copl.TransponateAndSort().right().X().max()*1.5);
                         Plot(Q.Contains(21) ? "ppn-v2-above-data-copl" : (Q.Contains(-39) ? "ppn-v2-below-data-copl" : ""),7)

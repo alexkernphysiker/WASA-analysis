@@ -65,14 +65,14 @@ int main()
                         << "set ylabel 'Efficiency density, GeV^{-1}'"
                         << "set yrange [0:]" << "unset log y";
                 cout << endl << Qmsg<< suffix << endl << endl;
-                return SystematicError<he3eta_cut_left,he3eta_cut_right>(
-                    [&data_full,&data,&counter,&Q,&Qmsg,&runmsg,&chain,&mc]
+                function<Uncertainties<2>(const double&,const double&)> func=
+                                    [&data_full,&data,&counter,&Q,&Qmsg,&runmsg,&chain,&mc]
                     (const double&x,const double&y){
                     counter++;
                     const auto &data_count = data.TotalSum().val();
                     const auto data_bg = data.XExclude(x,y);
                     Fit2<DifferentialMutations<>> FIT(
-                        data_bg.removeXerorbars(),
+                        removeXerorbars(data_bg),
                         [&data_count](const ParamSet & X, const ParamSet & P) {
                             return data_count * Polynom<4>(X[0], P);
                         }
@@ -118,20 +118,21 @@ int main()
                         Plot subplot(Q.Contains(21) ? "He3eta-subtract" : (Q.Contains(14) ? "He3eta-subtract-lo":""),5);
                         subplot.Hist(clean).Line(Points<>{{clean.left().X().min(), 0.0},{clean.right().X().max(), 0.0}});
                         subplot.Hist(clean2,"DATA-BG")
-                            .Line((mc*clean2.TotalSum()/mc.TotalSum()).toLine(),"MC")
+                            .Line(toLine(mc*clean2.TotalSum()/mc.TotalSum()),"MC")
                             << "set key on" << "set title '" + Qmsg + runmsg + "'"
                             << "set xlabel '3He missing mass, GeV'"
                             << "set yrange [-200:"+max+"]" << "unset log y";
                     }
                     return extend_value<1,2>(clean.TotalSum()) / extend_value<2,2>(mc.TotalSum());
-                })();
+                };
+                return SystematicError<he3eta_cut_left,he3eta_cut_right>(func)();
             })());
         }
 
     const auto cross_section=hist<>(he3eta_sigma().func(), BinsByStep(2.5, 2.5, 30.0));
     const hist<> exp_data=he3eta_sigma().XRange(11,35);
     Plot("He3eta-cross-section",5)
-    .Hist(exp_data).Points(exp_data.removeXerorbars().removeYerorbars(), "Experimental data","","with points pointtype 7 pointsize 3")
+    .Hist(exp_data).Points(toLine(exp_data), "Experimental data","","with points pointtype 7 pointsize 3")
     .Hist(cross_section.XRange(10,35), "Interpolation", "CS-He3eta-assumed")
             << "set title 'Cross section'"
             << "set key on" << "set xlabel 'Q, MeV'"
