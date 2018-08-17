@@ -58,52 +58,60 @@ Chain<value_numeric_distr<>> BWfit(const string&suffix,const double&B,const doub
     const auto Qbins=BinsByStep(-70.,2.5,2.5);
     const auto&lum=LuminosityGetter::Instance().get(suffix);
     cout<<"Histogram for "<<suffix<<": "<<"data1"<<endl;
-    static CacheConstr<string,ext_hist<2>> DATA1,DATA2,MBG1,MBG2;
-    const auto&data1=DATA1(suffix,[&suffix,&lum](const value<>&Q){
-        const size_t bin_num=trunc((Q.val()+70.)/2.5);
-        cout<<"Preparing histogram for "<<suffix<<": "<<"data1["<<Q.min()<<":"<<Q.max()<<"]MeV"<<endl;
-        const auto ac=SystematicError<bound_state_reaction_index>([&bin_num,&suffix](const int i){
-            const auto &r = reaction1[i];
-            const auto MC_TIM=Hist(MC, r, histpath_central_reconstr1, "TIM6-Bin-"+to_string(bin_num),suffix).XRange(-0.3,0.3);
-            static Cache<string,hist<>> NORM;
-            const auto &N = NORM(r+suffix,[&r,&suffix](){return Hist(MC, r, histpath_central_reconstr1, "0-Reference",suffix);})[bin_num].Y();
-            return extend_value<2,2>(std_error(MC_TIM.TotalSum().val())/N);
-        })();
-        const auto TIM=Hist(DATA, "All", histpath_central_reconstr1, string("TIM6-Bin-") + to_string(bin_num),suffix).XRange(-0.3,0.3);
-        return (extend_value<1,2>(std_error(TIM.TotalSum().val()))*trigger_he3_forward.scaling)/(ac*lum[bin_num].Y());
-    },Qbins);
+    static Cache<string,ext_hist<2>> DATA1,DATA2,MBG1,MBG2;
+    const auto&data1=DATA1(suffix,[&suffix,&lum,&Qbins](){
+        return ext_hist<2>([&suffix,&lum](const value<>&Q){
+                const size_t bin_num=trunc((Q.val()+70.)/2.5);
+                cout<<"Preparing histogram for "<<suffix<<": "<<"data1["<<Q.min()<<":"<<Q.max()<<"]MeV"<<endl;
+                const auto ac=SystematicError<bound_state_reaction_index>([&bin_num,&suffix](const int i){
+                    const auto &r = reaction1[i];
+                    const auto MC_TIM=Hist(MC, r, histpath_central_reconstr1, "TIM6-Bin-"+to_string(bin_num),suffix).XRange(-0.3,0.3);
+                    static Cache<string,hist<>> NORM;
+                    const auto &N = NORM(r+suffix,[&r,&suffix](){return Hist(MC, r, histpath_central_reconstr1, "0-Reference",suffix);})[bin_num].Y();
+                    return extend_value<2,2>(std_error(MC_TIM.TotalSum().val())/N);
+                })();
+            const auto TIM=Hist(DATA, "All", histpath_central_reconstr1, string("TIM6-Bin-") + to_string(bin_num),suffix).XRange(-0.3,0.3);
+            return (extend_value<1,2>(std_error(TIM.TotalSum().val()))*trigger_he3_forward.scaling)/(ac*lum[bin_num].Y());
+        },Qbins);
+    });
     cout<<"Histogram for "<<suffix<<": "<<"bg1"<<endl;
-    const auto bg1=lum.XRange(-70,2.5)*MBG1(suffix,[&suffix](const value<>&Q){
-        cout<<"Preparing histogram for "<<suffix<<": "<<"bg1["<<Q.min()<<":"<<Q.max()<<"]MeV"<<endl;
-        const size_t bin_num=trunc((Q.val()+70.)/2.5);
-        const auto MC_TIM=Hist(MC, "He3pi0pi0", histpath_central_reconstr1, "TIM6-Bin-"+to_string(bin_num),suffix).XRange(-0.3,0.3);
-        static Cache<string,hist<>> NORM;
-        const auto &N = NORM(suffix,[&suffix](){return Hist(MC, "He3pi0pi0", histpath_central_reconstr1, "0-Reference",suffix);})[bin_num].Y();
-        return extend_value<2,2>(std_error(MC_TIM.TotalSum().val())/N);
-    },Qbins);
-    cout<<"Histogram for "<<suffix<<": "<<"data2"<<endl;
-    const auto&data2=DATA2(suffix,[&suffix,&lum](const value<>&Q){
-        const size_t bin_num=trunc((Q.val()+70.)/2.5);
-        cout<<"Preparing histogram for "<<suffix<<": "<<"data2["<<Q.min()<<":"<<Q.max()<<"]MeV"<<endl;
-        const auto ac=SystematicError<bound_state_reaction_index>([&bin_num,&suffix](const int i){
-            const auto &r = reaction2[i];
-            const auto MC_TIM=Hist(MC, r, histpath_central_reconstr2, "TIM7-Bin-"+to_string(bin_num),suffix).XRange(-0.3,0.3);
+    const auto bg1=lum.XRange(-70,2.5)*MBG1(suffix,[&suffix,&Qbins](){
+        return ext_hist<2>([&suffix](const value<>&Q){
+            cout<<"Preparing histogram for "<<suffix<<": "<<"bg1["<<Q.min()<<":"<<Q.max()<<"]MeV"<<endl;
+            const size_t bin_num=trunc((Q.val()+70.)/2.5);
+            const auto MC_TIM=Hist(MC, "He3pi0pi0", histpath_central_reconstr1, "TIM6-Bin-"+to_string(bin_num),suffix).XRange(-0.3,0.3);
             static Cache<string,hist<>> NORM;
-            const auto &N = NORM(r+suffix,[&r,&suffix](){return Hist(MC, r, histpath_central_reconstr2, "0-Reference",suffix);})[bin_num].Y();
+            const auto &N = NORM(suffix,[&suffix](){return Hist(MC, "He3pi0pi0", histpath_central_reconstr1, "0-Reference",suffix);})[bin_num].Y();
             return extend_value<2,2>(std_error(MC_TIM.TotalSum().val())/N);
-        })();
-        const auto TIM=Hist(DATA, "All", histpath_central_reconstr2, string("TIM7-Bin-") + to_string(bin_num),suffix).XRange(-0.3,0.3);
-        return (extend_value<1,2>(std_error(TIM.TotalSum().val()))*trigger_he3_forward.scaling)/(ac*lum[bin_num].Y());
-    },Qbins);
+        },Qbins);
+    });
+    cout<<"Histogram for "<<suffix<<": "<<"data2"<<endl;
+    const auto&data2=DATA2(suffix,[&suffix,&lum,&Qbins](){
+        return ext_hist<2>([&suffix,&lum](const value<>&Q){
+            const size_t bin_num=trunc((Q.val()+70.)/2.5);
+            cout<<"Preparing histogram for "<<suffix<<": "<<"data2["<<Q.min()<<":"<<Q.max()<<"]MeV"<<endl;
+            const auto ac=SystematicError<bound_state_reaction_index>([&bin_num,&suffix](const int i){
+                const auto &r = reaction2[i];
+                const auto MC_TIM=Hist(MC, r, histpath_central_reconstr2, "TIM7-Bin-"+to_string(bin_num),suffix).XRange(-0.3,0.3);
+                static Cache<string,hist<>> NORM;
+                const auto &N = NORM(r+suffix,[&r,&suffix](){return Hist(MC, r, histpath_central_reconstr2, "0-Reference",suffix);})[bin_num].Y();
+                return extend_value<2,2>(std_error(MC_TIM.TotalSum().val())/N);
+            })();
+            const auto TIM=Hist(DATA, "All", histpath_central_reconstr2, string("TIM7-Bin-") + to_string(bin_num),suffix).XRange(-0.3,0.3);
+            return (extend_value<1,2>(std_error(TIM.TotalSum().val()))*trigger_he3_forward.scaling)/(ac*lum[bin_num].Y());
+        },Qbins);
+    });
     cout<<"Histogram for "<<suffix<<": "<<"bg2"<<endl;
-    const auto bg2=lum.XRange(-70,2.5)*MBG2(suffix,[&suffix](const value<>&Q){
-        const size_t bin_num=trunc((Q.val()+70.)/2.5);
-        cout<<"Preparing histogram for "<<suffix<<": "<<"bg2["<<Q.min()<<":"<<Q.max()<<"]MeV"<<endl;
-        const auto MC_TIM=Hist(MC, "He3pi0pi0pi0", histpath_central_reconstr2, "TIM7-Bin-"+to_string(bin_num),suffix).XRange(-0.3,0.3);
-        static Cache<string,hist<>> NORM;
-        const auto &N = NORM(suffix,[&suffix](){return Hist(MC, "He3pi0pi0pi0", histpath_central_reconstr2, "0-Reference",suffix);})[bin_num].Y();
-        return extend_value<2,2>(std_error(MC_TIM.TotalSum().val())/N);
-    },Qbins);
+    const auto bg2=lum.XRange(-70,2.5)*MBG2(suffix,[&suffix,&Qbins](){
+        return ext_hist<2>([&suffix](const value<>&Q){
+            const size_t bin_num=trunc((Q.val()+70.)/2.5);
+            cout<<"Preparing histogram for "<<suffix<<": "<<"bg2["<<Q.min()<<":"<<Q.max()<<"]MeV"<<endl;
+            const auto MC_TIM=Hist(MC, "He3pi0pi0pi0", histpath_central_reconstr2, "TIM7-Bin-"+to_string(bin_num),suffix).XRange(-0.3,0.3);
+            static Cache<string,hist<>> NORM;
+            const auto &N = NORM(suffix,[&suffix](){return Hist(MC, "He3pi0pi0pi0", histpath_central_reconstr2, "0-Reference",suffix);})[bin_num].Y();
+            return extend_value<2,2>(std_error(MC_TIM.TotalSum().val())/N);
+        },Qbins);
+    });
     const auto Data1=take_uncertainty_component<1>(data1.XRange(-35,5)),
                Data2=take_uncertainty_component<1>(data2.XRange(-35,5)),
                BG1=take_uncertainty_component<1>(bg1.XRange(-35,5)),
