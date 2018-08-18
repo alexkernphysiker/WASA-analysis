@@ -140,7 +140,7 @@ int main()
             << "set xrange [10:35]" << "set yrange [0:600]";
 
     Plot("He3eta-acceptance",5)
-        .Hist_2bars<1,2>((acceptance.XRange(10,30)),"")
+        .Hist(wrap_hist(acceptance.XRange(10,30)),"")
             << "set title '3He+eta efficiency'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Efficiency, n.d.'"
