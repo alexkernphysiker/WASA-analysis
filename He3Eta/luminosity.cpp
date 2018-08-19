@@ -43,7 +43,7 @@ int main()
             const string hist_name=string("MissingMass-Bin-") + to_string(bin_num);
             const list<size_t> params{pbeam_corr,he3_cut_h,he3_theta_cut};
             acceptance << make_point(Q,RawSystematicError(params,[&N,&histpath_forward_reconstr,&hist_name]
-                (const string&suffix){//only for plot
+                (const string&suffix){
                 const auto mc_unnorm = Hist(MC, "He3eta-gg", histpath_forward_reconstr,hist_name,suffix).XRange(0.530, 0.559);
                 const auto mc = mc_unnorm / N;
                 return extend_value<2,2>(mc.TotalSum());
@@ -110,7 +110,7 @@ int main()
                         Plot exp_plot(Q.Contains(21) ? "He3eta-fit" : (Q.Contains(14) ? "He3eta-fit-lo":""),5);
                         exp_plot.Hist(data_full,"Data").Hist(data_bg)
                             << "set key on" << "set title '" + Qmsg + runmsg + "'"
-                            << "set xlabel '3He missing mass, GeV'"
+                            << "set xlabel '3He missing mass, GeV/c^2'"
                             << "set ylabel 'Counts'"
                             << "set yrange [-200:"+max+"]" << "unset log y";
                         const SortedPoints<> background([&FIT](double x) {return FIT({x});}, chain);
@@ -120,7 +120,8 @@ int main()
                         subplot.Hist(clean2,"DATA-BG")
                             .Line(toLine(mc*clean2.TotalSum()/mc.TotalSum()),"MC")
                             << "set key on" << "set title '" + Qmsg + runmsg + "'"
-                            << "set xlabel '3He missing mass, GeV'"
+                            << "set xlabel '3He missing mass, GeV/c^2'"
+			    << "set ylabel 'Counts'"
                             << "set yrange [-200:"+max+"]" << "unset log y";
                     }
                     return extend_value<1,2>(clean.TotalSum()) / extend_value<2,2>(mc.TotalSum());

@@ -63,20 +63,20 @@ int main()
         const auto &xC = kin_mc.X()[xcut].min();
         const hist<> ymc = kin_mc.CutY(xcut), ydata = data_hist.CutY(xcut);
         Plot("",7).Hist(ymc / ymc.TotalSum().val(), "MC").Hist(ydata / ydata.TotalSum().val(), "DATA")
-                << "set key on" << "set yrange[0:0.1]" << "set ylabel ''"<<"set title'"+Qmsg+"'"
-                << "set xlabel 'theta,deg (E=" + to_string(xC) + " GeV)'"<<"set xrange[4:9]";
+                << "set key on" << "set yrange[0:0.1]" << "set ylabel 'Events, a.u.'"<<"set title'"+Qmsg+"'"
+                << "set xlabel 'theta,deg (E=" + to_string(int(xC*1000.)) + " MeV)'"<<"set xrange[4:9]";
         const auto ycut = kin_mc.Y().size() / 3;
         const auto &yC = kin_mc.Y()[ycut].min();
         const hist<> xmc = kin_mc.CutX(ycut), xdata = data_hist.CutX(ycut);
         Plot("",7).Hist(xmc / xmc.TotalSum().val(), "MC").Hist(xdata / xdata.TotalSum().val(), "DATA")
-                << "set key on" << "set yrange[0:]" << "set ylabel ''"<<"set title'"+Qmsg+"'"
-                << "set xlabel 'E_k, GeV (theta=" + to_string(yC) + " deg)'"
+                << "set key on" << "set yrange[0:]" << "set ylabel 'Events, a.u.'"<<"set title'"+Qmsg+"'"
+                << "set xlabel 'E_k, GeV (theta=" + to_string(int(yC)) + " deg)'"
                 << "set xrange [0.2:0.4]";
         const auto ycut2 = kin_mc.Y().size() * 2 / 3;
         const hist<> xmc2 = kin_mc.CutX(ycut2), xdata2 = data_hist.CutX(ycut2);
         Plot("",7).Hist(xmc2 / xmc2.TotalSum().val(), "MC").Hist(xdata2 / xdata2.TotalSum().val(), "DATA")
-                << "set key on" << "set yrange[0:]" << "set ylabel ''"<<"set title'"+Qmsg+"'"
-                << "set xlabel 'E_k, GeV (theta=" + to_string(yC) + " deg)'"
+                << "set key on" << "set yrange[0:]" << "set ylabel 'Events, a.u.'"<<"set title'"+Qmsg+"'"
+                << "set xlabel 'E_k, GeV (theta=" + to_string(int(yC)) + " deg)'"
                 << "set xrange [0.2:0.4]";
     }
     return 0;

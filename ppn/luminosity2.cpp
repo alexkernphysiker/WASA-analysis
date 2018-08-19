@@ -118,7 +118,8 @@ int main()
 
     Plot("ppn-v2-dt-mc",5)
     .Hist(Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins") / norm.TotalSum().val(), "ppn_{sp}")
-            << "set key on" << "set title 'MC'" << "set xrange [-25:5]"<< "set yrange [0:]" <<"set xtics 5";
+            << "set key on" << "set title 'MC'" << "set xrange [-25:5]"<< "set yrange [0:]" <<"set xtics 5"
+	    << "set xlabel 'Time difference, ns'"<<"set ylabel 'Events count'";
     Plot("ppn-v2-dt-data",5)
         .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins"),"All")
         .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_1-AllBins"),"theta cut")
