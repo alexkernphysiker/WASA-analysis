@@ -12,6 +12,7 @@
 #include <math_h/sigma3.h>
 #include <Genetic/fit.h>
 #include <Genetic/initialconditions.h>
+#include <Genetic/uncertainties.h>
 #include <Experiment/experiment_conv.h>
 #include <Experiment/str_get.h>
 #include <Experiment/gethist.h>
@@ -206,7 +207,7 @@ int main()
                     (const double&x){
                     counter++;
                     const auto data_copl_bg=data_copl.XExclude(180.-x,180.+x);
-                    Fit2<DifferentialMutations<>> fit(
+                    Fit<DifferentialMutations<>,ChiSquare,FunctionUncertaintiesEstimation> fit(
                         removeXerorbars(data_copl_bg),
                         [](const ParamSet&X,const ParamSet&P){return Polynom<2>(X[0],P);}
                     );

@@ -9,6 +9,7 @@
 #include <math_h/interpolate.h>
 #include <math_h/sigma3.h>
 #include <Genetic/fit.h>
+#include <Genetic/uncertainties.h>
 #include <Genetic/paramfunc.h>
 #include <Genetic/initialconditions.h>
 #include <Genetic/filter.h>
@@ -71,7 +72,7 @@ int main()
                     counter++;
                     const auto &data_count = data.TotalSum().val();
                     const auto data_bg = data.XExclude(x,y);
-                    Fit2<DifferentialMutations<>> FIT(
+                    Fit<DifferentialMutations<>,ChiSquare,FunctionUncertaintiesEstimation> FIT(
                         removeXerorbars(data_bg),
                         [&data_count](const ParamSet & X, const ParamSet & P) {
                             return data_count * Polynom<4>(X[0], P);

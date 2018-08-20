@@ -33,7 +33,6 @@ int main()
         }
         auto SP2 = [max_z](const string &name = "") {
             return PlotHist2d(sp2, name,5)
-                   << "set key on"
                    << "set xrange [0:0.3]" << "set xlabel 'E_{FRH1}, GeV'"
                    << "set yrange [0:0.03]" << "set ylabel 'E_{FTH1}, GeV'"
                    << "set zrange [0:" + to_string(max_z) + "]";
@@ -44,10 +43,10 @@ int main()
                    << "set xlabel 'Phi, deg'" << "set xrange [-180:180]"
                    << "set ylabel 'events, count'" << "set yrange [0:]";
         };
-        string fpc = "set title 'Reconstructable tracks. " + title + "'";
+        const string fpc = "set title 'Reconstructable tracks. " + title + "'";
         SP2((HS == DATA) ? "SP2-data-cut0" : "").Distr(Hist2d(HS, R, {"Histograms", "He3Forward_Reconstruction"}, string("2-ThetaIsAccepted-FTH1-vs-FRH1")).Scale(3, 3)) << fpc;
         THD().Hist(Hist(HS, R, {"Histograms", "He3Forward_Debug"}, "2-PhiDistribution-AllBins").Scale(30)) << fpc;
-        string cut = "set title 'Identified as 3He. " + title + "'";
+        const string cut = "set title 'Identified as 3He. " + title + "'";
         SP2((HS == DATA) ? "SP2-data-cut1" : "").Distr(Hist2d(HS, R, {"Histograms", "He3Forward_Reconstruction"}, string("4-GeomCut-FTH1-vs-FRH1")).Scale(3, 3)) << cut << "set zrange [0:]";
         THD().Hist(Hist(HS, R, {"Histograms", "He3Forward_Debug"}, "4-PhiDistribution-AllBins").Scale(30)) << cut;
     };

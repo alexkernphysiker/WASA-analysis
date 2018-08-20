@@ -10,6 +10,7 @@
 #include <math_h/interpolate.h>
 #include <math_h/sigma3.h>
 #include <Genetic/equation.h>
+#include <Genetic/uncertainties.h>
 #include <Genetic/initialconditions.h>
 #include <Genetic/filter.h>
 #include <Experiment/experiment_conv.h>
@@ -112,16 +113,16 @@ Chain<value_numeric_distr<>> BWfit(const string&suffix,const double&B,const doub
             return extend_value<2,2>(std_error(MC_TIM.TotalSum().val())/N);
         },Qbins);
     });
-    const auto Data1=take_uncertainty_component<1>(data1.XRange(-35,5)),
-               Data2=take_uncertainty_component<1>(data2.XRange(-35,5)),
-               BG1=take_uncertainty_component<1>(bg1.XRange(-35,5)),
-               BG2=take_uncertainty_component<1>(bg2.XRange(-35,5));
+    const auto Data1=take_uncertainty_component<1>(data1.XRange(-70,5)),
+               Data2=take_uncertainty_component<1>(data2.XRange(-70,5)),
+               BG1=take_uncertainty_component<1>(bg1.XRange(-70,5)),
+               BG2=take_uncertainty_component<1>(bg2.XRange(-70,5));
     cout<<"Fitting for "<<suffix<<": B="<<B<<"; G="<<G<<endl;
     const hist<> BW([&B,&G](const value<>&Q){
         //ToDo: calculate Breight Wigner using kinetic energy value
         return BreitWigner(Q.val(),B,G);
     },Data1);
-    EquationSolver<DifferentialMutations<ParabolicErrorEstimationFromChisq>> FIT{{
+    EquationSolver<DifferentialMutations<>,UncertaintiesEstimation> FIT{{
         .left=[&BW,&Data1,&BG1,&Data2,&BG2](const ParamSet&P){
             const auto F1=BW*branching_ratio1*P[0]+BG1*P[1];
             const auto F2=BW*branching_ratio2*P[0]+BG2*P[2];
@@ -157,13 +158,13 @@ Chain<value_numeric_distr<>> BWfit(const string&suffix,const double&B,const doub
         Plot("UpperLimitTotalFit1",5)
             .Hist(Data1).Line(fit1).Line(background1)
                 <<"set key left top">>"set key right top"
-                << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-40:10]"
+                << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:]"
                 << "set title 'pd->3He+2g "+msg+"'"<<"set key right top";
         Plot("UpperLimitTotalFit2",5)
             .Hist(Data2).Line(fit2).Line(background2)
                 <<"set key left top">>"set key right top"
-                << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-40:10]"
+                << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:]"
                 << "set title 'pd->3He+6g "+msg+"'"<<"set key right top";
     }
