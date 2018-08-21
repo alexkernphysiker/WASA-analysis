@@ -75,23 +75,24 @@ int main()
                     Fit<DifferentialMutations<>,ChiSquare,FunctionUncertaintiesEstimation> FIT(
                         removeXerorbars(data_bg),
                         [&data_count](const ParamSet & X, const ParamSet & P) {
-                            return data_count * Polynom<4>(X[0], P);
+                            return data_count * Polynom<5>(X[0], P);
                         }
                     );
-                    FIT.SetUncertaintyCalcDeltas({0.1, 0.1,0.1,0.01,0.01})
+                    FIT.SetUncertaintyCalcDeltas({0.1, 0.1,0.1,0.01,0.01,0.001})
                     .SetFilter([&FIT,&data](const ParamSet&P){
                         return
                         (FIT.func({data.left().X().min()},P)>=data.left().Y().min())&&
                         (FIT.func({data.right().X().val()},P)<=data.right().Y().max())&&
                         (FIT.func({data.right().X().min()},P)>0);
                     });
-                    FIT.Init(300,
+                    FIT.Init(400,
                         make_shared<InitialDistributions>()
                             << make_shared<DistribGauss>(0, 20)
                             << make_shared<DistribGauss>(0, 10)
                             << make_shared<DistribGauss>(0, 5)
                             << make_shared<DistribGauss>(0, 5)
                             << make_shared<DistribGauss>(0, 1)
+			    << make_shared<DistribGauss>(0,0.1)
                     );
                     cout << endl;
                     while (!FIT.AbsoluteOptimalityExitCondition(0.00001))FIT.Iterate();

@@ -54,8 +54,8 @@ public:
         return (suffix=="00+")?upper:(suffix=="00-")?lower:normal;
     }
 };
-
-Chain<value_numeric_distr<>> BWfit(const string&suffix,const double&B,const double&G,bool plot=false){
+typedef EquationSolver<DifferentialMutations<>,UncertaintiesEstimation> Fitter;
+Fitter BWfit(const string&suffix,const double&B,const double&G,bool plot=false){
     const auto Qbins=BinsByStep(-70.,2.5,2.5);
     const auto&lum=LuminosityGetter::Instance().get(suffix);
     cout<<"Histogram for "<<suffix<<": "<<"data1"<<endl;
@@ -122,10 +122,10 @@ Chain<value_numeric_distr<>> BWfit(const string&suffix,const double&B,const doub
         //ToDo: calculate Breight Wigner using kinetic energy value
         return BreitWigner(Q.val(),B,G);
     },Data1);
-    EquationSolver<DifferentialMutations<>,UncertaintiesEstimation> FIT{{
-        .left=[&BW,&Data1,&BG1,&Data2,&BG2](const ParamSet&P){
-            const auto F1=BW*branching_ratio1*P[0]+BG1*P[1];
-            const auto F2=BW*branching_ratio2*P[0]+BG2*P[2];
+    Fitter FIT{{
+        .left=[&BW,&Data1,&Data2](const ParamSet&P){
+            const auto F1=BW*branching_ratio1*P[0]+[&P](const value<>&x){return x*P[1]+P[2];};
+            const auto F2=BW*branching_ratio2*P[0]+[&P](const value<>&x){return x*P[3]+P[4];};
             double res=0;
             for(size_t i=0;i<F1.size();i++){
                 res+=F1[i].Y().NumCompare(Data1[i].Y());
@@ -139,8 +139,10 @@ Chain<value_numeric_distr<>> BWfit(const string&suffix,const double&B,const doub
     FIT.SetUncertaintyCalcDeltas({0.01,0.01,0.01});
     FIT.Init(200,make_shared<InitialDistributions>()
         <<make_shared<DistribUniform>(0,30)
-        <<make_shared<DistribUniform>(0,30000)
-        <<make_shared<DistribUniform>(0,300)
+        <<make_shared<DistribUniform>(0,3000)
+        <<make_shared<DistribUniform>(0,10)
+        <<make_shared<DistribUniform>(0,3000)
+        <<make_shared<DistribUniform>(0,10)
     );
     while(!FIT.AbsoluteOptimalityExitCondition(0.000001))FIT.Iterate();
     cout << "Fit result: " << FIT.iteration_count() << " iterations; "
@@ -168,7 +170,7 @@ Chain<value_numeric_distr<>> BWfit(const string&suffix,const double&B,const doub
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:]"
                 << "set title 'pd->3He+6g "+msg+"'"<<"set key right top";
     }
-    return FIT.ParametersWithUncertainties();
+    return FIT;
 }
 int main()
 {
@@ -184,13 +186,15 @@ int main()
             << "set xlabel 'Binding energy, MeV'" << "set key on"<<"set xrange [-70:10]"
             << "set ylabel 'peak height (fit), nb'" << "set yrange [-10:40]"
             << "set title 'Upper limit'"<<"set key right top";
-    for(double G=5;G<=6;G+=10){
-        ext_hist<2> UpperLimit;
-        for(double B=-28.75;B<0;B+=2.5){
-            UpperLimit<<make_point(B,RawSystematicError(params,[&G,&B](const string&suffix){
-                return extend_value<1,2>(value<>(BWfit(suffix,B,G,(suffix=="_")&&(B>-10.)&&(B<-7.5)&&(G==5))[0]));
-            })());
-        }
-        plot_upper.Hist_2bars<1,2>(UpperLimit,"Г="+to_string(G));
+    const auto binding=BinsByStep(-30.0,2.5,0.0),gamma=BinsByStep(5.0,2.5,30.0);
+    BiSortedPoints<value<>,value<>,Fitter> fit_results(binding,gamma,vector<Equation>{});
+    fit_results.FullCycleVar([](const value<>&B,const value<>&G,Fitter&res){
+	res=BWfit("_",B.val(),G.val(),(B.Contains(19))&&(G.Contains(19)));
+    });
+    BiSortedPoints<value<>,value<>,value<>> chisquare(binding,gamma);
+    for(size_t b=0;b<binding.size();b++)for(size_t g=0;g<gamma.size();g++){
+	const auto&src=fit_results[b][g];
+	chisquare.Bin(b,g)=src.Optimality()/(32.0-src.ParamCount());
     }
+    PlotHist2d(sp2,"UpperLimit-chisq").Distr(chisquare);
 }
