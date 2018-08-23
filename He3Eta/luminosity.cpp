@@ -53,11 +53,11 @@ int main()
             events_count << make_point(Q,RawSystematicError(params,[&counter,&Q,&N,&Qmsg,&histpath_forward_reconstr,&hist_name,&runmsg]
                 (const string&suffix){
                 counter++;
-                const auto data_full = Hist(DATA, "All", histpath_forward_reconstr,hist_name,suffix).XRange(0.530, 0.559);
+                const auto data_full = Hist(DATA, "All", histpath_forward_reconstr,hist_name,suffix).XRange(0.535, 0.559);
                 const double bg_level=data_full.TransponateAndSort().right().X().max()*0.04;
-                const auto data = data_full.XRange(0.530, data_full.YRange(bg_level,INFINITY).right().X().val()+0.001);
-                const auto mc_unnorm = Hist(MC, "He3eta-gg", histpath_forward_reconstr,hist_name,suffix).XRange(0.530, 0.559);
-                const auto chain = ChainWithStep(0.530, 0.001, 0.559);
+                const auto data = data_full.XRange(0.535, data_full.YRange(bg_level,INFINITY).right().X().val()+0.001);
+                const auto mc_unnorm = Hist(MC, "He3eta-gg", histpath_forward_reconstr,hist_name,suffix).XRange(0.535, 0.559);
+                const auto chain = ChainWithStep(0.535, 0.001, 0.559);
                 const auto mc = mc_unnorm / N;
                 if(counter==1)Plot(Q.Contains(21) ? "He3eta-mc" : "",5)
                     .Hist(mc)
@@ -75,24 +75,23 @@ int main()
                     Fit<DifferentialMutations<>,ChiSquare,FunctionUncertaintiesEstimation> FIT(
                         removeXerorbars(data_bg),
                         [&data_count](const ParamSet & X, const ParamSet & P) {
-                            return data_count * Polynom<5>(X[0], P);
+                            return data_count * Polynom<4>(X[0], P);
                         }
                     );
-                    FIT.SetUncertaintyCalcDeltas({0.1, 0.1,0.1,0.01,0.01,0.001})
+                    FIT.SetUncertaintyCalcDeltas({0.1, 0.1,0.1,0.01,0.01})
                     .SetFilter([&FIT,&data](const ParamSet&P){
                         return
                         (FIT.func({data.left().X().min()},P)>=data.left().Y().min())&&
                         (FIT.func({data.right().X().val()},P)<=data.right().Y().max())&&
                         (FIT.func({data.right().X().min()},P)>0);
                     });
-                    FIT.Init(400,
+                    FIT.Init(300,
                         make_shared<InitialDistributions>()
                             << make_shared<DistribGauss>(0, 20)
                             << make_shared<DistribGauss>(0, 10)
                             << make_shared<DistribGauss>(0, 5)
                             << make_shared<DistribGauss>(0, 5)
                             << make_shared<DistribGauss>(0, 1)
-			    << make_shared<DistribGauss>(0,0.1)
                     );
                     cout << endl;
                     while (!FIT.AbsoluteOptimalityExitCondition(0.00001))FIT.Iterate();
@@ -144,7 +143,7 @@ int main()
 
     Plot("He3eta-acceptance",5)
         .Hist(wrap_hist(acceptance.XRange(10,30)),"")
-            << "set title '3He+eta efficiency'"
+            //<< "set title '3He+eta efficiency'"
             << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Efficiency, n.d.'"
             << "set xrange [10:30]" << "set yrange [0:1]";

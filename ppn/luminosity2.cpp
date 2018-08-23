@@ -130,7 +130,10 @@ int main()
             {getParameter(ppn_t1), 1200000.},{getParameter(ppn_t1), 0.0},
             {getParameter(ppn_t2), 0.0},{getParameter(ppn_t2), 1200000.}
         },"time cut")<<"set xtics 5"
-            << "set title 'Time difference. Data " + runmsg + "'" << "set xrange [-25:5]"<< "set yrange [0:]"<<"set key on";
+            << "set title '" + runmsg + "'" 
+	    << "set xrange [-25:5]"<< "set yrange [0:]"<<"set key on"
+	    << "set xlabel 'Time difference, ns'"
+	    << "set ylabel 'Events count, n.d.'";
 
     Plot("ppn-v2-mm-mc",5)
         .Hist(Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "pp_mm_3") / norm.TotalSum().val())
@@ -256,7 +259,7 @@ int main()
     }
     Plot("ppn-v2-acceptance",7)
         .Hist(wrap_hist(acceptance))
-            << "set key on" << "set title 'Efficiency'" << "set yrange [0:0.2]" << "set xrange [-70:30]"
+            << "set key on" << "set yrange [0:0.2]" << "set xrange [-70:30]"
             << "set xlabel 'Q, MeV'" << "set ylabel 'Efficiency, n.d.'"<<"set xtics 20";
 
     Plot("luminosity-v2",3)
@@ -273,14 +276,14 @@ int main()
     Plot("luminosity-v2-compare",3)
         .Hist_2bars<1,2>(luminosity, "ppn_{sp}","","LUMINOSITYc")
         .Hist_2bars<1,2>(prev_luminosity,"3He+eta")
-            << "set title 'Integrated luminosity " + runmsg + "'"
+            << "set title '" + runmsg + "'"
             << "set key on" << "set xlabel 'Q, MeV'"<<"set xtics 20"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:"+hirange+"]";
     Plot("luminosity-v2-compare-light",3)
         .Hist(wrap_hist(luminosity), "ppn_{sp}")
         .Hist(wrap_hist(prev_luminosity),"3He+eta")
-            << "set title 'Integrated luminosity " + runmsg + "'"
+            << "set title '" + runmsg + "'"
             << "set key on" << "set xlabel 'Q, MeV'"<<"set xtics 20"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:"+hirange+"]";
@@ -289,9 +292,8 @@ int main()
         .Hist(wrap_hist(luminosity)*runs.second/runs.first, "ppn_{sp}")
         .Hist(wrap_hist(prev_luminosity)*runs.second/runs.first, "3He+eta")
         .Hist(sasha, "A. Khreptak")
-            << "set title 'Total integrated luminosity estimation'"
             << "set key on" << "set xlabel 'Q, MeV'"<<"set xtics 20"
-            << "set ylabel 'Integrated luminosity, nb^{-1}'"
+            << "set ylabel 'Luminosity estimation, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:100]";
     cout<<"Full luminosity estimation: "<<luminosity.TotalSum()*runs.second/runs.first<<endl;
 }
