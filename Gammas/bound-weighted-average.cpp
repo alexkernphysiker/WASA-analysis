@@ -139,14 +139,14 @@ Fitter BWfit(const string&suffix,const double&B,const double&G,bool plot=false){
         const auto fit1=BW*branching_ratio1*P[0]+background1;
         const auto fit2=BW*branching_ratio2*P[0]+background2;
         const string msg="B="+to_string(B)+"; Г="+to_string(G);
-        Plot("UpperLimitTotalFit1",5)
-            .Hist(Data1,"data").Hist(fit1,"fit").Hist(background1,"bg")
+        Plot("UpperLimit-"+to_string(int(B*10))+"-"+to_string(int(G*10))+"Fit1",5)
+            .Hist(Data1,"data").Line(toLine(fit1)).Line(toLine(background1))
                 <<"set key left top">>"set key right top"
                 << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:]"
                 << "set title 'pd->3He+2g "+msg+"'"<<"set key right top";
-        Plot("UpperLimitTotalFit2",5)
-            .Hist(Data2,"data").Hist(fit2,"fit").Hist(background2,"bg")
+        Plot("UpperLimit-"+to_string(int(B*10))+"-"+to_string(int(G*10))+"Fit2",5)
+            .Hist(Data2,"data").Line(toLine(fit2)).Line(toLine(background2))
                 <<"set key left top">>"set key right top"
                 << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:]"
@@ -166,7 +166,7 @@ int main()
     BiSortedPoints<value<>,value<>,Fitter> fit_results(binding,gamma,[](const ParamSet&){return 0.0;});
     cout<<"Fitting"<<endl;
     fit_results.FullCycleVar([](const value<>&B,const value<>&G,Fitter&res){
-	res=BWfit("_",B.val(),G.val(),(B.Contains(-19))&&(G.Contains(19)));
+	res=BWfit("_",B.val(),G.val(),G.Contains(19));
     });
     BiSortedPoints<value<>,value<>,value<>> chisquare(binding,gamma),upper(binding,gamma);
     cout<<"converting"<<endl;
