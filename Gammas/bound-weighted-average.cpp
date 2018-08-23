@@ -9,7 +9,9 @@
 #include <gnuplot_wrap.h>
 #include <math_h/interpolate.h>
 #include <math_h/sigma3.h>
-#include <Genetic/equation.h>
+#include <math_h/lorentzvector.h>
+#include <math_h/interpolate.h>
+#include <Genetic/searchmin.h>
 #include <Genetic/uncertainties.h>
 #include <Genetic/initialconditions.h>
 #include <Genetic/filter.h>
@@ -18,6 +20,7 @@
 #include <Experiment/gethist.h>
 #include <Parameters/parameters.h>
 #include <Parameters/systematic.h>
+#include <Kinematics/particles.h>
 using namespace std;
 using namespace ROOT_data;
 using namespace Genetic;
@@ -54,13 +57,13 @@ public:
         return (suffix=="00+")?upper:(suffix=="00-")?lower:normal;
     }
 };
-typedef EquationSolver<DifferentialMutations<>,UncertaintiesEstimation> Fitter;
+typedef SearchMin<DifferentialMutations<>,UncertaintiesEstimation> Fitter;
+const auto Qbins=BinsByStep(-70.,2.5,0.0);
 Fitter BWfit(const string&suffix,const double&B,const double&G,bool plot=false){
-    const auto Qbins=BinsByStep(-50.,2.5,0.0);
     const auto&lum=LuminosityGetter::Instance().get(suffix);
     cout<<"Histogram for "<<suffix<<": "<<"data1"<<endl;
     static Cache<string,ext_hist<2>> DATA1,DATA2;
-    const auto&data1=DATA1(suffix,[&suffix,&lum,&Qbins](){
+    const auto&data1=DATA1(suffix,[&suffix,&lum](){
         return ext_hist<2>([&suffix,&lum](const value<>&Q){
                 const size_t bin_num=trunc((Q.val()+70.)/2.5);
                 cout<<"Preparing histogram for "<<suffix<<": "<<"data1["<<Q.min()<<":"<<Q.max()<<"]MeV"<<endl;
@@ -76,7 +79,7 @@ Fitter BWfit(const string&suffix,const double&B,const double&G,bool plot=false){
         },Qbins);
     });
     cout<<"Histogram for "<<suffix<<": "<<"data2"<<endl;
-    const auto&data2=DATA2(suffix,[&suffix,&lum,&Qbins](){
+    const auto&data2=DATA2(suffix,[&suffix,&lum](){
         return ext_hist<2>([&suffix,&lum](const value<>&Q){
             const size_t bin_num=trunc((Q.val()+70.)/2.5);
             cout<<"Preparing histogram for "<<suffix<<": "<<"data2["<<Q.min()<<":"<<Q.max()<<"]MeV"<<endl;
@@ -94,37 +97,42 @@ Fitter BWfit(const string&suffix,const double&B,const double&G,bool plot=false){
     const auto Data1=take_uncertainty_component<1>(data1),
                Data2=take_uncertainty_component<1>(data2);
     cout<<"Fitting for "<<suffix<<": B="<<B<<"; G="<<G<<endl;
+    const auto static Q2P=[](const double&Q){
+	const auto TM=Q*0.001+Particle::eta().mass()+Particle::he3().mass();
+	const auto cm=binaryDecay(TM,Particle::p().mass(),Particle::d().mass());
+	const auto p=cm.first.Transform(cm.second.Beta());
+	return p.P().M();
+    };
     const hist<> BW([&B,&G](const value<>&Q){
-        //ToDo: calculate Breight Wigner using kinetic energy value
-        return BreitWigner(Q.val(),B,G);
+	const auto b=Q2P(B),q=Q2P(Q.val());
+	const auto g=G*0.001;
+        return BreitWigner(q,b,g)/BreitWigner(b,b,g);
     },Data1);
-    Fitter FIT{{
-        .left=[BW,Data1,Data2](const ParamSet&P){
-            const auto F1=BW*branching_ratio1*P[0]+[&P](const value<>&x){return x*P[1]+P[2];};
-            const auto F2=BW*branching_ratio2*P[0]+[&P](const value<>&x){return x*P[3]+P[4];};
-            double res=0;
-            for(size_t i=0;i<F1.size();i++){
-                res+=F1[i].Y().NumCompare(Data1[i].Y());
-                res+=F2[i].Y().NumCompare(Data2[i].Y());
-            }
-            return res;
-        },
-        .right=[](const ParamSet&){return 0;}
-    }};
+    Fitter FIT([BW,Data1,Data2](const ParamSet&P){
+        const auto F1=BW*branching_ratio1*P[0]+[&P](const value<>&x){return x*P[1]+P[2];};
+        const auto F2=BW*branching_ratio2*P[0]+[&P](const value<>&x){return x*P[3]+P[4];};
+        double res=0;
+        for(size_t i=0;i<F1.size();i++){
+            res+=F1[i].Y().NumCompare(Data1[i].Y());
+            res+=F2[i].Y().NumCompare(Data2[i].Y());
+        }
+        return res;
+    });
     FIT.SetFilter([](const ParamSet&P){return (P[0]>0);});
     FIT.Init(100,make_shared<InitialDistributions>()
-        <<make_shared<DistribUniform>(0,30)
-        <<make_shared<DistribUniform>(0,3000)
+        <<make_shared<DistribUniform>(0,10)
         <<make_shared<DistribUniform>(0,100)
-        <<make_shared<DistribUniform>(0,3000)
+        <<make_shared<DistribUniform>(0,10000)
         <<make_shared<DistribUniform>(0,100)
+        <<make_shared<DistribUniform>(0,10000)
     );
-    while(!FIT.AbsoluteOptimalityExitCondition(0.000001))FIT.Iterate();
+    while(!FIT.AbsoluteOptimalityExitCondition(0.0000001))FIT.Iterate();
     cout << "Fit result: " << FIT.iteration_count() << " iterations; "
         << FIT.Optimality() << "<chi^2<"
         << FIT.Optimality(FIT.PopulationSize() - 1)
         << endl;
-    const auto&P=FIT.Parameters();
+    FIT.SetUncertaintyCalcDeltas({0.1,0.1,0.01,0.1,0.01});
+    const auto&P=FIT.ParametersWithUncertainties();
     if(plot){
         const hist<> background1([&P](const value<>&x){return x*P[1]+P[2];},BW);
         const hist<> background2([&P](const value<>&x){return x*P[3]+P[4];},BW);
@@ -134,17 +142,16 @@ Fitter BWfit(const string&suffix,const double&B,const double&G,bool plot=false){
         Plot("UpperLimitTotalFit1",5)
             .Hist(Data1,"data").Hist(fit1,"fit").Hist(background1,"bg")
                 <<"set key left top">>"set key right top"
-                << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-50:10]"
+                << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:]"
                 << "set title 'pd->3He+2g "+msg+"'"<<"set key right top";
         Plot("UpperLimitTotalFit2",5)
             .Hist(Data2,"data").Hist(fit2,"fit").Hist(background2,"bg")
                 <<"set key left top">>"set key right top"
-                << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-50:10]"
+                << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:]"
                 << "set title 'pd->3He+6g "+msg+"'"<<"set key right top";
     }
-    FIT.SetUncertaintyCalcDeltas({0.01});
     return FIT;
 }
 int main()
@@ -155,22 +162,24 @@ int main()
         gamma_mm_lo,gamma_mm_hi,gamma_im_lo,gamma_im_hi,
         gamma_mm_lo,gamma_mm_hi,gamma_im_lo6,gamma_im_hi6,three_pi0
     };
-    const auto binding=BinsByStep(-30.0,2.5,0.0),gamma=BinsByStep(0.0,2.5,20.0);
-    BiSortedPoints<value<>,value<>,Fitter> fit_results(binding,gamma,vector<Equation>{});
+    const auto binding=BinsByStep(-60.0,2.5,0.0),gamma=BinsByStep(0.0,2.5,60.0);
+    BiSortedPoints<value<>,value<>,Fitter> fit_results(binding,gamma,[](const ParamSet&){return 0.0;});
     cout<<"Fitting"<<endl;
     fit_results.FullCycleVar([](const value<>&B,const value<>&G,Fitter&res){
 	res=BWfit("_",B.val(),G.val(),(B.Contains(-19))&&(G.Contains(19)));
     });
-    BiSortedPoints<value<>,value<>,value<>> chisquare(binding,gamma),upper(binding,gamma),lower(binding,gamma);
+    BiSortedPoints<value<>,value<>,value<>> chisquare(binding,gamma),upper(binding,gamma);
     cout<<"converting"<<endl;
     for(size_t b=0;b<binding.size();b++)for(size_t g=0;g<gamma.size();g++){
 	const auto&src=fit_results[b][g];
-	chisquare.Bin(b,g)=src.Optimality()/(24+24-src.ParamCount());
+	chisquare.Bin(b,g)=src.Optimality()/(Qbins.size()+Qbins.size()-src.ParamCount());
 	upper    .Bin(b,g)=src.ParametersWithUncertainties()[0].max();
-	lower    .Bin(b,g)=src.ParametersWithUncertainties()[0].min();
     }
     cout<<"plotting"<<endl;
-    PlotHist2d(sp2,"UpperLimit-chisq").Distr(chisquare)<<"set colorbox";
-    PlotHist2d(sp2,"UpperLimit-upperlimit").Distr(upper)<<"set colorbox";
-    PlotHist2d(sp2,"UpperLimit-upperlimit-dbg").Distr(lower)<<"set colorbox";
+    PlotHist2d(sp2,"UpperLimit-chisq").Distr(chisquare)<<"set colorbox"
+	<<"set xlabel 'Peak position, MeV'"<<"set ylabel 'Width, MeV'"
+	<<"set title 'Chi square'";
+    PlotHist2d(sp2,"UpperLimit-upperlimit").Distr(upper)<<"set colorbox"
+	<<"set xlabel 'Peak position, MeV'"<<"set ylabel 'Width, MeV'"
+	<<"set title 'Upper limit, nb'";
 }
