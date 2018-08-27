@@ -185,10 +185,17 @@ int main()
     ext_hist<2> UpperLimitMore;
     for(const auto&B:binding){
 	const double G=18.75;
-	UpperLimitMore<<make_point(B.val(),RawSystematicError(params,[&B,&G](const string&suffix){
+	RawSystematicError calc(params,[&B,&G](const string&suffix){
 	    const auto fit=BWfit(suffix,B.val(),G,false);
             return uncertainties(fit.ParametersWithUncertainties()[0].max(),0.0,0.0);
-        })());	
+        });
+	UpperLimitMore<<make_point(B.val(),calc());
+	hist<> contrib;
+	for(const auto p:params)contrib<<make_point(double(p),calc.contrib(p));
+	Plot("UpperLimit-"+to_string(int(B.val()*10))+"-"+to_string(int(G*10))+"-contrib")
+	    .Hist(contrib)
+	    <<"set ylabel 'Systematic error contribution, nb'"
+	    <<"set xlabel 'Parameter index'";
     }
     Plot("UpperLimit-Gconst")
 	.Hist(wrap_hist(UpperLimitMore))
