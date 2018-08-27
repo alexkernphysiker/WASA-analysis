@@ -182,4 +182,17 @@ int main()
     PlotHist2d(sp2,"UpperLimit-upperlimit").Distr(upper)<<"set colorbox"
 	<<"set xlabel 'Peak position, MeV'"<<"set ylabel 'Width, MeV'"
 	<<"set title 'Upper limit, nb'";
+    ext_hist<2> UpperLimitMore;
+    for(const auto&B:binding){
+	const double G=18.75;
+	UpperLimitMore<<make_point(B.val(),RawSystematicError(params,[&B,&G](const string&suffix){
+	    const auto fit=BWfit(suffix,B.val(),G,false);
+            return uncertainties(fit.ParametersWithUncertainties()[0].max(),0.0,0.0);
+        })());	
+    }
+    Plot("UpperLimit-Gconst")
+	.Hist(wrap_hist(UpperLimitMore))
+	<<"set title 'G = 18.75 MeV'"
+	<<"set xlabel 'Peak position, MeV'"
+	<<"set ylabel 'Upper limit, nb'";
 }
