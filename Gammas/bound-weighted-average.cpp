@@ -142,13 +142,13 @@ Fitter BWfit(const string&suffix,const double&B,const double&G,bool plot=false){
         Plot("UpperLimit-"+to_string(int(B*10))+"-"+to_string(int(G*10))+"Fit1",5)
             .Hist(Data1,"data").Line(toLine(fit1)).Line(toLine(background1))
                 <<"set key left top">>"set key right top"
-                << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
+                << "set xlabel 'Q, MeV/c^2'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:]"
                 << "set title 'pd->3He+2g "+msg+"'"<<"set key right top";
         Plot("UpperLimit-"+to_string(int(B*10))+"-"+to_string(int(G*10))+"Fit2",5)
             .Hist(Data2,"data").Line(toLine(fit2)).Line(toLine(background2))
                 <<"set key left top">>"set key right top"
-                << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
+                << "set xlabel 'Q, MeV/c^2'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:]"
                 << "set title 'pd->3He+6g "+msg+"'"<<"set key right top";
     }
@@ -177,10 +177,10 @@ int main()
     }
     cout<<"plotting"<<endl;
     PlotHist2d(sp2,"UpperLimit-chisq").Distr(chisquare)<<"set colorbox"
-	<<"set xlabel 'Peak position, MeV'"<<"set ylabel 'Width, MeV'"
+	<<"set xlabel 'Peak position, MeV/c^2'"<<"set ylabel 'Width, MeV/c^2'"
 	<<"set title 'Chi square'";
     PlotHist2d(sp2,"UpperLimit-upperlimit").Distr(upper)<<"set colorbox"
-	<<"set xlabel 'Peak position, MeV'"<<"set ylabel 'Width, MeV'"
+	<<"set xlabel 'Peak position, MeV/c^2'"<<"set ylabel 'Width, MeV/c^2'"
 	<<"set title 'Upper limit, nb'";
     ext_hist<2> UpperLimitMore;
     for(const auto&B:binding){
@@ -200,6 +200,6 @@ int main()
     Plot("UpperLimit-Gconst")
 	.Hist(wrap_hist(UpperLimitMore))
 	<<"set title 'G = 18.75 MeV'"
-	<<"set xlabel 'Peak position, MeV'"
+	<<"set xlabel 'Peak position, MeV/c^2'"
 	<<"set ylabel 'Upper limit, nb'";
 }
