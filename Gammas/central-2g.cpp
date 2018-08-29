@@ -94,26 +94,26 @@ int main()
                     << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV/c^2'"<<"set ylabel 'Efficiensy, a.u.'";
     }
     {
-            const auto he3mm0=Hist(DATA, "All", histpath_central_reconstr,"He3MM0");
+            const auto he3mm0=Hist(DATA, "All", histpath_central_reconstr,"He3MM0")/1000.;
             Plot("He3gg-he3mm-data",5)
-            .Hist(he3mm0).Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM1"))
+            .Hist(he3mm0).Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM1")/1000.)
             .Line(Points<>{{getParameter(he3mm_cut),0.0},{getParameter(he3mm_cut),hist<>(he3mm0.Transponate()).right().X().max()*1.5}},"cut")
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM2"), "2 gammas required")
-                    << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<<"set ylabel 'Events, n.d.'"
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM2")/1000., "2 gammas required")
+                    << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<<"set ylabel 'Events, 10^3'"
                     << "set xlabel '3He missing mass - Q, GeV/c^2'"<< "set xrange [0.45:0.57]";
 
-            const auto ggcos=Hist(DATA, "All", histpath_central_reconstr,"GGcos0");
+            const auto ggcos=Hist(DATA, "All", histpath_central_reconstr,"GGcos0")/1000.;
             Plot("He3gg-cos-data",5)
-            .Hist(ggcos).Hist(Hist(DATA, "All", histpath_central_reconstr,"GGcos3"))
+            .Hist(ggcos).Hist(Hist(DATA, "All", histpath_central_reconstr,"GGcos3")/1000.)
             .Line(Points<>{{0.0,0.0},{0.0,hist<>(ggcos.Transponate()).right().X().max()*1.5}},"condition")
                     << "set key on" << "set title 'Data"+runmsg+"'" << "set yrange [0:]"<< "set xrange [-1:1]"
-                    << "set xlabel 'cos(alpha), n.d.'"<<"set ylabel 'Events, n.d.'";
-            const auto eta_theta=Hist(DATA,"All", histpath_central_reconstr,"ET3");
+                    << "set xlabel 'cos(alpha), n.d.'"<<"set ylabel 'Events, 10^3'";
+            const auto eta_theta=Hist(DATA,"All", histpath_central_reconstr,"ET3")/1000.;
             Plot("He3gg-eta-theta-data",5)
-            .Hist(eta_theta).Hist(Hist(DATA, "All", histpath_central_reconstr,"ET4"))
+            .Hist(eta_theta).Hist(Hist(DATA, "All", histpath_central_reconstr,"ET4")/1000.)
             .Line(Points<>{{getParameter(eta_theta_thr),0.0},{getParameter(eta_theta_thr),hist<>(eta_theta.Transponate()).right().X().max()*1.5}},"cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [0:180]"
-                    << "set xlabel 'theta(eta) reconstructed, degrees'"<<"set ylabel 'Events, n.d.'";
+                    << "set xlabel 'theta(eta) reconstructed, degrees'"<<"set ylabel 'Events, 10^3'";
             const auto ggmm=Hist(DATA,"All", histpath_central_reconstr, "GMM4");
             Plot("He3gg-ggmm-data",5)
             .Hist(ggmm).Hist(Hist(DATA, "All", histpath_central_reconstr, "GMM5"))
@@ -134,28 +134,28 @@ int main()
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [-0.1:0.1]"
                      << "set xlabel 'IM(3He+gamma+gamma)-IM(p+d), GeV/c^2'"<<"set ylabel 'Events, n.d.'";
 
-            const auto DT=Hist(DATA, "All", histpath_central_reconstr, "dt00");
+            const auto DT=Hist(DATA, "All", histpath_central_reconstr, "dt00")/1000.;
             Plot("He3gg-dt-data",5)
-            .Hist(DT).Hist(Hist(DATA, "All", histpath_central_reconstr, "dt0"))
+            .Hist(DT).Hist(Hist(DATA, "All", histpath_central_reconstr, "dt0")/1000.)
             .Line(Points<>{{getParameter(time_dt),0.0},{getParameter(time_dt),hist<>(DT.Transponate()).right().X().max()*1.5}},"condition")
-                    << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"<<"set ylabel 'Events, n.d.'"
+                    << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"<<"set ylabel 'Events, 10^3'"
                     << "set xlabel 'dt gamma-gamma, ns'"<< "set key on";
-            const auto T=Hist(DATA, "All", histpath_central_reconstr, "t00");
+            const auto T=Hist(DATA, "All", histpath_central_reconstr, "t00")/1000.;
             Plot("He3gg-t-data",5)
-            .Hist(T).Hist(Hist(DATA, "All", histpath_central_reconstr, "t0"))
+            .Hist(T).Hist(Hist(DATA, "All", histpath_central_reconstr, "t0")/1000.)
             .Line(Points<>{{getParameter(time_t1),hist<>(T.Transponate()).right().X().max()*1.5},{getParameter(time_t1),0.0},
                            {getParameter(time_t2),0.0},{getParameter(time_t2),hist<>(T.Transponate()).right().X().max()*1.5}},"condition")
-                    << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"<<"set ylabel 'Events, n.d.'"
+                    << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"<<"set ylabel 'Events, 10^3'"
                     << "set xlabel 'dt 3He-gamma, ns'"<< "set key on";
 
             Plot("He3gg-dt-data-end",5)
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt6"))
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "dt6")/1000.)
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
-                    << "set xlabel 'dt gamma-gamma, ns'"<< "set key on"<<"set ylabel 'Events, n.d.'";
+                    << "set xlabel 'dt gamma-gamma, ns'"<< "set key on"<<"set ylabel 'Events, 10^3'";
             Plot("He3gg-t-data-end",5)
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "t6"))
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "t6")/1000.)
                     << "set title 'Data " + runmsg + "'"  << "set yrange [0:]"
-                    << "set xlabel 'dt 3He-gamma, ns'"<< "set key on"<<"set ylabel 'Events, n.d.'";
+                    << "set xlabel 'dt 3He-gamma, ns'"<< "set key on"<<"set ylabel 'Events, 10^3'";
             Plot("He3gg-cos-data-end",5)
             .Hist(Hist(DATA, "All", histpath_central_reconstr,"GGcos6"),"data")
                     << "set key on" << "set title 'Data"+runmsg+"'" << "set yrange [0:]"<< "set xrange [-1:1]"

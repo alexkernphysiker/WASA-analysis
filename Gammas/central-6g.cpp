@@ -151,12 +151,12 @@ int main()
             .Hist(cosb).Hist(cosa)
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [-1:1]"
                     << "set xlabel 'cos(gamma-gamma), n.d.'";
-            const auto he3mm0=Hist(DATA, "All", histpath_central_reconstr, "He3MM0");
+            const auto he3mm0=Hist(DATA, "All", histpath_central_reconstr, "He3MM0")/1000.;
             Plot("He36g-he3mm-data",5)
-            .Hist(he3mm0).Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM1"))
+            .Hist(he3mm0).Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM1")/1000.)
             .Line(Points<>{{getParameter(he3mm_cut),0.0},{getParameter(he3mm_cut),hist<>(he3mm0.Transponate()).right().X().max()*1.5}},"cut")
-            .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM2"), "6 gammas required")
-                    << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<<"set ylabel 'Events, n.d.'"
+            .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM2")/1000., "6 gammas required")
+                    << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<<"set ylabel 'Events, 10^3'"
                     << "set xlabel '3He missing mass - Q, GeV/c^2'"<< "set xrange [0.45:0.57]";
             const auto eta_theta=Hist(DATA, "All", histpath_central_reconstr,"ET3");
             Plot("He36g-eta-theta-data",5)

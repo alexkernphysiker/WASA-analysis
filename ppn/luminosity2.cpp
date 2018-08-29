@@ -102,11 +102,13 @@ int main()
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "luminosity-central-v2");
 
     PlotHist2d(sp2, "ppn-v2-trackid-mc-1",5).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "track_id-2"))
+	     << "set xlabel 'E Calorimeter, GeV'"<< "set ylabel 'E PSB, GeV'"
             << "set xrange [0:0.5]"<< "set yrange [0:0.005]"<<"set xtics 0.1"
-            << "set zrange [0:]" << "set title 'MC ppn'" << "set xlabel 'E Calorimeter'"<< "set ylabel 'E PSB'";
+            << "set zrange [0:]" << "set title 'MC ppn'";
     PlotHist2d(sp2, "ppn-v2-trackid-data-1",4).Distr(Hist2d(DATA, "All", {"Histograms", "quasielastic"}, "track_id-2"))
+	     << "set xlabel 'E Calorimeter, GeV'"<< "set ylabel 'E PSB, GeV'"
             << "set xrange [0:0.5]"<< "set yrange [0:0.005]"<<"set xtics 0.1"
-            << "set zrange [0:]" << "set title 'Data "+runmsg+"'" << "set xlabel 'E Calorimeter'"<< "set ylabel 'E PSB'";
+            << "set zrange [0:]" << "set title 'Data "+runmsg+"'";
 
     Plot("ppn-v2-copl-mc",5)
     .Hist(Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "pair_phi_diff_0-AllBins") / norm.TotalSum().val())
@@ -122,18 +124,18 @@ int main()
             << "set key on" << "set title 'MC'" << "set xrange [-25:5]"<< "set yrange [0:]" <<"set xtics 5"
 	    << "set xlabel 'Time difference, ns'"<<"set ylabel 'Events count'";
     Plot("ppn-v2-dt-data",5)
-        .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins"),"All")
-        .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_1-AllBins"),"theta cut")
-        .Line(toLine(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins")))
-        .Line(toLine(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_1-AllBins")))
+        .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins")/1000.,"All")
+        .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_1-AllBins")/1000.,"theta cut")
+        .Line(toLine(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins"))/1000.)
+        .Line(toLine(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_1-AllBins"))/1000.)
         .Line(Points<>{
-            {getParameter(ppn_t1), 1200000.},{getParameter(ppn_t1), 0.0},
-            {getParameter(ppn_t2), 0.0},{getParameter(ppn_t2), 1200000.}
+            {getParameter(ppn_t1), 1200.},{getParameter(ppn_t1), 0.0},
+            {getParameter(ppn_t2), 0.0},{getParameter(ppn_t2), 1200.}
         },"time cut")<<"set xtics 5"
             << "set title '" + runmsg + "'" 
 	    << "set xrange [-25:5]"<< "set yrange [0:]"<<"set key on"
 	    << "set xlabel 'Time difference, ns'"
-	    << "set ylabel 'Events count, n.d.'";
+	    << "set ylabel 'Events count, 10^3'";
 
     Plot("ppn-v2-mm-mc",5)
         .Hist(Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "pp_mm_3") / norm.TotalSum().val())
@@ -235,13 +237,13 @@ int main()
                         Plot(Q.Contains(21) ? "ppn-v2-above-data-copl" : (Q.Contains(-39) ? "ppn-v2-below-data-copl" : ""),7)
                             .Hist(data_copl,"DATA").Hist(data_copl_bg)
                             .Hist(data_copl.CloneEmptyBins()+BG,"BG")
-                            << "set title '" + runmsg+ Qmsg + "'" <<"set key on"
+                            << "set title '" + runmsg+ Qmsg + "'" <<"set key on"<< "set ylabel 'Events count, n.d.'"
                             << "set yrange [-100:"+max+"]" << "set xlabel " + planarity<< "set xrange [90:270]"<<"set xtics 30";
                         Plot(Q.Contains(21) ? "ppn-v2-above-data-copl-norm" : (Q.Contains(-39) ? "ppn-v2-below-data-copl-norm" : ""),7)
                             .Hist(subtr).Hist(summ,"DATA-BG")
                             .Line(simulation_curve,"Simulation")
                             .Line(Points<>{{subtr.left().X().min(), 0.0},{subtr.right().X().max(), 0.0}})
-                            << "set title 'Subtracted background'" <<"set key on"
+                            << "set title 'Subtracted background'" <<"set key on"<< "set ylabel 'Events count, n.d.'"
                             << "set yrange [-100:"+max+"]" << "set xlabel " + planarity<< "set xrange [90:270]"<<"set xtics 30";
                     }
                     return extend_value<1,2>(summ.TotalSum())/extend_value<2,2>(acc);
@@ -260,7 +262,7 @@ int main()
     Plot("ppn-v2-acceptance",7)
         .Hist(wrap_hist(acceptance))
             << "set key on" << "set yrange [0:0.2]" << "set xrange [-70:30]"
-            << "set xlabel 'Q, MeV'" << "set ylabel 'Efficiency, n.d.'"<<"set xtics 20";
+            << "set xlabel 'Q, MeV/c^2'" << "set ylabel 'Efficiency, n.d.'"<<"set xtics 20";
 
     Plot("luminosity-v2",3)
         .Hist_2bars<1,2>(lum_bc_z, "","","LUMINOSITYc_z")

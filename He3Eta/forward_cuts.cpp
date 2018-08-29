@@ -26,10 +26,10 @@ int main()
             .Hist(Hist(HS, R, {"Histograms", "He3Forward_Reconstruction"}, "2-ThetaIsAccepted"), "Reconstructable forward tracks")
             .Hist(Hist(HS, R, {"Histograms", "He3Forward_Reconstruction"}, "4-GeomCut"), "identified as ^3He")
                     << "set key on" << "set title '" + title + "'"
-                    << "set yrange [0:]"
-                    << "set xrange [0:30]"
                     << "set xlabel 'Q, MeV'"
-                    << "set ylabel 'Events count'";
+                    << "set ylabel 'Events count'"
+                    << "set yrange [0:]"
+                    << "set xrange [0:30]";
         }
         auto SP2 = [max_z](const string &name = "") {
             return PlotHist2d(sp2, name,5)
