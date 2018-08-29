@@ -113,11 +113,11 @@ int main()
     Plot("ppn-v2-copl-mc",5)
     .Hist(Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "pair_phi_diff_0-AllBins") / norm.TotalSum().val())
             << "set key on" << "set title 'MC'" << "set xrange [90:270]"<<"set xtics 30"
-            << "set yrange [0:]" << "set xlabel " + planarity;
+            << "set yrange [0:]" << "set xlabel " + planarity << "set ylabel 'Efficiency, a.u.'";
     Plot("ppn-v2-copl-data",5)
-    .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_phi_diff_0-AllBins"))
+    .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_phi_diff_0-AllBins")/1000.)
             << "set title 'Data " + runmsg + "'" << "set xrange [90:270]"<<"set xtics 30"
-            << "set yrange [0:]" << "set xlabel " + planarity;
+            << "set yrange [0:]" << "set xlabel " + planarity << "set ylabel 'Events, 10^3'";
 
     Plot("ppn-v2-dt-mc",5)
     .Hist(Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins") / norm.TotalSum().val(), "ppn_{sp}")
