@@ -288,8 +288,8 @@ int main()
             << "set title 'pd->3He+6gamma " + runmsg + "'"<<"set key left top";
     const auto S2=take_uncertainty_component<1>(ev_am.XRange(10,30)-he3eta_events).TotalSum()-(take_uncertainty_component<1>(avr_bg_level)*8.0);
     Plot("He36g-events-BG",5)
-    .Hist(hist<>(Points<value<>>{{1,S}}),"total invariant mass")
-    .Hist(hist<>(Points<value<>>{{2,S2}}),"excitation curve")
+    .Hist(hist<>(Points<value<>>{{1,S}}),"total invariant mass","six_gamma_bg_left")
+    .Hist(hist<>(Points<value<>>{{2,S2}}),"excitation curve","six_gamma_bg_right")
             <<"set xrange [0:3]"<<"unset xtics"
             << "set ylabel 'Events, n.d.'" << "set yrange [0:"+to_string(S2.val()*2)+"]"
             << "set title 'pd->3He+6gamma background events " + runmsg + "'"<<"set key left top";
