@@ -124,13 +124,13 @@ Fitter BGfit(const string&suffix,bool plot=false){
         const hist<> background1([&P](const value<>&x){return value<>(P[0])*x.val()+P[1];},Qbins);
         const hist<> background2([&P](const value<>&x){return value<>(P[2])*x.val()+P[3];},Qbins);
         Plot("UpperLimit-LinearFit1",5)
-            .Hist(Data1,"data").Line(toLine(background1))
+            .Hist(Data1).Line(toLine(background1))
                 <<"set key left top">>"set key right top"
                 << "set xlabel 'Q, MeV/c^2'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:]"
                 << "set title 'pd->3He+2g'"<<"set key right top";
         Plot("UpperLimit-LinearFit2",5)
-            .Hist(Data2,"data").Line(toLine(background2))
+            .Hist(Data2).Line(toLine(background2))
                 <<"set key left top">>"set key right top"
                 << "set xlabel 'Q, MeV/c^2'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:]"
@@ -220,13 +220,13 @@ Fitter BWfit(const string&suffix,const double&B,const double&G,bool plot=false){
         const auto fit2=BW*branching_ratio2*P[0]+background2;
         const string msg="B="+to_string(B)+"; Г="+to_string(G);
         Plot("UpperLimit-"+to_string(int(B*10))+"-"+to_string(int(G*10))+"Fit1",5)
-            .Hist(Data1,"data").Line(toLine(fit1)).Line(toLine(background1))
+            .Hist(Data1).Line(toLine(fit1)).Line(toLine(background1))
                 <<"set key left top">>"set key right top"
                 << "set xlabel 'Q, MeV/c^2'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:]"
                 << "set title 'pd->3He+2g "+msg+"'"<<"set key right top";
         Plot("UpperLimit-"+to_string(int(B*10))+"-"+to_string(int(G*10))+"Fit2",5)
-            .Hist(Data2,"data").Line(toLine(fit2)).Line(toLine(background2))
+            .Hist(Data2).Line(toLine(fit2)).Line(toLine(background2))
                 <<"set key left top">>"set key right top"
                 << "set xlabel 'Q, MeV/c^2'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:]"
