@@ -267,7 +267,7 @@ int main()
 	const double G=18.75;
 	RawSystematicError calc(params,[&B,&G](const string&suffix){
 	    const auto fit=BWfit(suffix,B.val(),G,false);
-            return uncertainties(fit.ParametersWithUncertainties()[0].max(),0.0,0.0);
+            return uncertainties(fit.ParametersWithUncertainties()[0].val()*1.64485,0.0,0.0);
         });
 	UpperLimitMore<<make_point(B.val(),calc());
 	hist<> contrib;
