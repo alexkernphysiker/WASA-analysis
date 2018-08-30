@@ -185,7 +185,7 @@ Fitter BWfit(const string&suffix,const double&B,const double&G,bool plot=false){
     };
     const hist<> BW([&B,&G](const value<>&Q){
 	const auto b=(B),q=(Q.val());
-	const auto g=G*0.001;
+	const auto g=G;//*0.001;
         return BreitWigner(q,b,g)/BreitWigner(b,b,g);
     },Data1);
     Fitter FIT([BW,Data1,Data2](const ParamSet&P){
