@@ -184,7 +184,7 @@ Fitter BWfit(const string&suffix,const double&B,const double&G,bool plot=false){
 	return p.P().M();
     };
     const hist<> BW([&B,&G](const value<>&Q){
-	const auto b=Q2P(B),q=Q2P(Q.val());
+	const auto b=(B),q=(Q.val());
 	const auto g=G*0.001;
         return BreitWigner(q,b,g)/BreitWigner(b,b,g);
     },Data1);
@@ -267,7 +267,7 @@ int main()
 	const double G=18.75;
 	RawSystematicError calc(params,[&B,&G](const string&suffix){
 	    const auto fit=BWfit(suffix,B.val(),G,false);
-            return uncertainties(fit.ParametersWithUncertainties()[0].val()*1.64485,0.0,0.0);
+            return uncertainties(value<>(fit.ParametersWithUncertainties()[0]).make_wider(1.64485).max(),0.0,0.0);
         });
 	UpperLimitMore<<make_point(B.val(),calc());
 	hist<> contrib;
