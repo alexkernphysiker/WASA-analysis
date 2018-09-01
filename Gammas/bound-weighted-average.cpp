@@ -247,7 +247,7 @@ int main()
         gamma_mm_lo,gamma_mm_hi,gamma_im_lo,gamma_im_hi,
         gamma_im_lo6,gamma_im_hi6,three_pi0
     };
-    const auto binding=BinsByStep(-60.0,2.5,0.0),gamma=BinsByStep(0.0,2.5,60.0);
+    const auto binding=BinsByStep(-65.0,2.5,0.0),gamma=BinsByStep(0.0,2.5,60.0);
     BiSortedPoints<value<>,value<>,Fitter> fit_results(binding,gamma,[](const ParamSet&){return 0.0;});
     cout<<"Fitting"<<endl;
     fit_results.FullCycleVar([](const value<>&B,const value<>&G,Fitter&res){
