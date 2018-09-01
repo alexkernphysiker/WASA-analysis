@@ -275,11 +275,11 @@ int main()
 	    RawSystematicError calc(params,[&B,&G](const string&suffix){
 		const auto fit=BWfit(suffix,B.val(),G.val(),false);
 		const auto&A=fit.ParametersWithUncertainties()[0];
-        	return uncertainties(A.val(),A.uncertainty(),0.0);
+        	return uncertainties(A.val(),A.uncertainty()*K,0.0);
 	    });
 	    const auto A=calc();
 	    A_hist<<make_point(B.val(),A);
-	    UpperLimit_hist<<make_point(B.val(),value<>(A.val()+A.uncertainty<1>()*K,A.uncertainty<2>()));
+	    UpperLimit_hist<<make_point(B.val(),value<>(A.val()+A.uncertainty<1>(),A.uncertainty<2>()));
 	    SortedPoints<> contrib;
 	    for(const auto p:params)contrib<<make_point(double(p),calc.contrib(p));
 	    Plot("UpperLimit-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-contrib")
@@ -289,13 +289,18 @@ int main()
         }
 	Plot("UpperLimit-Gconst"+to_string(int(G.val()*10)))
 	    .Hist(UpperLimit_hist)
-	    <<"set title 'G = 18.75 MeV'"
-	    <<"set xlabel 'Peak position, MeV/c^2'"
+	    <<"set title 'G = "+to_string(G.val())+" MeV'"
+	    <<"set xlabel 'Peak position, MeV/c^2'"<<"set yrange [0:20]"
 	    <<"set ylabel 'Upper limit, nb'";
 	Plot("UpperLimit-Gconst"+to_string(int(G.val()*10))+"-Parameter")
 	    .Hist_2bars<1,2>(A_hist,"Fit uncertainty","Systematics")
-	    <<"set title 'G = 18.75 MeV'"
-	    <<"set xlabel 'Peak position, MeV/c^2'"
+	    <<"set title 'G = "+to_string(G.val())+" MeV'"<<"set key on"
+	    <<"set xlabel 'Peak position, MeV/c^2'"<<"set yrange [-1:20]"
+	    <<"set ylabel 'cross section (fit), nb'";
+	Plot("UpperLimit-Gconst"+to_string(int(G.val()*10))+"-Parameter-light")
+	    .Hist(wrap_hist(A_hist))
+	    <<"set title 'G = "+to_string(G.val())+" MeV'"
+	    <<"set xlabel 'Peak position, MeV/c^2'"<<"set yrange [-1:20]"
 	    <<"set ylabel 'cross section (fit), nb'";
     }
     {
