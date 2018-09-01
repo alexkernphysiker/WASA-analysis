@@ -297,12 +297,12 @@ int main()
         .Hist_2bars<1,2>(ev_norm.XRange(-70,10),"Statistical","Systematic","curve_3he_6gamma")
             <<"set key left top">>"set key right top"
             << "set xlabel 'Q, MeV/c^2'" << "set key on"<<"set xrange [-70:10]"
-            << "set ylabel 'Normalized events, nb'" << "set yrange [0:70]"
+            << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]"
             << "set title 'pd->3He+6gamma "+runmsg+"'"<<"set key right top";
     Plot("He36g-events-norm-light",5)
         .Hist(wrap_hist(ev_norm).XRange(-70,10))
             <<"set key left top">>"set key right top"
             << "set xlabel 'Q, MeV/c^2'" << "set key on"<<"set xrange [-70:10]"
-            << "set ylabel 'Normalized events, nb'" << "set yrange [0:70]"
+            << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]"
             << "set title 'pd->3He+6gamma "+runmsg+"'"<<"set key right top";
 }

@@ -259,12 +259,12 @@ int main()
         .Hist_2bars<1,2>(ev_norm.XRange(-70,10),"Statistical", "Systematic","curve_3he_2gamma")
             << "set xlabel 'Q, MeV/c^2'" << "set key on"
             << "set title 'pd->3He+2gamma "+runmsg+"'"<< "set xrange [-70:10]"
-            << "set ylabel 'Normalized events, nb'" << "set yrange [0:40]";
+            << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]";
     Plot("He3gg-events-norm-light",5)
         .Hist(wrap_hist(ev_norm).XRange(-70,10))
             << "set xlabel 'Q, MeV/c^2'" << "set key on"
             << "set title 'pd->3He+2gamma "+runmsg+"'"<< "set xrange [-70:10]"
-            << "set ylabel 'Normalized events, nb'" << "set yrange [0:40]";
+            << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]";
 
     cout<<"Final plots"<<endl;
     Plot("He3gg-tube-acc",5).Hist_2bars<1,2>(tube_acc)
