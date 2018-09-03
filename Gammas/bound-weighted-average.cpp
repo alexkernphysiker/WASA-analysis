@@ -108,8 +108,8 @@ Fitter BGfit(const string&suffix,bool plot=false){
         return res;
     });
     FIT.SetFilter([](const ParamSet&P){
-	return (pow(P[0],2)<0.5)&&(pow(P[2],2)<0.5)&&
-	    (P[1]>10)&&(P[1]<30)&&(P[3]>20)&&(P[3]<40);
+	return (pow(P[0],2)<1)&&(pow(P[2],2)<1)&&
+	    (P[1]>0)&&(P[1]<50)&&(P[3]>0)&&(P[3]<50);
     });
     FIT.Init(100,make_shared<InitialDistributions>()
         <<make_shared<DistribUniform>(-0.1,0)
@@ -143,7 +143,7 @@ Fitter BGfit(const string&suffix,bool plot=false){
     return FIT;
 
 }
-Fitter BWfit(const string&suffix,const double&B,const double&G,bool plot=false){
+Fitter BWfit(const string&suffix,size_t power,const double&B,const double&G,bool plot=false){
     const auto&lum=LuminosityGetter::Instance().get(suffix);
     cout<<"Histogram for "<<suffix<<": "<<"data1"<<endl;
     const auto&data1=DATA1(suffix,[&suffix,&lum](){
@@ -187,9 +187,13 @@ Fitter BWfit(const string&suffix,const double&B,const double&G,bool plot=false){
 	return p.P().M();
     };
     const hist<> BW([&B,&G](const value<>&Q)->value<>{return BreitWigner(Q.val(),B,G)/BreitWigner(B,B,G);},Qbins);
-    Fitter FIT([BW,Data1,Data2](const ParamSet&P){
-        const auto F1=BW*branching_ratio1*P[0]+[&P](const value<>&x)->value<>{return x*P[1]+P[2];};
-        const auto F2=BW*branching_ratio2*P[0]+[&P](const value<>&x)->value<>{return x*P[3]+P[4];};
+    Fitter FIT([BW,Data1,Data2,power](const ParamSet&P){
+        auto F1=BW*branching_ratio1*P[0]+[&P](const value<>&x)->value<>{return x*P[1]+P[2];};
+        auto F2=BW*branching_ratio2*P[0]+[&P](const value<>&x)->value<>{return x*P[3]+P[4];};
+	if(power==2){
+	    F1+=[&P](const value<>&x)->value<>{return x*x*P[5];};
+	    F2+=[&P](const value<>&x)->value<>{return x*x*P[6];};
+	}
         double res=0;
         for(size_t i=0;i<Qbins.size();i++){
             res+=Data1[i].Y().NumCompare(F1[i].Y());
@@ -199,16 +203,17 @@ Fitter BWfit(const string&suffix,const double&B,const double&G,bool plot=false){
     });
     FIT.SetFilter([](const ParamSet&P){
 	    return (P[0]>=0)&&
-		(pow(P[1],2)<0.5)&&(pow(P[3],2)<0.5)&&
-		(P[2]>10)&&(P[2]<30)&&(P[4]>20)&&(P[4]<40);
+		(pow(P[1],2)<1)&&(pow(P[3],2)<1)&&
+		(P[2]>0)&&(P[2]<50)&&(P[4]>0)&&(P[4]<50);
     });
-    FIT.Init(100,make_shared<InitialDistributions>()
+    auto init=make_shared<InitialDistributions>()
         <<make_shared<DistribUniform>(0,10)
         <<make_shared<DistribUniform>(-0.1,0)
         <<make_shared<DistribUniform>(10,30)
         <<make_shared<DistribUniform>(-0.1,0)
-        <<make_shared<DistribUniform>(20,40)
-    );
+        <<make_shared<DistribUniform>(20,40);
+    if(power==2)init<<make_shared<DistribUniform>(-0.01,0.01)<<make_shared<DistribUniform>(-0.01,0.01);
+    FIT.Init(100,init);
     while(!FIT.AbsoluteOptimalityExitCondition(0.0000001))FIT.Iterate();
     cout << "Fit result: " << FIT.iteration_count() << " iterations; "
         << FIT.Optimality() << "<chi^2<"
@@ -247,11 +252,11 @@ int main()
         gamma_mm_lo,gamma_mm_hi,gamma_im_lo,gamma_im_hi,
         gamma_im_lo6,gamma_im_hi6,three_pi0
     };
-    const auto binding=BinsByStep(-65.0,2.5,0.0),gamma=BinsByStep(0.0,2.5,60.0);
+    const auto binding=BinsByStep(-65.0,2.5,0.0),gamma=BinsByStep(0.0,2.5,40.0);
     BiSortedPoints<value<>,value<>,Fitter> fit_results(binding,gamma,[](const ParamSet&){return 0.0;});
     cout<<"Fitting"<<endl;
     fit_results.FullCycleVar([](const value<>&B,const value<>&G,Fitter&res){
-	res=BWfit("_",B.val(),G.val(),G.Contains(29)||G.Contains(19)||G.Contains(9));
+	res=BWfit("_",1,B.val(),G.val(),G.Contains(29)||G.Contains(19)||G.Contains(9));
     });
     BiSortedPoints<value<>,value<>,value<>> chisquare(binding,gamma),upper(binding,gamma);
     cout<<"converting"<<endl;
@@ -273,9 +278,11 @@ int main()
         hist<> UpperLimit_hist;
         for(const auto&B:binding){
 	    RawSystematicError calc(params,[&B,&G](const string&suffix){
-		const auto fit=BWfit(suffix,B.val(),G.val(),false);
-		const auto&A=fit.ParametersWithUncertainties()[0];
-        	return uncertainties(A.val(),A.uncertainty()*K,0.0);
+		return SystematicError<upper_limit_fit_power>([&B,&G,&suffix](const double&power){
+		    const auto fit=BWfit(suffix,size_t(power),B.val(),G.val(),false);
+		    const auto&A=fit.ParametersWithUncertainties()[0];
+        	    return uncertainties(A.val(),A.uncertainty()*K,0.0);
+		})();
 	    });
 	    const auto A=calc();
 	    A_hist<<make_point(B.val(),A);
@@ -289,18 +296,18 @@ int main()
         }
 	Plot("UpperLimit-Gconst"+to_string(int(G.val()*10)))
 	    .Hist(UpperLimit_hist)
-	    <<"set title 'G = "+to_string(G.val())+" MeV'"
-	    <<"set xlabel 'Peak position, MeV/c^2'"<<"set yrange [0:20]"
+	    <<"set title 'Width = "+to_string(G.val())+" MeV'"
+	    <<"set xlabel 'Peak position, MeV/c^2'"<<"set yrange [0:30]"
 	    <<"set ylabel 'Upper limit, nb'";
 	Plot("UpperLimit-Gconst"+to_string(int(G.val()*10))+"-Parameter")
 	    .Hist_2bars<1,2>(A_hist,"Fit uncertainty","Systematics")
-	    <<"set title 'G = "+to_string(G.val())+" MeV'"<<"set key on"
-	    <<"set xlabel 'Peak position, MeV/c^2'"<<"set yrange [-1:20]"
+	    <<"set title 'Width = "+to_string(G.val())+" MeV'"<<"set key on"
+	    <<"set xlabel 'Peak position, MeV/c^2'"<<"set yrange [-1:30]"
 	    <<"set ylabel 'cross section (fit), nb'";
 	Plot("UpperLimit-Gconst"+to_string(int(G.val()*10))+"-Parameter-light")
 	    .Hist(wrap_hist(A_hist))
-	    <<"set title 'G = "+to_string(G.val())+" MeV'"
-	    <<"set xlabel 'Peak position, MeV/c^2'"<<"set yrange [-1:20]"
+	    <<"set title 'Width = "+to_string(G.val())+" MeV'"
+	    <<"set xlabel 'Peak position, MeV/c^2'"<<"set yrange [-1:30]"
 	    <<"set ylabel 'cross section (fit), nb'";
     }
     {
