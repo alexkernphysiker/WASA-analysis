@@ -26,8 +26,8 @@ using namespace ROOT_data;
 using namespace Genetic;
 using namespace MathTemplates;
 using namespace GnuplotWrap;
-const value<> branching_ratio1{0.393,0.003};
-const value<> branching_ratio2{0.322,0.003};
+const value<> branching_ratio1{0.3931,0.0020};
+const value<> branching_ratio2{0.3257,0.0023};
 const list<size_t> params{
     pbeam_corr,he3_cut_h,he3_theta_cut,
     gamma_E_thr,time_dt,time_t1,time_t2,eta_theta_thr,he3mm_cut,

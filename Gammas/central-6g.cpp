@@ -274,7 +274,7 @@ int main()
         accplot.Hist(wrap_hist(acc[i]), rname[i]);
     }
     const auto luminosity_he = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc")).XRange(10,30);
-    const auto branching_ratio=uncertainties(0.322,0,0.003);
+    const auto branching_ratio=uncertainties(0.3257,0,0.0023);
     const auto he3eta_events = luminosity_he*branching_ratio*acc[3].XRange(10,30)
         *extend_hist<2,2>(hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")).XRange(10,30))/trigger_he3_forward.scaling;
 

@@ -228,7 +228,7 @@ int main()
         })());
     }
     const auto luminosity_he = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc")).XRange(10,30);
-    const auto branching_ratio=uncertainties(0.393,0,0.003);
+    const auto branching_ratio=uncertainties(0.3931,0,0.0020);
     const auto he3eta_events = luminosity_he/trigger_he3_forward.scaling *acc[3].XRange(10,30)*branching_ratio
         *extend_hist<2,2>(hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")).XRange(10,30));
 
