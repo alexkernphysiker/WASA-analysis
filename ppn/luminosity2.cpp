@@ -262,14 +262,14 @@ int main()
     Plot("ppn-v2-acceptance",7)
         .Hist(wrap_hist(acceptance))
             << "set key on" << "set yrange [0:0.2]" << "set xrange [-70:30]"
-            << "set xlabel 'Q, MeV/c^2'" << "set ylabel 'Efficiency, n.d.'"<<"set xtics 20";
+            << "set xlabel 'Q, MeV'" << "set ylabel 'Efficiency, n.d.'"<<"set xtics 20";
 
     Plot("luminosity-v2",3)
         .Hist_2bars<1,2>(lum_bc_z, "","","LUMINOSITYc_z")
         .Hist_2bars<1,2>(lum_bc_p, "","","LUMINOSITYc_p")
         .Hist_2bars<1,2>(lum_bc_m, "","","LUMINOSITYc_m")
             << "set title 'Integrated luminosity " + runmsg + "'"
-            << "set key on" << "set xlabel 'Q, MeV/c^2'"<<"set xtics 20"
+            << "set key on" << "set xlabel 'Q, MeV'"<<"set xtics 20"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:]";
     const auto prev_luminosity = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYf"));
@@ -279,14 +279,14 @@ int main()
         .Hist_2bars<1,2>(luminosity, "ppn_{sp}","","LUMINOSITYc")
         .Hist_2bars<1,2>(prev_luminosity,"3He+eta")
             << "set title '" + runmsg + "'"
-            << "set key on" << "set xlabel 'Q, MeV/c^2'"<<"set xtics 20"
+            << "set key on" << "set xlabel 'Q, MeV'"<<"set xtics 20"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:"+hirange+"]";
     Plot("luminosity-v2-compare-light",3)
         .Hist(wrap_hist(luminosity), "ppn_{sp}")
         .Hist(wrap_hist(prev_luminosity),"3He+eta")
             << "set title '" + runmsg + "'"
-            << "set key on" << "set xlabel 'Q, MeV/c^2'"<<"set xtics 20"
+            << "set key on" << "set xlabel 'Q, MeV'"<<"set xtics 20"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:"+hirange+"]";
     cout<<"luminosity: "<<luminosity.TotalSum()<<endl;
@@ -294,7 +294,7 @@ int main()
         .Hist(wrap_hist(luminosity)*runs.second/runs.first, "ppn_{sp}")
         .Hist(wrap_hist(prev_luminosity)*runs.second/runs.first, "3He+eta")
         .Hist(sasha, "A. Khreptak")
-            << "set key on" << "set xlabel 'Q, MeV/c^2'"<<"set xtics 20"
+            << "set key on" << "set xlabel 'Q, MeV'"<<"set xtics 20"
             << "set ylabel 'Luminosity estimation, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:100]";
     cout<<"Full luminosity estimation: "<<luminosity.TotalSum()*runs.second/runs.first<<endl;

@@ -137,14 +137,14 @@ int main()
     .Hist(exp_data).Points(toLine(exp_data), "Experimental data","","with points pointtype 7 pointsize 3")
     .Hist(cross_section.XRange(10,35), "Interpolation", "CS-He3eta-assumed")
             << "set title 'Cross section'"
-            << "set key on" << "set xlabel 'Q, MeV/c^2'"
+            << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'sigma, nb'"
             << "set xrange [10:35]" << "set yrange [0:600]";
 
     Plot("He3eta-acceptance",5)
         .Hist(wrap_hist(acceptance.XRange(10,30)),"")
             //<< "set title '3He+eta efficiency'"
-            << "set key on" << "set xlabel 'Q, MeV/c^2'"
+            << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Efficiency, n.d.'"
             << "set xrange [10:30]" << "set yrange [0:1]";
 
@@ -152,7 +152,7 @@ int main()
     Plot("He3eta-luminosity",5)
         .Hist_2bars<1,2>(luminosity.XRange(12,30),"stat","syst","LUMINOSITYf")
             << "set title 'Integrated luminosity " + runmsg + "'"
-            << "set key on" << "set xlabel 'Q, MeV/c^2'"
+            << "set key on" << "set xlabel 'Q, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [10:30]" << "set yrange [0:]";
 }

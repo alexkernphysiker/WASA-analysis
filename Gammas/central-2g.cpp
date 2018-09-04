@@ -234,12 +234,12 @@ int main()
 
     Plot accplot("He3gg-acceptance-final",5),accplot2("He3gg-acceptance-bg",5);
     accplot << "set title 'pd->3He2gamma'"
-        << "set xlabel 'Q, MeV/c^2'"
+        << "set xlabel 'Q, MeV'"
         << "set ylabel 'Efficiency, n.d.'"
         << "set yrange [0:0.4]" << "set xrange [-70:30]"
         << "set key on";
     accplot2 << "set title 'Background'"
-        << "set xlabel 'Q, MeV/c^2'"
+        << "set xlabel 'Q, MeV'"
         << "set ylabel 'Efficiency, n.d.'"
         << "set yrange [0:0.005]" << "set xrange [-70:30]"
         << "set key on";
@@ -252,23 +252,23 @@ int main()
     Plot("He3gg-events-final",5)
         .Hist(wrap_hist(ev_am),"Data")
         .Hist(wrap_hist(he3eta_events),"3He+eta")
-            << "set xlabel 'Q, MeV/c^2'" << "set key on" << "set xrange [-70:30]"
+            << "set xlabel 'Q, MeV'" << "set key on" << "set xrange [-70:30]"
             << "set ylabel 'Events, n.d.'" << "set yrange [0:]"
             << "set title 'pd->3He+2gamma "+runmsg+"'"<<"set key left top";
     Plot("He3gg-events-norm",5)
         .Hist_2bars<1,2>(ev_norm.XRange(-70,10),"Statistical", "Systematic","curve_3he_2gamma")
-            << "set xlabel 'Q, MeV/c^2'" << "set key on"
+            << "set xlabel 'Q, MeV'" << "set key on"
             << "set title 'pd->3He+2gamma "+runmsg+"'"<< "set xrange [-70:10]"
             << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]";
     Plot("He3gg-events-norm-light",5)
         .Hist(wrap_hist(ev_norm).XRange(-70,10))
-            << "set xlabel 'Q, MeV/c^2'" << "set key on"
+            << "set xlabel 'Q, MeV'" << "set key on"
             << "set title 'pd->3He+2gamma "+runmsg+"'"<< "set xrange [-70:10]"
             << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]";
 
     cout<<"Final plots"<<endl;
     Plot("He3gg-tube-acc",5).Hist_2bars<1,2>(tube_acc)
-            << "set xlabel 'Q, MeV/c^2'" << "set xrange [-70:30]"
+            << "set xlabel 'Q, MeV'" << "set xrange [-70:30]"
             << "set ylabel 'Efficiency, n.d.'" << "set yrange [0:1]"
             << "set title 'How many helium ions from mesic nuclei decay would be detected'";
     cout<<"END"<<endl;

@@ -130,13 +130,13 @@ Fitter BGfit(const string&suffix,bool plot=false){
         Plot("UpperLimit-LinearFit1",5)
             .Hist(Data1).Line(background1)
                 <<"set key left top">>"set key right top"
-                << "set xlabel 'Q, MeV/c^2'" << "set key on"<<"set xrange [-70:10]"
+                << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]"
                 << "set title 'pd->3He+2g'"<<"set key right top";
         Plot("UpperLimit-LinearFit2",5)
             .Hist(Data2).Line(background2)
                 <<"set key left top">>"set key right top"
-                << "set xlabel 'Q, MeV/c^2'" << "set key on"<<"set xrange [-70:10]"
+                << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]"
                 << "set title 'pd->3He+6g'"<<"set key right top";
     }
@@ -230,13 +230,13 @@ Fitter BWfit(const string&suffix,size_t power,const double&B,const double&G,bool
         Plot("UpperLimit-"+to_string(int(B*10))+"-"+to_string(int(G*10))+"Fit1",5)
             .Hist(Data1).Line(fit1).Line(background1)
                 <<"set key left top">>"set key right top"
-                << "set xlabel 'Q, MeV/c^2'" << "set key on"<<"set xrange [-70:10]"
+                << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]"
                 << "set title 'pd->3He+2g "+msg+"'"<<"set key right top";
         Plot("UpperLimit-"+to_string(int(B*10))+"-"+to_string(int(G*10))+"Fit2",5)
             .Hist(Data2).Line(fit2).Line(background2)
                 <<"set key left top">>"set key right top"
-                << "set xlabel 'Q, MeV/c^2'" << "set key on"<<"set xrange [-70:10]"
+                << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]"
                 << "set title 'pd->3He+6g "+msg+"'"<<"set key right top";
     }
@@ -275,7 +275,7 @@ int main()
 	<<"set title 'Upper limit, nb'";
     for(const auto&G:gamma){
         ext_hist<2> A_hist;
-        hist<> UpperLimit_hist;
+        SortedPoints<> upper_limit,systematics;
         for(const auto&B:binding){
 	    RawSystematicError calc(params,[&B,&G](const string&suffix){
 		return SystematicError<upper_limit_fit_power>([&B,&G,&suffix](const double&power){
@@ -286,7 +286,8 @@ int main()
 	    });
 	    const auto A=calc();
 	    A_hist<<make_point(B.val(),A);
-	    UpperLimit_hist<<make_point(B.val(),value<>(A.val()+A.uncertainty<1>(),A.uncertainty<2>()));
+	    upper_limit<<make_point(B.val(),A.val()+A.uncertainty<1>());
+	    systematics<<make_point(B.val(),A.uncertainty<2>());
 	    SortedPoints<> contrib;
 	    for(const auto p:params)contrib<<make_point(double(p),calc.contrib(p));
 	    Plot("UpperLimit-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-contrib")
@@ -295,7 +296,8 @@ int main()
 		    <<"set xlabel 'Parameter index'";
         }
 	Plot("UpperLimit-Gconst"+to_string(int(G.val()*10)))
-	    .Hist(UpperLimit_hist)
+	    .Line(upper_limit,"Upper limit")
+	    .Line(systematics,"Systematics")
 	    <<"set title 'Width = "+to_string(G.val())+" MeV'"
 	    <<"set xlabel 'Peak position, MeV/c^2'"<<"set yrange [0:30]"
 	    <<"set ylabel 'Upper limit, nb'";

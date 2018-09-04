@@ -266,7 +266,7 @@ int main()
     cout<<"Final plots"<<endl;
     Plot accplot("He36g-acceptance",5);
     accplot << "set title 'pd->3He6gamma'"<<"set key left top">>"set key right top"
-            << "set xlabel 'Q, MeV/c^2'"<<"set xrange [-70:30]"
+            << "set xlabel 'Q, MeV'"<<"set xrange [-70:30]"
             << "set ylabel 'Efficiency, n.d.'"
             << "set yrange [0:0.12]" << "set key on";
     accplot.Hist(wrap_hist(b_acc),rname[1]);
@@ -283,7 +283,7 @@ int main()
     .Hist(wrap_hist(ev_am),"data").Hist(wrap_hist(he3eta_events+avr_bg_level.val()),"3He+eta")
         .Line(Points<>{{10,avr_bg_level.val()},{30,avr_bg_level.val()}})
             <<"set key left top">>"set key right top"
-            << "set xlabel 'Q, MeV/c^2'" << "set key on"<<"set xrange [-70:30]"
+            << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:30]"
             << "set ylabel 'Events, n.d.'" << "set yrange [0:]"
             << "set title 'pd->3He+6gamma " + runmsg + "'"<<"set key left top";
     const auto S2=take_uncertainty_component<1>(ev_am.XRange(10,30)-he3eta_events).TotalSum()-(take_uncertainty_component<1>(avr_bg_level)*8.0);
@@ -296,13 +296,13 @@ int main()
     Plot("He36g-events-norm-bound",5)
         .Hist_2bars<1,2>(ev_norm.XRange(-70,10),"Statistical","Systematic","curve_3he_6gamma")
             <<"set key left top">>"set key right top"
-            << "set xlabel 'Q, MeV/c^2'" << "set key on"<<"set xrange [-70:10]"
+            << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
             << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]"
             << "set title 'pd->3He+6gamma "+runmsg+"'"<<"set key right top";
     Plot("He36g-events-norm-light",5)
         .Hist(wrap_hist(ev_norm).XRange(-70,10))
             <<"set key left top">>"set key right top"
-            << "set xlabel 'Q, MeV/c^2'" << "set key on"<<"set xrange [-70:10]"
+            << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
             << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]"
             << "set title 'pd->3He+6gamma "+runmsg+"'"<<"set key right top";
 }
