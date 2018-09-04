@@ -268,10 +268,10 @@ int main()
     }
     cout<<"plotting"<<endl;
     PlotHist2d(sp2,"UpperLimit-chisq").Distr(chisquare)<<"set colorbox"
-	<<"set xlabel 'Peak position, MeV/c^2'"<<"set ylabel 'Width, MeV/c^2'"
+	<<"set xlabel 'Peak position, MeV'"<<"set ylabel 'Width, MeV'"
 	<<"set title 'Chi square'";
     PlotHist2d(sp2,"UpperLimit-upperlimit").Distr(upper)<<"set colorbox"
-	<<"set xlabel 'Peak position, MeV/c^2'"<<"set ylabel 'Width, MeV/c^2'"
+	<<"set xlabel 'Peak position, MeV'"<<"set ylabel 'Width, MeV'"
 	<<"set title 'Upper limit, nb'";
     for(const auto&G:gamma){
         ext_hist<2> A_hist;
@@ -299,17 +299,17 @@ int main()
 	    .Line(upper_limit,"Upper limit")
 	    .Line(systematics,"Systematics")
 	    <<"set title 'Width = "+to_string(G.val())+" MeV'"
-	    <<"set xlabel 'Peak position, MeV/c^2'"<<"set yrange [0:30]"
+	    <<"set xlabel 'Peak position, MeV'"<<"set yrange [0:30]"
 	    <<"set ylabel 'Upper limit, nb'";
 	Plot("UpperLimit-Gconst"+to_string(int(G.val()*10))+"-Parameter")
 	    .Hist_2bars<1,2>(A_hist,"Fit uncertainty","Systematics")
 	    <<"set title 'Width = "+to_string(G.val())+" MeV'"<<"set key on"
-	    <<"set xlabel 'Peak position, MeV/c^2'"<<"set yrange [-1:30]"
+	    <<"set xlabel 'Peak position, MeV'"<<"set yrange [-1:30]"
 	    <<"set ylabel 'cross section (fit), nb'";
 	Plot("UpperLimit-Gconst"+to_string(int(G.val()*10))+"-Parameter-light")
 	    .Hist(wrap_hist(A_hist))
 	    <<"set title 'Width = "+to_string(G.val())+" MeV'"
-	    <<"set xlabel 'Peak position, MeV/c^2'"<<"set yrange [-1:30]"
+	    <<"set xlabel 'Peak position, MeV'"<<"set yrange [-1:30]"
 	    <<"set ylabel 'cross section (fit), nb'";
     }
     {
