@@ -260,11 +260,20 @@ int main()
     });
     BiSortedPoints<value<>,value<>,value<>> chisquare(binding,gamma),upper(binding,gamma);
     cout<<"converting"<<endl;
-    for(size_t b=0;b<binding.size();b++)for(size_t g=0;g<gamma.size();g++){
-	const auto&src=fit_results[b][g];
-	chisquare.Bin(b,g)=src.Optimality()/(Qbins.size()+Qbins.size()-src.ParamCount());
-	const auto&A=src.ParametersWithUncertainties()[0];
-	upper    .Bin(b,g)=A.val()+A.uncertainty()*K;
+    Plot chisq_plot("UpperLimit-chisq-1d");
+    chisq_plot<<"set xlabel 'Peak position, MeV'"<<"set yrange [0.5:1.2]"
+	    <<"set ylabel 'chi^2/d, n.d.'"<<"set key on";
+    for(size_t g=0;g<gamma.size();g++){
+	SortedPoints<> chi_sq_curve;
+	for(size_t b=0;b<binding.size();b++){
+	    const auto&src=fit_results[b][g];
+	    const auto chisq=src.Optimality()/(Qbins.size()+Qbins.size()-src.ParamCount());
+    	    chisquare.Bin(b,g)=chisq;
+	    chi_sq_curve<<make_point(binding[b].val(),chisq);
+	    const auto&A=src.ParametersWithUncertainties()[0];
+	    upper    .Bin(b,g)=A.val()+A.uncertainty()*K;
+	}
+	if(g%4==3)chisq_plot.Line(chi_sq_curve,"Width="+to_string(gamma[g].val())+"MeV");
     }
     cout<<"plotting"<<endl;
     PlotHist2d(sp2,"UpperLimit-chisq").Distr(chisquare)<<"set colorbox"
@@ -298,7 +307,7 @@ int main()
 	Plot("UpperLimit-Gconst"+to_string(int(G.val()*10)))
 	    .Line(upper_limit,"Upper limit")
 	    .Line(systematics,"Systematics")
-	    <<"set title 'Width = "+to_string(G.val())+" MeV'"
+	    <<"set title 'Width = "+to_string(G.val())+" MeV'"<<"set key on"
 	    <<"set xlabel 'Peak position, MeV'"<<"set yrange [0:30]"
 	    <<"set ylabel 'Upper limit, nb'";
 	Plot("UpperLimit-Gconst"+to_string(int(G.val()*10))+"-Parameter")
@@ -317,7 +326,9 @@ int main()
 	    const auto fit=BGfit(suffix,suffix=="_");
             return uncertainties(fit.Optimality()/(Qbins.size()+Qbins.size()-fit.ParamCount()),0.0,0.0);
         });
-	const hist<> chisq_hist=hist<>()<<make_point(0.0,wrap_value(calc()));
+	const auto chisq=wrap_value(calc());
+	chisq_plot.Line(Points<>{{-70,chisq.val()},{0,chisq.val()}},"Linear fit");
+	const hist<> chisq_hist=hist<>()<<make_point(0.0,chisq);
 	SortedPoints<> contrib;
 	for(const auto p:params)contrib<<make_point(double(p),calc.contrib(p));
 	Plot("UpperLimit-LinearFitChisq")
