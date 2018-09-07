@@ -38,7 +38,7 @@ int main()
             const auto &N = norm[bin_num].Y();
             const string Qmsg =
                 static_cast<stringstream &>(stringstream()
-                    << "Q in [" << setprecision(3)
+                    << "Q є [" << setprecision(3)
                     << Q.min() << "; " << Q.max() << "] MeV"
                 ).str();
             const string hist_name=string("MissingMass-Bin-") + to_string(bin_num);
@@ -138,7 +138,7 @@ int main()
     .Hist(cross_section.XRange(10,35), "Interpolation", "CS-He3eta-assumed")
             << "set title 'Cross section'"
             << "set key on" << "set xlabel 'Q, MeV'"
-            << "set ylabel 'sigma, nb'"
+            << "set ylabel 'σ, nb'"
             << "set xrange [10:35]" << "set yrange [0:600]";
 
     Plot("He3eta-acceptance",5)

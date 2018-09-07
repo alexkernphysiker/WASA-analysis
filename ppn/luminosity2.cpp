@@ -94,9 +94,9 @@ int main()
     const string ppn_reaction = "ppn_qf_";
     const auto runs = PresentRuns("All");
     const string runmsg = (runs.first==runs.second)?"":"("+to_string(int(runs.first)) + " of " + to_string(int(runs.second)) + " runs)";
-    const string th1 = "'Theta_1, deg'", th2 = "'Theta_2, deg'",
+    const string th1 = "'θ_1, deg'", th2 = "'θ_2, deg'",
             e1 = "'Edep_1, GeV'", e2 = "'Edep_2, GeV'",
-            planarity = "'Phi_1-Phi_2, deg'";
+            planarity = "'φ_1-φ_2, deg'";
     const hist<> norm = Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "0-Reference");
     cout << "2D plots"<<endl;
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "luminosity-central-v2");
@@ -104,10 +104,12 @@ int main()
     PlotHist2d(sp2, "ppn-v2-trackid-mc-1",5).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "track_id-2"))
 	     << "set xlabel 'E Calorimeter, GeV'"<< "set ylabel 'E PSB, GeV'"
             << "set xrange [0:0.5]"<< "set yrange [0:0.005]"<<"set xtics 0.1"
+	    << "set ytics {0,0.002,0.004} rotate by 90 right"
             << "set zrange [0:]" << "set title 'MC ppn'";
     PlotHist2d(sp2, "ppn-v2-trackid-data-1",4).Distr(Hist2d(DATA, "All", {"Histograms", "quasielastic"}, "track_id-2"))
 	     << "set xlabel 'E Calorimeter, GeV'"<< "set ylabel 'E PSB, GeV'"
             << "set xrange [0:0.5]"<< "set yrange [0:0.005]"<<"set xtics 0.1"
+	    << "set ytics {0,0.002,0.004} rotate by 90 right"
             << "set zrange [0:]" << "set title 'Data "+runmsg+"'";
 
     Plot("ppn-v2-copl-mc",5)
@@ -124,8 +126,8 @@ int main()
             << "set key on" << "set title 'MC'" << "set xrange [-25:5]"<< "set yrange [0:]" <<"set xtics 5"
 	    << "set xlabel 'Time difference, ns'"<<"set ylabel 'Events count'";
     Plot("ppn-v2-dt-data",5)
-        .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins")/1000.,"All")
-        .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_1-AllBins")/1000.,"theta cut")
+        .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins")/1000.,"Before cuts")
+        .Hist(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_1-AllBins")/1000.,"θ cut")
         .Line(toLine(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_0-AllBins"))/1000.)
         .Line(toLine(Hist(DATA, "All", {"Histograms", "quasielastic"}, "pair_time_diff_1-AllBins"))/1000.)
         .Line(Points<>{
@@ -179,7 +181,7 @@ int main()
             const string Qmsg =
                 static_cast<stringstream &>(
                     stringstream()
-                    << "Q in [" << setprecision(3)
+                    << "Q є [" << setprecision(3)
                     << Q.min() << "; " << Q.max() << "] MeV"
                 ).str();
             size_t counter=0;

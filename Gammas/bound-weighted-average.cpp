@@ -232,13 +232,13 @@ Fitter BWfit(const string&suffix,size_t power,const double&B,const double&G,bool
                 <<"set key left top">>"set key right top"
                 << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]"
-                << "set title 'pd->3He+2g "+msg+"'"<<"set key right top";
+                << "set title 'pd->^3He2γ "+msg+"'"<<"set key right top";
         Plot("UpperLimit-"+to_string(int(B*10))+"-"+to_string(int(G*10))+"Fit2",5)
             .Hist(Data2).Line(fit2).Line(background2)
                 <<"set key left top">>"set key right top"
                 << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]"
-                << "set title 'pd->3He+6g "+msg+"'"<<"set key right top";
+                << "set title 'pd->^3He6γ "+msg+"'"<<"set key right top";
     }
     return FIT;
 }
@@ -246,12 +246,6 @@ const double K=1.64485;
 int main()
 {
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "bound-weighted-average");
-    const list<size_t> params{
-	pbeam_corr,he3_cut_h,he3_theta_cut,
-        gamma_E_thr,time_dt,time_t1,time_t2,eta_theta_thr,he3mm_cut,
-        gamma_mm_lo,gamma_mm_hi,gamma_im_lo,gamma_im_hi,
-        gamma_im_lo6,gamma_im_hi6,three_pi0
-    };
     const auto binding=BinsByStep(-65.0,2.5,0.0),gamma=BinsByStep(0.0,2.5,40.0);
     BiSortedPoints<value<>,value<>,Fitter> fit_results(binding,gamma,[](const ParamSet&){return 0.0;});
     cout<<"Fitting"<<endl;
@@ -261,8 +255,8 @@ int main()
     BiSortedPoints<value<>,value<>,value<>> chisquare(binding,gamma),upper(binding,gamma);
     cout<<"converting"<<endl;
     Plot chisq_plot("UpperLimit-chisq-1d");
-    chisq_plot<<"set xlabel 'Peak position, MeV'"<<"set yrange [0.5:1.2]"
-	    <<"set ylabel 'chi^2/d, n.d.'"<<"set key on";
+    chisq_plot<<"set xlabel 'Peak position, MeV'"<<"set yrange [0.5:1.3]"
+	    <<"set ylabel 'χ^2/d, n.d.'"<<"set key on";
     for(size_t g=0;g<gamma.size();g++){
 	SortedPoints<> chi_sq_curve;
 	for(size_t b=0;b<binding.size();b++){
@@ -278,7 +272,7 @@ int main()
     cout<<"plotting"<<endl;
     PlotHist2d(sp2,"UpperLimit-chisq").Distr(chisquare)<<"set colorbox"
 	<<"set xlabel 'Peak position, MeV'"<<"set ylabel 'Width, MeV'"
-	<<"set title 'Chi square'";
+	<<"set title 'χ^2/d'";
     PlotHist2d(sp2,"UpperLimit-upperlimit").Distr(upper)<<"set colorbox"
 	<<"set xlabel 'Peak position, MeV'"<<"set ylabel 'Width, MeV'"
 	<<"set title 'Upper limit, nb'";
@@ -333,7 +327,7 @@ int main()
 	for(const auto p:params)contrib<<make_point(double(p),calc.contrib(p));
 	Plot("UpperLimit-LinearFitChisq")
 	    .Hist(chisq_hist,"","LinearFitChisq")
-	    <<"set ylabel 'chi^2/d, n.d.'"
+	    <<"set ylabel 'χ^2/d, n.d.'"
 	    <<"set xlabel 'Parameter index'";
 	Plot("UpperLimit-LinearFitChisq-contrib")
 	    .Points(contrib,"","LinearFitChisq-systematic-contribution")
