@@ -132,13 +132,13 @@ Fitter BGfit(const string&suffix,bool plot=false){
                 <<"set key left top">>"set key right top"
                 << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]"
-                << "set title 'pd->3He+2g'"<<"set key right top";
+                << "set title 'pd->^3He2γ'"<<"set key right top";
         Plot("UpperLimit-LinearFit2",5)
             .Hist(Data2).Line(background2)
                 <<"set key left top">>"set key right top"
                 << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]"
-                << "set title 'pd->3He+6g'"<<"set key right top";
+                << "set title 'pd->^3He6γ'"<<"set key right top";
     }
     return FIT;
 

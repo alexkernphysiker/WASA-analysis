@@ -58,7 +58,7 @@ int main()
                 << "set xlabel 'E_k, GeV'"
                 << "set ylabel 'θ, deg'"
                 << "set xrange [0.2:0.4]"
-                << "set title 'Data (with correction), " + Qmsg + "'";
+                << "set title 'Data, " + Qmsg + "'";
         const auto xcut = (kin_mc.X().size() * 2) / 5;
         const auto &xC = kin_mc.X()[xcut].min();
         const hist<> ymc = kin_mc.CutY(xcut), ydata = data_hist.CutY(xcut);

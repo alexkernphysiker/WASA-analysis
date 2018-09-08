@@ -33,9 +33,12 @@ int main()
         }
         auto SP2 = [max_z](const string &name = "") {
             return PlotHist2d(sp2, name,5)
-                   << "set xrange [0:0.3]" << "set xlabel 'E_{FRH1}, GeV'"
-                   << "set yrange [0:0.03]" << "set ylabel 'E_{FTH1}, GeV'"
-		   << "set ytics (0, 0.01,0.02,0.03) rotate by 90 right"
+		    << "set xrange [0:0.3]"
+		   << "set ytics ('0' 0,'10' 0.01,'20' 0.02,'30' 0.03) rotate by 90 right"
+		    >> "set ytics"
+		   << "set xtics ('0' 0,'100' 0.1,'200' 0.2,'300' 0.3)"
+                    << "set xlabel 'E_{FRH1}, MeV'"
+                   << "set yrange [0:0.03]" << "set ylabel 'E_{FTH1}, MeV'"
                    << "set zrange [0:" + to_string(max_z) + "]";
         };
         auto THD = [](const string &name = "") {

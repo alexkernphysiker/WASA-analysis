@@ -104,11 +104,13 @@ int main()
     PlotHist2d(sp2, "ppn-v2-trackid-mc-1",5).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "track_id-2"))
             << "set xrange [0:0.5]"<< "set yrange [0:0.005]"<<"set xtics 0.1"
             << "set zrange [0:]" << "set title 'MC ppn'"
-	    << "set xlabel 'E Calorimeter, GeV'"<< "set ylabel 'E PSB, GeV'";
+	    << "set ytics (0,'1' 0.001,'2' 0.002,'3' 0.003,'4' 0.004,'5' 0.005)">>"unset ytics"
+	    << "set xlabel 'E Calorimeter, GeV'"<< "set ylabel 'E PSB, MeV'";
     PlotHist2d(sp2, "ppn-v2-trackid-data-1",4).Distr(Hist2d(DATA, "All", {"Histograms", "quasielastic"}, "track_id-2"))
             << "set xrange [0:0.5]"<< "set yrange [0:0.005]"<<"set xtics 0.1"
             << "set zrange [0:]" << "set title 'Data "+runmsg+"'"
-	     << "set xlabel 'E Calorimeter, GeV'"<< "set ylabel 'E PSB, GeV'";
+	    << "set ytics (0,'1' 0.001,'2' 0.002,'3' 0.003,'4' 0.004,'5' 0.005)">>"unset ytics"
+	     << "set xlabel 'E Calorimeter, GeV'"<< "set ylabel 'E PSB, MeV'";
 
     Plot("ppn-v2-copl-mc",5)
     .Hist(Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "pair_phi_diff_0-AllBins") / norm.TotalSum().val())

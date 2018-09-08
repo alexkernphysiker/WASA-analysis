@@ -26,14 +26,14 @@ int main()
     };
     const auto chain=ChainWithStep(0.0,0.001,0.170);
     Plot("he3eta-alpha",8).Line(SortedPoints<>(alpha.func(),chain)).Points(alpha.XRange(0.1,0.2),"","","with points pointtype 7 pointsize 3")
-        << "set xlabel 'p_{eta,CM}, GeV/c'"<<"set xrange [0:0.2]"<<"set yrange [0:2]"
-        << "set title 'Alpha parameter'";
+        << "set xlabel 'p_{η,CM}, GeV/c'"<<"set xrange [0:0.2]"<<"set yrange [0:2]"
+        << "set title 'α parameter'";
     Plot("he3eta-beta",8).Line(SortedPoints<>(beta.func(),chain)).Points(beta.XRange(0.1,0.2),"","","with points pointtype 7 pointsize 3")
-        << "set xlabel 'p_{eta,CM}, GeV/c'"<<"set xrange [0:0.2]"<<"set yrange [-0.6:0]"
-        << "set title 'Beta parameter'";
+        << "set xlabel 'p_{η,CM}, GeV/c'"<<"set xrange [0:0.2]"<<"set yrange [-0.6:0]"
+        << "set title 'β parameter'";
     Plot("he3eta-gamma",8).Line(SortedPoints<>(gamma.func(),chain)).Points(gamma.XRange(0.1,0.2),"","","with points pointtype 7 pointsize 3")
-        << "set xlabel 'p_{eta,CM}, GeV/c'"<<"set xrange [0:0.2]"<<"set yrange [-0.5:0]"
-        << "set title 'Gamma parameter'";
+        << "set xlabel 'p_{η,CM}, GeV/c'"<<"set xrange [0:0.2]"<<"set yrange [-0.5:0]"
+        << "set title 'γ parameter'";
     Plot("bound-fermi",4)
         .Line(Plotter::Instance().GetPoints<double,double>("bound/he3eta-pf-75-20"),"-(75,20) MeV")
         .Line(Plotter::Instance().GetPoints<double,double>("bound/he3eta-pf-80-20"),"-(80,20) MeV")
