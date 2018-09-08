@@ -104,12 +104,12 @@ int main()
     PlotHist2d(sp2, "ppn-v2-trackid-mc-1",5).Distr(Hist2d(MC, ppn_reaction, {"Histograms", "quasielastic"}, "track_id-2"))
 	     << "set xlabel 'E Calorimeter, GeV'"<< "set ylabel 'E PSB, GeV'"
             << "set xrange [0:0.5]"<< "set yrange [0:0.005]"<<"set xtics 0.1"
-	    << "set ytics {0,0.002,0.004} rotate by 90 right"
+	    << "set ytics (0,0.002,0.004) rotate by 90 right"
             << "set zrange [0:]" << "set title 'MC ppn'";
     PlotHist2d(sp2, "ppn-v2-trackid-data-1",4).Distr(Hist2d(DATA, "All", {"Histograms", "quasielastic"}, "track_id-2"))
 	     << "set xlabel 'E Calorimeter, GeV'"<< "set ylabel 'E PSB, GeV'"
             << "set xrange [0:0.5]"<< "set yrange [0:0.005]"<<"set xtics 0.1"
-	    << "set ytics {0,0.002,0.004} rotate by 90 right"
+	    << "set ytics (0,0.002,0.004) rotate by 90 right"
             << "set zrange [0:]" << "set title 'Data "+runmsg+"'";
 
     Plot("ppn-v2-copl-mc",5)
