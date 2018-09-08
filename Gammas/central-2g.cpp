@@ -67,7 +67,7 @@ int main()
             .Hist(ggcos).Hist(Hist(MC, r, histpath_central_reconstr,"GGcos3")/N)
             .Line(Points<>{{0.0,0.0},{0.0,hist<>(ggcos.Transponate()).right().X().max()*1.5}},"condition")
                     << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<< "set xrange [-1:1]"
-                    << "set xlabel 'cos(alpha), n.d.'"<<"set ylabel 'Efficiensy, a.u.'";
+                    << "set xlabel 'cos(α), n.d.'"<<"set ylabel 'Efficiensy, a.u.'";
             const auto eta_theta=Hist(MC, r, histpath_central_reconstr,"ET3")/N;
             Plot("He3gg-eta-theta-mc" + r,5)
             .Hist(eta_theta).Hist(Hist(MC, r, histpath_central_reconstr,"ET4")/N)
@@ -107,7 +107,7 @@ int main()
             .Hist(ggcos).Hist(Hist(DATA, "All", histpath_central_reconstr,"GGcos3")/1000.)
             .Line(Points<>{{0.0,0.0},{0.0,hist<>(ggcos.Transponate()).right().X().max()*1.5}},"condition")
                     << "set key on" << "set title 'Data"+runmsg+"'" << "set yrange [0:]"<< "set xrange [-1:1]"
-                    << "set xlabel 'cos(alpha), n.d.'"<<"set ylabel 'Events, 10^3'";
+                    << "set xlabel 'cos(α), n.d.'"<<"set ylabel 'Events, 10^3'";
             const auto eta_theta=Hist(DATA,"All", histpath_central_reconstr,"ET3")/1000.;
             Plot("He3gg-eta-theta-data",5)
             .Hist(eta_theta).Hist(Hist(DATA, "All", histpath_central_reconstr,"ET4")/1000.)
