@@ -39,7 +39,7 @@ int main()
         .Line(Plotter::Instance().GetPoints<double,double>("bound/he3eta-pf-80-20"),"-(80,20) MeV")
         .Line(Plotter::Instance().GetPoints<double,double>("bound/he3eta-pf-90-20"),"-(90,20) MeV")
         <<"set title 'Fermi momentum distribution'"<<"set xrange [0:500]"<<"set key on"
-        <<"set xlabel 'Momentum, MeV/c'"<<"set ylabel 'Density, a.u.'"
+        <<"set xlabel 'Momentum, MeV/c'"<<"set ylabel 'Density, n.d.'"
     ;
 }
 
