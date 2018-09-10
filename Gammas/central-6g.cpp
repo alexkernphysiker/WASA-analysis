@@ -98,7 +98,7 @@ int main()
             .Line(Points<>{{getParameter(he3mm_cut),0.0},{getParameter(he3mm_cut),hist<>(he3mm0.Transponate()).right().X().max()*1.5}},"cut")
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM2")/N, "6γ required")
                     << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<<"set ylabel 'Efficiensy, a.u.'"
-                    << "set xlabel '3He missing mass - Q, GeV/c^2'"<< "set xrange [0.45:0.57]";
+                    << "set xlabel '3He missing mass - Q_{3Heη}, GeV/c^2'"<< "set xrange [0.45:0.57]";
             const auto eta_theta=Hist(MC, r, histpath_central_reconstr,"ET3")/N;
             Plot("He36g-eta-theta-mc"+r,4)
             .Hist(eta_theta).Hist(Hist(MC, r, histpath_central_reconstr,"ET4")/N)
@@ -118,7 +118,7 @@ int main()
             .Line(Points<>{{getParameter(gamma_im_lo6),hist<>(ggim.Transponate()).right().X().max()*1.5},{getParameter(gamma_im_lo6),0.0},
                 {getParameter(gamma_im_hi6),0.0},{getParameter(gamma_im_hi6),hist<>(ggim.Transponate()).right().X().max()*1.5}},"cut")
                     << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<<"set ylabel 'Efficiensy, a.u.'"
-                    << "set xlabel '6γ invariant mass - Q, GeV/c^2'"<< "set xrange [0.0:1.0]";
+                    << "set xlabel '6γ invariant mass - Q_{3Heη}, GeV/c^2'"<< "set xrange [0.0:1.0]";
             const auto lasthist=Hist(MC, r, histpath_central_reconstr, "TIM7-AllBins").Scale(4)/N;
             Plot("He36g-tim-mc" + r,4)
             .Hist(lasthist)
@@ -157,7 +157,7 @@ int main()
             .Line(Points<>{{getParameter(he3mm_cut),0.0},{getParameter(he3mm_cut),hist<>(he3mm0.Transponate()).right().X().max()*1.5}},"cut")
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "He3MM2")/1000., "6γ required")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<<"set ylabel 'Events, 10^3'"
-                    << "set xlabel '3He missing mass - Q, GeV/c^2'"<< "set xrange [0.45:0.57]";
+                    << "set xlabel '3He missing mass - Q_{3Heη}, GeV/c^2'"<< "set xrange [0.45:0.57]";
             const auto eta_theta=Hist(DATA, "All", histpath_central_reconstr,"ET3");
             Plot("He36g-eta-theta-data",5)
             .Hist(eta_theta).Hist(Hist(DATA, "All", histpath_central_reconstr,"ET4"))
@@ -177,7 +177,7 @@ int main()
             .Line(Points<>{{getParameter(gamma_im_lo6),hist<>(ggim.Transponate()).right().X().max()*1.5},{getParameter(gamma_im_lo6),0.0},
                            {getParameter(gamma_im_hi6),0.0},{getParameter(gamma_im_hi6),hist<>(ggim.Transponate()).right().X().max()*1.5}},"cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<<"set ylabel 'Events, n.d.'"
-                    << "set xlabel '6γ invariant mass - Q, GeV/c^2'"<< "set xrange [0.0:1.0]";
+                    << "set xlabel '6γ invariant mass - Q_{3Heη}, GeV/c^2'"<< "set xrange [0.0:1.0]";
             const auto tim_hist=Hist(DATA, "All", histpath_central_reconstr, "TIM7-AllBins").Scale(4);
             Plot("He36g-tim-data",5)
                 .Hist(tim_hist)
@@ -266,7 +266,7 @@ int main()
     cout<<"Final plots"<<endl;
     Plot accplot("He36g-acceptance",5);
     accplot << "set title 'pd->^3He6γ'"<<"set key left top">>"set key right top"
-            << "set xlabel 'Q, MeV'"<<"set xrange [-70:30]"
+            << "set xlabel 'Q_{3Heη}, MeV'"<<"set xrange [-70:30]"
             << "set ylabel 'Efficiency, n.d.'"
             << "set yrange [0:0.12]" << "set key on";
     accplot.Hist(wrap_hist(b_acc),rname[1]);
@@ -283,7 +283,7 @@ int main()
     .Hist(wrap_hist(ev_am),"data").Hist(wrap_hist(he3eta_events+avr_bg_level.val()),"pd->^3Heη")
         .Line(Points<>{{10,avr_bg_level.val()},{30,avr_bg_level.val()}})
             <<"set key left top">>"set key right top"
-            << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:30]"
+            << "set xlabel 'Q_{3Heη}, MeV'" << "set key on"<<"set xrange [-70:30]"
             << "set ylabel 'Events, n.d.'" << "set yrange [0:]"
             << "set title 'pd->^3He6γ " + runmsg + "'"<<"set key left top";
     const auto S2=take_uncertainty_component<1>(ev_am.XRange(10,30)-he3eta_events).TotalSum()-(take_uncertainty_component<1>(avr_bg_level)*8.0);
@@ -296,13 +296,13 @@ int main()
     Plot("He36g-events-norm-bound",5)
         .Hist_2bars<1,2>(ev_norm.XRange(-70,10),"Statistical","Systematic","curve_3he_6gamma")
             <<"set key left top">>"set key right top"
-            << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
+            << "set xlabel 'Q_{3Heη}, MeV'" << "set key on"<<"set xrange [-70:10]"
             << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]"
             << "set title 'pd->^3He6γ "+runmsg+"'"<<"set key right top";
     Plot("He36g-events-norm-light",5)
         .Hist(wrap_hist(ev_norm).XRange(-70,10))
             <<"set key left top">>"set key right top"
-            << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
+            << "set xlabel 'Q_{3Heη}, MeV'" << "set key on"<<"set xrange [-70:10]"
             << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]"
             << "set title 'pd->^3He6γ "+runmsg+"'"<<"set key right top";
 }

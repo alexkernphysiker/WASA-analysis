@@ -168,10 +168,10 @@ int main()
     const auto ppn_cs = pp2ppn(p_cs)*0.955;//shading effect
     const auto SIGMA = ConvertCrossSections(ppn_cs);
     Plot("ppn-v2-integrated",4).Line(ppn_cs.XRange(p_beam_low, p_beam_hi)) << "set title 'pd->pp+n_{sp}'"<<"set xtics 10";
-    Plot("ppn-v2-sigma",4).Hist(SIGMA)
+    Plot("ppn-v2-sigma",4).Hist(SIGMA/1000000.)
         << "set title 'ppn_{sp} cross section'"
-        << "set key on" << "set xlabel 'Q, MeV'"
-        << "set ylabel 'cross section, nb'"<<"set xtics 10"
+        << "set key on" << "set xlabel 'Q_{3Heη}, MeV'"
+        << "set ylabel 'σ, mb'"<<"set xtics 10"
         << "set xrange [-70:30]" << "set yrange [0:]";
     cout << "Binning"<<endl;
     {
@@ -237,15 +237,15 @@ int main()
                     if(counter==2){
                         const auto max=to_string(data_copl.TransponateAndSort().right().X().max()*1.5);
                         Plot(Q.Contains(21) ? "ppn-v2-above-data-copl" : (Q.Contains(-39) ? "ppn-v2-below-data-copl" : ""),7)
-                            .Hist(data_copl,"DATA").Hist(data_copl_bg)
-                            .Hist(data_copl.CloneEmptyBins()+BG,"BG")
-                            << "set title '" + runmsg+ Qmsg + "'" <<"set key on"<< "set ylabel 'Events count, n.d.'"
+                            .Hist(data_copl/1000.,"DATA").Hist(data_copl_bg/1000.)
+                            .Hist((data_copl.CloneEmptyBins()+BG)/1000.,"BG")
+                            << "set title '" + runmsg+ Qmsg + "'" <<"set key on"<< "set ylabel 'Events count, 10^3'"
                             << "set yrange [-100:"+max+"]" << "set xlabel " + planarity<< "set xrange [90:270]"<<"set xtics 30";
                         Plot(Q.Contains(21) ? "ppn-v2-above-data-copl-norm" : (Q.Contains(-39) ? "ppn-v2-below-data-copl-norm" : ""),7)
-                            .Hist(subtr).Hist(summ,"DATA-BG")
-                            .Line(simulation_curve,"Simulation")
+                            .Hist(subtr/1000.).Hist(summ/1000.,"DATA-BG")
+                            .Line(simulation_curve/1000.,"Simulation")
                             .Line(Points<>{{subtr.left().X().min(), 0.0},{subtr.right().X().max(), 0.0}})
-                            << "set title 'Subtracted background'" <<"set key on"<< "set ylabel 'Events count, n.d.'"
+                            << "set title 'Subtracted background'" <<"set key on"<< "set ylabel 'Events count, 10^3'"
                             << "set yrange [-100:"+max+"]" << "set xlabel " + planarity<< "set xrange [90:270]"<<"set xtics 30";
                     }
                     return extend_value<1,2>(summ.TotalSum())/extend_value<2,2>(acc);
@@ -264,14 +264,14 @@ int main()
     Plot("ppn-v2-acceptance",7)
         .Hist(wrap_hist(acceptance))
             << "set key on" << "set yrange [0:0.2]" << "set xrange [-70:30]"
-            << "set xlabel 'Q, MeV'" << "set ylabel 'Efficiency, n.d.'"<<"set xtics 20";
+            << "set xlabel 'Q_{3Heη}, MeV'" << "set ylabel 'Efficiency, n.d.'"<<"set xtics 20";
 
     Plot("luminosity-v2",3)
         .Hist_2bars<1,2>(lum_bc_z, "","","LUMINOSITYc_z")
         .Hist_2bars<1,2>(lum_bc_p, "","","LUMINOSITYc_p")
         .Hist_2bars<1,2>(lum_bc_m, "","","LUMINOSITYc_m")
             << "set title 'Integrated luminosity " + runmsg + "'"
-            << "set key on" << "set xlabel 'Q, MeV'"<<"set xtics 20"
+            << "set key on" << "set xlabel 'Q_{3Heη}, MeV'"<<"set xtics 20"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:]";
     const auto prev_luminosity = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYf"));
@@ -281,14 +281,14 @@ int main()
         .Hist_2bars<1,2>(luminosity, "ppn_{sp}","","LUMINOSITYc")
         .Hist_2bars<1,2>(prev_luminosity,"3He+eta")
             << "set title '" + runmsg + "'"
-            << "set key on" << "set xlabel 'Q, MeV'"<<"set xtics 20"
+            << "set key on" << "set xlabel 'Q_{3Heη}, MeV'"<<"set xtics 20"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:"+hirange+"]";
     Plot("luminosity-v2-compare-light",3)
         .Hist(wrap_hist(luminosity), "ppn_{sp}")
         .Hist(wrap_hist(prev_luminosity),"3He+eta")
             << "set title '" + runmsg + "'"
-            << "set key on" << "set xlabel 'Q, MeV'"<<"set xtics 20"
+            << "set key on" << "set xlabel 'Q_{3Heη}, MeV'"<<"set xtics 20"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:"+hirange+"]";
     cout<<"luminosity: "<<luminosity.TotalSum()<<endl;
@@ -296,7 +296,7 @@ int main()
         .Hist(wrap_hist(luminosity)*runs.second/runs.first, "ppn_{sp}")
         .Hist(wrap_hist(prev_luminosity)*runs.second/runs.first, "3He+eta")
         .Hist(sasha, "A. Khreptak")
-            << "set key on" << "set xlabel 'Q, MeV'"<<"set xtics 20"
+            << "set key on" << "set xlabel 'Q_{3Heη}, MeV'"<<"set xtics 20"
             << "set ylabel 'Luminosity estimation, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:100]";
     cout<<"Full luminosity estimation: "<<luminosity.TotalSum()*runs.second/runs.first<<endl;

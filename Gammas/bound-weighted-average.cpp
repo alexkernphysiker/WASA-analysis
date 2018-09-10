@@ -130,13 +130,13 @@ Fitter BGfit(const string&suffix,bool plot=false){
         Plot("UpperLimit-LinearFit1",5)
             .Hist(Data1).Line(background1)
                 <<"set key left top">>"set key right top"
-                << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
+                << "set xlabel 'Q_{3Heη}, MeV'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]"
                 << "set title 'pd->^3He2γ'"<<"set key right top";
         Plot("UpperLimit-LinearFit2",5)
             .Hist(Data2).Line(background2)
                 <<"set key left top">>"set key right top"
-                << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
+                << "set xlabel 'Q_{3Heη}, MeV'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]"
                 << "set title 'pd->^3He6γ'"<<"set key right top";
     }
@@ -230,13 +230,13 @@ Fitter BWfit(const string&suffix,size_t power,const double&B,const double&G,bool
         Plot("UpperLimit-"+to_string(int(B*10))+"-"+to_string(int(G*10))+"Fit1",5)
             .Hist(Data1).Line(fit1).Line(background1)
                 <<"set key left top">>"set key right top"
-                << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
+                << "set xlabel 'Q_{3Heη}, MeV'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]"
                 << "set title 'pd->^3He2γ "+msg+"'"<<"set key right top";
         Plot("UpperLimit-"+to_string(int(B*10))+"-"+to_string(int(G*10))+"Fit2",5)
             .Hist(Data2).Line(fit2).Line(background2)
                 <<"set key left top">>"set key right top"
-                << "set xlabel 'Q, MeV'" << "set key on"<<"set xrange [-70:10]"
+                << "set xlabel 'Q_{3Heη}, MeV'" << "set key on"<<"set xrange [-70:10]"
                 << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]"
                 << "set title 'pd->^3He6γ "+msg+"'"<<"set key right top";
     }
@@ -303,17 +303,14 @@ int main()
 	    .Line(systematics,"Systematics")
 	    <<"set title 'Width = "+to_string(G.val())+" MeV'"<<"set key on"
 	    <<"set xlabel 'Peak position, MeV'"<<"set yrange [0:30]"
-	    <<"set ylabel 'Upper limit, nb'";
+	    <<"set ylabel 'σ, nb'";
 	Plot("UpperLimit-Gconst"+to_string(int(G.val()*10))+"-Parameter")
-	    .Hist_2bars<1,2>(A_hist,"Fit uncertainty","Systematics")
+	    .Hist(take_uncertainty_component<1>(A_hist),"Fit")
+	    .Line(systematics,"Systematics")
+	    .Line(upper_limit,"Upper limit")
 	    <<"set title 'Width = "+to_string(G.val())+" MeV'"<<"set key on"
 	    <<"set xlabel 'Peak position, MeV'"<<"set yrange [-1:30]"
-	    <<"set ylabel 'cross section (fit), nb'";
-	Plot("UpperLimit-Gconst"+to_string(int(G.val()*10))+"-Parameter-light")
-	    .Hist(wrap_hist(A_hist))
-	    <<"set title 'Width = "+to_string(G.val())+" MeV'"
-	    <<"set xlabel 'Peak position, MeV'"<<"set yrange [-1:30]"
-	    <<"set ylabel 'cross section (fit), nb'";
+	    <<"set ylabel 'σ, nb'";
     }
     {
 	RawSystematicError calc(params,[](const string&suffix){
