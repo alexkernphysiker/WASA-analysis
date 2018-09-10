@@ -107,23 +107,23 @@ int main()
                     },data_full);
                     const auto clean = data_full - bg,clean2=clean.XRange(x,y);
                     if(counter==2){
-                        const auto max=to_string(data_full.TransponateAndSort().right().X().max()*1.5);
+                        const auto max=to_string(data_full.TransponateAndSort().right().X().max()*1.5/1000.);
                         Plot exp_plot(Q.Contains(21) ? "He3eta-fit" : (Q.Contains(14) ? "He3eta-fit-lo":""),5);
-                        exp_plot.Hist(data_full,"Data").Hist(data_bg)
+                        exp_plot.Hist(data_full/1000.,"Data").Hist(data_bg/1000.)
                             << "set key on" << "set title '" + Qmsg + runmsg + "'"
-                            << "set xlabel '3He missing mass, GeV/c^2'"
-                            << "set ylabel 'Counts'"
-                            << "set yrange [-200:"+max+"]" << "unset log y";
+                            << "set xlabel '^3He missing mass, GeV/c^2'"
+                            << "set ylabel 'Events count, 10^3'"
+                            << "set yrange [-0.2:"+max+"]" << "unset log y";
                         const SortedPoints<> background([&FIT](double x) {return FIT({x});}, chain);
                         exp_plot.Line(background.YRange(0,INFINITY)).Hist(bg,"BG");
                         Plot subplot(Q.Contains(21) ? "He3eta-subtract" : (Q.Contains(14) ? "He3eta-subtract-lo":""),5);
-                        subplot.Hist(clean).Line(Points<>{{clean.left().X().min(), 0.0},{clean.right().X().max(), 0.0}});
-                        subplot.Hist(clean2,"DATA-BG")
+                        subplot.Hist(clean/1000.).Line(Points<>{{clean.left().X().min(), 0.0},{clean.right().X().max(), 0.0}});
+                        subplot.Hist(clean2/1000.,"DATA-BG")
                             .Line(toLine(mc*clean2.TotalSum()/mc.TotalSum()),"MC")
                             << "set key on" << "set title '" + Qmsg + runmsg + "'"
                             << "set xlabel '3He missing mass, GeV/c^2'"
-			    << "set ylabel 'Counts'"
-                            << "set yrange [-200:"+max+"]" << "unset log y";
+			    << "set ylabel 'Events count, 10^3'"
+                            << "set yrange [-0.2:"+max+"]" << "unset log y";
                     }
                     return extend_value<1,2>(clean.TotalSum()) / extend_value<2,2>(mc.TotalSum());
                 };
@@ -143,7 +143,6 @@ int main()
 
     Plot("He3eta-acceptance",5)
         .Hist(wrap_hist(acceptance.XRange(10,30)),"")
-            //<< "set title '3He+eta efficiency'"
             << "set key on" << "set xlabel 'Q_{3Heη}, MeV'"
             << "set ylabel 'Efficiency, n.d.'"
             << "set xrange [10:30]" << "set yrange [0:1]";
