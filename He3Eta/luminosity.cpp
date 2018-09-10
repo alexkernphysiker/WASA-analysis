@@ -115,7 +115,7 @@ int main()
                             << "set ylabel 'Events count, 10^3'"
                             << "set yrange [-0.2:"+max+"]" << "unset log y";
                         const SortedPoints<> background([&FIT](double x) {return FIT({x});}, chain);
-                        exp_plot.Line(background.YRange(0,INFINITY)).Hist(bg,"BG");
+                        exp_plot.Line(background.YRange(0,INFINITY)/1000.).Hist(bg/1000.,"BG");
                         Plot subplot(Q.Contains(21) ? "He3eta-subtract" : (Q.Contains(14) ? "He3eta-subtract-lo":""),5);
                         subplot.Hist(clean/1000.).Line(Points<>{{clean.left().X().min(), 0.0},{clean.right().X().max(), 0.0}});
                         subplot.Hist(clean2/1000.,"DATA-BG")
