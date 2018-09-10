@@ -235,18 +235,18 @@ int main()
                     const auto summ=subtr.XRange(120,240);
                     const SortedPoints<> simulation_curve=(toLine(data_copl.CloneEmptyBins()+data_copl_mc*summ.TotalSum()/N/acc));
                     if(counter==2){
-                        const auto max=to_string(data_copl.TransponateAndSort().right().X().max()*1.5);
+                        const auto max=to_string(data_copl.TransponateAndSort().right().X().max()*1.5/1000.);
                         Plot(Q.Contains(21) ? "ppn-v2-above-data-copl" : (Q.Contains(-39) ? "ppn-v2-below-data-copl" : ""),7)
                             .Hist(data_copl/1000.,"DATA").Hist(data_copl_bg/1000.)
                             .Hist((data_copl.CloneEmptyBins()+BG)/1000.,"BG")
                             << "set title '" + runmsg+ Qmsg + "'" <<"set key on"<< "set ylabel 'Events count, 10^3'"
-                            << "set yrange [-100:"+max+"]" << "set xlabel " + planarity<< "set xrange [90:270]"<<"set xtics 30";
+                            << "set yrange [-0.1:"+max+"]" << "set xlabel " + planarity<< "set xrange [90:270]"<<"set xtics 30";
                         Plot(Q.Contains(21) ? "ppn-v2-above-data-copl-norm" : (Q.Contains(-39) ? "ppn-v2-below-data-copl-norm" : ""),7)
                             .Hist(subtr/1000.).Hist(summ/1000.,"DATA-BG")
                             .Line(simulation_curve/1000.,"Simulation")
                             .Line(Points<>{{subtr.left().X().min(), 0.0},{subtr.right().X().max(), 0.0}})
                             << "set title 'Subtracted background'" <<"set key on"<< "set ylabel 'Events count, 10^3'"
-                            << "set yrange [-100:"+max+"]" << "set xlabel " + planarity<< "set xrange [90:270]"<<"set xtics 30";
+                            << "set yrange [-0.1:"+max+"]" << "set xlabel " + planarity<< "set xrange [90:270]"<<"set xtics 30";
                     }
                     return extend_value<1,2>(summ.TotalSum())/extend_value<2,2>(acc);
                 })();
