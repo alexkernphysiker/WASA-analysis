@@ -289,7 +289,7 @@ int main()
     const auto S2=take_uncertainty_component<1>(ev_am.XRange(10,30)-he3eta_events).TotalSum()-(take_uncertainty_component<1>(avr_bg_level)*8.0);
     Plot("He36g-events-BG",5)
     .Hist(hist<>(Points<value<>>{{S/1000.,2},{S2/1000.,1}}))
-            <<"set yrange [0:3]"<<"set ytics ('excitation\\ncurve' 1,'invariant\\nmass' 2)">>"unset ytics"
+            <<"set yrange [0:3]"<<"set ytics ('right' 1,'left' 2)">>"unset ytics"
             << "set xlabel 'Events, 10^3'" << "set xrange [0:"+to_string(S2.val()*2./1000.)+"]"
             << "set title 'pd->^3He6γ background estimation " + runmsg + "'"<<"set key off";
     Plot("He36g-events-norm-bound",5)
