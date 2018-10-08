@@ -125,6 +125,7 @@ int main()
                     << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<< "set xrange [-0.2:0.15]"
                     << "set xlabel 'IM(^3He+6γ)-IM(p+d), GeV/c^2'"<<"set ylabel 'Efficiensy, a.u.'";
     }
+    static Cache<string,hist<>> NORM;
     cout<<"========estimating background======="<<endl;
     const auto get_lh=[&histpath_central_reconstr](){
         auto lasthist=Hist(DATA, "All", histpath_central_reconstr, "TIM7-Bin-32");
@@ -132,12 +133,31 @@ int main()
             lasthist+=Hist(DATA, "All", histpath_central_reconstr, "TIM7-Bin-"+to_string(bin_cnt));
         return lasthist.Scale(4);
     };
+    const auto luminosity = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc"));
+    const auto luminosity_he = luminosity.XRange(10,30);
+    const auto branching_ratio=uncertainties(0.3257,0,0.0023);
+    const auto he3eta_cs=hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")).XRange(10,30);
+    const auto get_lh_mc=[&histpath_central_reconstr,&reaction,&luminosity,&he3eta_cs,&branching_ratio](){
+        const auto &N = NORM(reaction[3]+"_",[&histpath_central_reconstr,&reaction](){
+          return Hist(MC, reaction[3], histpath_central_reconstr, "0-Reference","_");
+        });
+        hist<> lasthist;
+        for(size_t bin_cnt=32;bin_cnt<40;bin_cnt++){
+	    auto LH=
+		(Hist(MC, reaction[3], histpath_central_reconstr, "TIM7-Bin-"+to_string(bin_cnt))/N[bin_cnt].Y())
+		*(luminosity[bin_cnt].Y()*branching_ratio).wrap()
+		*he3eta_cs[bin_cnt-32].Y()/trigger_he3_forward.scaling;
+	    if(lasthist.size()==0)lasthist=LH;
+	    else lasthist+=LH;
+	}
+        return lasthist.Scale(4);
+    };
     const auto lasthist=get_lh();
-    const auto last_top=lasthist.XRange(0.04,0.10)[0];
-    const value<> S=(last_top.Y()*0.275)/(4.0*lasthist[0].X().uncertainty());
+    const auto he3eta_hist=get_lh_mc();
+    const value<> S=lasthist.TotalSum()-he3eta_hist.TotalSum();
     Plot("He36g-tim-BG",5)
-        .Hist(lasthist)
-        .Line(Points<>{{-0.175,0.0},{last_top.X().val(),last_top.Y().val()},{0.1,0.0}},"background")
+        .Hist(lasthist,"data")
+	.Hist(he3eta_hist,"pd->^3Heη")
             << "set key on" << "set title 'Q є [10;30] MeV " + runmsg + "'" << "set yrange [0:]"<<"set ylabel 'Events, n.d.'"
             << "set xrange [-0.2:0.15]" << "set xlabel 'IM(^3He+6γ)-IM(p+d), GeV/c^2'";
     {
@@ -229,7 +249,6 @@ int main()
             cout<<Qmsg << " plots2 "<<r<<endl;
             acc[i]<<make_point(Q,RawSystematicError(params,[bin_num,&r,&histpath_central_reconstr](const string&suffix){
                 const auto MC_TIM=Hist(MC, r, histpath_central_reconstr, "TIM7-Bin-"+to_string(bin_num),suffix).XRange(-0.3,0.3);
-                static Cache<string,hist<>> NORM;
                 const auto &N = NORM(r+suffix,[&histpath_central_reconstr,&r,&suffix](){
                     return Hist(MC, r, histpath_central_reconstr, "0-Reference",suffix);
                 })[bin_num].Y();
@@ -273,20 +292,16 @@ int main()
     for (size_t i = 3; i < reaction.size(); i++) {
         accplot.Hist(wrap_hist(acc[i]), rname[i]);
     }
-    const auto luminosity_he = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYc")).XRange(10,30);
-    const auto branching_ratio=uncertainties(0.3257,0,0.0023);
     const auto he3eta_events = luminosity_he*branching_ratio*acc[3].XRange(10,30)
         *extend_hist<2,2>(hist<>(Plotter::Instance().GetPoints<value<>>("CS-He3eta-assumed")).XRange(10,30))/trigger_he3_forward.scaling;
 
-    const auto avr_bg_level=(ev_am.XRange(-70,10)).TotalSum()/32.0;
     Plot("He36g-events",5)
-    .Hist(wrap_hist(ev_am),"data").Hist(wrap_hist(he3eta_events+avr_bg_level.val()),"pd->^3Heη")
-        .Line(Points<>{{10,avr_bg_level.val()},{30,avr_bg_level.val()}})
+    .Hist(wrap_hist(ev_am),"data").Hist(wrap_hist(he3eta_events),"pd->^3Heη")
             <<"set key left top">>"set key right top"
             << "set xlabel 'Q_{3Heη}, MeV'" << "set key on"<<"set xrange [-70:30]"
             << "set ylabel 'Events, n.d.'" << "set yrange [0:]"
             << "set title 'pd->^3He6γ " + runmsg + "'"<<"set key left top";
-    const auto S2=take_uncertainty_component<1>(ev_am.XRange(10,30)-he3eta_events).TotalSum()-(take_uncertainty_component<1>(avr_bg_level)*8.0);
+    const auto S2=take_uncertainty_component<1>(ev_am.XRange(10,30)-he3eta_events).TotalSum();
     Plot("He36g-events-BG",5)
     .Hist(hist<>(Points<value<>>{{S/1000.,2},{S2/1000.,1}}))
             <<"set yrange [0:3]"<<"set ytics ('right' 1,'left' 2)">>"unset ytics"
