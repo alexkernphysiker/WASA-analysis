@@ -25,7 +25,7 @@ int main()
     auto QBins = Hist(MC, He3eta_msg, {"Histograms", "He3Forward_Reconstruction"}, "0-Reference");
     for (size_t bin_num = 0, bin_count = QBins.size(); bin_num < bin_count; bin_num++) {
         const auto &Q = QBins[bin_num].X();
-        const string Qmsg = static_cast<stringstream &>(stringstream() << "Q є [" << setprecision(3)
+        const string Qmsg = static_cast<stringstream &>(stringstream() << "Q_{3Heη} є [" << setprecision(3)
                             << Q.min() << "; " << Q.max() << "] MeV").str();
         auto kin_v = Hist2d(MC, He3eta_msg,
         {"Histograms", "He3Forward_Vertices"},
@@ -40,7 +40,7 @@ int main()
                 << "set xlabel 'E_k, GeV'"
                 << "set ylabel 'θ, deg'"
                 << "set xrange [0.2:0.4]"
-                << "set title 'Monte Caro, " + Qmsg + "'";
+                << "set title 'Monte Carlo, " + Qmsg + "'";
         auto kin_mc = Hist2d(MC, He3eta_msg,
         {"Histograms", "He3Forward_Reconstruction"},
         string("Kinematic-reconstructed-Bin-") + to_string(bin_num)
@@ -64,7 +64,7 @@ int main()
         const hist<> ymc = kin_mc.CutY(xcut), ydata = data_hist.CutY(xcut);
         Plot("",7).Hist(ymc / ymc.TotalSum().val(), "MC").Hist(ydata / ydata.TotalSum().val(), "DATA")
                 << "set key on" << "set yrange[0:0.1]" << "set ylabel 'Events, a.u.'"<<"set title'"+Qmsg+"'"
-                << "set xlabel 'θ,deg (E=" + to_string(int(xC*1000.)) + " MeV)'"<<"set xrange[4:9]";
+                << "set xlabel 'θ,deg (E_k=" + to_string(int(xC*1000.)) + " MeV)'"<<"set xrange[4:9]";
         const auto ycut = kin_mc.Y().size() / 3;
         const auto &yC = kin_mc.Y()[ycut].min();
         const hist<> xmc = kin_mc.CutX(ycut), xdata = data_hist.CutX(ycut);

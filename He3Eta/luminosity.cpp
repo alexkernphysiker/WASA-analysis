@@ -38,7 +38,7 @@ int main()
             const auto &N = norm[bin_num].Y();
             const string Qmsg =
                 static_cast<stringstream &>(stringstream()
-                    << "Q є [" << setprecision(3)
+                    << "Q_{3Heη} є [" << setprecision(3)
                     << Q.min() << "; " << Q.max() << "] MeV"
                 ).str();
             const string hist_name=string("MissingMass-Bin-") + to_string(bin_num);

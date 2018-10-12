@@ -73,7 +73,7 @@ int main()
             .Hist(eta_theta).Hist(Hist(MC, r, histpath_central_reconstr,"ET4")/N)
             .Line(Points<>{{getParameter(eta_theta_thr),0.0},{getParameter(eta_theta_thr),hist<>(eta_theta.Transponate()).right().X().max()*1.5}},"cut")
                     << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<< "set xrange [0:180]"
-                    << "set xlabel 'θ(η) reconstructed, deg'"<<"set ylabel 'Efficiensy, a.u.'";
+                    << "set xlabel 'θ(p_{γ1}+p_{γ2}) reconstructed, deg'"<<"set ylabel 'Efficiensy, a.u.'";
             const auto ggmm=Hist(MC, r, histpath_central_reconstr, "GMM4")/N;
             Plot("He3gg-ggmm-mc" + r,5)
             .Hist(ggmm).Hist(Hist(MC, r, histpath_central_reconstr, "GMM5")/N)
@@ -91,7 +91,7 @@ int main()
             Plot("He3gg-tim-mc" + r,5)
             .Hist(Hist(MC, r, histpath_central_reconstr, "TIM6-AllBins")/N)
                     << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<< "set xrange [-0.1:0.1]"
-                    << "set xlabel 'IM(^3He+2γ)-IM(p+d), GeV/c^2'"<<"set ylabel 'Efficiensy, a.u.'";
+                    << "set xlabel 'm_{3Heγγ}-m_{pd}, GeV/c^2'"<<"set ylabel 'Efficiensy, a.u.'";
     }
     {
             const auto he3mm0=Hist(DATA, "All", histpath_central_reconstr,"He3MM0")/1000.;
@@ -113,7 +113,7 @@ int main()
             .Hist(eta_theta).Hist(Hist(DATA, "All", histpath_central_reconstr,"ET4")/1000.)
             .Line(Points<>{{getParameter(eta_theta_thr),0.0},{getParameter(eta_theta_thr),hist<>(eta_theta.Transponate()).right().X().max()*1.5}},"cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [0:180]"
-                    << "set xlabel 'θ(η) reconstructed, degrees'"<<"set ylabel 'Events, 10^3'";
+                    << "set xlabel 'θ(p_{γ1}+p_{γ2}) reconstructed, degrees'"<<"set ylabel 'Events, 10^3'";
             const auto ggmm=Hist(DATA,"All", histpath_central_reconstr, "GMM4");
             Plot("He3gg-ggmm-data",5)
             .Hist(ggmm).Hist(Hist(DATA, "All", histpath_central_reconstr, "GMM5"))
@@ -163,7 +163,7 @@ int main()
             Plot("He3gg-eta-theta-data-end",5)
             .Hist(Hist(DATA, "All", histpath_central_reconstr,"ET6"),"data")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [0:180]"
-                    << "set xlabel 'θ(η) reconstructed, deg'"<<"set ylabel 'Events, n.d.'";
+                    << "set xlabel 'θ(p_{γ1}+p_{γ2}) reconstructed, deg'"<<"set ylabel 'Events, n.d.'";
     }
 
     ext_hist<2> ev_am,b_acc,ev_norm,tube_acc;
@@ -180,7 +180,7 @@ int main()
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++) {
         const auto &Q = norm[bin_num].X();
         const string Qmsg = static_cast<stringstream &>(stringstream()
-            << "Q є [" << setprecision(3)<< Q.min() << "; " << Q.max() << "] MeV").str();
+            << "Q_{3Heη} є [" << setprecision(3)<< Q.min() << "; " << Q.max() << "] MeV").str();
         for(size_t i = 0; i < reaction.size(); i++){ 
             const auto &r = reaction[i];
             cout<<Qmsg << " acceptance "<<r<<endl;

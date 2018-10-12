@@ -104,7 +104,7 @@ int main()
             .Hist(eta_theta).Hist(Hist(MC, r, histpath_central_reconstr,"ET4")/N)
             .Line(Points<>{{getParameter(eta_theta_thr),0.0},{getParameter(eta_theta_thr),hist<>(eta_theta.Transponate()).right().X().max()*1.5}},"cut")
                     << "set key on" << "set title '" + rn + "'" << "set yrange [0:]"<< "set xrange [0:180]"
-                    << "set xlabel 'θ(η) reconstructed, deg'"<<"set ylabel 'Efficiensy, a.u.'";
+                    << "set xlabel 'θ(Σ_i p_{γi}) reconstructed, deg'"<<"set ylabel 'Efficiensy, a.u.'";
             const auto ggmm=Hist(MC, r, histpath_central_reconstr, "GMM5")/N;
             Plot("He36g-6gmm-mc" + r,4)
             .Hist(ggmm).Hist(Hist(MC, r, histpath_central_reconstr, "GMM6")/N)
@@ -158,7 +158,7 @@ int main()
     Plot("He36g-tim-BG",5)
         .Hist(lasthist,"data")
 	.Hist(he3eta_hist,"pd->^3Heη")
-            << "set key on" << "set title 'Q є [10;30] MeV " + runmsg + "'" << "set yrange [0:]"<<"set ylabel 'Events, n.d.'"
+            << "set key on" << "set title 'Q_{3Heη} є [10;30] MeV " + runmsg + "'" << "set yrange [0:]"<<"set ylabel 'Events, n.d.'"
             << "set xrange [-0.2:0.15]" << "set xlabel 'IM(^3He+6γ)-IM(p+d), GeV/c^2'";
     {
             const auto cosb=Hist(DATA, "All", histpath_central_reconstr,"cosi2")
@@ -183,7 +183,7 @@ int main()
             .Hist(eta_theta).Hist(Hist(DATA, "All", histpath_central_reconstr,"ET4"))
             .Line(Points<>{{getParameter(eta_theta_thr),0.0},{getParameter(eta_theta_thr),hist<>(eta_theta.Transponate()).right().X().max()*1.5}},"cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [0:180]"
-                    << "set xlabel 'θ(η) reconstructed, deg'"<<"set ylabel 'Events, n.d.'";
+                    << "set xlabel 'θ(Σ_i p_{γi}) reconstructed, deg'"<<"set ylabel 'Events, n.d.'";
             const auto ggmm=Hist(DATA, "All", histpath_central_reconstr, "GMM5");
             Plot("He36g-6gmm-data",5)
             .Hist(ggmm).Hist(Hist(DATA, "All", histpath_central_reconstr, "GMM6"))
@@ -241,7 +241,7 @@ int main()
     for (size_t bin_num = 0, bin_count = norm.size(); bin_num < bin_count; bin_num++) {
         const auto &Q = norm[bin_num].X();
         const string Qmsg = static_cast<stringstream &>(stringstream()
-                            << "Q є [" << setprecision(3)
+                            << "Q_{3Heη} є [" << setprecision(3)
                             << Q.min() << "; " << Q.max() << "] MeV").str();
         cout<<Qmsg << " plots3 & events count "<<endl;
         for (size_t i = 0; i < reaction.size(); i++) {
