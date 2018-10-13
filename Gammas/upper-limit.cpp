@@ -301,14 +301,14 @@ int main()
 	Plot("UpperLimit-Gconst"+to_string(int(G.val()*10)))
 	    .Line(upper_limit,"Upper limit")
 	    .Line(systematics,"Systematics")
-	    <<"set title 'Width = "+to_string(G.val())+" MeV'"<<"set key on"
+	    <<"set title 'Width = "+to_string(double(int(G.val()*100.))/100.)+" MeV'"<<"set key on"
 	    <<"set xlabel 'Peak position, MeV'"<<"set yrange [0:30]"
 	    <<"set ylabel 'σ, nb'";
 	Plot("UpperLimit-Gconst"+to_string(int(G.val()*10))+"-Parameter")
 	    .Hist(take_uncertainty_component<1>(A_hist),"Fit")
 	    .Line(systematics,"Systematics")
 	    .Line(upper_limit,"Upper limit")
-	    <<"set title 'Width = "+to_string(G.val())+" MeV'"<<"set key on"
+	    <<"set title 'Width = "+to_string(double(int(G.val()*100.))/100.)+" MeV'"<<"set key on"
 	    <<"set xlabel 'Peak position, MeV'"<<"set yrange [-1:30]"
 	    <<"set ylabel 'σ, nb'";
     }
