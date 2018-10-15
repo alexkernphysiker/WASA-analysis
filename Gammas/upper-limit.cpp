@@ -226,8 +226,8 @@ Fitter BWfit(const string&suffix,size_t power,const double&B,const double&G,bool
         const auto background2=toLine(hist<>([&P](const value<>&x){return x*P[3]+P[4];},Qbins));
         const auto fit1=toLine(BW)*branching_ratio1.val()*P[0]+background1;
         const auto fit2=toLine(BW)*branching_ratio2.val()*P[0]+background2;
-	const auto BINDING=static_cast<stringstream &>(stringstream()<< setprecision(2)<< B ).str();
-	const auto GAMMA=static_cast<stringstream &>(stringstream()<< setprecision(2)<< G ).str();
+	const auto BINDING=static_cast<stringstream &>(stringstream()<< setprecision(4)<< B ).str();
+	const auto GAMMA=static_cast<stringstream &>(stringstream()<< setprecision(4)<< G ).str();
         const string msg="B="+BINDING+" MeV; Г="+GAMMA+" MeV";
         Plot("UpperLimit-"+to_string(int(B*10))+"-"+to_string(int(G*10))+"Fit1",5)
             .Hist(Data1).Line(fit1).Line(background1)
@@ -269,7 +269,7 @@ int main()
 	    const auto&A=src.ParametersWithUncertainties()[0];
 	    upper    .Bin(b,g)=A.val()+A.uncertainty()*K;
 	}
-	const auto WDTH=static_cast<stringstream &>(stringstream()<< setprecision(2)<< gamma[g].val()).str();
+	const auto WDTH=static_cast<stringstream &>(stringstream()<< setprecision(4)<< gamma[g].val()).str();
 	if(g%4==3)chisq_plot.Line(chi_sq_curve,"Width="+WDTH+" MeV");
     }
     cout<<"plotting"<<endl;
@@ -301,7 +301,7 @@ int main()
 		    <<"set ylabel 'Systematic error contribution, nb'"
 		    <<"set xlabel 'Parameter index'";
         }
-	const auto WDTH=static_cast<stringstream &>(stringstream()<< setprecision(2)<< G.val()).str();
+	const auto WDTH=static_cast<stringstream &>(stringstream()<< setprecision(4)<< G.val()).str();
 	Plot("UpperLimit-Gconst"+to_string(int(G.val()*10)))
 	    .Line(upper_limit,"Upper limit")
 	    .Line(systematics,"Systematics")
