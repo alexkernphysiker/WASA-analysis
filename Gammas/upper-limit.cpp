@@ -256,7 +256,7 @@ int main()
     });
     BiSortedPoints<value<>,value<>,value<>> chisquare(binding,gamma),upper(binding,gamma);
     cout<<"converting"<<endl;
-    Plot chisq_plot("UpperLimit-chisq-1d");
+    Plot chisq_plot("UpperLimit-chisq-1d",4);
     chisq_plot<<"set xlabel 'Peak position, MeV'"<<"set yrange [0.5:1.3]"
 	    <<"set ylabel 'χ^2/d, n.d.'"<<"set key on";
     for(size_t g=0;g<gamma.size();g++){
