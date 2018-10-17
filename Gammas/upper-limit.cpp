@@ -128,16 +128,16 @@ Fitter BGfit(const string&suffix,bool plot=false){
         const auto background1=toLine(hist<>([&P](const value<>&x){return x*P[0]+P[1];},Qbins));
         const auto background2=toLine(hist<>([&P](const value<>&x){return x*P[2]+P[3];},Qbins));
         Plot("UpperLimit-LinearFit1",5)
-            .Hist(Data1).Line(background1)
+            .Hist(Data1,"data").Line(background1,"linear")
                 <<"set key left top">>"set key right top"
                 << "set xlabel 'Q_{3Heη}, MeV'" << "set key on"<<"set xrange [-70:10]"
-                << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]"
+                << "set ylabel 'Normalized events, nb'" << "set yrange [10:50]"
                 << "set title 'pd->^3He2γ'"<<"set key right top";
         Plot("UpperLimit-LinearFit2",5)
-            .Hist(Data2).Line(background2)
+            .Hist(Data2,"data").Line(background2,"linear")
                 <<"set key left top">>"set key right top"
                 << "set xlabel 'Q_{3Heη}, MeV'" << "set key on"<<"set xrange [-70:10]"
-                << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]"
+                << "set ylabel 'Normalized events, nb'" << "set yrange [10:50]"
                 << "set title 'pd->^3He6γ'"<<"set key right top";
     }
     return FIT;
@@ -230,16 +230,16 @@ Fitter BWfit(const string&suffix,size_t power,const double&B,const double&G,bool
 	const auto GAMMA=static_cast<stringstream &>(stringstream()<< setprecision(4)<< G ).str();
         const string msg="B="+BINDING+" MeV; Г="+GAMMA+" MeV";
         Plot("UpperLimit-"+to_string(int(B*10))+"-"+to_string(int(G*10))+"Fit1",5)
-            .Hist(Data1).Line(fit1).Line(background1)
+            .Hist(Data1,"data").Line(fit1,"bg+signal").Line(background1,"bg")
                 <<"set key left top">>"set key right top"
                 << "set xlabel 'Q_{3Heη}, MeV'" << "set key on"<<"set xrange [-70:10]"
-                << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]"
+                << "set ylabel 'Normalized events, nb'" << "set yrange [10:50]"
                 << "set title 'pd->^3He2γ "+msg+"'"<<"set key right top";
         Plot("UpperLimit-"+to_string(int(B*10))+"-"+to_string(int(G*10))+"Fit2",5)
-            .Hist(Data2).Line(fit2).Line(background2)
+            .Hist(Data2,"data").Line(fit2,"bg+signal").Line(background2,"bg")
                 <<"set key left top">>"set key right top"
                 << "set xlabel 'Q_{3Heη}, MeV'" << "set key on"<<"set xrange [-70:10]"
-                << "set ylabel 'Normalized events, nb'" << "set yrange [0:60]"
+                << "set ylabel 'Normalized events, nb'" << "set yrange [10:50]"
                 << "set title 'pd->^3He6γ "+msg+"'"<<"set key right top";
     }
     return FIT;
@@ -252,7 +252,7 @@ int main()
     BiSortedPoints<value<>,value<>,Fitter> fit_results(binding,gamma,[](const ParamSet&){return 0.0;});
     cout<<"Fitting"<<endl;
     fit_results.FullCycleVar([](const value<>&B,const value<>&G,Fitter&res){
-	res=BWfit("_",1,B.val(),G.val(),G.Contains(29)||G.Contains(19)||G.Contains(9));
+	res=BWfit("_",1,B.val(),G.val(),G.Contains(39)||G.Contains(29)||G.Contains(19)||G.Contains(9));
     });
     BiSortedPoints<value<>,value<>,value<>> chisquare(binding,gamma),upper(binding,gamma);
     cout<<"converting"<<endl;
