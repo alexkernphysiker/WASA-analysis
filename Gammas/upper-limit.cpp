@@ -59,7 +59,7 @@ public:
 };
 typedef SearchMin<DifferentialMutations<>,UncertaintiesEstimation> Fitter;
 Cache<string,ext_hist<2>> DATA1,DATA2;
-const auto Qbins=BinsByStep(-67.5,2.5,0.0);
+const auto Qbins=BinsByStep(-70.0,2.5,2.5);
 Fitter BGfit(const string&suffix,bool plot=false){
     const auto&lum=LuminosityGetter::Instance().get(suffix);
     cout<<"Histogram for "<<suffix<<": "<<"data1"<<endl;
@@ -94,17 +94,15 @@ Fitter BGfit(const string&suffix,bool plot=false){
             return (extend_value<1,2>(std_error(TIM.TotalSum().val()))*trigger_he3_forward.scaling)/(ac*lum[bin_num].Y());
         },Qbins);
     });
-    const auto Data1=take_uncertainty_component<1>(data1),
-               Data2=take_uncertainty_component<1>(data2);
+    const auto Data1=take_uncertainty_component<1>(data1.XRange(-67.5,0.0)),
+               Data2=take_uncertainty_component<1>(data2.XRange(-67.5,0.0));
     cout<<"Fitting for BG"<<endl;
     Fitter FIT([Data1,Data2](const ParamSet&P){
         const auto F1=[&P](const double&x){return x*P[0]+P[1];};
         const auto F2=[&P](const double&x){return x*P[2]+P[3];};
         double res=0;
-        for(size_t i=0;i<Qbins.size();i++){
-            res+=Data1[i].Y().NumCompare(F1(Qbins[i].val()));
-            res+=Data2[i].Y().NumCompare(F2(Qbins[i].val()));
-        }
+        for(size_t i=0;i<Data1.size();i++)res+=Data1[i].Y().NumCompare(F1(Data1[i].X().val()));
+        for(size_t i=0;i<Data2.size();i++)res+=Data2[i].Y().NumCompare(F2(Data2[i].X().val()));
         return res;
     });
     FIT.SetFilter([](const ParamSet&P){
@@ -143,7 +141,10 @@ Fitter BGfit(const string&suffix,bool plot=false){
     return FIT;
 
 }
-Fitter BWfit(const string&suffix,size_t power,const double&B,const double&G,bool plot=false){
+Fitter BWfit(const string&suffix,size_t power,
+			const double&la,const double&lb,
+			const double&B,const double&G,bool plot=false
+){
     const auto&lum=LuminosityGetter::Instance().get(suffix);
     cout<<"Histogram for "<<suffix<<": "<<"data1"<<endl;
     const auto&data1=DATA1(suffix,[&suffix,&lum](){
@@ -177,10 +178,10 @@ Fitter BWfit(const string&suffix,size_t power,const double&B,const double&G,bool
             return (extend_value<1,2>(std_error(TIM.TotalSum().val()))*trigger_he3_forward.scaling)/(ac*lum[bin_num].Y());
         },Qbins);
     });
-    const auto Data1=take_uncertainty_component<1>(data1),
-               Data2=take_uncertainty_component<1>(data2);
-    cout<<"Fitting for "<<suffix<<": B="<<B<<"; G="<<G<<endl;
-    const hist<> BW([&B,&G](const value<>&Q)->value<>{return BreitWigner(Q.val(),B,G)/BreitWigner(B,B,G);},Qbins);
+    const auto Data1=take_uncertainty_component<1>(data1.XRange(-67.5+la,0.0+lb)),
+               Data2=take_uncertainty_component<1>(data2.XRange(Data1.left().X().min(),Data1.right().X().max()));
+    cout<<"Fitting for "<<suffix<<": B="<<B<<"; G="<<G<<";A="<<la<<";B="<<lb<<endl;
+    const hist<> BW([&B,&G](const value<>&Q)->value<>{return BreitWigner(Q.val(),B,G)/BreitWigner(B,B,G);},Data1);
     Fitter FIT([BW,Data1,Data2,power](const ParamSet&P){
         auto F1=BW*branching_ratio1*P[0]+[&P](const value<>&x)->value<>{return x*P[1]+P[2];};
         auto F2=BW*branching_ratio2*P[0]+[&P](const value<>&x)->value<>{return x*P[3]+P[4];};
@@ -189,7 +190,7 @@ Fitter BWfit(const string&suffix,size_t power,const double&B,const double&G,bool
 	    F2+=[&P](const value<>&x)->value<>{return x*x*P[6];};
 	}
         double res=0;
-        for(size_t i=0;i<Qbins.size();i++){
+        for(size_t i=0;i<Data1.size();i++){
             res+=Data1[i].Y().NumCompare(F1[i].Y());
             res+=Data2[i].Y().NumCompare(F2[i].Y());
         }
@@ -216,14 +217,21 @@ Fitter BWfit(const string&suffix,size_t power,const double&B,const double&G,bool
     FIT.SetUncertaintyCalcDeltas({0.1,0.001,0.1,0.001,0.1});
     const auto&P=FIT.Parameters();
     if(plot){
-        const auto background1=toLine(hist<>([&P](const value<>&x){return x*P[1]+P[2];},Qbins));
-        const auto background2=toLine(hist<>([&P](const value<>&x){return x*P[3]+P[4];},Qbins));
+        hist<> F1([&P](const value<>&x){return x*P[1]+P[2];},Data1);
+        hist<> F2([&P](const value<>&x){return x*P[3]+P[4];},Data2);
+	if(power==2){
+	    F1+=[&P](const value<>&x)->value<>{return x*x*P[5];};
+	    F2+=[&P](const value<>&x)->value<>{return x*x*P[6];};
+	}
+        const auto background1=toLine(F1);
+        const auto background2=toLine(F2);
         const auto fit1=toLine(BW)*branching_ratio1.val()*P[0]+background1;
         const auto fit2=toLine(BW)*branching_ratio2.val()*P[0]+background2;
 	const auto BINDING=static_cast<stringstream &>(stringstream()<< setprecision(4)<< B ).str();
 	const auto GAMMA=static_cast<stringstream &>(stringstream()<< setprecision(4)<< G ).str();
         const string msg="B="+BINDING+" MeV; Г="+GAMMA+" MeV";
-	const string qua=(power==2)?"Quad":"";
+	string qua=(power==2)?"Quad":"";
+	if((abs(la)>0.1)||(abs(lb)>0.1))qua=qua+"-"+to_string(int(la*10))+"_"+to_string(int(lb*10));
         Plot("UpperLimit-"+to_string(int(B*10))+"-"+to_string(int(G*10))+"Fit1"+qua,5)
             .Hist(Data1,"data").Line(fit1,"bg+signal").Line(background1,"bg")
                 <<"set key left top">>"set key right top"
@@ -243,11 +251,11 @@ const double K=1.64485;
 int main()
 {
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "bound-weighted-average");
-    const auto binding=BinsByStep(-65.0,2.5,0.0),gamma=BinsByStep(0.0,2.5,40.0);
+    const auto binding=BinsByStep(-65.0,2.5,-2.5),gamma=BinsByStep(0.0,2.5,40.0);
     BiSortedPoints<value<>,value<>,Fitter> fit_results(binding,gamma,[](const ParamSet&){return 0.0;});
     cout<<"Fitting"<<endl;
     fit_results.FullCycleVar([](const value<>&B,const value<>&G,Fitter&res){
-	res=BWfit("_",1,B.val(),G.val(),G.Contains(39)||G.Contains(29)||G.Contains(19)||G.Contains(9));
+	res=BWfit("_",1,0,0,B.val(),G.val(),G.Contains(39)||G.Contains(29)||G.Contains(19)||G.Contains(9));
     });
     BiSortedPoints<value<>,value<>,value<>> chisquare(binding,gamma),upper(binding,gamma);
     cout<<"converting"<<endl;
@@ -279,14 +287,19 @@ int main()
         SortedPoints<> upper_limit,systematics;
         for(const auto&B:binding){
 	    RawSystematicError calc(params,[&B,&G](const string&suffix){
-		return SystematicError<upper_limit_fit_power>([&B,&G,&suffix](const double&power){
-		    const auto fit=BWfit(suffix,size_t(power),B.val(),G.val(),
-			(suffix=="_")&&(size_t(power)==2)&&
-			(G.Contains(9)||G.Contains(19)||G.Contains(29)||G.Contains(39))
-		    );
-		    const auto&A=fit.ParametersWithUncertainties()[0];
-        	    return uncertainties(A.val(),A.uncertainty()*K,0.0);
-		})();
+		function<Uncertainties<2>(const double&,const double&)> func=
+			[&B,&G,&suffix](const double&power,const double&a)
+		{
+		    return SystematicError<upper_limit_right>([&B,&G,&suffix,&power,&a](const double&b){
+			const auto fit=BWfit(suffix,size_t(power),a,b,B.val(),G.val(),
+			    (suffix=="_")&&(size_t(power)==2)&&
+			    (G.Contains(9)||G.Contains(19)||G.Contains(29)||G.Contains(39))
+			);
+			const auto&A=fit.ParametersWithUncertainties()[0];
+	        	return uncertainties(A.val(),A.uncertainty()*K,0.0);
+		    })();
+		};
+		return SystematicError<upper_limit_fit_power,upper_limit_left>(func)();
 	    });
 	    const auto A=calc();
 	    A_hist<<make_point(B.val(),A);
