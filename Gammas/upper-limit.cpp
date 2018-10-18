@@ -131,13 +131,13 @@ Fitter BGfit(const string&suffix,bool plot=false){
             .Hist(Data1,"data").Line(background1,"linear")
                 <<"set key left top">>"set key right top"
                 << "set xlabel 'Q_{3Heη}, MeV'" << "set key on"<<"set xrange [-70:10]"
-                << "set ylabel 'Normalized events, nb'" << "set yrange [10:50]"
+                << "set ylabel 'Normalized events, nb'" << "set yrange [10:40]"
                 << "set title 'pd->^3He2γ'"<<"set key right top";
         Plot("UpperLimit-LinearFit2",5)
             .Hist(Data2,"data").Line(background2,"linear")
                 <<"set key left top">>"set key right top"
                 << "set xlabel 'Q_{3Heη}, MeV'" << "set key on"<<"set xrange [-70:10]"
-                << "set ylabel 'Normalized events, nb'" << "set yrange [10:50]"
+                << "set ylabel 'Normalized events, nb'" << "set yrange [15:50]"
                 << "set title 'pd->^3He6γ'"<<"set key right top";
     }
     return FIT;
@@ -229,17 +229,18 @@ Fitter BWfit(const string&suffix,size_t power,const double&B,const double&G,bool
 	const auto BINDING=static_cast<stringstream &>(stringstream()<< setprecision(4)<< B ).str();
 	const auto GAMMA=static_cast<stringstream &>(stringstream()<< setprecision(4)<< G ).str();
         const string msg="B="+BINDING+" MeV; Г="+GAMMA+" MeV";
-        Plot("UpperLimit-"+to_string(int(B*10))+"-"+to_string(int(G*10))+"Fit1",5)
+	const string qua=(power==2)?"Quad":"";
+        Plot("UpperLimit-"+to_string(int(B*10))+"-"+to_string(int(G*10))+"Fit1"+qua,5)
             .Hist(Data1,"data").Line(fit1,"bg+signal").Line(background1,"bg")
                 <<"set key left top">>"set key right top"
                 << "set xlabel 'Q_{3Heη}, MeV'" << "set key on"<<"set xrange [-70:10]"
-                << "set ylabel 'Normalized events, nb'" << "set yrange [10:50]"
+                << "set ylabel 'Normalized events, nb'" << "set yrange [10:40]"
                 << "set title 'pd->^3He2γ "+msg+"'"<<"set key right top";
-        Plot("UpperLimit-"+to_string(int(B*10))+"-"+to_string(int(G*10))+"Fit2",5)
+        Plot("UpperLimit-"+to_string(int(B*10))+"-"+to_string(int(G*10))+"Fit2"+qua,5)
             .Hist(Data2,"data").Line(fit2,"bg+signal").Line(background2,"bg")
                 <<"set key left top">>"set key right top"
                 << "set xlabel 'Q_{3Heη}, MeV'" << "set key on"<<"set xrange [-70:10]"
-                << "set ylabel 'Normalized events, nb'" << "set yrange [10:50]"
+                << "set ylabel 'Normalized events, nb'" << "set yrange [15:50]"
                 << "set title 'pd->^3He6γ "+msg+"'"<<"set key right top";
     }
     return FIT;
@@ -285,7 +286,10 @@ int main()
         for(const auto&B:binding){
 	    RawSystematicError calc(params,[&B,&G](const string&suffix){
 		return SystematicError<upper_limit_fit_power>([&B,&G,&suffix](const double&power){
-		    const auto fit=BWfit(suffix,size_t(power),B.val(),G.val(),false);
+		    const auto fit=BWfit(suffix,size_t(power),B.val(),G.val(),
+			(suffix=="_")&&(size_t(power)==2)&&
+			(G.Contains(9)||G.Contains(19)||G.Contains(29)||G.Contains(39))
+		    );
 		    const auto&A=fit.ParametersWithUncertainties()[0];
         	    return uncertainties(A.val(),A.uncertainty()*K,0.0);
 		})();
