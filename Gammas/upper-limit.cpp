@@ -180,12 +180,6 @@ Fitter BWfit(const string&suffix,size_t power,const double&B,const double&G,bool
     const auto Data1=take_uncertainty_component<1>(data1),
                Data2=take_uncertainty_component<1>(data2);
     cout<<"Fitting for "<<suffix<<": B="<<B<<"; G="<<G<<endl;
-    const auto static Q2P=[](const double&Q){
-	const auto TM=Q*0.001+Particle::eta().mass()+Particle::he3().mass();
-	const auto cm=binaryDecay(TM,Particle::p().mass(),Particle::d().mass());
-	const auto p=cm.first.Transform(cm.second.Beta());
-	return p.P().M();
-    };
     const hist<> BW([&B,&G](const value<>&Q)->value<>{return BreitWigner(Q.val(),B,G)/BreitWigner(B,B,G);},Qbins);
     Fitter FIT([BW,Data1,Data2,power](const ParamSet&P){
         auto F1=BW*branching_ratio1*P[0]+[&P](const value<>&x)->value<>{return x*P[1]+P[2];};
