@@ -255,7 +255,7 @@ int main()
     BiSortedPoints<value<>,value<>,Fitter> fit_results(binding,gamma,[](const ParamSet&){return 0.0;});
     cout<<"Fitting"<<endl;
     fit_results.FullCycleVar([](const value<>&B,const value<>&G,Fitter&res){
-	res=BWfit("_",1,0,0,B.val(),G.val(),G.Contains(39)||G.Contains(29)||G.Contains(19)||G.Contains(9));
+	res=BWfit("_",1,0,0,B.val(),G.val(),false);
     });
     BiSortedPoints<value<>,value<>,value<>> chisquare(binding,gamma),upper(binding,gamma);
     cout<<"converting"<<endl;
@@ -292,7 +292,7 @@ int main()
 		{
 		    return SystematicError<upper_limit_right>([&B,&G,&suffix,&power,&a](const double&b){
 			const auto fit=BWfit(suffix,size_t(power),a,b,B.val(),G.val(),
-			    (suffix=="_")&&(size_t(power)==2)&&
+			    (suffix=="_")&&((size_t(power)==2)||(size_t(power)==1))&&
 			    (G.Contains(9)||G.Contains(19)||G.Contains(29)||G.Contains(39))
 			);
 			const auto&A=fit.ParametersWithUncertainties()[0];
