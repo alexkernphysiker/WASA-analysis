@@ -276,17 +276,17 @@ int main()
             << "set xrange [-70:30]" << "set yrange [0:]";
     const auto prev_luminosity = ext_hist<2>(Plotter::Instance().GetPoints<value<>,Uncertainties<2>>("LUMINOSITYf"));
     const hist<> sasha=SortedPoints<double,value<>>(Plotter::Instance().GetPoints<double,value<>>("luminosity_khr"));
-    const auto hirange=to_string(wrap_hist(luminosity).TransponateAndSort().right().X().max()*1.5);
+    const auto hirange=to_string(wrap_hist(luminosity).TransponateAndSort().right().X().max()*1.75);
     Plot("luminosity-v2-compare",3)
-        .Hist_2bars<1,2>(luminosity, "ppn_{sp}","","LUMINOSITYc")
-        .Hist_2bars<1,2>(prev_luminosity,"3He+eta")
+        .Hist_2bars<1,2>(luminosity, "ppn_{sp}(stat.)","ppn_{sp}(syst.)","LUMINOSITYc")
+        .Hist_2bars<1,2>(prev_luminosity,"^3Heη(stat.)","^3Heη(syst.)")
             << "set title '" + runmsg + "'"
             << "set key on" << "set xlabel 'Q_{3Heη}, MeV'"<<"set xtics 20"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:"+hirange+"]";
     Plot("luminosity-v2-compare-light",3)
         .Hist(wrap_hist(luminosity), "ppn_{sp}")
-        .Hist(wrap_hist(prev_luminosity),"3He+eta")
+        .Hist(wrap_hist(prev_luminosity),"^3Heη")
             << "set title '" + runmsg + "'"
             << "set key on" << "set xlabel 'Q_{3Heη}, MeV'"<<"set xtics 20"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
@@ -294,7 +294,7 @@ int main()
     cout<<"luminosity: "<<luminosity.TotalSum()<<endl;
     Plot("luminosity-v2-compare-estimation",3)
         .Hist(wrap_hist(luminosity)*runs.second/runs.first, "ppn_{sp}")
-        .Hist(wrap_hist(prev_luminosity)*runs.second/runs.first, "3He+eta")
+        .Hist(wrap_hist(prev_luminosity)*runs.second/runs.first, "^3Heη")
         .Hist(sasha, "A. Khreptak")
             << "set key on" << "set xlabel 'Q_{3Heη}, MeV'"<<"set xtics 20"
             << "set ylabel 'Luminosity estimation, nb^{-1}'"
