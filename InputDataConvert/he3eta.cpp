@@ -35,9 +35,9 @@ int main()
         << "set xlabel 'p_{η,CM}, GeV/c'"<<"set xrange [0:0.2]"<<"set yrange [-0.5:0]"
         << "set title 'γ parameter'";
     Plot("bound-fermi",4)
-        .Line(Plotter::Instance().GetPoints<double,double>("bound/he3eta-pf-75-20"),"-(75,20) MeV")
-        .Line(Plotter::Instance().GetPoints<double,double>("bound/he3eta-pf-80-20"),"-(80,20) MeV")
-        .Line(Plotter::Instance().GetPoints<double,double>("bound/he3eta-pf-90-20"),"-(90,20) MeV")
+        .Line(Plotter::Instance().GetPoints<double,double>("bound/he3eta-pf-75-20"),"-(75,20) MeV","","lc rgb \"black\"")
+        .Line(Plotter::Instance().GetPoints<double,double>("bound/he3eta-pf-80-20"),"-(80,20) MeV","","lc rgb \"green\"")
+        .Line(Plotter::Instance().GetPoints<double,double>("bound/he3eta-pf-90-20"),"-(90,20) MeV","","lc rgb \"blue\"")
         <<"set title 'Fermi momentum distribution'"<<"set xrange [0:500]"<<"set key on"
         <<"set xlabel 'Momentum, GeV/c'"<<"set ylabel 'd(p), GeV^{-1}'"
 	<<"set xtics ('0' 0,'0.1' 100,'0.2' 200,'0.3' 300,'0.4' 400,'0.5' 500)"

@@ -147,11 +147,15 @@ int main()
             << "set ylabel 'Efficiency, n.d.'"
             << "set xrange [10:30]" << "set yrange [0:1]";
 
-    const auto luminosity=events_count*trigger_he3_forward.scaling/extend_hist<2,2>(cross_section.XRange(events_count.left().X().min(),events_count.right().X().max()));
+    const auto luminosity=events_count*trigger_he3_forward.scaling
+		/extend_hist<2,2>(cross_section.XRange(events_count.left().X().min(),events_count.right().X().max()));
+    const auto Luminosity=add_one_uncertainty(events_count)*trigger_he3_forward.scaling
+		/extend_hist<3,3>(cross_section.XRange(events_count.left().X().min(),events_count.right().X().max()));
     Plot("He3eta-luminosity",5)
         .Hist_2bars<1,2>(luminosity.XRange(12,30),"stat","syst","LUMINOSITYf")
             << "set title 'Integrated luminosity " + runmsg + "'"
             << "set key on" << "set xlabel 'Q_{3Heη}, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [10:30]" << "set yrange [0:]";
+    cout<<"Partial estimation:"<<Luminosity.XRange(12.5,30).TotalSum()<<endl;
 }

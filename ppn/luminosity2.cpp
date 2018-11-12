@@ -138,7 +138,7 @@ int main()
 	    << "set xrange [-25:5]"<< "set yrange [0:]"<<"set key on"
 	    << "set xlabel 'Time difference, ns'"
 	    << "set ylabel 'Events count, 10^3'";
-
+    
     Plot("ppn-v2-mm-mc",5)
         .Hist(Hist(MC, ppn_reaction, {"Histograms", "quasielastic"}, "pp_mm_3") / norm.TotalSum().val())
             << "set key on" << "set title 'Missing mass'" << "set yrange [0:]"<<"set xrange [0.5:1.5]"<<"set xtics 0.1" ;
@@ -161,6 +161,7 @@ int main()
             << "set zrange [0:]" << "set title 'Data " + runmsg + "'" << "set xlabel " + th1 << "set ylabel " + th2;
 
     ext_hist<2> lum_bc_z,lum_bc_p,lum_bc_m,acceptance,luminosity;
+    ext_hist<3> Luminosity;
     cout << "Cross sections"<<endl;
     const auto diff_cs = ReadCrossSection();
     const auto p_cs = IntegrateCrossSection(diff_cs);
@@ -250,22 +251,29 @@ int main()
                     }
                     return extend_value<1,2>(summ.TotalSum())/extend_value<2,2>(acc);
                 })();
-                return res*trigger_elastic1.scaling/extend_value<2,2>(SIGMA[bin_num].Y());
+                return res*trigger_elastic1.scaling;
             };
-            luminosity<<make_point(Q,RawSystematicError({pbeam_corr},[&LC,&Q,&lum_bc_m,&lum_bc_p,&lum_bc_z](const string&suffix){
+            const auto L=RawSystematicError({pbeam_corr},[
+				&LC,&Q,&lum_bc_m,&lum_bc_p,&lum_bc_z,&bin_num,&SIGMA
+	    ](const string&suffix){
                 const auto res=(suffix=="_")?RawSystematicError({ppn_th1,ppn_th2,ppn_t1,ppn_t2},LC)():LC(suffix);
-                if(suffix=="_")lum_bc_z<<make_point(Q,res);
-                if(suffix=="00-")lum_bc_m<<make_point(Q,res);
-                if(suffix=="00+")lum_bc_p<<make_point(Q,res);
+                if(suffix=="_")lum_bc_z<<make_point(Q,res/extend_value<2,2>(SIGMA[bin_num].Y()));
+                if(suffix=="00-")lum_bc_m<<make_point(Q,res/SIGMA[bin_num].Y().val());
+                if(suffix=="00+")lum_bc_p<<make_point(Q,res/SIGMA[bin_num].Y().val());
                 return res;
-            })());
+            })();
+            luminosity<<make_point(Q,L/extend_value<2,2>(SIGMA[bin_num].Y()));
+	    Luminosity<<make_point(Q,uncertainties(
+			L.val(),
+			L.uncertainty<1>(),L.uncertainty<2>(),0.0
+		)/extend_value<3,3>(SIGMA[bin_num].Y())
+	    );
         }
     }
     Plot("ppn-v2-acceptance",7)
         .Hist(wrap_hist(acceptance))
             << "set key on" << "set yrange [0:0.2]" << "set xrange [-70:30]"
             << "set xlabel 'Q_{3Heη}, MeV'" << "set ylabel 'Efficiency, n.d.'"<<"set xtics 20";
-
     Plot("luminosity-v2",3)
         .Hist_2bars<1,2>(lum_bc_z, "","","LUMINOSITYc_z")
         .Hist_2bars<1,2>(lum_bc_p, "","","LUMINOSITYc_p")
@@ -299,6 +307,8 @@ int main()
             << "set key on" << "set xlabel 'Q_{3Heη}, MeV'"<<"set xtics 20"
             << "set ylabel 'Luminosity estimation, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:100]";
-    cout<<"Full luminosity estimation: "<<luminosity.TotalSum()*runs.second/runs.first<<endl;
+    cout<<"Full luminosity estimation: "<<luminosity.TotalSum()<<endl;
+    cout<<"Full luminosity estimation (extended): "<<Luminosity.TotalSum()<<endl;
+    cout<<"Partial luminosity estimation: "<<Luminosity.XRange(12.5,30).TotalSum()<<endl;
 }
 
