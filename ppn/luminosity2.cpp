@@ -307,8 +307,14 @@ int main()
             << "set key on" << "set xlabel 'Q_{3Heη}, MeV'"<<"set xtics 20"
             << "set ylabel 'Luminosity estimation, nb^{-1}'"
             << "set xrange [-70:30]" << "set yrange [0:100]";
-    cout<<"Full luminosity estimation: "<<luminosity.TotalSum()<<endl;
-    cout<<"Full luminosity estimation (extended): "<<Luminosity.TotalSum()<<endl;
-    cout<<"Partial luminosity estimation: "<<Luminosity.XRange(12.5,30).TotalSum()<<endl;
+    cout<<"Full luminosity estimation: "<<luminosity.TotalSum([](Uncertainties<2>&s){s.use_maximum_estimation<2>();})<<endl;
+    cout<<"Full luminosity estimation (extended): "<<Luminosity.TotalSum([](Uncertainties<3>&s){
+                s.use_maximum_estimation<2>();
+                s.use_maximum_estimation<3>();
+        })<<endl;
+    cout<<"Partial luminosity estimation: "<<Luminosity.XRange(12.5,30).TotalSum([](Uncertainties<3>&s){
+                s.use_maximum_estimation<2>();
+                s.use_maximum_estimation<3>();
+        })<<endl;
 }
 

@@ -157,5 +157,8 @@ int main()
             << "set key on" << "set xlabel 'Q_{3Heη}, MeV'"
             << "set ylabel 'Integrated luminosity, nb^{-1}'"
             << "set xrange [10:30]" << "set yrange [0:]";
-    cout<<"Partial estimation:"<<Luminosity.XRange(12.5,30).TotalSum()<<endl;
+    cout<<"Partial estimation:"<<Luminosity.XRange(12.5,30).TotalSum([](Uncertainties<3>&s){
+		s.use_maximum_estimation<2>();
+		s.use_maximum_estimation<3>();
+	})<<endl;
 }
