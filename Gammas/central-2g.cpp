@@ -60,38 +60,38 @@ int main()
             .Line(Points<>{{getParameter(he3mm_cut),0.0},{getParameter(he3mm_cut),he3mm0.TransponateAndSort().right().X().max()*1.5}},"cut")
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM2")/N, "2γ required")
                     << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<< "set xrange [0.45:0.57]"
-                    << "set xlabel '^3He missing mass - Q_{3Heη}, GeV/c^2'"<<"set ylabel 'Efficiensy, a.u.'";
+                    << "set xlabel '^3He missing mass - Q_{3Heη}, GeV/c^2'"<<"set ylabel 'Efficiency, a.u.'";
 
             const auto ggcos=Hist(MC, r, histpath_central_reconstr,"GGcos0")/N;
             Plot("He3gg-cos-mc" + r,5)
             .Hist(ggcos).Hist(Hist(MC, r, histpath_central_reconstr,"GGcos3")/N)
             .Line(Points<>{{0.0,0.0},{0.0,hist<>(ggcos.Transponate()).right().X().max()*1.5}},"condition")
                     << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<< "set xrange [-1:1]"
-                    << "set xlabel 'cos(α_{γγ}), n.d.'"<<"set ylabel 'Efficiensy, a.u.'";
+                    << "set xlabel 'cos(α_{γγ}), n.d.'"<<"set ylabel 'Efficiency, a.u.'";
             const auto eta_theta=Hist(MC, r, histpath_central_reconstr,"ET3")/N;
             Plot("He3gg-eta-theta-mc" + r,5)
             .Hist(eta_theta).Hist(Hist(MC, r, histpath_central_reconstr,"ET4")/N)
             .Line(Points<>{{getParameter(eta_theta_thr),0.0},{getParameter(eta_theta_thr),hist<>(eta_theta.Transponate()).right().X().max()*1.5}},"cut")
                     << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<< "set xrange [0:180]"
-                    << "set xlabel 'θ(p_{γ1}+p_{γ2}) reconstructed, deg'"<<"set ylabel 'Efficiensy, a.u.'";
+                    << "set xlabel 'θ(p_{γ1}+p_{γ2}) reconstructed, deg'"<<"set ylabel 'Efficiency, a.u.'";
             const auto ggmm=Hist(MC, r, histpath_central_reconstr, "GMM4")/N;
             Plot("He3gg-ggmm-mc" + r,5)
             .Hist(ggmm).Hist(Hist(MC, r, histpath_central_reconstr, "GMM5")/N)
             .Line(Points<>{{getParameter(gamma_mm_lo),hist<>(ggmm.Transponate()).right().X().max()*1.5},{getParameter(gamma_mm_lo),0.0},
                            {getParameter(gamma_mm_hi),0.0},{getParameter(gamma_mm_hi),hist<>(ggmm.Transponate()).right().X().max()*1.5}},"cut")
                     << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<< "set xrange [2.2:3.4]"
-                    << "set xlabel '2γ missing mass, GeV/c^2'"<<"set ylabel 'Efficiensy, a.u.'";
+                    << "set xlabel '2γ missing mass, GeV/c^2'"<<"set ylabel 'Efficiency, a.u.'";
             const auto ggim=Hist(MC, r, histpath_central_reconstr, "GIM5")/N;
             Plot("He3gg-ggim-mc" + r,5)
             .Hist(ggim).Hist(Hist(MC, r, histpath_central_reconstr, "GIM6")/N)
             .Line(Points<>{{getParameter(gamma_im_lo),hist<>(ggim.Transponate()).right().X().max()*1.5},{getParameter(gamma_im_lo),0.0},
                            {getParameter(gamma_im_hi),0.0},{getParameter(gamma_im_hi),hist<>(ggim.Transponate()).right().X().max()*1.5}},"cut")
-                    << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<<"set ylabel 'Efficiensy, a.u.'"
+                    << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<<"set ylabel 'Efficiency, a.u.'"
                     << "set xlabel '2γ invariant mass - Q_{3Heη}, GeV/c^2'"<< "set xrange [0:0.8]";
             Plot("He3gg-tim-mc" + r,5)
             .Hist(Hist(MC, r, histpath_central_reconstr, "TIM6-AllBins")/N)
                     << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<< "set xrange [-0.1:0.1]"
-                    << "set xlabel 'm_{3Heγγ}-m_{pd}, GeV/c^2'"<<"set ylabel 'Efficiensy, a.u.'";
+                    << "set xlabel 'm_{3Heγγ}-m_{pd}, GeV/c^2'"<<"set ylabel 'Efficiency, a.u.'";
     }
     {
             const auto he3mm0=Hist(DATA, "All", histpath_central_reconstr,"He3MM0")/1000.;

@@ -97,33 +97,33 @@ int main()
             .Hist(he3mm0).Hist(Hist(MC, r, histpath_central_reconstr,"He3MM1")/N)
             .Line(Points<>{{getParameter(he3mm_cut),0.0},{getParameter(he3mm_cut),hist<>(he3mm0.Transponate()).right().X().max()*1.5}},"cut")
             .Hist(Hist(MC, r, histpath_central_reconstr,"He3MM2")/N, "6γ required")
-                    << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<<"set ylabel 'Efficiensy, a.u.'"
+                    << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<<"set ylabel 'Efficiency, a.u.'"
                     << "set xlabel '3He missing mass - Q_{3Heη}, GeV/c^2'"<< "set xrange [0.45:0.57]";
             const auto eta_theta=Hist(MC, r, histpath_central_reconstr,"ET3")/N;
             Plot("He36g-eta-theta-mc"+r,4)
             .Hist(eta_theta).Hist(Hist(MC, r, histpath_central_reconstr,"ET4")/N)
             .Line(Points<>{{getParameter(eta_theta_thr),0.0},{getParameter(eta_theta_thr),hist<>(eta_theta.Transponate()).right().X().max()*1.5}},"cut")
                     << "set key on" << "set title '" + rn + "'" << "set yrange [0:]"<< "set xrange [0:180]"
-                    << "set xlabel 'θ(Σ_i p_{γi}) reconstructed, deg'"<<"set ylabel 'Efficiensy, a.u.'";
+                    << "set xlabel 'θ(Σ_i p_{γi}) reconstructed, deg'"<<"set ylabel 'Efficiency, a.u.'";
             const auto ggmm=Hist(MC, r, histpath_central_reconstr, "GMM5")/N;
             Plot("He36g-6gmm-mc" + r,4)
             .Hist(ggmm).Hist(Hist(MC, r, histpath_central_reconstr, "GMM6")/N)
             .Line(Points<>{{getParameter(gamma_mm_lo),hist<>(ggmm.Transponate()).right().X().max()*1.5},{getParameter(gamma_mm_lo),0.0},
                            {getParameter(gamma_mm_hi),0.0},{getParameter(gamma_mm_hi),hist<>(ggmm.Transponate()).right().X().max()*1.5}},"cut")
-                    << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<<"set ylabel 'Efficiensy, a.u.'"
+                    << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<<"set ylabel 'Efficiency, a.u.'"
                     << "set xlabel '6γ missing mass, GeV/c^2'"<< "set xrange [2.2:3.4]";
             const auto ggim=Hist(MC, r, histpath_central_reconstr, "GIM6")/N;
             Plot("He36g-6gim-mc" + r,4)
             .Hist(ggim).Hist(Hist(MC, r, histpath_central_reconstr, "GIM7")/N)
             .Line(Points<>{{getParameter(gamma_im_lo6),hist<>(ggim.Transponate()).right().X().max()*1.5},{getParameter(gamma_im_lo6),0.0},
                 {getParameter(gamma_im_hi6),0.0},{getParameter(gamma_im_hi6),hist<>(ggim.Transponate()).right().X().max()*1.5}},"cut")
-                    << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<<"set ylabel 'Efficiensy, a.u.'"
+                    << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<<"set ylabel 'Efficiency, a.u.'"
                     << "set xlabel '6γ invariant mass - Q_{3Heη}, GeV/c^2'"<< "set xrange [0.0:1.0]";
             const auto lasthist=Hist(MC, r, histpath_central_reconstr, "TIM7-AllBins").Scale(4)/N;
             Plot("He36g-tim-mc" + r,4)
             .Hist(lasthist)
                     << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<< "set xrange [-0.2:0.15]"
-                    << "set xlabel 'IM(^3He+6γ)-IM(p+d), GeV/c^2'"<<"set ylabel 'Efficiensy, a.u.'";
+                    << "set xlabel 'IM(^3He+6γ)-IM(p+d), GeV/c^2'"<<"set ylabel 'Efficiency, a.u.'";
     }
     static Cache<string,hist<>> NORM;
     cout<<"========estimating background======="<<endl;

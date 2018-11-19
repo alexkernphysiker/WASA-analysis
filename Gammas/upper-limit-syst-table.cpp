@@ -175,9 +175,10 @@ int main()
         {
 	    const value<> B(-8.75,1.25);
 	    SortedPoints<> contrib;
-	    RawSystematicError calc(params,[&B,&G,&contrib](const string&suffix){
+	    SortedPoints<double,Uncertainties<2>> upper,lower;
+	    RawSystematicError calc(params,[&B,&G,&contrib,&upper,&lower](const string&suffix){
 		function<Uncertainties<2>(const double&,const double&)> func=
-			[&B,&G,&suffix,&contrib](const double&power,const double&a)
+			[&B,&G,&suffix,&contrib,&upper,&lower](const double&power,const double&a)
 		{
 		    SystematicError<upper_limit_right> calc3([&B,&G,&suffix,&power,&a](const double&b){
 			const auto fit=BWfit(suffix,size_t(power),a,b,B.val(),G.val(),false);
@@ -185,8 +186,11 @@ int main()
 	        	return uncertainties(A.val(),A.uncertainty()*K,0.0);
 		    });
 		    const auto res=calc3();
-		    if((suffix=="_")&&(power==1)&&(a==0))
+		    if((suffix=="_")&&(power==1)&&(a==0)){
 			contrib<<make_point(-3.,calc3.contrib()[0]);
+			upper<<make_point(-3.,calc3.upper()[0]);
+			lower<<make_point(-3.,calc3.lower()[0]);
+		    }
 		    return res;
 		};
 		SystematicError<upper_limit_fit_power,upper_limit_left> calc2(func);
@@ -194,13 +198,26 @@ int main()
 		if(suffix=="_"){
 			contrib<<make_point(-1.,calc2.contrib()[0]);
 			contrib<<make_point(-2.,calc2.contrib()[1]);
+			upper<<make_point(-1.,calc2.upper()[0]);
+			upper<<make_point(-2.,calc2.upper()[1]);
+			lower<<make_point(-1.,calc2.lower()[0]);
+			lower<<make_point(-2.,calc2.lower()[1]);
 		}
 		return res;
 	    });
 	    const auto A=calc();
-	    for(const auto p:params)contrib<<make_point(double(p),calc.contrib(p));
+	    for(const auto p:params){
+		contrib<<make_point(double(p),calc.contrib(p));
+		upper<<make_point(double(p),calc.upper(p));
+		lower<<make_point(double(p),calc.lower(p));
+	    }
 	    Plot("UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-contrib")
 		.Points(contrib,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-systematic-contribution")
+		    <<"set ylabel 'Systematic error contribution, nb'"
+		    <<"set xlabel 'Parameter index'";
+	    Plot("UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-values")
+		.Points(upper,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-systematic-upper")
+		.Points(lower,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-systematic-lower")
 		    <<"set ylabel 'Systematic error contribution, nb'"
 		    <<"set xlabel 'Parameter index'";
         }
