@@ -171,8 +171,7 @@ int main()
 {
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "bound-systematics");
     {
-	const value<> G(38.75,1.25);
-        {
+        for(const auto&G:BinsByStep(5.0,2.5,40.0)){
 	    const value<> B(-8.75,1.25);
 	    SortedPoints<> contrib;
 	    hist<> upper,lower;
@@ -213,11 +212,13 @@ int main()
 	    }
 	    Plot("UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-contrib")
 		.Points(contrib,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-systematic-contribution")
+		    <<"set title 'B = "+to_string(B.val())+"; Г="+to_string(G.val())+"'"
 		    <<"set ylabel 'Systematic error contribution, nb'"
 		    <<"set xlabel 'Parameter index'";
 	    Plot("UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-values")
 		.Hist(upper,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-systematic-upper")
 		.Hist(lower,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-systematic-lower")
+		    <<"set title 'B = "+to_string(B.val())+"; Г="+to_string(G.val())+"'"
 		    <<"set ylabel 'Fit Result, nb'"
 		    <<"set xlabel 'Parameter index'";
         }
