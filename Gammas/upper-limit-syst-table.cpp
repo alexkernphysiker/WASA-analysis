@@ -175,7 +175,7 @@ int main()
         {
 	    const value<> B(-8.75,1.25);
 	    SortedPoints<> contrib;
-	    SortedPoints<double,Uncertainties<2>> upper,lower;
+	    hist<> upper,lower;
 	    RawSystematicError calc(params,[&B,&G,&contrib,&upper,&lower](const string&suffix){
 		function<Uncertainties<2>(const double&,const double&)> func=
 			[&B,&G,&suffix,&contrib,&upper,&lower](const double&power,const double&a)
@@ -216,9 +216,9 @@ int main()
 		    <<"set ylabel 'Systematic error contribution, nb'"
 		    <<"set xlabel 'Parameter index'";
 	    Plot("UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-values")
-		.Points(upper,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-systematic-upper")
-		.Points(lower,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-systematic-lower")
-		    <<"set ylabel 'Systematic error contribution, nb'"
+		.Hist(upper,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-systematic-upper")
+		.Hist(lower,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-systematic-lower")
+		    <<"set ylabel 'Fit Result, nb'"
 		    <<"set xlabel 'Parameter index'";
         }
     }
