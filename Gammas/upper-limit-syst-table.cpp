@@ -171,13 +171,12 @@ int main()
 {
     Plotter::Instance().SetOutput(ENV(OUTPUT_PLOTS), "bound-systematics");
     {
+        const value<> B(-8.75,1.25);
         for(const auto&G:BinsByStep(5.0,2.5,40.0)){
-	    const value<> B(-8.75,1.25);
-	    SortedPoints<> contrib;
 	    hist<> upper,lower;
-	    RawSystematicError calc(params,[&B,&G,&contrib,&upper,&lower](const string&suffix){
+	    RawSystematicError calc(params,[&B,&G,&upper,&lower](const string&suffix){
 		function<Uncertainties<2>(const double&,const double&)> func=
-			[&B,&G,&suffix,&contrib,&upper,&lower](const double&power,const double&a)
+			[&B,&G,&suffix,&upper,&lower](const double&power,const double&a)
 		{
 		    SystematicError<upper_limit_right> calc3([&B,&G,&suffix,&power,&a](const double&b){
 			const auto fit=BWfit(suffix,size_t(power),a,b,B.val(),G.val(),false);
@@ -186,36 +185,27 @@ int main()
 		    });
 		    const auto res=calc3();
 		    if((suffix=="_")&&(power==1)&&(a==0)){
-			contrib<<make_point(3.,calc3.contrib()[0]);
-			upper<<make_point(3.,calc3.upper()[0]);
-			lower<<make_point(3.,calc3.lower()[0]);
+			upper<<make_point(3.,calc3.details()[0].first.changed_value);
+			lower<<make_point(3.,calc3.details()[0].second.changed_value);
 		    }
 		    return res;
 		};
 		SystematicError<upper_limit_fit_power,upper_limit_left> calc2(func);
 		const auto res=calc2();
 		if(suffix=="_"){
-			contrib<<make_point(2.,calc2.contrib()[0]);
-			contrib<<make_point(1.,calc2.contrib()[1]);
-			upper<<make_point(2.,calc2.upper()[0]);
-			upper<<make_point(1.,calc2.upper()[1]);
-			lower<<make_point(2.,calc2.lower()[0]);
-			lower<<make_point(1.,calc2.lower()[1]);
+			upper<<make_point(2.,calc2.details()[0].first.changed_value);
+			upper<<make_point(1.,calc2.details()[1].first.changed_value);
+			lower<<make_point(2.,calc2.details()[0].second.changed_value);
+			lower<<make_point(1.,calc2.details()[1].second.changed_value);
 		}
 		return res;
 	    });
 	    const auto A=calc();
 	    for(const auto p:params){
 		const auto pi=(p>5)?p:(4+p);
-		contrib<<make_point(double(pi),calc.contrib(p));
-		upper<<make_point(double(pi),calc.upper(p));
-		lower<<make_point(double(pi),calc.lower(p));
+		upper<<make_point(double(pi),calc.details().find(p)->second.first.changed_value);
+		lower<<make_point(double(pi),calc.details().find(p)->second.second.changed_value);
 	    }
-	    Plot("UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-contrib")
-		.Points(contrib,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-systematic-contribution")
-		    <<"set title 'B = "+to_string(B.val())+"; Г="+to_string(G.val())+"'"
-		    <<"set ylabel 'Systematic error contribution, nb'"
-		    <<"set xlabel 'Parameter index'";
 	    Plot("UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-values")
 		.Hist(upper,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-systematic-upper")
 		.Hist(lower,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-systematic-lower")

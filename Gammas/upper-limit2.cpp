@@ -316,15 +316,9 @@ int main()
 	const auto chisq=wrap_value(calc());
 	chisq_plot.Line(Points<>{{-70,chisq.val()},{0,chisq.val()}},"Linear fit");
 	const hist<> chisq_hist=hist<>()<<make_point(0.0,chisq);
-	SortedPoints<> contrib;
-	for(const auto p:params)contrib<<make_point(double(p),calc.contrib(p));
 	Plot("UpperLimit2-LinearFitChisq")
 	    .Hist(chisq_hist,"","LinearFitChisq")
 	    <<"set ylabel 'χ^2/d, n.d.'"
-	    <<"set xlabel 'Parameter index'";
-	Plot("UpperLimit2-LinearFitChisq-contrib")
-	    .Points(contrib,"","LinearFitChisq-systematic-contribution")
-	    <<"set ylabel 'Systematic error contribution, n.d.'"
 	    <<"set xlabel 'Parameter index'";
     }
 }
