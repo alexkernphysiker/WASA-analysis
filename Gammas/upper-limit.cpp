@@ -270,7 +270,7 @@ int main()
     	    chisquare.Bin(b,g)=chisq;
 	    chi_sq_curve<<make_point(binding[b].val(),chisq);
 	    const auto&A=src.ParametersWithUncertainties()[0];
-	    upper    .Bin(b,g)=A.val()+A.uncertainty()*K;
+	    upper    .Bin(b,g)=A.uncertainty()*K;
 	}
 	const auto WDTH=static_cast<stringstream &>(stringstream()<< setprecision(4)<< gamma[g].val()).str();
 	if(g%4==3)chisq_plot.Line(chi_sq_curve,"Width="+WDTH+" MeV");
@@ -303,26 +303,19 @@ int main()
 	    });
 	    const auto A=calc();
 	    A_hist<<make_point(B.val(),A);
-	    upper_limit<<make_point(B.val(),A.val()+A.uncertainty<1>());
+	    upper_limit<<make_point(B.val(),A.uncertainty<1>());
 	    systematics<<make_point(B.val(),A.uncertainty<2>());
-	    SortedPoints<> contrib;
-	    for(const auto p:params)contrib<<make_point(double(p),calc.contrib(p));
-	    Plot("UpperLimit-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-contrib")
-		.Points(contrib,"","UpperLimit-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-systematic-contribution")
-		    <<"set ylabel 'Systematic error contribution, nb'"
-		    <<"set xlabel 'Parameter index'";
         }
 	const auto WDTH=static_cast<stringstream &>(stringstream()<< setprecision(4)<< G.val()).str();
 	Plot("UpperLimit-Gconst"+to_string(int(G.val()*10)))
-	    .Line(upper_limit,"Upper limit")
-	    .Line(systematics,"Systematics")
+	    .Line(upper_limit,"Upper limit","","lc rgb \"blue\"")
+	    .Line(systematics,"Systematics","","lc rgb \"green\"")
 	    <<"set title 'Width = "+WDTH+" MeV'"<<"set key on"
 	    <<"set xlabel 'Peak position, MeV'"<<"set yrange [0:30]"
 	    <<"set ylabel 'σ, nb'";
 	Plot("UpperLimit-Gconst"+to_string(int(G.val()*10))+"-Parameter")
 	    .Hist(take_uncertainty_component<1>(A_hist),"Fit")
 	    .Line(systematics,"Systematics","","lc rgb \"green\"")
-	    .Line(upper_limit,"Upper limit","","lc rgb \"blue\"")
 	    <<"set title 'Width = "+WDTH+" MeV'"<<"set key on"
 	    <<"set xlabel 'Peak position, MeV'"<<"set yrange [-1:30]"
 	    <<"set ylabel 'σ, nb'";

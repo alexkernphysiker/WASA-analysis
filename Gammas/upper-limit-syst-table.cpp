@@ -186,29 +186,30 @@ int main()
 		    });
 		    const auto res=calc3();
 		    if((suffix=="_")&&(power==1)&&(a==0)){
-			contrib<<make_point(-3.,calc3.contrib()[0]);
-			upper<<make_point(-3.,calc3.upper()[0]);
-			lower<<make_point(-3.,calc3.lower()[0]);
+			contrib<<make_point(3.,calc3.contrib()[0]);
+			upper<<make_point(3.,calc3.upper()[0]);
+			lower<<make_point(3.,calc3.lower()[0]);
 		    }
 		    return res;
 		};
 		SystematicError<upper_limit_fit_power,upper_limit_left> calc2(func);
 		const auto res=calc2();
 		if(suffix=="_"){
-			contrib<<make_point(-1.,calc2.contrib()[0]);
-			contrib<<make_point(-2.,calc2.contrib()[1]);
-			upper<<make_point(-1.,calc2.upper()[0]);
-			upper<<make_point(-2.,calc2.upper()[1]);
-			lower<<make_point(-1.,calc2.lower()[0]);
-			lower<<make_point(-2.,calc2.lower()[1]);
+			contrib<<make_point(2.,calc2.contrib()[0]);
+			contrib<<make_point(1.,calc2.contrib()[1]);
+			upper<<make_point(2.,calc2.upper()[0]);
+			upper<<make_point(1.,calc2.upper()[1]);
+			lower<<make_point(2.,calc2.lower()[0]);
+			lower<<make_point(1.,calc2.lower()[1]);
 		}
 		return res;
 	    });
 	    const auto A=calc();
 	    for(const auto p:params){
-		contrib<<make_point(double(p),calc.contrib(p));
-		upper<<make_point(double(p),calc.upper(p));
-		lower<<make_point(double(p),calc.lower(p));
+		const auto pi=(p>5)?p:(4+p);
+		contrib<<make_point(double(pi),calc.contrib(p));
+		upper<<make_point(double(pi),calc.upper(p));
+		lower<<make_point(double(pi),calc.lower(p));
 	    }
 	    Plot("UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-contrib")
 		.Points(contrib,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-systematic-contribution")
@@ -218,6 +219,7 @@ int main()
 	    Plot("UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-values")
 		.Hist(upper,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-systematic-upper")
 		.Hist(lower,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-systematic-lower")
+		.Line(Points<>{{-5.,A.val()},{+20.,A.val()}},"Fit Result")
 		    <<"set title 'B = "+to_string(B.val())+"; Г="+to_string(G.val())+"'"
 		    <<"set ylabel 'Fit Result, nb'"
 		    <<"set xlabel 'Parameter index'";
