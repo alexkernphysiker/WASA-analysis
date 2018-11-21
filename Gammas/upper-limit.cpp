@@ -290,16 +290,17 @@ int main()
 		function<Uncertainties<2>(const double&,const double&)> func=
 			[&B,&G,&suffix](const double&power,const double&a)
 		{
-		    return SystematicError<upper_limit_right>([&B,&G,&suffix,&power,&a](const double&b){
+		    function<Uncertainties<2>(const double&)> F=[&B,&G,&suffix,&power,&a](const double&b){
 			const auto fit=BWfit(suffix,size_t(power),a,b,B.val(),G.val(),
 			    (suffix=="_")&&((size_t(power)==2)||(size_t(power)==1))&&
 			    (G.Contains(9)||G.Contains(19)||G.Contains(29)||G.Contains(39))
 			);
 			const auto&A=fit.ParametersWithUncertainties()[0];
 	        	return uncertainties(A.val(),A.uncertainty()*K,0.0);
-		    })();
+		    };
+		    return (suffix=="_")&&(power==1)&&(a==0)?SystematicError<upper_limit_right>(F)():F(0);
 		};
-		return SystematicError<upper_limit_fit_power,upper_limit_left>(func)();
+		return (suffix=="_")?SystematicError<upper_limit_fit_power,upper_limit_left>(func)():func(1,0);
 	    });
 	    const auto A=calc();
 	    A_hist<<make_point(B.val(),A);

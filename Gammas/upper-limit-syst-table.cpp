@@ -173,46 +173,98 @@ int main()
     {
         const value<> B(-8.75,1.25);
         for(const auto&G:BinsByStep(5.0,2.5,40.0)){
-	    hist<> upper,lower;
-	    RawSystematicError calc(params,[&B,&G,&upper,&lower](const string&suffix){
+	    hist<> upper,lower,dsigmau,dsigmal,dsigmasqu,dsigmasql,metricu,metricl;
+	    RawSystematicError calc(params,
+	    [&B,&G,&upper,&lower,&dsigmau,&dsigmal,&dsigmasqu,&dsigmasql,&metricu,&metricl](const string&suffix){
 		function<Uncertainties<2>(const double&,const double&)> func=
-			[&B,&G,&suffix,&upper,&lower](const double&power,const double&a)
-		{
-		    SystematicError<upper_limit_right> calc3([&B,&G,&suffix,&power,&a](const double&b){
-			const auto fit=BWfit(suffix,size_t(power),a,b,B.val(),G.val(),false);
-			const auto&A=fit.ParametersWithUncertainties()[0];
-	        	return uncertainties(A.val(),A.uncertainty()*K,0.0);
-		    });
-		    const auto res=calc3();
+		[&B,&G,&suffix,&upper,&lower,&dsigmau,&dsigmal,&dsigmasqu,&dsigmasql,&metricu,&metricl](const double&power,const double&a){
+                    function<Uncertainties<2>(const double&)> F=[&B,&G,&suffix,&power,&a](const double&b){
+                        const auto fit=BWfit(suffix,size_t(power),a,b,B.val(),G.val(),false);
+                        const auto&A=fit.ParametersWithUncertainties()[0];
+                        return uncertainties(A.val(),A.uncertainty()*K,0.0);
+                    };
 		    if((suffix=="_")&&(power==1)&&(a==0)){
-			upper<<make_point(3.,calc3.details()[0].first.changed_value);
-			lower<<make_point(3.,calc3.details()[0].second.changed_value);
+			SystematicError<upper_limit_right> calc3(F);
+			const auto res=calc3();
+			const auto&par_b=calc3.details()[0];
+			upper<<make_point(3.,par_b.first.changed_value);
+			lower<<make_point(3.,par_b.second.changed_value);
+			dsigmau<<make_point(3.,par_b.first.delta_sigma);
+			dsigmal<<make_point(3.,par_b.second.delta_sigma);
+			dsigmasqu<<make_point(3.,par_b.first.delta_sigma_sq);
+			dsigmasql<<make_point(3.,par_b.second.delta_sigma_sq);
+			metricu<<make_point(3.,par_b.first.delta_value/par_b.first.delta_sigma);
+			metricl<<make_point(3.,par_b.second.delta_value/par_b.second.delta_sigma);
+			return res;
 		    }
-		    return res;
+		    return F(0);
 		};
-		SystematicError<upper_limit_fit_power,upper_limit_left> calc2(func);
-		const auto res=calc2();
 		if(suffix=="_"){
-			upper<<make_point(2.,calc2.details()[0].first.changed_value);
-			upper<<make_point(1.,calc2.details()[1].first.changed_value);
-			lower<<make_point(2.,calc2.details()[0].second.changed_value);
-			lower<<make_point(1.,calc2.details()[1].second.changed_value);
+			SystematicError<upper_limit_fit_power,upper_limit_left> calc2(func);
+			const auto res=calc2();
+			const auto&par_p=calc2.details()[0];
+			upper<<make_point(1.,par_p.first.changed_value);
+			lower<<make_point(1.,par_p.second.changed_value);
+			dsigmau<<make_point(1.,par_p.first.delta_sigma);
+			dsigmal<<make_point(1.,par_p.second.delta_sigma);
+			dsigmasqu<<make_point(1.,par_p.first.delta_sigma_sq);
+			dsigmasql<<make_point(1.,par_p.second.delta_sigma_sq);
+			metricu<<make_point(1.,par_p.first.delta_value/par_p.first.delta_sigma);
+			metricl<<make_point(1.,par_p.second.delta_value/par_p.second.delta_sigma);
+
+			const auto&par_a=calc2.details()[1];
+			upper<<make_point(2.,par_a.first.changed_value);
+			lower<<make_point(2.,par_a.second.changed_value);
+			dsigmau<<make_point(2.,par_a.first.delta_sigma);
+			dsigmal<<make_point(2.,par_a.second.delta_sigma);
+			dsigmasqu<<make_point(2.,par_a.first.delta_sigma_sq);
+			dsigmasql<<make_point(2.,par_a.second.delta_sigma_sq);
+			metricu<<make_point(2.,par_a.first.delta_value/par_a.first.delta_sigma);
+			metricl<<make_point(2.,par_a.second.delta_value/par_a.second.delta_sigma);
+			return res;
 		}
-		return res;
+		return func(1,0);
 	    });
 	    const auto A=calc();
 	    for(const auto p:params){
 		const auto pi=(p>5)?p:(4+p);
-		upper<<make_point(double(pi),calc.details().find(p)->second.first.changed_value);
-		lower<<make_point(double(pi),calc.details().find(p)->second.second.changed_value);
+		const auto&par=calc.details().find(p)->second;
+		upper<<make_point(double(pi),par.first.changed_value);
+		lower<<make_point(double(pi),par.second.changed_value);
+		dsigmau<<make_point(double(pi),par.first.delta_sigma);
+		dsigmal<<make_point(double(pi),par.second.delta_sigma);
+		dsigmasqu<<make_point(double(pi),par.first.delta_sigma_sq);
+		dsigmasql<<make_point(double(pi),par.second.delta_sigma_sq);
+		metricu<<make_point(double(pi),par.first.delta_value/par.first.delta_sigma);
+		metricl<<make_point(double(pi),par.second.delta_value/par.second.delta_sigma);
 	    }
 	    Plot("UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-values")
-		.Hist(upper,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-systematic-upper")
-		.Hist(lower,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-systematic-lower")
-		.Line(Points<>{{-5.,A.val()},{+20.,A.val()}},"Fit Result")
+		.Hist(upper,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-values-upper")
+		.Hist(lower,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-values-lower")
+		.Line(Points<>{{0.,A.val()},{+20.,A.val()}},"Fit Result")
 		    <<"set title 'B = "+to_string(B.val())+"; Г="+to_string(G.val())+"'"
 		    <<"set ylabel 'Fit Result, nb'"
 		    <<"set xlabel 'Parameter index'";
+	    Plot("UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-dsigma")
+		.Hist(dsigmau,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-dsigma-upper")
+		.Hist(dsigmal,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-dsigma-lower")
+		    <<"set title 'B = "+to_string(B.val())+"; Г="+to_string(G.val())+"'"
+		    <<"set ylabel 'Δσ, nb'"
+		    <<"set xlabel 'Parameter index'";
+	    Plot("UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-dsigmasq")
+		.Hist(dsigmasqu)
+		.Hist(dsigmasql)
+		    <<"set title 'B = "+to_string(B.val())+"; Г="+to_string(G.val())+"'"
+		    <<"set ylabel 'Δσ^2, nb^2'"
+		    <<"set xlabel 'Parameter index'";
+	    Plot("UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-metric")
+		.Hist(metricu,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-metric-upper")
+		.Hist(metricl,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-metric-lower")
+		.Line(Points<>{{0.,1.},{+20.,1.}},"Fit Result")
+		    <<"set title 'B = "+to_string(B.val())+"; Г="+to_string(G.val())+"'"
+		    <<"set ylabel 'ΔA/Δσ, n.d.'"
+		    <<"set xlabel 'Parameter index'";
+
         }
     }
 }
