@@ -185,7 +185,7 @@ int main()
                     };
 		    if((suffix=="_")&&(power==1)&&(a==0)){
 			SystematicError<upper_limit_right> calc3(F);
-			const auto res=calc3();
+			const auto res=calc3(true);
 			const auto&par_b=calc3.details()[0];
 			upper<<make_point(3.,par_b.first.changed_value);
 			lower<<make_point(3.,par_b.second.changed_value);
@@ -201,7 +201,7 @@ int main()
 		};
 		if(suffix=="_"){
 			SystematicError<upper_limit_fit_power,upper_limit_left> calc2(func);
-			const auto res=calc2();
+			const auto res=calc2(true);
 			const auto&par_p=calc2.details()[0];
 			upper<<make_point(1.,par_p.first.changed_value);
 			lower<<make_point(1.,par_p.second.changed_value);
@@ -225,7 +225,7 @@ int main()
 		}
 		return func(1,0);
 	    });
-	    const auto A=calc();
+	    const auto A=calc(true);
 	    for(const auto p:params){
 		const auto pi=(p>5)?p:(4+p);
 		const auto&par=calc.details().find(p)->second;

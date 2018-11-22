@@ -123,7 +123,7 @@ int main()
             Plot("He36g-tim-mc" + r,4)
             .Hist(lasthist)
                     << "set key on" << "set title '"+rn+"'" << "set yrange [0:]"<< "set xrange [-0.2:0.15]"
-                    << "set xlabel 'IM(^3He+6γ)-IM(p+d), GeV/c^2'"<<"set ylabel 'Efficiency, a.u.'";
+                    << "set xlabel 'm_{3He+6γ}-m_{pd}, GeV/c^2'"<<"set ylabel 'Efficiency, a.u.'";
     }
     static Cache<string,hist<>> NORM;
     cout<<"========estimating background======="<<endl;
@@ -159,7 +159,7 @@ int main()
         .Hist(lasthist,"data")
 	.Hist(he3eta_hist,"pd->^3Heη")
             << "set key on" << "set title 'Q_{3Heη} є [10;30] MeV " + runmsg + "'" << "set yrange [0:]"<<"set ylabel 'Events, n.d.'"
-            << "set xrange [-0.2:0.15]" << "set xlabel 'IM(^3He+6γ)-IM(p+d), GeV/c^2'";
+            << "set xrange [-0.2:0.15]" << "set xlabel 'm_{3He+6γ}-m_{pd}, GeV/c^2'";
     {
             const auto cosb=Hist(DATA, "All", histpath_central_reconstr,"cosi2")
                         +Hist(DATA, "All", histpath_central_reconstr,"cosj2")
@@ -202,7 +202,7 @@ int main()
             Plot("He36g-tim-data",5)
                 .Hist(tim_hist)
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<<"set ylabel 'Events, n.d.'"
-                    << "set xrange [-0.2:0.15]" << "set xlabel 'IM(^3He+6γ)-IM(p+d), GeV/c^2'";
+                    << "set xrange [-0.2:0.15]" << "set xlabel 'm_{3He+6γ}-m_{pd}, GeV/c^2'";
 
             const auto DT=Hist(DATA, "All", histpath_central_reconstr, "dt2");
             const auto T=Hist(DATA, "All", histpath_central_reconstr, "t2");

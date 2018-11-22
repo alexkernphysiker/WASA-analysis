@@ -298,11 +298,11 @@ int main()
 			const auto&A=fit.ParametersWithUncertainties()[0];
 	        	return uncertainties(A.val(),A.uncertainty()*K,0.0);
 		    };
-		    return (suffix=="_")&&(power==1)&&(a==0)?SystematicError<upper_limit_right>(F)():F(0);
+		    return (suffix=="_")&&(power==1)&&(a==0)?SystematicError<upper_limit_right>(F)(true):F(0);
 		};
-		return (suffix=="_")?SystematicError<upper_limit_fit_power,upper_limit_left>(func)():func(1,0);
+		return (suffix=="_")?SystematicError<upper_limit_fit_power,upper_limit_left>(func)(true):func(1,0);
 	    });
-	    const auto A=calc();
+	    const auto A=calc(true);
 	    A_hist<<make_point(B.val(),A);
 	    upper_limit<<make_point(B.val(),A.uncertainty<1>());
 	    systematics<<make_point(B.val(),A.uncertainty<2>());
