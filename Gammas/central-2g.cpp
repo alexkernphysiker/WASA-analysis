@@ -132,7 +132,7 @@ int main()
             Plot("He3gg-tim-data",5)
             .Hist(Hist(DATA, "All", histpath_central_reconstr, "TIM6-AllBins"))
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [-0.1:0.1]"
-                     << "set xlabel 'IM(^3He+2γ)-IM(p+d), GeV/c^2'"<<"set ylabel 'Events, n.d.'";
+                     << "set xlabel 'm_{3Heγγ}-m_{pd}, GeV/c^2'"<<"set ylabel 'Events, n.d.'";
 
             const auto DT=Hist(DATA, "All", histpath_central_reconstr, "dt00")/1000.;
             Plot("He3gg-dt-data",5)
