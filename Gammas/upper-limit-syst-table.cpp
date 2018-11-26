@@ -133,7 +133,7 @@ Fitter BWfit(const string&suffix,size_t power,
         << FIT.Optimality() << "<chi^2<"
         << FIT.Optimality(FIT.PopulationSize() - 1)
         << endl;
-    FIT.SetUncertaintyCalcDeltas({0.1,0.001,0.1,0.001,0.1});
+    FIT.SetUncertaintyCalcDeltas({0.01,0.001,0.01,0.001,0.01});
     const auto&P=FIT.Parameters();
     if(plot){
         hist<> F1([&P](const value<>&x){return x*P[1]+P[2];},Data1);
@@ -174,17 +174,17 @@ int main()
         const value<> B(-8.75,1.25);
         for(const auto&G:BinsByStep(5.0,2.5,40.0)){
 	    hist<> upper,lower,dsigmau,dsigmal,dsigmasqu,dsigmasql,metricu,metricl;
-	    RawSystematicError calc(params,
+	    RawSystematicError2 calc(params,
 	    [&B,&G,&upper,&lower,&dsigmau,&dsigmal,&dsigmasqu,&dsigmasql,&metricu,&metricl](const string&suffix){
-		function<Uncertainties<2>(const double&,const double&)> func=
+		function<Uncertainties<3>(const double&,const double&)> func=
 		[&B,&G,&suffix,&upper,&lower,&dsigmau,&dsigmal,&dsigmasqu,&dsigmasql,&metricu,&metricl](const double&power,const double&a){
-                    function<Uncertainties<2>(const double&)> F=[&B,&G,&suffix,&power,&a](const double&b){
+                    function<Uncertainties<3>(const double&)> F=[&B,&G,&suffix,&power,&a](const double&b){
                         const auto fit=BWfit(suffix,size_t(power),a,b,B.val(),G.val(),false);
                         const auto&A=fit.ParametersWithUncertainties()[0];
-                        return uncertainties(A.val(),A.uncertainty()*K,0.0);
+                        return uncertainties(A.val(),A.uncertainty(),0.0);
                     };
 		    if((suffix=="_")&&(power==1)&&(a==0)){
-			SystematicError<upper_limit_right> calc3(F);
+			SystematicError2<upper_limit_right> calc3(F);
 			const auto res=calc3(true);
 			const auto&par_b=calc3.details()[0];
 			upper<<make_point(3.,par_b.first.changed_value);
@@ -200,7 +200,7 @@ int main()
 		    return F(0);
 		};
 		if(suffix=="_"){
-			SystematicError<upper_limit_fit_power,upper_limit_left> calc2(func);
+			SystematicError2<upper_limit_fit_power,upper_limit_left> calc2(func);
 			const auto res=calc2(true);
 			const auto&par_p=calc2.details()[0];
 			upper<<make_point(1.,par_p.first.changed_value);
@@ -243,26 +243,26 @@ int main()
 		.Hist(lower,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-values-lower")
 		.Line(Points<>{{0.,A.val()},{+20.,A.val()}},"Fit Result")
 		    <<"set title 'B = "+to_string(B.val())+"; Г="+to_string(G.val())+"'"
-		    <<"set ylabel 'Fit Result, nb'"
+		    <<"set ylabel 'σ_{fit}, nb'"
 		    <<"set xlabel 'Parameter index'";
 	    Plot("UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-dsigma")
 		.Hist(dsigmau,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-dsigma-upper")
 		.Hist(dsigmal,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-dsigma-lower")
 		    <<"set title 'B = "+to_string(B.val())+"; Г="+to_string(G.val())+"'"
-		    <<"set ylabel 'Δσ, nb'"
+		    <<"set ylabel 'Δ(Δσ^{stat}), nb'"
 		    <<"set xlabel 'Parameter index'";
 	    Plot("UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-dsigmasq")
 		.Hist(dsigmasqu)
 		.Hist(dsigmasql)
 		    <<"set title 'B = "+to_string(B.val())+"; Г="+to_string(G.val())+"'"
-		    <<"set ylabel 'Δσ^2, nb^2'"
+		    <<"set ylabel 'Δ(Δσ^{stat})^2, nb^2'"
 		    <<"set xlabel 'Parameter index'";
 	    Plot("UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-metric")
 		.Hist(metricu,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-metric-upper")
 		.Hist(metricl,"","UpperLimitSystematic-"+to_string(int(B.val()*10))+"-"+to_string(int(G.val()*10))+"-metric-lower")
 		.Line(Points<>{{0.,1.},{+20.,1.}},"Fit Result")
 		    <<"set title 'B = "+to_string(B.val())+"; Г="+to_string(G.val())+"'"
-		    <<"set ylabel 'ΔA/Δσ, n.d.'"
+		    <<"set ylabel '|σ^{changed}-σ^{final}|/Δ(Δσ^{stat}), n.d.'"
 		    <<"set xlabel 'Parameter index'";
 
         }

@@ -283,42 +283,48 @@ int main()
 	<<"set xlabel 'Peak position, MeV'"<<"set ylabel 'Width, MeV'"
 	<<"set title 'Upper limit, nb'";
     for(const auto&G:gamma){
-        ext_hist<2> A_hist;
-        SortedPoints<> upper_limit,systematics;
+        ext_hist<3> A_hist;
+        SortedPoints<> upper_limit,lower_limit,systematics1,systematics2;
         for(const auto&B:binding){
-	    RawSystematicError calc(params,[&B,&G](const string&suffix){
-		function<Uncertainties<2>(const double&,const double&)> func=
+	    RawSystematicError2 calc(params,[&B,&G](const string&suffix){
+		function<Uncertainties<3>(const double&,const double&)> func=
 			[&B,&G,&suffix](const double&power,const double&a)
 		{
-		    function<Uncertainties<2>(const double&)> F=[&B,&G,&suffix,&power,&a](const double&b){
+		    function<Uncertainties<3>(const double&)> F=[&B,&G,&suffix,&power,&a](const double&b){
 			const auto fit=BWfit(suffix,size_t(power),a,b,B.val(),G.val(),
 			    (suffix=="_")&&((size_t(power)==2)||(size_t(power)==1))&&
 			    (G.Contains(9)||G.Contains(19)||G.Contains(29)||G.Contains(39))
 			);
 			const auto&A=fit.ParametersWithUncertainties()[0];
-	        	return uncertainties(A.val(),A.uncertainty()*K,0.0);
+	        	return uncertainties(A.val(),A.uncertainty(),0.0,0.0);
 		    };
-		    return (suffix=="_")&&(power==1)&&(a==0)?SystematicError<upper_limit_right>(F)(true):F(0);
+		    return (suffix=="_")&&(power==1)&&(a==0)?SystematicError2<upper_limit_right>(F)(true):F(0);
 		};
-		return (suffix=="_")?SystematicError<upper_limit_fit_power,upper_limit_left>(func)(true):func(1,0);
+		return (suffix=="_")?SystematicError2<upper_limit_fit_power,upper_limit_left>(func)(true):func(1,0);
 	    });
 	    const auto A=calc(true);
 	    A_hist<<make_point(B.val(),A);
-	    upper_limit<<make_point(B.val(),A.uncertainty<1>());
-	    systematics<<make_point(B.val(),A.uncertainty<2>());
+	    upper_limit<<make_point(B.val(),A.val()+A.uncertainty<1>()*K);
+	    lower_limit<<make_point(B.val(),A.val()-A.uncertainty<1>()*K);
+	    systematics1<<make_point(B.val(),A.val()-A.uncertainty<2>());
+	    systematics2<<make_point(B.val(),A.val()+A.uncertainty<3>());
         }
 	const auto WDTH=static_cast<stringstream &>(stringstream()<< setprecision(4)<< G.val()).str();
 	Plot("UpperLimit-Gconst"+to_string(int(G.val()*10)))
 	    .Line(upper_limit,"Upper limit","","lc rgb \"blue\"")
-	    .Line(systematics,"Systematics","","lc rgb \"green\"")
+	    .Line(systematics1,"Systematics","","lc rgb \"green\"")
+	    .Line(systematics2,"Systematics","","lc rgb \"green\"")
 	    <<"set title 'Width = "+WDTH+" MeV'"<<"set key on"
-	    <<"set xlabel 'Peak position, MeV'"<<"set yrange [0:30]"
+	    <<"set xlabel 'Peak position, MeV'"<<"set yrange [0:20]"
 	    <<"set ylabel 'σ, nb'";
 	Plot("UpperLimit-Gconst"+to_string(int(G.val()*10))+"-Parameter")
-	    .Hist(take_uncertainty_component<1>(A_hist),"Fit")
-	    .Line(systematics,"Systematics","","lc rgb \"green\"")
+	    .Hist(take_uncertainty_component<1>(A_hist).Transform([](const value<>&,const value<>&Y){return Y.make_wider(K);}),"Fit")
+	    .Line(upper_limit,"Stat. CL=90%","","lc rgb \"blue\"")
+	    .Line(lower_limit,"","","lc rgb \"blue\"")
+	    .Line(systematics1,"Systematics","","lc rgb \"green\"")
+	    .Line(systematics2,"","","lc rgb \"green\"")
 	    <<"set title 'Width = "+WDTH+" MeV'"<<"set key on"
-	    <<"set xlabel 'Peak position, MeV'"<<"set yrange [-1:30]"
+	    <<"set xlabel 'Peak position, MeV'"<<"set yrange [-1:20]"
 	    <<"set ylabel 'σ, nb'";
     }
     {
