@@ -270,7 +270,7 @@ int main()
     	    chisquare.Bin(b,g)=chisq;
 	    chi_sq_curve<<make_point(binding[b].val(),chisq);
 	    const auto&A=src.ParametersWithUncertainties()[0];
-	    upper    .Bin(b,g)=A.uncertainty()*K;
+	    upper    .Bin(b,g)=A.val()+A.uncertainty()*K;
 	}
 	const auto WDTH=static_cast<stringstream &>(stringstream()<< setprecision(4)<< gamma[g].val()).str();
 	if(g%4==3)chisq_plot.Line(chi_sq_curve,"Width="+WDTH+" MeV");
@@ -305,8 +305,8 @@ int main()
 	    const auto A=calc(true);
 	    A_hist<<make_point(B.val(),A);
 	    upper_limit<<make_point(B.val(),A.val()+A.uncertainty<1>()*K);
-	    lower_limit<<make_point(B.val(),A.val()-A.uncertainty<1>()*K);
-	    systematics1<<make_point(B.val(),A.val()-A.uncertainty<2>());
+	    lower_limit<<make_point(B.val(),(A.val()-A.uncertainty<1>()*K>0)?A.val()-A.uncertainty<1>()*K:0.0);
+	    systematics1<<make_point(B.val(),(A.val()-A.uncertainty<2>()>0)?A.val()-A.uncertainty<2>():0.0);
 	    systematics2<<make_point(B.val(),A.val()+A.uncertainty<3>());
         }
 	const auto WDTH=static_cast<stringstream &>(stringstream()<< setprecision(4)<< G.val()).str();
@@ -318,7 +318,7 @@ int main()
 	    <<"set xlabel 'Peak position, MeV'"<<"set yrange [0:20]"
 	    <<"set ylabel 'σ, nb'";
 	Plot("UpperLimit-Gconst"+to_string(int(G.val()*10))+"-Parameter")
-	    .Hist(take_uncertainty_component<1>(A_hist).Transform([](const value<>&,const value<>&Y){return Y.make_wider(K);}),"Fit")
+	    .Hist(take_uncertainty_component<1>(A_hist),"Fit resut")
 	    .Line(upper_limit,"Stat. CL=90%","","lc rgb \"blue\"")
 	    .Line(lower_limit,"","","lc rgb \"blue\"")
 	    .Line(systematics1,"Systematics","","lc rgb \"green\"")
