@@ -113,7 +113,7 @@ int main()
             .Hist(eta_theta).Hist(Hist(DATA, "All", histpath_central_reconstr,"ET4")/1000.)
             .Line(Points<>{{getParameter(eta_theta_thr),0.0},{getParameter(eta_theta_thr),hist<>(eta_theta.Transponate()).right().X().max()*1.5}},"cut")
                     << "set key on" << "set title 'Data " + runmsg + "'" << "set yrange [0:]"<< "set xrange [0:180]"
-                    << "set xlabel 'θ(p_{γ1}+p_{γ2}) reconstructed, degrees'"<<"set ylabel 'Events, 10^3'";
+                    << "set xlabel 'θ(p_{γ1}+p_{γ2}) reconstructed, deg'"<<"set ylabel 'Events, 10^3'";
             const auto ggmm=Hist(DATA,"All", histpath_central_reconstr, "GMM4");
             Plot("He3gg-ggmm-data",5)
             .Hist(ggmm).Hist(Hist(DATA, "All", histpath_central_reconstr, "GMM5"))
@@ -236,12 +236,12 @@ int main()
     accplot << "set title 'pd->^3He2γ'"
         << "set xlabel 'Q_{3Heη}, MeV'"
         << "set ylabel 'Efficiency, n.d.'"
-        << "set yrange [0:0.4]" << "set xrange [-70:30]"
+        << "set yrange [0:0.45]" << "set xrange [-70:30]"
         << "set key on";
     accplot2 << "set title 'Background'"
         << "set xlabel 'Q_{3Heη}, MeV'"
         << "set ylabel 'Efficiency, n.d.'"
-        << "set yrange [0:0.005]" << "set xrange [-70:30]"
+        << "set yrange [0:0.006]" << "set xrange [-70:30]"
         << "set key on";
     accplot.Hist(wrap_hist(b_acc), rname[0]);
     accplot.Hist(wrap_hist(acc[3]), rname[3]);
