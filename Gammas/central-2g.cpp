@@ -236,7 +236,7 @@ int main()
     accplot << "set title 'pd->^3He2γ'"
         << "set xlabel 'Q_{3Heη}, MeV'"
         << "set ylabel 'Efficiency, n.d.'"
-        << "set yrange [0:0.45]" << "set xrange [-70:30]"
+        << "set yrange [0:0.5]" << "set xrange [-70:30]"
         << "set key on";
     accplot2 << "set title 'Background'"
         << "set xlabel 'Q_{3Heη}, MeV'"
