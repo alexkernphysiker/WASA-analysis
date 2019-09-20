@@ -1,9 +1,9 @@
 [submodule "math_h"]
 	path = math_h
-	url = ../math_h.git
+	url = ../../alexkernphysiker/math_h.git
 [submodule "FitGen"]
 	path = FitGen
-	url = ../FitGen.git
+	url = ../../alexkernphysiker/FitGen.git
 [submodule "WASA-libs"]
 	path = WASA-libs
-	url = ../WASA-libs.git
+	url = ../../alexkernphysiker/WASA-libs.git
